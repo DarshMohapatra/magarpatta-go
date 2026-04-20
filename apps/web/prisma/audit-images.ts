@@ -2,25 +2,22 @@ import { PrismaClient } from '@prisma/client';
 
 async function main() {
   const p = new PrismaClient();
-  const items = await p.product.findMany({ orderBy: { name: 'asc' }, select: { name: true, imageUrl: true } });
+  const items = await p.product.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, imageUrl: true } });
 
   // Products with clearly wrong images — null them out so the glyph renders.
   const KNOWN_WRONG = new Set([
-    'Crocin 500 Advance',           // molecular structure
-    'Paracetamol 650mg',            // molecular/psychoactive — both wrong
-    'Harpic Bathroom Cleaner',      // vacuum cleaner
-    'Chicken Breast (Boneless)',    // live chickens in market
-    'Chicken Keema',                // sausage making, not keema
-    'Maggi Noodles Multipack',      // just the logo
+    'Crocin 500 Advance',
+    'Paracetamol 650mg',
+    'Harpic Bathroom Cleaner',
+    'Chicken Breast (Boneless)',
+    'Chicken Keema',
+    'Maggi Noodles Multipack',
   ]);
 
   let nulled = 0;
   for (const it of items) {
     if (KNOWN_WRONG.has(it.name) && it.imageUrl) {
-      await p.product.update({ where: { name: it.name } as { name: string }, data: { imageUrl: null } }).catch(async () => {
-        const prod = await p.product.findFirst({ where: { name: it.name } });
-        if (prod) await p.product.update({ where: { id: prod.id }, data: { imageUrl: null } });
-      });
+      await p.product.update({ where: { id: it.id }, data: { imageUrl: null } });
       nulled++;
     }
   }
@@ -38,7 +35,7 @@ async function main() {
     const tail = cleaned ? cleaned.split('/').slice(-2).join('/').slice(0, 55) : '';
     console.log(`  ${src}${i.name.padEnd(32)} ${tail}`);
   }
-  console.log(`\n✅ ${nulled} wrong images cleared to glyph.`);
+  console.log(`\nOK ${nulled} wrong images cleared to glyph.`);
   await p.$disconnect();
 }
 

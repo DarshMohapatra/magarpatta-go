@@ -7,9 +7,9 @@ import { AccountMenu } from './account-menu';
 
 const LINKS = [
   { href: '/menu', label: 'Menu' },
-  { href: '/#how', label: 'How it works' },
-  { href: '/#partners', label: 'Partners' },
-  { href: '/#why', label: 'Why us' },
+  { href: '/home#how', label: 'How it works' },
+  { href: '/home#partners', label: 'Partners' },
+  { href: '/home#why', label: 'Why us' },
 ];
 
 export function Navbar() {

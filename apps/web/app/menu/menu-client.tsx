@@ -76,9 +76,8 @@ export function MenuClient({
               )}
             </h1>
             <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
-              Sourced only from Destination Centre, Seasons Mall, Kalika Sweets, and your
-              Magarpatta pharmacy + meat shop. MRP-honoured on packaged goods; +₹1 hyper-local
-              markup only on loose / prepared items.
+              Sourced only from Destination Centre, Kalika Sweets, your Magarpatta pharmacy, and
+              your meat shop. Seasons Mall partners (Starbucks, Baker&rsquo;s Basket) coming in a later drop.
             </p>
           </div>
         </div>

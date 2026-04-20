@@ -35,7 +35,6 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   const decrement = useCart((s) => s.decrement);
   const [imgError, setImgError] = useState(false);
 
-  const showMarkup = !product.isRegulated && product.mrpInr && product.priceInr > product.mrpInr;
   const showImage = product.imageUrl && !imgError;
 
   return (
@@ -97,21 +96,9 @@ export function ProductCard({ product }: { product: ProductCardData }) {
 
         <div className="mt-3 flex items-end justify-between gap-3">
           <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-serif text-[22px] text-[color:var(--color-ink)]">
-                ₹{product.priceInr}
-              </span>
-              {showMarkup && product.mrpInr && (
-                <span className="text-[11px] text-[color:var(--color-ink-soft)]/60">
-                  MRP ₹{product.mrpInr}
-                </span>
-              )}
-            </div>
-            {product.isRegulated && (
-              <div className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/55">
-                sold at MRP
-              </div>
-            )}
+            <span className="font-serif text-[22px] text-[color:var(--color-ink)]">
+              ₹{product.priceInr}
+            </span>
           </div>
 
           {item ? (

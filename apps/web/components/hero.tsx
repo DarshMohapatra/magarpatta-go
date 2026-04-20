@@ -47,7 +47,7 @@ export function Hero() {
                 >
                   Create an account
                 </a>
-                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">48 items live · 16 societies</span>
+                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">40 items live · 16 societies</span>
               </div>
               <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)]/70 max-w-xl">
                 We deliver <span className="font-medium text-[color:var(--color-ink)]">only</span>{' '}
@@ -66,7 +66,7 @@ export function Hero() {
             { v: '16', l: 'societies mapped' },
             { v: '25', l: 'min median delivery' },
             { v: '4', l: 'rider fleet · Phase 1' },
-            { v: '₹1', l: 'markup on non-MRP · transparent' },
+            { v: '6', l: 'partner shops · Magarpatta' },
           ].map((s) => (
             <div key={s.l}>
               <div className="font-serif text-5xl lg:text-[56px] leading-none text-[color:var(--color-forest)]">
