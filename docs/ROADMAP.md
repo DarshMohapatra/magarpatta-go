@@ -158,7 +158,7 @@ Competitors structurally cannot copy these because they don't live here.
 - **RL dispatch** (PPO) trained in simulation on historical Magarpatta trajectories. Shadow-mode against OR-Tools ≥8 weeks before any live traffic.
 - **Causal uplift** for promos — target only residents where uplift > cost.
 - **Vendor counter vision** — optional YOLO on cheap cameras for auto-verifying order contents before pickup (kills mis-pack disputes).
-- **LLM support agent** (Claude Sonnet 4.6) with tool-use over order state. Target 70% auto-resolution. Read-scoped tools until accuracy proven.
+- **LLM support agent** with tool-use over order state. Target 70% auto-resolution. Read-scoped tools until accuracy proven.
 - **Graph recommendations** — bipartite (user, item) + "lives-in-tower" edges; GraphSAGE.
 
 ### 3.3 Moonshots
