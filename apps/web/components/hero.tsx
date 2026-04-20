@@ -31,7 +31,25 @@ export function Hero() {
 
             <div className="mt-8 lg:mt-10">
               <TowerSelect />
-              <p className="mt-3 text-[12.5px] text-[color:var(--color-ink-soft)]/70 max-w-xl">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <a
+                  href="/menu"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
+                >
+                  Browse the menu
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </a>
+                <a
+                  href="/signup"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] text-[color:var(--color-ink)] hover:border-[color:var(--color-forest)]/40 transition-colors"
+                >
+                  Create an account
+                </a>
+                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">48 items live · 16 societies</span>
+              </div>
+              <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)]/70 max-w-xl">
                 We deliver <span className="font-medium text-[color:var(--color-ink)]">only</span>{' '}
                 inside Magarpatta City. Addresses outside the geofence are politely declined.
               </p>

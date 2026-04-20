@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { ConfirmationResult } from 'firebase/auth';
+import { sendPhoneOtp, resetRecaptcha } from '@/lib/firebase-phone';
 import { cn } from '@/lib/utils';
 
 const LEN = 6;
@@ -14,6 +16,7 @@ export function VerifyClient() {
   const [error, setError] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(30);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('mg_phone');
@@ -22,6 +25,13 @@ export function VerifyClient() {
       return;
     }
     setPhone(saved);
+    // Pick up the confirmation handoff from the previous screen.
+    if (typeof window !== 'undefined' && window.__mgConfirmation) {
+      confirmationRef.current = window.__mgConfirmation;
+    } else {
+      router.replace('/signin');
+      return;
+    }
     refs.current[0]?.focus();
   }, [router]);
 
@@ -60,26 +70,43 @@ export function VerifyClient() {
   async function submit(finalCode?: string) {
     const toVerify = finalCode ?? code;
     if (toVerify.length !== LEN) return;
+    if (!confirmationRef.current) {
+      setError('Session expired. Please request a new code.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const credential = await confirmationRef.current.confirm(toVerify);
+      const idToken = await credential.user.getIdToken();
+
+      const res = await fetch('/api/auth/firebase-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code: toVerify }),
+        body: JSON.stringify({ idToken }),
       });
       const data = await res.json();
       if (!data.ok) {
-        setError(data.error ?? 'Incorrect code');
+        setError(data.error ?? 'Session failed');
         setDigits(Array(LEN).fill(''));
         refs.current[0]?.focus();
-        setLoading(false);
         return;
       }
       sessionStorage.removeItem('mg_phone');
-      router.push('/');
-    } catch {
-      setError('Network error. Try again.');
+      delete window.__mgConfirmation;
+      router.push('/menu');
+    } catch (e) {
+      const msg = (e as Error).message;
+      setError(
+        msg.includes('invalid-verification-code')
+          ? 'Incorrect code'
+          : msg.includes('code-expired')
+            ? 'Code expired. Request a new one.'
+            : `Verification failed: ${msg}`,
+      );
+      setDigits(Array(LEN).fill(''));
+      refs.current[0]?.focus();
+    } finally {
       setLoading(false);
     }
   }
@@ -92,15 +119,21 @@ export function VerifyClient() {
   async function resend() {
     if (resendIn > 0) return;
     setResendIn(30);
-    await fetch('/api/auth/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    });
+    setError(null);
+    resetRecaptcha('recaptcha-container-verify');
+    try {
+      const confirmation = await sendPhoneOtp(`+91${phone}`, 'recaptcha-container-verify');
+      confirmationRef.current = confirmation;
+      window.__mgConfirmation = confirmation;
+    } catch (e) {
+      setError(`Could not resend: ${(e as Error).message}`);
+    }
   }
 
   return (
     <div className="space-y-6">
+      <div id="recaptcha-container-verify" />
+
       <p className="text-[13.5px] text-[color:var(--color-ink-soft)]">
         Code sent to <span className="font-medium text-[color:var(--color-ink)]">+91 {phone}</span>
         {' · '}

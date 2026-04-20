@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(cuid())
+  phone       String        @unique // 10-digit Indian mobile, no +91 prefix
+  firebaseUid String?       @unique
+  name        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  addresses   UserAddress[]
+
+  @@index([phone])
+}
+
+model UserAddress {
+  id        String   @id @default(cuid())
+  userId    String
+  society   String
+  building  String
+  flat      String
+  isDefault Boolean  @default(true)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, society, building, flat])
+  @@index([userId])
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  society   String?
+  building  String?
+  flat      String?
+  source    String? // e.g. "landing_cta", "signup_abandoned"
+  createdAt DateTime @default(now())
+
+  @@index([society])
+  @@index([createdAt])
+}
+
+model Society {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  verified  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  buildings Building[]
+}
+
+model Building {
+  id            String   @id @default(cuid())
+  societyId     String
+  name          String
+  floors        Int
+  flatsPerFloor Int
+  createdAt     DateTime @default(now())
+  society       Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  @@unique([societyId, name])
+  @@index([societyId])
+}
+
+model Vendor {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String    @unique
+  hub         String
+  description String?
+  accent      String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String    @unique
+  glyph     String?
+  order     Int       @default(0)
+  products  Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  vendorId    String
+  categoryId  String
+  name        String
+  description String?
+  priceInr    Int
+  mrpInr      Int?
+  unit        String?
+  isVeg       Boolean  @default(true)
+  isRegulated Boolean  @default(true)
+  inStock     Boolean  @default(true)
+  accent      String?
+  glyph       String?
+  tagline     String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([vendorId])
+  @@index([categoryId])
+  @@index([inStock])
+}

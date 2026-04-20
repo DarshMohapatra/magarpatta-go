@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { CartButton } from './cart-button';
+import { AccountMenu } from './account-menu';
 
 const LINKS = [
-  { href: '#how', label: 'How it works' },
-  { href: '#menu', label: 'Menu' },
-  { href: '#partners', label: 'Partners' },
-  { href: '#why', label: 'Why us' },
+  { href: '/menu', label: 'Menu' },
+  { href: '/#how', label: 'How it works' },
+  { href: '/#partners', label: 'Partners' },
+  { href: '/#why', label: 'Why us' },
 ];
 
 export function Navbar() {
@@ -49,22 +51,9 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <a
-            href="/signin"
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 transition-colors"
-          >
-            Sign in
-          </a>
-          <a
-            href="#waitlist"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
-          >
-            Check delivery
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="-mr-0.5">
-              <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </a>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <CartButton />
+          <AccountMenu />
         </div>
       </div>
     </header>

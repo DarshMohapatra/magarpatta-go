@@ -1,30 +1,44 @@
 import { NextResponse } from 'next/server';
-
-const waitlist: Array<{ phone: string; tower?: string; at: number }> = [];
-export { waitlist };
+import { prisma } from '@/lib/prisma';
 
 const PHONE_RE = /^[6-9]\d{9}$/;
 
 export async function POST(req: Request) {
   try {
-    const { phone, tower } = await req.json();
+    const { phone, tower, society, building, flat, source } = await req.json();
+
     if (!phone || !PHONE_RE.test(phone)) {
       return NextResponse.json({ ok: false, error: 'Invalid phone' }, { status: 400 });
     }
 
-    if (waitlist.find((w) => w.phone === phone)) {
+    const existing = await prisma.waitlistEntry.findUnique({ where: { phone } });
+    if (existing) {
       return NextResponse.json({ ok: true, already: true });
     }
 
-    waitlist.push({ phone, tower, at: Date.now() });
-    console.log(`[WAITLIST] +91 ${phone}${tower ? ` · ${tower}` : ''} (total: ${waitlist.length})`);
+    const resolvedSociety = society ?? tower ?? null;
 
-    return NextResponse.json({ ok: true, position: waitlist.length });
-  } catch {
+    await prisma.waitlistEntry.create({
+      data: {
+        phone,
+        society: resolvedSociety,
+        building: building ?? null,
+        flat: flat ?? null,
+        source: source ?? 'landing_cta',
+      },
+    });
+
+    const position = await prisma.waitlistEntry.count();
+    console.log(`[WAITLIST] +91 ${phone}${resolvedSociety ? ` · ${resolvedSociety}` : ''} (total: ${position})`);
+
+    return NextResponse.json({ ok: true, position });
+  } catch (e) {
+    console.error('[waitlist] POST failed:', e);
     return NextResponse.json({ ok: false, error: 'Bad request' }, { status: 400 });
   }
 }
 
 export async function GET() {
-  return NextResponse.json({ count: waitlist.length });
+  const count = await prisma.waitlistEntry.count();
+  return NextResponse.json({ count });
 }

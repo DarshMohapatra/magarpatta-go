@@ -88,8 +88,8 @@ export function AuthShell({
 
           <p className="mt-10 text-[12.5px] text-[color:var(--color-ink-soft)]/70">
             New to Magarpatta Go?{' '}
-            <Link href="/signin" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
-              Create an account — it&apos;s the same flow.
+            <Link href="/signup" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
+              Create an account
             </Link>
           </p>
         </div>

@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { SOCIETY_NAMES, getBuildings } from '@/lib/societies';
+import { SOCIETY_NAMES, getBuildings, getBuilding, validateFlat } from '@/lib/societies';
 
 /**
  * Magarpatta City bounding polygon (approximate, for Phase-1 dev).
  * Replace with hand-digitized QGIS polygon once we have MTDCC master plan.
- * Coords: [lng, lat]
  */
 const MAGARPATTA_POLYGON: Array<[number, number]> = [
   [73.9245, 18.5180],
@@ -35,8 +34,7 @@ export async function POST(req: Request) {
     const { lat, lng, society, building, flat } = body;
 
     if (society) {
-      const societyOk = SOCIETY_NAMES.includes(society);
-      if (!societyOk) {
+      if (!SOCIETY_NAMES.includes(society)) {
         return NextResponse.json({
           inside: false,
           reason: 'Unknown society — outside our delivery zone',
@@ -44,31 +42,65 @@ export async function POST(req: Request) {
         });
       }
 
-      if (building) {
-        const buildings = getBuildings(society);
-        const buildingOk = buildings.includes(building);
+      if (!building) {
         return NextResponse.json({
-          inside: buildingOk,
-          reason: buildingOk
-            ? 'Address is within Magarpatta City'
-            : `Building "${building}" not found in ${society}`,
+          inside: true,
+          reason: 'Society recognised — select building to confirm',
+          society,
+          buildings: getBuildings(society).map((b) => ({
+            name: b.name,
+            floors: b.floors,
+            flatsPerFloor: b.flatsPerFloor,
+          })),
+        });
+      }
+
+      const b = getBuilding(society, building);
+      if (!b) {
+        return NextResponse.json({
+          inside: false,
+          reason: `Building "${building}" not found in ${society}`,
           society,
           building,
-          flat: flat ?? null,
+        });
+      }
+
+      if (flat) {
+        const v = validateFlat(String(flat), b);
+        if (!v.ok) {
+          return NextResponse.json({
+            inside: false,
+            reason: v.reason,
+            hint: v.hint,
+            society,
+            building,
+            flat,
+          });
+        }
+        return NextResponse.json({
+          inside: true,
+          reason: 'Address is within Magarpatta City',
+          society,
+          building,
+          flat,
+          floor: v.floor,
+          unit: v.unit,
         });
       }
 
       return NextResponse.json({
         inside: true,
-        reason: 'Society recognised — select building to confirm',
+        reason: 'Building recognised — provide flat to confirm',
         society,
-        buildings: getBuildings(society),
+        building,
+        floors: b.floors,
+        flatsPerFloor: b.flatsPerFloor,
       });
     }
 
     if (typeof lat !== 'number' || typeof lng !== 'number') {
       return NextResponse.json(
-        { inside: false, error: 'Provide { society, building } or { lat, lng }' },
+        { inside: false, error: 'Provide { society, building, flat } or { lat, lng }' },
         { status: 400 },
       );
     }

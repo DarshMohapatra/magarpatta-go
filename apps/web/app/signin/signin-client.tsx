@@ -2,14 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { ConfirmationResult } from 'firebase/auth';
+import { sendPhoneOtp, resetRecaptcha } from '@/lib/firebase-phone';
 import { cn } from '@/lib/utils';
+
+declare global {
+  interface Window {
+    __mgConfirmation?: ConfirmationResult;
+  }
+}
 
 export function SignInClient() {
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hint, setHint] = useState<string | null>(null);
 
   const valid = /^[6-9]\d{9}$/.test(phone);
 
@@ -20,28 +27,29 @@ export function SignInClient() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        setError(data.error ?? 'Could not send OTP');
-        setLoading(false);
-        return;
-      }
-      if (data.devHint) setHint(data.devHint);
+      const confirmation = await sendPhoneOtp(`+91${phone}`, 'recaptcha-container');
+      // Stash across navigation — the /verify page picks it up from window.
+      window.__mgConfirmation = confirmation;
       sessionStorage.setItem('mg_phone', phone);
       router.push('/signin/verify');
-    } catch {
-      setError('Network error. Try again.');
+    } catch (e) {
+      resetRecaptcha('recaptcha-container');
+      const msg = (e as Error).message;
+      setError(
+        msg.includes('too-many-requests')
+          ? 'Too many attempts. Try again in a few minutes.'
+          : msg.includes('invalid-phone-number')
+            ? 'That phone number looks invalid.'
+            : `Could not send OTP: ${msg}`,
+      );
       setLoading(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div id="recaptcha-container" />
+
       <div
         className={cn(
           'rounded-2xl border bg-[color:var(--color-paper)] px-5 py-4 transition-colors',
@@ -71,13 +79,7 @@ export function SignInClient() {
           {valid && (
             <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <path
-                  d="M2.5 6.5l2.5 2.5 4.5-5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M2.5 6.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
           )}
@@ -85,11 +87,6 @@ export function SignInClient() {
       </div>
 
       {error && <p className="text-[13px] text-[color:var(--color-terracotta)]">{error}</p>}
-      {hint && (
-        <p className="text-[12px] text-[color:var(--color-ink-soft)]/70">
-          Dev hint · OTP is <span className="font-mono font-medium text-[color:var(--color-forest)]">{hint}</span>
-        </p>
-      )}
 
       <button
         type="submit"
@@ -113,7 +110,7 @@ export function SignInClient() {
           <>
             Send OTP
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </>
         )}

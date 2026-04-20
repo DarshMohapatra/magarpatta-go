@@ -8,6 +8,7 @@ import { Partners } from '@/components/partners';
 import { WaitlistCta } from '@/components/cta-waitlist';
 import { Footer } from '@/components/footer';
 import { LiveOrders } from '@/components/live-orders';
+import { CartDrawer } from '@/components/cart-drawer';
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
       <WaitlistCta />
       <Footer />
       <LiveOrders />
+      <CartDrawer />
     </main>
   );
 }

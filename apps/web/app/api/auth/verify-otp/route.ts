@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { otpStore } from '../send-otp/route';
+import { otpStore } from '@/lib/dev-store';
 
 export async function POST(req: Request) {
   try {
