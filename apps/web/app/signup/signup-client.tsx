@@ -146,6 +146,7 @@ export function SignUpClient() {
         setError(data.error ?? 'Could not save address');
         return;
       }
+      router.refresh();
       router.push('/menu');
     } catch {
       setError('Network error. Try again.');

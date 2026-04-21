@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { CartButton } from './cart-button';
 import { AccountMenu } from './account-menu';
+import type { SessionUser } from '@/lib/session';
 
 const LINKS = [
   { href: '/menu', label: 'Menu' },
@@ -12,7 +13,11 @@ const LINKS = [
   { href: '/home#why', label: 'Why us' },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  initialSession?: SessionUser | null;
+}
+
+export function Navbar({ initialSession = null }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -32,7 +37,7 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10 h-16 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2.5 group">
+        <a href="/" className="flex items-center gap-2.5 group">
           <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
           <span className="text-[15px] tracking-tight font-medium">
             Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
@@ -53,7 +58,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <CartButton />
-          <AccountMenu />
+          <AccountMenu initialSession={initialSession} />
         </div>
       </div>
     </header>

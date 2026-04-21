@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Navbar } from '@/components/navbar';
+import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { MenuClient } from './menu-client';
@@ -70,7 +70,7 @@ export default async function MenuPage({
 
   return (
     <main className="relative z-10 min-h-screen">
-      <Navbar />
+      <NavbarWithSession />
       <MenuClient
         categories={categories.map((c) => ({
           id: c.id,

@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/navbar';
+import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Hero } from '@/components/hero';
 import { HowItWorks } from '@/components/how-it-works';
 import { Categories } from '@/components/categories';
@@ -15,10 +15,10 @@ export const metadata = {
   description: 'Food, groceries, medicines and more — sourced and delivered within Magarpatta City, Pune. Under 25 minutes.',
 };
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <main className="relative z-10">
-      <Navbar />
+      <NavbarWithSession />
       <Hero />
       <Partners />
       <HowItWorks />

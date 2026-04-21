@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Navbar } from '@/components/navbar';
+import { NavbarWithSession } from '@/components/navbar-with-session';
 import { CartDrawer } from '@/components/cart-drawer';
 
 export const metadata = {
@@ -8,10 +8,10 @@ export const metadata = {
     'Hyper-local delivery inside Magarpatta City, Pune. Food, groceries, medicines, fresh meat. Under 25 minutes. By neighbours, for neighbours.',
 };
 
-export default function Landing() {
+export default async function Landing() {
   return (
     <main className="relative z-10 min-h-screen flex flex-col">
-      <Navbar />
+      <NavbarWithSession />
 
       {/* Hero — single-screen, centred, editorial */}
       <section className="relative flex-1 flex items-center overflow-hidden pt-24 pb-20">

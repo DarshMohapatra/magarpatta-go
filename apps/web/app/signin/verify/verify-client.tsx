@@ -94,6 +94,7 @@ export function VerifyClient() {
       }
       sessionStorage.removeItem('mg_phone');
       delete window.__mgConfirmation;
+      router.refresh();
       router.push('/menu');
     } catch (e) {
       const msg = (e as Error).message;

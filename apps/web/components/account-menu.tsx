@@ -1,58 +1,27 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import type { SessionUser } from '@/lib/session';
 
-interface UserSession {
-  authenticated: boolean;
-  phone?: string;
-  name?: string | null;
-  society?: string | null;
-  building?: string | null;
-  flat?: string | null;
+interface Props {
+  initialSession: SessionUser | null;
 }
 
-export function AccountMenu() {
+export function AccountMenu({ initialSession }: Props) {
   const router = useRouter();
-  const [session, setSession] = useState<UserSession | null>(null);
+  const [session, setSession] = useState<SessionUser | null>(initialSession);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
 
+  // Keep client state in sync when server re-renders with a fresh session
+  // (e.g. after router.refresh() following sign-in or address update).
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await fetch('/api/auth/session');
-        const data = await res.json();
-        if (cancelled) return;
-        if (!data.authenticated) {
-          setSession({ authenticated: false });
-          return;
-        }
-        // Hydrate profile
-        const meRes = await fetch('/api/users/me');
-        const me = await meRes.json();
-        if (cancelled) return;
-        const addr = me.user?.addresses?.[0];
-        setSession({
-          authenticated: true,
-          phone: data.phone,
-          name: me.user?.name,
-          society: addr?.society,
-          building: addr?.building,
-          flat: addr?.flat,
-        });
-      } catch {
-        if (!cancelled) setSession({ authenticated: false });
-      }
-    }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    setSession(initialSession);
+  }, [initialSession]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -63,18 +32,23 @@ export function AccountMenu() {
   }, []);
 
   async function signOut() {
-    setLoading(true);
-    await fetch('/api/auth/session', { method: 'DELETE' });
-    router.push('/');
-    router.refresh();
+    // Optimistic UI wipe — then await the DELETE so the next page's server
+    // components can't read a stale cookie during navigation.
+    setSigningOut(true);
+    setOpen(false);
+    setSession(null);
+    try {
+      await fetch('/api/auth/session', { method: 'DELETE' });
+    } catch {
+      /* cookie may already be gone; navigate anyway */
+    }
+    startTransition(() => {
+      router.push('/');
+      router.refresh();
+    });
   }
 
-  // Loading skeleton — render nothing to avoid flash
-  if (session === null) {
-    return <div className="h-9 w-9 rounded-full bg-[color:var(--color-ink)]/5" />;
-  }
-
-  if (!session.authenticated) {
+  if (!session) {
     return (
       <>
         <a
@@ -97,7 +71,7 @@ export function AccountMenu() {
   }
 
   const initial = (session.name?.[0] ?? session.phone?.[0] ?? '?').toUpperCase();
-  const hasAddress = session.society && session.building;
+  const hasAddress = Boolean(session.society && session.building);
 
   return (
     <div ref={ref} className="relative">
@@ -110,7 +84,7 @@ export function AccountMenu() {
         </span>
         <div className="hidden sm:block text-left leading-tight">
           <div className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/70">
-            {hasAddress ? `${session.building}` : 'No address'}
+            {hasAddress ? session.building : 'No address'}
           </div>
           <div className="text-[12.5px] font-medium text-[color:var(--color-ink)]">
             {session.name || `+91 ${session.phone}`}
@@ -157,10 +131,10 @@ export function AccountMenu() {
           <div className="border-t border-[color:var(--color-ink)]/8 py-1">
             <button
               onClick={signOut}
-              disabled={loading}
+              disabled={signingOut}
               className="w-full text-left px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-terracotta)]"
             >
-              {loading ? 'Signing out…' : 'Sign out'}
+              {signingOut ? 'Signing out…' : 'Sign out'}
             </button>
           </div>
         </div>
