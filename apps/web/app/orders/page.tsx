@@ -7,6 +7,7 @@ import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { expectedStatusForElapsed, statusLabel } from '@/lib/orders';
 import { ProductGlyph } from '@/components/product-glyph';
+import { ReorderButton } from '@/components/reorder-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,11 +60,25 @@ export default async function OrdersPage() {
                 const label = statusLabel(status);
                 const isLive = status !== 'DELIVERED' && status !== 'CANCELLED';
 
+                const reorderItems = o.items.map((i) => ({
+                  productId: i.productId,
+                  name: i.name,
+                  vendorName: i.vendorName,
+                  unit: i.unit,
+                  priceInr: i.priceInr,
+                  mrpInr: i.mrpInr,
+                  isRegulated: i.isRegulated,
+                  quantity: i.quantity,
+                  accent: i.accent,
+                  glyph: i.glyph,
+                  imageUrl: i.imageUrl,
+                }));
+
                 return (
-                  <li key={o.id}>
+                  <li key={o.id} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] hover:border-[color:var(--color-forest)]/30 transition-colors overflow-hidden">
                     <Link
                       href={`/orders/${o.id}`}
-                      className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 hover:border-[color:var(--color-forest)]/30 transition-colors"
+                      className="block p-6"
                     >
                       <div className="flex items-start justify-between gap-6">
                         <div className="flex-1 min-w-0">
@@ -92,12 +107,12 @@ export default async function OrdersPage() {
                             Flat {o.flat}, {o.building} · {o.society}
                           </div>
                           <div className="mt-2 text-[12px] text-[color:var(--color-ink-soft)]/60">
-                            {new Date(o.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            {new Date(o.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
                           </div>
                         </div>
 
                         {/* Item thumbs */}
-                        <div className="flex -space-x-2 shrink-0">
+                        <div className="hidden sm:flex -space-x-2 shrink-0">
                           {o.items.slice(0, 3).map((i) => (
                             <div
                               key={i.id}
@@ -122,6 +137,15 @@ export default async function OrdersPage() {
                         </div>
                       </div>
                     </Link>
+                    <div className="flex items-center justify-between gap-3 px-6 py-3 border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-cream)]/40">
+                      <Link
+                        href={`/orders/${o.id}`}
+                        className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]"
+                      >
+                        View details →
+                      </Link>
+                      <ReorderButton items={reorderItems} variant="outline" />
+                    </div>
                   </li>
                 );
               })}

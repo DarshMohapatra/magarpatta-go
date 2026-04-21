@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { TowerSelect } from './tower-select';
 import { HeroPreview } from './hero-preview';
 
@@ -33,7 +34,7 @@ export function Hero() {
             <div className="mt-8 lg:mt-10">
               <TowerSelect />
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <a
+                <Link
                   href="/menu"
                   className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
                 >
@@ -41,13 +42,13 @@ export function Hero() {
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/signup"
                   className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] text-[color:var(--color-ink)] hover:border-[color:var(--color-forest)]/40 transition-colors"
                 >
                   Create an account
-                </a>
+                </Link>
                 <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">62 items live · 16 societies</span>
               </div>
               <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)]/70 max-w-xl">

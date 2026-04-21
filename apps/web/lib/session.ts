@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { prisma } from './prisma';
 
@@ -14,10 +15,10 @@ export interface SessionUser {
  * Read the mg_session cookie and hydrate the user profile from Postgres
  * in a single server round-trip. Returns null if not signed in.
  *
- * Called from the root layout so the navbar renders with the correct
- * signed-in state on first paint — no client-side fetch flash.
+ * Wrapped in React cache() — multiple calls within one request share a
+ * single DB query (navbar + page both call this).
  */
-export async function getServerSession(): Promise<SessionUser | null> {
+export const getServerSession = cache(async function getServerSession(): Promise<SessionUser | null> {
   const jar = await cookies();
   const token = jar.get('mg_session')?.value;
   if (!token) return null;
@@ -44,4 +45,4 @@ export async function getServerSession(): Promise<SessionUser | null> {
     building: addr?.building ?? null,
     flat: addr?.flat ?? null,
   };
-}
+});

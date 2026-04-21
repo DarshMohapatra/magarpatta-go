@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ConfirmationResult } from 'firebase/auth';
 import { MAGARPATTA_SOCIETIES, getBuildings, getBuilding, validateFlat, type Building } from '@/lib/societies';
@@ -261,9 +262,9 @@ export function SignUpClient() {
 
           <p className="text-[12.5px] text-[color:var(--color-ink-soft)]/70 text-center pt-1">
             Already have an account?{' '}
-            <a href="/signin" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
+            <Link href="/signin" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
               Sign in instead
-            </a>
+            </Link>
           </p>
         </form>
       )}

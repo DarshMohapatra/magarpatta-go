@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ProductCard, type ProductCardData } from '@/components/product-card';
 import { cn } from '@/lib/utils';
@@ -58,7 +59,7 @@ export function MenuClient({
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
           <div>
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-              Hyper-local catalog · {totalProducts} items live
+              Search everything · {totalProducts} items across all shops
             </div>
             <h1 className="mt-3 font-serif text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
               {activeCategory ? (
@@ -70,16 +71,16 @@ export function MenuClient({
                 </>
               ) : (
                 <>
-                  Everything Magarpatta{' '}
-                  <span className="italic text-[color:var(--color-forest)]">already stocks.</span>
+                  Search by{' '}
+                  <span className="italic text-[color:var(--color-forest)]">product.</span>
                 </>
               )}
             </h1>
             <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
-              Sourced from nine partner shops inside or adjacent to Magarpatta.{' '}
-              <a href="/restaurants" className="text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]">
-                Browse by restaurant & shop →
-              </a>
+              Looking for a specific dish or item? Search here. Prefer to browse a shop&apos;s full menu?{' '}
+              <Link href="/restaurants" className="text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]">
+                Open restaurants & shops →
+              </Link>
             </p>
           </div>
         </div>

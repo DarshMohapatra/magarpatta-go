@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useCart, cartSubtotalMrp, cartConvenience } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
 import { cn } from '@/lib/utils';
@@ -168,7 +169,7 @@ export function CartDrawer() {
               <span className="font-serif text-[22px] text-[color:var(--color-forest)]">₹{total}</span>
             </div>
 
-            <a
+            <Link
               href="/checkout"
               onClick={close}
               className="mt-2 w-full rounded-2xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] px-5 py-4 font-medium text-[14px] transition-colors flex items-center justify-center gap-2"
@@ -177,7 +178,7 @@ export function CartDrawer() {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </a>
+            </Link>
             <p className="text-[11.5px] text-center text-[color:var(--color-ink-soft)]/70">
               Cash on delivery · UPI &amp; card arrive with Razorpay.
             </p>

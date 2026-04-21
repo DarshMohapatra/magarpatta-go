@@ -113,7 +113,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
               )}
             </h1>
             <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
-              Placed {placedDate.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              Placed {placedDate.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
             </p>
           </div>
           <button

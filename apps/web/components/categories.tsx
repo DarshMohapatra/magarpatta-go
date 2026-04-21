@@ -96,6 +96,8 @@ const toneClasses: Record<string, { bg: string; text: string; border: string }> 
   },
 };
 
+import Link from 'next/link';
+
 export function Categories() {
   return (
     <section id="menu" className="py-24 lg:py-32 bg-[color:var(--color-cream-soft)]/50 border-y border-[color:var(--color-ink)]/8">
@@ -140,12 +142,12 @@ export function Categories() {
                   <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
                     {c.tag}
                   </span>
-                  <a href="/menu" className="inline-flex items-center gap-1 text-[13px] font-medium text-[color:var(--color-forest)] group-hover:translate-x-1 transition-transform">
+                  <Link href="/menu" className="inline-flex items-center gap-1 text-[13px] font-medium text-[color:var(--color-forest)] group-hover:translate-x-1 transition-transform">
                     Browse
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                  </a>
+                  </Link>
                 </div>
               </article>
             );

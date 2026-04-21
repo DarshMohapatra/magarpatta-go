@@ -63,10 +63,10 @@ export function RestaurantsClient({ vendors }: { vendors: VendorRow[] }) {
             Partner shops · {vendors.length} live in your postcode
           </div>
           <h1 className="mt-3 font-serif text-[40px] sm:text-[56px] leading-[0.98] tracking-[-0.025em]">
-            Restaurants, cafés, <span className="italic text-[color:var(--color-forest)]">essentials.</span>
+            Restaurants & shops, <span className="italic text-[color:var(--color-forest)]">all in one list.</span>
           </h1>
           <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-2xl">
-            Pick a shop, open its menu, order what you want. Every item still lands in ~25 minutes.
+            Pick a shop, open its menu, order what you want. Every item lands in ~25 minutes.
           </p>
         </div>
       </section>

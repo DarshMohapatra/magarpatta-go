@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, cartSubtotalMrp, cartConvenience } from '@/lib/cart';
 import { ProductGlyph } from '@/components/product-glyph';
@@ -184,9 +185,9 @@ export function CheckoutClient({ session }: Props) {
           <h1 className="mt-4 font-serif text-[40px] sm:text-[52px] leading-[0.98] tracking-[-0.02em]">
             Your cart is <span className="italic text-[color:var(--color-forest)]">empty.</span>
           </h1>
-          <a href="/menu" className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]">
+          <Link href="/menu" className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]">
             Browse the menu
-          </a>
+          </Link>
         </div>
       </section>
     );
@@ -484,9 +485,9 @@ function CartStep({ items, increment, decrement, remove, onNext }: {
       </Card>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-stretch sm:items-center">
-        <a href="/menu" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 border border-[color:var(--color-ink)]/10">
+        <Link href="/menu" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 border border-[color:var(--color-ink)]/10">
           ← Continue shopping
-        </a>
+        </Link>
         <button onClick={onNext} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]">
           Continue to address
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
@@ -517,9 +518,9 @@ function AddressStep({ session, notes, setNotes, onBack, onNext, hasAddress }: {
               <div className="text-[13.5px] text-[color:var(--color-ink-soft)]">{session.society}, Magarpatta City</div>
               <div className="text-[13.5px] text-[color:var(--color-ink-soft)]">Pune, Maharashtra · 411028</div>
               <div className="mt-2 text-[12px] text-[color:var(--color-ink-soft)]/75">+91 {session.phone}</div>
-              <a href="/signup" className="mt-3 inline-block text-[12.5px] text-[color:var(--color-forest)] underline underline-offset-4">
+              <Link href="/signup" className="mt-3 inline-block text-[12.5px] text-[color:var(--color-forest)] underline underline-offset-4">
                 Change address →
-              </a>
+              </Link>
             </div>
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -533,9 +534,9 @@ function AddressStep({ session, notes, setNotes, onBack, onNext, hasAddress }: {
               <div className="font-medium text-[color:var(--color-terracotta-dark)]">No delivery address yet</div>
               <div className="text-[13px] text-[color:var(--color-ink-soft)]">Set your society, building and flat.</div>
             </div>
-            <a href="/signup" className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+            <Link href="/signup" className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
               Set address
-            </a>
+            </Link>
           </div>
         )}
       </Card>

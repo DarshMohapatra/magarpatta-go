@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { CartButton } from './cart-button';
 import { AccountMenu } from './account-menu';
@@ -47,22 +48,22 @@ export function Navbar({ initialSession = null }: NavbarProps) {
         )}
       >
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between">
-          <a href={initialSession ? '/menu' : '/'} className="flex items-center gap-2.5 group">
+          <Link href={initialSession ? '/menu' : '/'} className="flex items-center gap-2.5 group">
             <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
             <span className="text-[15px] tracking-tight font-medium">
               Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
             </span>
-          </a>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-8">
             {LINKS.map((l) => (
-              <a
+              <Link
                 key={l.href}
                 href={l.href}
                 className="text-[13.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] transition-colors"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -97,14 +98,14 @@ export function Navbar({ initialSession = null }: NavbarProps) {
           <nav className="md:hidden border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)] shadow-[0_12px_40px_-12px_rgba(14,17,12,0.18)]">
             <div className="mx-auto max-w-[1280px] px-4 py-4 space-y-1">
               {LINKS.map((l) => (
-                <a
+                <Link
                   key={l.href}
                   href={l.href}
                   onClick={() => setMobileOpen(false)}
                   className="block px-3 py-2.5 rounded-lg text-[14.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]"
                 >
                   {l.label}
-                </a>
+                </Link>
               ))}
 
               <div className="pt-3 mt-3 border-t border-[color:var(--color-ink)]/8">
@@ -118,21 +119,21 @@ export function Navbar({ initialSession = null }: NavbarProps) {
                         </span>
                       )}
                     </div>
-                    <a href="/orders" className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
+                    <Link href="/orders" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
                       My orders
-                    </a>
-                    <a href="/signup" className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
+                    </Link>
+                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
                       Update address
-                    </a>
+                    </Link>
                   </>
                 ) : (
                   <>
-                    <a href="/signin" className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
+                    <Link href="/signin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
                       Sign in
-                    </a>
-                    <a href="/signup" className="block px-3 py-2.5 rounded-lg text-[14px] bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-center font-medium mt-1">
+                    </Link>
+                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-center font-medium mt-1">
                       Create account
-                    </a>
+                    </Link>
                   </>
                 )}
               </div>

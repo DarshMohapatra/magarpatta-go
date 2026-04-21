@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type { SessionUser } from '@/lib/session';
@@ -51,13 +52,13 @@ export function AccountMenu({ initialSession }: Props) {
   if (!session) {
     return (
       <>
-        <a
+        <Link
           href="/signin"
           className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 transition-colors"
         >
           Sign in
-        </a>
-        <a
+        </Link>
+        <Link
           href="/signup"
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
         >
@@ -65,7 +66,7 @@ export function AccountMenu({ initialSession }: Props) {
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="-mr-0.5">
             <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </a>
+        </Link>
       </>
     );
   }
@@ -116,15 +117,15 @@ export function AccountMenu({ initialSession }: Props) {
           </div>
 
           <nav className="py-1">
-            <a href="/menu" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <Link href="/menu" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Browse menu
-            </a>
-            <a href="/orders" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            </Link>
+            <Link href="/orders" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Orders
-            </a>
-            <a href="/signup" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            </Link>
+            <Link href="/signup" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Update address
-            </a>
+            </Link>
           </nav>
 
           <div className="border-t border-[color:var(--color-ink)]/8 py-1">
