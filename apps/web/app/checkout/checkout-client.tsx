@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCart, cartSubtotal } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience } from '@/lib/cart';
 import { ProductGlyph } from '@/components/product-glyph';
 import { cn } from '@/lib/utils';
+import {
+  DELIVERY_FEE, GIFT_WRAP_FEE, INSURANCE_FEE, TAX_RATE,
+} from '@/lib/pricing';
 
 interface Props {
   session: {
@@ -19,12 +22,15 @@ interface Props {
 type PaymentMethod = 'CARD' | 'UPI' | 'NET_BANKING' | 'COD';
 type Step = 'cart' | 'address' | 'payment';
 
-const TAX_RATE = 0.05;
-const DELIVERY_FEE = 25;
-const GIFT_WRAP_FEE = 50;
-const INSURANCE_FEE = 100;
-
 const BANKS = ['HDFC', 'ICICI', 'SBI', 'Axis', 'Kotak', 'Yes'];
+
+interface AppliedCoupon {
+  code: string;
+  description: string;
+  type: 'PERCENT' | 'FLAT' | 'FREE_DELIVERY';
+  discountInr: number;
+  freeDelivery: boolean;
+}
 
 const STEPS: Step[] = ['cart', 'address', 'payment'];
 const STEP_LABEL: Record<Step, string> = { cart: 'Cart', address: 'Address', payment: 'Payment' };
@@ -42,6 +48,10 @@ export function CheckoutClient({ session }: Props) {
   const [notes, setNotes] = useState('');
   const [giftWrap, setGiftWrap] = useState(false);
   const [insurance, setInsurance] = useState(false);
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
   const [payMethod, setPayMethod] = useState<PaymentMethod>('CARD');
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
@@ -53,11 +63,51 @@ export function CheckoutClient({ session }: Props) {
   const [processingLine, setProcessingLine] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const subtotal = useMemo(() => cartSubtotal(items), [items]);
+  const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
+  const convenience = useMemo(() => cartConvenience(items), [items]);
   const tax = Math.round(subtotal * TAX_RATE);
   const addOns = (giftWrap ? GIFT_WRAP_FEE : 0) + (insurance ? INSURANCE_FEE : 0);
-  const deliveryFee = items.length > 0 ? DELIVERY_FEE : 0;
-  const total = subtotal + tax + addOns + deliveryFee;
+  const baseDelivery = items.length > 0 ? DELIVERY_FEE : 0;
+  const deliveryFee = coupon?.freeDelivery ? 0 : baseDelivery;
+  const discount = coupon?.discountInr ?? 0;
+  const total = Math.max(0, subtotal + convenience + tax + addOns + deliveryFee - discount);
+
+  async function applyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    try {
+      const res = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, subtotalInr: subtotal }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setCouponError(data.error ?? 'Invalid coupon');
+        setCouponLoading(false);
+        return;
+      }
+      setCoupon({
+        code: data.coupon.code,
+        description: data.coupon.description,
+        type: data.coupon.type,
+        discountInr: data.preview.discountInr,
+        freeDelivery: Boolean(data.preview.freeDelivery),
+      });
+      setCouponInput('');
+    } catch {
+      setCouponError('Network error. Try again.');
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setCoupon(null);
+    setCouponError(null);
+  }
   const hasAddress = Boolean(session.society && session.building && session.flat);
 
   function validatePayment(): string | null {
@@ -107,6 +157,7 @@ export function CheckoutClient({ session }: Props) {
           giftWrap,
           insurance,
           deliveryMode: 'standard',
+          couponCode: coupon?.code,
         }),
       });
       const data = await res.json();
@@ -233,15 +284,94 @@ export function CheckoutClient({ session }: Props) {
             <aside className="lg:sticky lg:top-24 lg:self-start rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 sm:p-6 shadow-[0_12px_40px_-20px_rgba(13,74,46,0.16)]">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Order total</div>
               <div className="mt-3 space-y-1.5 text-[13px]">
-                <Row label="Subtotal" value={`₹${subtotal}`} />
+                <Row label="Subtotal (MRP)" value={`₹${subtotal}`} />
+                {convenience > 0 && (
+                  <Row label="Convenience fee" value={`₹${convenience}`} />
+                )}
                 <Row label="Tax (5%)" value={`₹${tax}`} />
                 {addOns > 0 && <Row label="Add-ons" value={`₹${addOns}`} />}
-                <Row label="Delivery" value={`₹${deliveryFee}`} />
+                <Row
+                  label="Delivery"
+                  value={coupon?.freeDelivery ? 'FREE' : `₹${deliveryFee}`}
+                />
+                {discount > 0 && (
+                  <div className="flex items-center justify-between text-[color:var(--color-forest)]">
+                    <span>{coupon?.code} discount</span>
+                    <span>−₹{discount}</span>
+                  </div>
+                )}
               </div>
               <div className="mt-3 pt-3 border-t border-[color:var(--color-ink)]/10 flex items-center justify-between">
                 <span className="font-serif text-[18px]">Total</span>
                 <span className="font-serif text-[30px] leading-none text-[color:var(--color-forest)]">₹{total}</span>
               </div>
+
+              {/* Coupon input */}
+              <div className="mt-4 pt-4 border-t border-[color:var(--color-ink)]/8">
+                {coupon ? (
+                  <div className="rounded-xl bg-[color:var(--color-forest)]/5 border border-[color:var(--color-forest)]/20 p-3 flex items-start gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2.5 6.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-semibold text-[color:var(--color-forest)]">{coupon.code}</div>
+                      <div className="text-[11.5px] text-[color:var(--color-ink-soft)] truncate">{coupon.description}</div>
+                    </div>
+                    <button onClick={removeCoupon} className="text-[11px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-terracotta)] underline underline-offset-2 shrink-0">
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        value={couponInput}
+                        onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
+                        onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+                        placeholder="Enter coupon code"
+                        className="flex-1 rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-cream)] px-3 py-2 text-[13px] uppercase outline-none focus:border-[color:var(--color-forest)] placeholder:text-[color:var(--color-ink-soft)]/55"
+                      />
+                      <button
+                        onClick={applyCoupon}
+                        disabled={couponLoading || !couponInput}
+                        className={cn(
+                          'rounded-lg px-4 text-[13px] font-medium transition-colors',
+                          couponInput && !couponLoading
+                            ? 'bg-[color:var(--color-ink)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest)]'
+                            : 'bg-[color:var(--color-ink)]/10 text-[color:var(--color-ink-soft)]/50 cursor-not-allowed',
+                        )}
+                      >
+                        {couponLoading ? '…' : 'Apply'}
+                      </button>
+                    </div>
+                    {couponError && <p className="mt-2 text-[11.5px] text-[color:var(--color-terracotta-dark)]">{couponError}</p>}
+                    <details className="mt-3 text-[11.5px] text-[color:var(--color-ink-soft)]/70">
+                      <summary className="cursor-pointer hover:text-[color:var(--color-forest)]">Try one · tap to copy</summary>
+                      <div className="mt-2 space-y-1.5 pl-2">
+                        {[
+                          { c: 'WELCOME10', d: '10% off · max ₹60' },
+                          { c: 'SAVE50',    d: '₹50 off above ₹499' },
+                          { c: 'FREEDEL',   d: 'Free delivery above ₹299' },
+                          { c: 'MAGARPATTA20', d: '20% off · max ₹100' },
+                          { c: 'JALEBI',    d: '₹30 off above ₹150' },
+                        ].map((x) => (
+                          <button
+                            key={x.c}
+                            type="button"
+                            onClick={() => { setCouponInput(x.c); setCouponError(null); }}
+                            className="block text-left font-mono text-[color:var(--color-forest)] hover:underline"
+                          >
+                            {x.c} <span className="font-sans text-[color:var(--color-ink-soft)]/75">· {x.d}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+                )}
+              </div>
+
               <div className="mt-4 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
                 <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
                   <rect x="2" y="5" width="10" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
@@ -347,7 +477,7 @@ function CartStep({ items, increment, decrement, remove, onNext }: {
                   </button>
                 </div>
               </div>
-              <div className="text-right shrink-0 font-serif text-[16px]">₹{it.priceInr * it.qty}</div>
+              <div className="text-right shrink-0 font-serif text-[16px]">₹{it.mrpInr * it.qty}</div>
             </li>
           ))}
         </ul>

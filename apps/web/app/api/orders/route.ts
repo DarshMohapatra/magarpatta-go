@@ -3,6 +3,7 @@ import type { PaymentMethod } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/session';
 import { expectedStatusForElapsed } from '@/lib/orders';
+import { computeBreakdown } from '@/lib/pricing';
 
 interface IncomingItem {
   productId: string;
@@ -16,21 +17,14 @@ interface IncomingBody {
   giftWrap?: boolean;
   insurance?: boolean;
   deliveryMode?: string;
+  couponCode?: string;
 }
-
-const TAX_RATE = 0.05;         // 5% on the subtotal (food delivery service rate)
-const DELIVERY_FEE = 25;
-const GIFT_WRAP_FEE = 50;
-const INSURANCE_FEE = 100;
 
 export async function POST(req: Request) {
   const session = await getServerSession();
   if (!session) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
   if (!session.society || !session.building || !session.flat) {
-    return NextResponse.json(
-      { ok: false, error: 'Set a delivery address before placing an order' },
-      { status: 400 },
-    );
+    return NextResponse.json({ ok: false, error: 'Set a delivery address before placing an order' }, { status: 400 });
   }
 
   try {
@@ -46,36 +40,57 @@ export async function POST(req: Request) {
     });
 
     if (products.length !== productIds.length) {
-      return NextResponse.json(
-        { ok: false, error: 'Some items are no longer available' },
-        { status: 400 },
-      );
+      return NextResponse.json({ ok: false, error: 'Some items are no longer available' }, { status: 400 });
     }
 
     const byId = new Map(products.map((p) => [p.id, p]));
-    let subtotal = 0;
-    const itemsForCreate = body.items.map((i) => {
+    const priceItems = body.items.map((i) => {
       const p = byId.get(i.productId)!;
       const qty = Math.max(1, Math.floor(i.quantity));
-      subtotal += p.priceInr * qty;
       return {
-        productId: p.id,
-        name: p.name,
-        vendorName: p.vendor.name,
-        unit: p.unit,
+        mrpInr: p.mrpInr ?? p.priceInr,
         priceInr: p.priceInr,
+        isRegulated: p.isRegulated,
         quantity: qty,
-        accent: p.accent,
-        glyph: p.glyph,
-        imageUrl: p.imageUrl,
+        product: p,
       };
     });
 
-    const tax = Math.round(subtotal * TAX_RATE);
-    const addOns =
-      (body.giftWrap ? GIFT_WRAP_FEE : 0) + (body.insurance ? INSURANCE_FEE : 0);
-    const deliveryFee = DELIVERY_FEE;
-    const total = subtotal + tax + addOns + deliveryFee;
+    // Validate + load coupon
+    let coupon = null as Awaited<ReturnType<typeof prisma.coupon.findUnique>> | null;
+    if (body.couponCode) {
+      coupon = await prisma.coupon.findUnique({ where: { code: body.couponCode.toUpperCase().trim() } });
+      if (!coupon || !coupon.active) {
+        return NextResponse.json({ ok: false, error: 'Invalid coupon' }, { status: 400 });
+      }
+      if (coupon.validUntil && coupon.validUntil < new Date()) {
+        return NextResponse.json({ ok: false, error: 'This coupon has expired' }, { status: 400 });
+      }
+    }
+
+    const breakdown = computeBreakdown(
+      priceItems.map((i) => ({ mrpInr: i.mrpInr, priceInr: i.priceInr, isRegulated: i.isRegulated, quantity: i.quantity })),
+      {
+        giftWrap: body.giftWrap,
+        insurance: body.insurance,
+        coupon: coupon
+          ? {
+              type: coupon.type,
+              percentOff: coupon.percentOff,
+              flatOffInr: coupon.flatOffInr,
+              minSubtotalInr: coupon.minSubtotalInr,
+              maxDiscountInr: coupon.maxDiscountInr,
+            }
+          : null,
+      },
+    );
+
+    if (coupon && breakdown.discountInr === 0 && breakdown.deliveryFeeInr !== 0) {
+      return NextResponse.json(
+        { ok: false, error: `Add ₹${coupon.minSubtotalInr - breakdown.subtotalInr} more to use ${coupon.code}` },
+        { status: 400 },
+      );
+    }
 
     const user = await prisma.user.upsert({
       where: { phone: session.phone },
@@ -94,29 +109,49 @@ export async function POST(req: Request) {
         society: session.society,
         building: session.building,
         flat: session.flat,
-        subtotalInr: subtotal,
-        taxInr: tax,
-        addOnsInr: addOns,
-        deliveryFeeInr: deliveryFee,
-        totalInr: total,
+        subtotalInr: breakdown.subtotalInr,
+        convenienceInr: breakdown.convenienceInr,
+        taxInr: breakdown.taxInr,
+        addOnsInr: breakdown.addOnsInr,
+        deliveryFeeInr: breakdown.deliveryFeeInr,
+        discountInr: breakdown.discountInr,
+        couponCode: coupon?.code ?? null,
+        totalInr: breakdown.totalInr,
         giftWrap: Boolean(body.giftWrap),
         insurance: Boolean(body.insurance),
         deliveryMode: body.deliveryMode ?? 'standard',
         vendorName: primaryVendor?.name ?? (uniqueVendors.length > 1 ? 'Multi-vendor' : null),
         vendorHub: primaryVendor?.hub ?? null,
         notes: body.notes ?? null,
-        items: { create: itemsForCreate },
+        items: {
+          create: priceItems.map((i) => ({
+            productId: i.product.id,
+            name: i.product.name,
+            vendorName: i.product.vendor.name,
+            unit: i.product.unit,
+            priceInr: i.priceInr,
+            mrpInr: i.mrpInr,
+            isRegulated: i.isRegulated,
+            quantity: i.quantity,
+            accent: i.product.accent,
+            glyph: i.product.glyph,
+            imageUrl: i.product.imageUrl,
+          })),
+        },
       },
-      include: { items: true },
     });
+
+    if (coupon) {
+      await prisma.coupon.update({
+        where: { id: coupon.id },
+        data: { usageCount: { increment: 1 } },
+      });
+    }
 
     return NextResponse.json({ ok: true, orderId: order.id });
   } catch (e) {
     console.error('[orders] POST failed:', e);
-    return NextResponse.json(
-      { ok: false, error: (e as Error).message || 'Could not place order' },
-      { status: 500 },
-    );
+    return NextResponse.json({ ok: false, error: (e as Error).message || 'Could not place order' }, { status: 500 });
   }
 }
 

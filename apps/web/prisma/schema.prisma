@@ -132,6 +132,30 @@ enum PaymentMethod {
   NET_BANKING
 }
 
+enum CouponType {
+  PERCENT
+  FLAT
+  FREE_DELIVERY
+}
+
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique
+  description    String
+  type           CouponType
+  percentOff     Int?       // 1..100 when type = PERCENT
+  flatOffInr     Int?       // rupees when type = FLAT
+  minSubtotalInr Int        @default(0)
+  maxDiscountInr Int?       // cap for percent coupons
+  active         Boolean    @default(true)
+  validUntil     DateTime?
+  perUserLimit   Int        @default(1)
+  usageCount     Int        @default(0)
+  createdAt      DateTime   @default(now())
+
+  @@index([active])
+}
+
 model Order {
   id             String        @id @default(cuid())
   userId         String
@@ -143,14 +167,17 @@ model Order {
   building       String
   flat           String
 
-  // Rupee totals
-  subtotalInr    Int
-  taxInr         Int           @default(0)
-  addOnsInr      Int           @default(0)
-  deliveryFeeInr Int
-  totalInr       Int
+  // Rupee totals — subtotal is MRP-based, convenience fee captures the
+  // per-unit markup we add on non-regulated items at checkout.
+  subtotalInr      Int
+  convenienceInr   Int          @default(0)
+  taxInr           Int          @default(0)
+  addOnsInr        Int          @default(0)
+  deliveryFeeInr   Int
+  discountInr      Int          @default(0)
+  couponCode       String?
+  totalInr         Int
 
-  // Add-on flags (for display on receipt)
   giftWrap       Boolean       @default(false)
   insurance      Boolean       @default(false)
   deliveryMode   String        @default("standard")
@@ -174,19 +201,21 @@ model Order {
 }
 
 model OrderItem {
-  id         String  @id @default(cuid())
-  orderId    String
-  productId  String
-  name       String
-  vendorName String
-  unit       String?
-  priceInr   Int
-  quantity   Int
-  accent     String?
-  glyph      String?
-  imageUrl   String?
-  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product    Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String
+  name        String
+  vendorName  String
+  unit        String?
+  priceInr    Int       // what we charged per unit (MRP for regulated, MRP+1 for non-reg)
+  mrpInr      Int?      // MRP shown to customer for line total display
+  isRegulated Boolean @default(true)
+  quantity    Int
+  accent      String?
+  glyph       String?
+  imageUrl    String?
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
 }

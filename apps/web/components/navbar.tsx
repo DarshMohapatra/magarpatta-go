@@ -8,8 +8,8 @@ import type { SessionUser } from '@/lib/session';
 
 const LINKS = [
   { href: '/menu', label: 'Menu' },
+  { href: '/shops', label: 'Shops' },
   { href: '/home#how', label: 'How it works' },
-  { href: '/home#partners', label: 'Partners' },
   { href: '/home#why', label: 'Why us' },
 ];
 

@@ -36,6 +36,8 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   const [imgError, setImgError] = useState(false);
 
   const showImage = product.imageUrl && !imgError;
+  // Always show MRP to customer; markup surfaces only as convenience fee at checkout.
+  const displayPrice = product.mrpInr ?? product.priceInr;
 
   return (
     <article className="group relative overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]">
@@ -97,7 +99,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         <div className="mt-3 flex items-end justify-between gap-3">
           <div>
             <span className="font-serif text-[22px] text-[color:var(--color-ink)]">
-              ₹{product.priceInr}
+              ₹{displayPrice}
             </span>
           </div>
 
@@ -126,6 +128,8 @@ export function ProductCard({ product }: { product: ProductCardData }) {
                   id: product.id,
                   name: product.name,
                   priceInr: product.priceInr,
+                  mrpInr: product.mrpInr ?? product.priceInr,
+                  isRegulated: product.isRegulated,
                   unit: product.unit,
                   accent: product.accent,
                   glyph: product.glyph,

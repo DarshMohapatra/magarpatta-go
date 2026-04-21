@@ -12,6 +12,7 @@ interface OrderItem {
   vendorName: string;
   unit: string | null;
   priceInr: number;
+  mrpInr?: number | null;
   quantity: number;
   accent: string | null;
   glyph: string | null;
@@ -23,9 +24,12 @@ interface OrderData {
   status: OrderStatus;
   placedAt: string;
   subtotalInr: number;
+  convenienceInr: number;
   taxInr: number;
   addOnsInr: number;
   deliveryFeeInr: number;
+  discountInr: number;
+  couponCode: string | null;
   totalInr: number;
   giftWrap: boolean;
   insurance: boolean;
@@ -125,7 +129,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-serif text-[17px]">₹{it.priceInr * it.quantity}</div>
+                    <div className="font-serif text-[17px]">₹{(it.mrpInr ?? it.priceInr) * it.quantity}</div>
                     <div className="text-[11px] text-[color:var(--color-ink-soft)]/70">× {it.quantity}</div>
                   </div>
                 </li>
@@ -154,9 +158,15 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
 
             <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 space-y-2">
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[color:var(--color-ink-soft)]">Subtotal</span>
+                <span className="text-[color:var(--color-ink-soft)]">Subtotal (MRP)</span>
                 <span>₹{order.subtotalInr}</span>
               </div>
+              {order.convenienceInr > 0 && (
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-[color:var(--color-ink-soft)]">Convenience fee</span>
+                  <span>₹{order.convenienceInr}</span>
+                </div>
+              )}
               {order.taxInr > 0 && (
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="text-[color:var(--color-ink-soft)]">Tax (5%)</span>
@@ -174,8 +184,14 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
               )}
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-[color:var(--color-ink-soft)]">Delivery fee</span>
-                <span>₹{order.deliveryFeeInr}</span>
+                <span>{order.deliveryFeeInr === 0 ? 'FREE' : `₹${order.deliveryFeeInr}`}</span>
               </div>
+              {order.discountInr > 0 && order.couponCode && (
+                <div className="flex items-center justify-between text-[13px] text-[color:var(--color-forest)]">
+                  <span>{order.couponCode} discount</span>
+                  <span>−₹{order.discountInr}</span>
+                </div>
+              )}
               <div className="pt-2 border-t border-[color:var(--color-ink)]/8 flex items-center justify-between">
                 <span className="font-serif text-[17px]">Total</span>
                 <span className="font-serif text-[24px] text-[color:var(--color-forest)]">₹{order.totalInr}</span>

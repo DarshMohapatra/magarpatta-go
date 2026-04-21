@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useCart, cartSubtotal } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
 import { cn } from '@/lib/utils';
 
@@ -21,9 +21,10 @@ export function CartDrawer() {
     return () => document.removeEventListener('keydown', onKey);
   }, [open, close]);
 
-  const subtotal = cartSubtotal(items);
+  const subtotal = cartSubtotalMrp(items);
+  const convenience = cartConvenience(items);
   const deliveryFee = items.length > 0 ? 25 : 0;
-  const total = subtotal + deliveryFee;
+  const total = subtotal + convenience + deliveryFee;
 
   return (
     <>
@@ -129,7 +130,7 @@ export function CartDrawer() {
                       </div>
                       <div className="text-right">
                         <div className="font-serif text-[17px] text-[color:var(--color-ink)]">
-                          ₹{it.priceInr * it.qty}
+                          ₹{it.mrpInr * it.qty}
                         </div>
                         <button
                           onClick={() => remove(it.id)}
@@ -149,9 +150,15 @@ export function CartDrawer() {
         {items.length > 0 && (
           <footer className="border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]/60 px-6 py-5 space-y-3">
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[color:var(--color-ink-soft)]">Subtotal</span>
+              <span className="text-[color:var(--color-ink-soft)]">Subtotal (MRP)</span>
               <span className="text-[color:var(--color-ink)]">₹{subtotal}</span>
             </div>
+            {convenience > 0 && (
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="text-[color:var(--color-ink-soft)]">Convenience fee</span>
+                <span className="text-[color:var(--color-ink)]">₹{convenience}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between text-[13px]">
               <span className="text-[color:var(--color-ink-soft)]">Delivery fee</span>
               <span className="text-[color:var(--color-ink)]">₹{deliveryFee}</span>

@@ -6,7 +6,9 @@ import { persist } from 'zustand/middleware';
 export interface CartProduct {
   id: string;
   name: string;
-  priceInr: number;
+  priceInr: number;       // what we charge (mrp + ₹1 for non-reg)
+  mrpInr: number;         // sticker price shown to customer
+  isRegulated: boolean;   // true = no markup
   unit?: string | null;
   accent?: string | null;
   glyph?: string | null;
@@ -61,7 +63,7 @@ export const useCart = create<CartState>()(
       remove: (id) => set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
       clear: () => set({ items: [] }),
     }),
-    { name: 'mg-cart-v1' },
+    { name: 'mg-cart-v2' },
   ),
 );
 
@@ -69,6 +71,20 @@ export function cartCount(items: CartItem[]): number {
   return items.reduce((s, i) => s + i.qty, 0);
 }
 
+/** MRP-based subtotal — what the customer sees on line items. */
+export function cartSubtotalMrp(items: CartItem[]): number {
+  return items.reduce((s, i) => s + i.mrpInr * i.qty, 0);
+}
+
+/** Sum of ₹1-per-unit markups across non-regulated items. */
+export function cartConvenience(items: CartItem[]): number {
+  return items.reduce(
+    (s, i) => s + (i.isRegulated ? 0 : (i.priceInr - i.mrpInr) * i.qty),
+    0,
+  );
+}
+
+/** Legacy: actual-price subtotal (mrp + markup). Not shown to customer. */
 export function cartSubtotal(items: CartItem[]): number {
   return items.reduce((s, i) => s + i.priceInr * i.qty, 0);
 }
