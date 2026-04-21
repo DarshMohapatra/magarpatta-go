@@ -21,8 +21,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const elapsed = Math.floor((Date.now() - order.placedAt.getTime()) / 1000);
   const expected = expectedStatusForElapsed(elapsed);
 
+  // If a real rider has claimed the order, their actions drive status — skip
+  // the demo auto-progression and trust what's in the DB.
+  const riderDriven = Boolean(order.riderPhone);
+
   // Persist status transitions so timestamps land on the DB (acceptedAt etc).
-  if (expected !== order.status) {
+  if (!riderDriven && expected !== order.status) {
     const patch: Record<string, Date> = {};
     const now = new Date();
     if (expected === 'ACCEPTED' && !order.acceptedAt) patch.acceptedAt = now;

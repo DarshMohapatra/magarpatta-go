@@ -29,6 +29,7 @@ interface OrderData {
   status: OrderStatus;
   placedAt: string;
   deliveredAt: string | null;
+  riderName: string | null;
   subtotalInr: number;
   convenienceInr: number;
   taxInr: number;
@@ -150,6 +151,24 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           building={order.building}
           flat={order.flat}
         />
+
+        {/* Rider assignment card */}
+        {order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
+          <div className="mt-6 rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-forest)]/5 p-5 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
+              {order.riderName[0]}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Your rider</div>
+              <div className="mt-0.5 font-serif text-[18px] leading-tight">
+                {order.riderName} is on this one.
+              </div>
+              <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
+                A neighbour on a Magarpatta-registered cycle. They&apos;ll ask for the OTP below on drop.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Delivery OTP — shown while the rider is inbound, hidden after delivery */}
         {live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (

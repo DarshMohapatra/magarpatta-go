@@ -191,6 +191,11 @@ model Order {
   vendorName     String?
   vendorHub      String?
 
+  // Rider assignment — when set, real rider actions drive status
+  // transitions (demo auto-progression is disabled for this order).
+  riderPhone     String?
+  riderName      String?
+
   notes          String?
   placedAt       DateTime      @default(now())
   acceptedAt     DateTime?
@@ -203,6 +208,7 @@ model Order {
   @@index([userId])
   @@index([status])
   @@index([placedAt])
+  @@index([riderPhone])
 }
 
 model OrderItem {

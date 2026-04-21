@@ -24,7 +24,7 @@ const COL = [
       { label: 'About', href: '#' },
       { label: 'Careers', href: '#' },
       { label: 'Partner with us', href: '#' },
-      { label: 'Ride with us', href: '#' },
+      { label: 'Rider sign in', href: '/rider' },
     ],
   },
   {

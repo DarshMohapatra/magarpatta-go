@@ -31,6 +31,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           status: order.status,
           placedAt: order.placedAt.toISOString(),
           deliveredAt: order.deliveredAt?.toISOString() ?? null,
+          riderName: order.riderName,
           subtotalInr: order.subtotalInr,
           convenienceInr: order.convenienceInr,
           taxInr: order.taxInr,
