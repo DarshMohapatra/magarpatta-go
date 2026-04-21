@@ -1,0 +1,60 @@
+import { notFound, redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from '@/lib/session';
+import { NavbarWithSession } from '@/components/navbar-with-session';
+import { Footer } from '@/components/footer';
+import { CartDrawer } from '@/components/cart-drawer';
+import { OrderDetailClient } from './order-detail-client';
+
+export const dynamic = 'force-dynamic';
+
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const session = await getServerSession();
+  if (!session) redirect('/signin');
+
+  const user = await prisma.user.findUnique({ where: { phone: session.phone } });
+  if (!user) notFound();
+
+  const order = await prisma.order.findFirst({
+    where: { id, userId: user.id },
+    include: { items: true },
+  });
+  if (!order) notFound();
+
+  return (
+    <main className="relative z-10 min-h-screen">
+      <NavbarWithSession />
+      <OrderDetailClient
+        order={{
+          id: order.id,
+          status: order.status,
+          placedAt: order.placedAt.toISOString(),
+          subtotalInr: order.subtotalInr,
+          deliveryFeeInr: order.deliveryFeeInr,
+          totalInr: order.totalInr,
+          society: order.society,
+          building: order.building,
+          flat: order.flat,
+          vendorName: order.vendorName,
+          vendorHub: order.vendorHub,
+          paymentMethod: order.paymentMethod,
+          notes: order.notes,
+          items: order.items.map((i) => ({
+            id: i.id,
+            name: i.name,
+            vendorName: i.vendorName,
+            unit: i.unit,
+            priceInr: i.priceInr,
+            quantity: i.quantity,
+            accent: i.accent,
+            glyph: i.glyph,
+            imageUrl: i.imageUrl,
+          })),
+        }}
+      />
+      <Footer />
+      <CartDrawer />
+    </main>
+  );
+}

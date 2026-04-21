@@ -119,9 +119,8 @@ export function AccountMenu({ initialSession }: Props) {
             <a href="/menu" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Browse menu
             </a>
-            <a href="#" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <a href="/orders" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Orders
-              <span className="ml-2 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/60">soon</span>
             </a>
             <a href="/signup" className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Update address

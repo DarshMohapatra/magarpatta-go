@@ -161,17 +161,18 @@ export function CartDrawer() {
               <span className="font-serif text-[22px] text-[color:var(--color-forest)]">₹{total}</span>
             </div>
 
-            <button
-              disabled
-              className="mt-2 w-full rounded-2xl bg-[color:var(--color-ink)]/5 text-[color:var(--color-ink-soft)]/65 px-5 py-4 font-medium text-[14px] cursor-not-allowed flex items-center justify-center gap-2"
+            <a
+              href="/checkout"
+              onClick={close}
+              className="mt-2 w-full rounded-2xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] px-5 py-4 font-medium text-[14px] transition-colors flex items-center justify-center gap-2"
             >
-              Checkout · coming soon
-              <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/50">
-                Razorpay pending KYC
-              </span>
-            </button>
+              Checkout · ₹{total}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
             <p className="text-[11.5px] text-center text-[color:var(--color-ink-soft)]/70">
-              We&apos;ll enable checkout the moment Razorpay KYC clears.
+              Cash on delivery · UPI &amp; card arrive with Razorpay.
             </p>
           </footer>
         )}

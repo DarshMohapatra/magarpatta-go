@@ -15,6 +15,7 @@ model User {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   addresses   UserAddress[]
+  orders      Order[]
 
   @@index([phone])
 }
@@ -89,7 +90,7 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   vendorId    String
   categoryId  String
   name        String
@@ -97,18 +98,87 @@ model Product {
   priceInr    Int
   mrpInr      Int?
   unit        String?
-  isVeg       Boolean  @default(true)
-  isRegulated Boolean  @default(true)
-  inStock     Boolean  @default(true)
+  isVeg       Boolean     @default(true)
+  isRegulated Boolean     @default(true)
+  inStock     Boolean     @default(true)
   accent      String?
   glyph       String?
   tagline     String?
   imageUrl    String?
-  createdAt   DateTime @default(now())
-  vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt   DateTime    @default(now())
+  vendor      Vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems  OrderItem[]
 
   @@index([vendorId])
   @@index([categoryId])
   @@index([inStock])
+}
+
+enum OrderStatus {
+  PLACED
+  ACCEPTED
+  PREPARING
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  UPI
+  CARD
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  userId         String
+  status         OrderStatus   @default(PLACED)
+  paymentMethod  PaymentMethod @default(COD)
+
+  // Address snapshot at time of order
+  society        String
+  building       String
+  flat           String
+
+  // Rupee totals
+  subtotalInr    Int
+  deliveryFeeInr Int
+  totalInr       Int
+
+  // Vendor snapshot — for single-vendor orders, the pickup shop
+  vendorName     String?
+  vendorHub      String?
+
+  notes          String?
+  placedAt       DateTime      @default(now())
+  acceptedAt     DateTime?
+  pickedUpAt     DateTime?
+  deliveredAt    DateTime?
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items          OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([placedAt])
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  productId  String
+  name       String
+  vendorName String
+  unit       String?
+  priceInr   Int
+  quantity   Int
+  accent     String?
+  glyph      String?
+  imageUrl   String?
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
 }
