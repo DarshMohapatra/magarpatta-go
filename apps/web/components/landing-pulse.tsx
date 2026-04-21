@@ -5,9 +5,10 @@ import { useEffect, useState } from 'react';
 const FRESH_ROTATION = [
   { where: 'Kalika Sweets',                       what: 'Hot jalebi',                ago: 'just now' },
   { where: 'Starbucks · Seasons',                 what: 'Single-origin pour-over',   ago: '6 min ago' },
+  { where: 'Theobroma',                           what: 'Dutch truffle cake',        ago: '9 min ago' },
   { where: 'Destination Centre',                  what: 'Alphonso mangoes',          ago: '14 min ago' },
+  { where: "Pop Tate's · Seasons",                what: 'Margherita · wood-fired',   ago: '18 min ago' },
   { where: 'Kalika Sweets',                       what: 'Kadhai samosa',             ago: '20 min ago' },
-  { where: 'Malaka Spice · Seasons',              what: 'Thai red curry',            ago: '24 min ago' },
   { where: 'Magarpatta Pharmacy',                 what: 'Daily refills ready',       ago: 'standing by' },
 ];
 

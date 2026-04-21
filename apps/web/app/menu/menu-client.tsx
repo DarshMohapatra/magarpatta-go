@@ -76,9 +76,9 @@ export function MenuClient({
               )}
             </h1>
             <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
-              Sourced from eight partner shops inside or adjacent to Magarpatta — Destination
-              Centre, Kalika Sweets, your pharmacy, your meat shop, and the Seasons Mall tenants
-              (Starbucks, McDonald&rsquo;s, Coffee Bean &amp; Tea Leaf, Malaka Spice).
+              Sourced from nine partner shops inside or adjacent to Magarpatta — Destination
+              Centre, Kalika Sweets, your pharmacy, your meat shop, Theobroma (Amanora), and the
+              Seasons Mall tenants (Starbucks, McDonald&rsquo;s, Coffee Bean &amp; Tea Leaf, Pop Tate&rsquo;s).
             </p>
           </div>
         </div>

@@ -8,7 +8,7 @@ const DROPS = [
   { where: 'Destination Centre',          what: 'Alphonso mangoes, Ratnagiri', when: '12 min ago', tag: 'fruit' },
   { where: 'Shraddha Meats',              what: 'Cut-to-order chicken',        when: '18 min ago', tag: 'meat' },
   { where: 'Starbucks · Seasons',         what: 'Batch brew, medium roast',    when: '22 min ago', tag: 'coffee' },
-  { where: 'Malaka Spice · Seasons',      what: 'Chicken satay · off the grill', when: '25 min ago', tag: 'asian' },
+  { where: "Pop Tate's · Seasons",        what: 'Cheese Margherita · wood-fired', when: '25 min ago', tag: 'restaurant' },
   { where: 'Kalika Sweets',               what: 'Samosa (kadhai fresh)',       when: '28 min ago', tag: 'sweets' },
 ];
 

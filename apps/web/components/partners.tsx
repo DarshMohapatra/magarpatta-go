@@ -6,7 +6,8 @@ const PARTNERS = [
   'Starbucks · Seasons',
   "McDonald's · Seasons",
   'Coffee Bean & Tea Leaf',
-  'Malaka Spice · Seasons',
+  "Pop Tate's · Seasons",
+  'Theobroma',
 ];
 
 export function Partners() {
