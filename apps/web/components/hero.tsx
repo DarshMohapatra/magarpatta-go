@@ -24,9 +24,10 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 max-w-xl text-[16px] lg:text-[17px] leading-[1.55] text-[color:var(--color-ink-soft)]">
-              Food, groceries, medicines, fresh meat and daily essentials — sourced only from within
-              Magarpatta and delivered in under 25 minutes. By neighbours, for neighbours. Four
-              riders. Sixteen societies. Zero borders crossed.
+              Food, groceries, medicines, fresh meat and daily essentials — sourced only from
+              within Magarpatta and delivered in under 25 minutes. By neighbours, for neighbours.
+              Four riders. Sixteen societies. Two hundred and fifty-nine buildings. Zero borders
+              crossed.
             </p>
 
             <div className="mt-8 lg:mt-10">
@@ -47,7 +48,7 @@ export function Hero() {
                 >
                   Create an account
                 </a>
-                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">40 items live · 16 societies</span>
+                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">64 items live · 16 societies</span>
               </div>
               <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)]/70 max-w-xl">
                 We deliver <span className="font-medium text-[color:var(--color-ink)]">only</span>{' '}
@@ -64,9 +65,9 @@ export function Hero() {
         <div className="mt-16 lg:mt-20 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-ink)]/10">
           {[
             { v: '16', l: 'societies mapped' },
+            { v: '259', l: 'buildings · Magarpatta' },
             { v: '25', l: 'min median delivery' },
-            { v: '4', l: 'rider fleet · Phase 1' },
-            { v: '6', l: 'partner shops · Magarpatta' },
+            { v: '10', l: 'partner shops' },
           ].map((s) => (
             <div key={s.l}>
               <div className="font-serif text-5xl lg:text-[56px] leading-none text-[color:var(--color-forest)]">

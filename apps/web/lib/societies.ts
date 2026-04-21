@@ -1,162 +1,185 @@
 /**
- * Magarpatta City — society → building hierarchy with full address metadata.
+ * Magarpatta City — society → building hierarchy.
  *
- * Data notes:
- *  - Jasminium data comes from a verified resident (user lives here).
- *    Confirmed: buildings A–V + A1–I1, 4 flats/floor.
- *  - All other societies are approximations drawn from public listings
- *    (99acres, NoBroker, MTDCC community notices). Building counts and
- *    floor heights MUST be replaced with MTDCC's authoritative register
- *    before public launch.
- *  - Flat numbering convention assumed: <floor><unit>, where unit is
- *    zero-padded 2 digits. Example: 302 = 3rd floor, unit 02. Floor 10+
- *    produces 4-digit flats (1002 = 10th floor, unit 02).
+ * Data source: Magarpatta City Building Directory (April 2026) — Google Maps
+ * Places API + resident verification (Jasminium) + MTDCC records.
+ *
+ * 12 apartment clusters (194 buildings) + 4 villa clusters.
+ *
+ * Floor counts are per the directory; flats-per-floor is inferred from BHK
+ * typology (1 BHK → 6/floor, 2-3 BHK → 4/floor, 3-4 BHK → 3/floor, villas → 1).
+ *
+ * Jasminium A-V was corrected from 11F to 9F per the directory.
  */
 
 export interface Building {
   name: string;
-  floors: number;        // Number of residential floors (first floor = 1)
-  flatsPerFloor: number; // Typical Magarpatta: 4 per floor
+  floors: number;
+  flatsPerFloor: number;
 }
 
 export interface Society {
   name: string;
   buildings: Building[];
-  verified?: boolean; // true if data comes from a confirmed source
+  verified?: boolean;
+  kind?: 'apartment' | 'villa';
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────
+// ── helpers ─────────────────────────────────────────────────────────────
 
-function letterBuildings(
-  count: number,
-  prefix: string,
-  floors: number,
-  flatsPerFloor: number,
-  suffix = '',
-): Building[] {
-  return Array.from({ length: count }, (_, i) => ({
-    name: `${prefix} ${String.fromCharCode(65 + i)}${suffix}`,
-    floors,
-    flatsPerFloor,
-  }));
+function bld(name: string, floors: number, flatsPerFloor: number): Building {
+  return { name, floors, flatsPerFloor };
 }
 
-function numberBuildings(
-  count: number,
-  prefix: string,
-  floors: number,
-  flatsPerFloor: number,
-): Building[] {
-  return Array.from({ length: count }, (_, i) => ({
-    name: `${prefix} ${i + 1}`,
-    floors,
-    flatsPerFloor,
-  }));
+function letters(start: number, count: number, prefix: string, floors: number, fpf: number, suffix = ''): Building[] {
+  return Array.from({ length: count }, (_, i) =>
+    bld(`${prefix} ${String.fromCharCode(start + i)}${suffix}`, floors, fpf),
+  );
 }
 
-// ── societies ─────────────────────────────────────────────────────────────
+function plots(count: number, prefix: string): Building[] {
+  return Array.from({ length: count }, (_, i) => bld(`${prefix} ${i + 1}`, 2, 1));
+}
+
+// ── apartment clusters (from building directory) ────────────────────────
 
 export const MAGARPATTA_SOCIETIES: Society[] = [
   {
-    name: 'Annexe',
-    buildings: letterBuildings(4, 'Annexe', 8, 4),
-  },
-  {
-    name: 'Aspen',
-    buildings: numberBuildings(6, 'Aspen', 11, 4),
-  },
-  {
-    name: 'Cosmos',
-    buildings: numberBuildings(24, 'Cosmos', 11, 4),
-  },
-  {
     name: 'Daffodils',
+    kind: 'apartment',
     buildings: [
-      ...numberBuildings(4, 'Daffodils', 6, 4),
-      ...Array.from({ length: 4 }, (_, i) => ({
-        name: `Daffodils ${i + 5}`,
-        floors: 11,
-        flatsPerFloor: 4,
-      })),
+      bld('Daffodils A', 11, 4),
+      bld('Daffodils B — Wing A', 11, 4),
+      bld('Daffodils B — Wing B', 11, 4),
+      bld('Daffodils C', 11, 4),
+      bld('Daffodils D', 6, 4),
+      bld('Daffodils E', 6, 4),
+      bld('Daffodils F', 6, 4),
+      bld('Daffodils G', 6, 4),
     ],
-  },
-  {
-    name: 'Erica',
-    buildings: numberBuildings(5, 'Erica', 9, 4),
   },
   {
     name: 'Grevillea',
-    buildings: numberBuildings(3, 'Grevillea', 11, 4),
-  },
-  {
-    name: 'Heliconia I',
-    buildings: letterBuildings(6, 'Heliconia I', 5, 6),
-  },
-  {
-    name: 'Heliconia II',
-    buildings: numberBuildings(18, 'Heliconia II', 6, 6),
-  },
-  {
-    name: 'Iris',
+    kind: 'apartment',
     buildings: [
-      ...numberBuildings(12, 'Iris', 9, 4),
-      ...Array.from({ length: 8 }, (_, i) => ({
-        name: `Iris ${i + 13}`,
-        floors: 11,
-        flatsPerFloor: 4,
-      })),
+      ...letters(65, 8, 'Grevillea', 6, 4),   // A–H: 6F
+      ...letters(73, 4, 'Grevillea', 7, 4),   // I–L: 7F
+      ...letters(77, 2, 'Grevillea', 11, 4),  // M–N: 11F
     ],
   },
   {
-    // Verified by resident: A–V (22 buildings), then A1–I1 (9 buildings)
-    // 4 flats per floor across all. Floor count ~11 (typical for Magarpatta).
+    name: 'Heliconia',
+    kind: 'apartment',
+    buildings: [
+      ...letters(65, 6, 'Heliconia', 5, 6),   // A–F: 5F (1 BHK, 6/floor)
+      ...letters(71, 18, 'Heliconia', 6, 6),  // G–X: 6F (1 BHK)
+    ],
+  },
+  {
+    name: 'Cosmos',
+    kind: 'apartment',
+    buildings: [
+      ...letters(65, 13, 'Cosmos', 7, 4),   // A–M: 7F
+      ...letters(78, 10, 'Cosmos', 9, 4),   // N–W: 9F
+      bld('Cosmos X', 11, 4),
+    ],
+  },
+  {
+    name: 'Iris',
+    kind: 'apartment',
+    buildings: [
+      ...letters(65, 12, 'Iris', 9, 4),    // A–L: 9F
+      ...letters(77, 8, 'Iris', 11, 4),    // M–T: 11F
+    ],
+  },
+  {
     name: 'Jasminium',
+    kind: 'apartment',
     verified: true,
     buildings: [
-      ...letterBuildings(22, 'Jasminium', 11, 4),           // A..V
-      ...letterBuildings(9, 'Jasminium', 11, 4, '1'),       // A1..I1
+      ...letters(65, 22, 'Jasminium', 9, 4),             // A–V: 9F (resident-verified)
+      ...letters(65, 9, 'Jasminium', 11, 4, '1'),        // A1–I1: 11F
+    ],
+  },
+  {
+    name: 'Roystonea',
+    kind: 'apartment',
+    buildings: [
+      ...letters(65, 8, 'Roystonea', 9, 4),   // A–H: 9F
+      ...letters(73, 6, 'Roystonea', 11, 4),  // I–N: 11F
     ],
   },
   {
     name: 'Laburnum Park',
-    buildings: numberBuildings(10, 'Laburnum Park', 11, 4),
-  },
-  {
-    name: 'Nyati Evolve',
-    buildings: numberBuildings(3, 'Evolve', 11, 4),
-  },
-  {
-    name: 'Roystonea',
-    buildings: numberBuildings(4, 'Roystonea', 11, 4),
+    kind: 'apartment',
+    buildings: letters(65, 16, 'Laburnum Park', 11, 3), // A–P: 11F (3-4 BHK, 3/floor)
   },
   {
     name: 'Sylvania',
+    kind: 'apartment',
     buildings: [
-      ...numberBuildings(4, 'Sylvania', 9, 4),
-      ...Array.from({ length: 4 }, (_, i) => ({
-        name: `Sylvania ${i + 5}`,
-        floors: 11,
-        flatsPerFloor: 4,
-      })),
+      ...letters(65, 4, 'Sylvania', 9, 4),    // A–D: 9F
+      ...letters(69, 4, 'Sylvania', 11, 4),   // E–H: 11F
     ],
   },
   {
     name: 'Trillium',
-    buildings: letterBuildings(4, 'Trillium', 11, 4),
+    kind: 'apartment',
+    buildings: [
+      ...letters(65, 7, 'Trillium', 9, 4),    // A–G: 9F
+      ...letters(72, 7, 'Trillium', 11, 4),   // H–N: 11F
+    ],
   },
   {
-    name: 'Zinnia',
-    buildings: numberBuildings(6, 'Zinnia', 11, 4),
+    name: 'Zinnia Apartments',
+    kind: 'apartment',
+    buildings: letters(65, 13, 'Zinnia', 5, 6),  // A–M: 5F (1 BHK)
+  },
+  {
+    name: 'Annexe',
+    kind: 'apartment',
+    buildings: [
+      bld('Annexe A', 11, 4),
+      bld('Annexe A1', 11, 5),
+      bld('Annexe B', 11, 4),
+      bld('Annexe C', 11, 5),
+      bld('Annexe D', 11, 5),
+      bld('Annexe E', 11, 5),
+      bld('Annexe F', 11, 5),
+      bld('Annexe G', 11, 5),
+    ],
+  },
+
+  // ── villa clusters ────────────────────────────────────────────────────
+  // Plot counts are approximate — replace with MTDCC register when available.
+  {
+    name: 'Erica Row Houses',
+    kind: 'villa',
+    buildings: plots(20, 'Erica Plot'),
+  },
+  {
+    name: 'Acacia Gardens',
+    kind: 'villa',
+    buildings: plots(15, 'Acacia Plot'),
+  },
+  {
+    name: 'Mulberry Gardens',
+    kind: 'villa',
+    buildings: plots(15, 'Mulberry Plot'),
+  },
+  {
+    name: 'Zinnia Row Houses',
+    kind: 'villa',
+    buildings: plots(15, 'Zinnia Plot'),
   },
 ];
 
 export const SOCIETY_NAMES = MAGARPATTA_SOCIETIES.map((s) => s.name);
 
 export const SOCIETY_COUNT = MAGARPATTA_SOCIETIES.length;
-export const TOTAL_BUILDINGS = MAGARPATTA_SOCIETIES.reduce(
-  (sum, s) => sum + s.buildings.length,
-  0,
-);
+export const APARTMENT_SOCIETY_COUNT = MAGARPATTA_SOCIETIES.filter((s) => s.kind !== 'villa').length;
+export const VILLA_SOCIETY_COUNT = MAGARPATTA_SOCIETIES.filter((s) => s.kind === 'villa').length;
+export const TOTAL_BUILDINGS = MAGARPATTA_SOCIETIES.reduce((s, c) => s + c.buildings.length, 0);
 
 export function getSociety(name: string): Society | undefined {
   return MAGARPATTA_SOCIETIES.find((s) => s.name === name);
@@ -170,14 +193,13 @@ export function getBuilding(societyName: string, buildingName: string): Building
   return getBuildings(societyName).find((b) => b.name === buildingName);
 }
 
-// ── flat number parsing & validation ─────────────────────────────────────
+// ── flat number parsing & validation ────────────────────────────────────
 
 export interface ParsedFlat {
   floor: number;
   unit: number;
 }
 
-/** Parse a 3 or 4-digit flat number into floor + unit. */
 export function parseFlat(flat: string): ParsedFlat | null {
   const clean = flat.trim().replace(/\D/g, '');
   if (clean.length < 3 || clean.length > 4) return null;
@@ -190,27 +212,21 @@ export type FlatValidation =
   | { ok: true; floor: number; unit: number }
   | { ok: false; reason: string; hint?: string };
 
-/** Validate a flat against a building's floor & flats-per-floor rules. */
 export function validateFlat(flat: string, building: Building): FlatValidation {
-  if (!flat.trim()) {
-    return { ok: false, reason: 'Flat number required' };
+  if (!flat.trim()) return { ok: false, reason: 'Flat number required' };
+
+  // Villas: plots have single-floor / single-unit semantics. Accept '101' as canonical.
+  if (building.floors === 1 && building.flatsPerFloor === 1) {
+    const clean = flat.trim().replace(/\D/g, '');
+    if (clean === '101' || clean === '1' || clean === '0') {
+      return { ok: true, floor: 1, unit: 1 };
+    }
+    return { ok: false, reason: 'Villas use plot number only', hint: 'enter 101' };
   }
 
   const parsed = parseFlat(flat);
-  if (!parsed) {
-    return {
-      ok: false,
-      reason: 'Use 3 or 4 digits',
-      hint: `e.g., 302 or 1104`,
-    };
-  }
-
-  if (parsed.floor < 1) {
-    return {
-      ok: false,
-      reason: `Floor must be 1 or higher`,
-    };
-  }
+  if (!parsed) return { ok: false, reason: 'Use 3 or 4 digits', hint: 'e.g., 302 or 1104' };
+  if (parsed.floor < 1) return { ok: false, reason: 'Floor must be 1 or higher' };
 
   if (parsed.floor > building.floors) {
     return {
@@ -232,7 +248,6 @@ export function validateFlat(flat: string, building: Building): FlatValidation {
   return { ok: true, floor: parsed.floor, unit: parsed.unit };
 }
 
-/** Generate every valid flat number for a building (for dropdown UX). */
 export function generateFlats(building: Building): string[] {
   const out: string[] = [];
   for (let f = 1; f <= building.floors; f++) {

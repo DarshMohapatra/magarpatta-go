@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { CartDrawer } from '@/components/cart-drawer';
 import { LandingPulse } from '@/components/landing-pulse';
+import { prisma } from '@/lib/prisma';
 
 export const metadata = {
   title: 'Magarpatta Go — Daily delights, delivered within your township',
@@ -9,7 +10,15 @@ export const metadata = {
     'Hyper-local delivery inside Magarpatta City, Pune. Food, groceries, medicines, fresh meat. Under 25 minutes. By neighbours, for neighbours.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function Landing() {
+  const [itemCount, vendorCount, societyCount] = await Promise.all([
+    prisma.product.count({ where: { inStock: true } }),
+    prisma.vendor.count({ where: { active: true } }),
+    prisma.society.count(),
+  ]);
+
   return (
     <main className="relative z-10 min-h-screen flex flex-col">
       <NavbarWithSession />
@@ -100,10 +109,10 @@ export default async function Landing() {
           {/* Thin stat strip */}
           <div className="mt-20 lg:mt-24 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-ink)]/10">
             {[
-              { v: '16', l: 'societies mapped' },
+              { v: String(societyCount), l: 'societies mapped' },
               { v: '25', l: 'min median delivery' },
-              { v: '4', l: 'rider fleet · Phase 1' },
-              { v: '40', l: 'items live' },
+              { v: String(vendorCount), l: 'partner shops' },
+              { v: String(itemCount), l: 'items live' },
             ].map((s) => (
               <div key={s.l}>
                 <div className="font-serif text-5xl lg:text-[56px] leading-none text-[color:var(--color-forest)]">

@@ -76,8 +76,9 @@ export function MenuClient({
               )}
             </h1>
             <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
-              Sourced only from Destination Centre, Kalika Sweets, your Magarpatta pharmacy, and
-              your meat shop. Seasons Mall partners (Starbucks, Baker&rsquo;s Basket) coming in a later drop.
+              Sourced from ten partner shops inside or adjacent to Magarpatta — Destination
+              Centre, Kalika Sweets, your pharmacy, your meat shop, and the Seasons Mall tenants
+              (Starbucks, Theobroma, Blue Tokai, Mainland China, Foodhall, Baker&rsquo;s Basket).
             </p>
           </div>
         </div>
