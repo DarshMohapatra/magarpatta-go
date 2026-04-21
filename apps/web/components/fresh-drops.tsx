@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 
 const DROPS = [
-  { where: 'Kalika Sweets', what: 'Hot jalebi', when: 'just now', tag: 'sweets' },
-  { where: 'The Baker\'s Basket', what: 'Sourdough loaves', when: '6 min ago', tag: 'bakery' },
-  { where: 'Destination Centre', what: 'Alphonso mangoes, Ratnagiri', when: '12 min ago', tag: 'fruit' },
-  { where: 'Shraddha Meats', what: 'Cut-to-order chicken', when: '18 min ago', tag: 'meat' },
-  { where: 'Seasons Mall — Starbucks', what: 'Batch brew, medium roast', when: '22 min ago', tag: 'coffee' },
-  { where: 'Kalika Sweets', what: 'Samosa (kadhai fresh)', when: '28 min ago', tag: 'sweets' },
+  { where: 'Kalika Sweets',               what: 'Hot jalebi',                  when: 'just now',   tag: 'sweets' },
+  { where: "McDonald's · Seasons",        what: 'McSpicy Chicken · batch out', when: '6 min ago',  tag: 'fast food' },
+  { where: 'Destination Centre',          what: 'Alphonso mangoes, Ratnagiri', when: '12 min ago', tag: 'fruit' },
+  { where: 'Shraddha Meats',              what: 'Cut-to-order chicken',        when: '18 min ago', tag: 'meat' },
+  { where: 'Starbucks · Seasons',         what: 'Batch brew, medium roast',    when: '22 min ago', tag: 'coffee' },
+  { where: 'Malaka Spice · Seasons',      what: 'Chicken satay · off the grill', when: '25 min ago', tag: 'asian' },
+  { where: 'Kalika Sweets',               what: 'Samosa (kadhai fresh)',       when: '28 min ago', tag: 'sweets' },
 ];
 
 export function FreshDrops() {

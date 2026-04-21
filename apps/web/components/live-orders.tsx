@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react';
 
 const ORDERS = [
-  { who: 'Aashna', where: 'Cosmos', what: 'Evening chai + samosa plate', from: 'Kalika Sweets' },
-  { who: 'Karan', where: 'Iris', what: 'Weekly grocery run', from: 'Destination Centre' },
-  { who: 'Meera', where: 'Jasminium', what: 'Paracetamol + Vicks', from: 'Magarpatta Pharmacy' },
-  { who: 'Rohan', where: 'Daffodils', what: 'Chicken breast, 500g', from: 'Shraddha Meats' },
-  { who: 'Sneha', where: 'Laburnum Park', what: 'Sourdough + almond croissant', from: "Baker's Basket" },
-  { who: 'Vikram', where: 'Aspen', what: 'Tall cappuccino', from: 'Seasons Mall — Starbucks' },
-  { who: 'Priya', where: 'Trillium', what: 'Milk, eggs, bread', from: 'Destination Centre' },
-  { who: 'Arjun', where: 'Erica', what: 'Hot jalebi, 250g', from: 'Kalika Sweets' },
+  { who: 'Aashna', where: 'Cosmos',          what: 'Evening chai + samosa plate',  from: 'Kalika Sweets' },
+  { who: 'Karan',  where: 'Iris',            what: 'Weekly grocery run',            from: 'Destination Centre' },
+  { who: 'Meera',  where: 'Jasminium',       what: 'Paracetamol + Vicks',           from: 'Magarpatta Pharmacy' },
+  { who: 'Rohan',  where: 'Daffodils',       what: 'Chicken breast, 500g',          from: 'Shraddha Meats' },
+  { who: 'Sneha',  where: 'Laburnum Park',   what: 'Pad thai noodles',              from: 'Malaka Spice · Seasons' },
+  { who: 'Vikram', where: 'Roystonea',       what: 'Tall cappuccino',               from: 'Starbucks · Seasons' },
+  { who: 'Priya',  where: 'Trillium',        what: 'Milk, eggs, bread',             from: 'Destination Centre' },
+  { who: 'Arjun',  where: 'Heliconia',       what: 'Hot jalebi, 250g',              from: 'Kalika Sweets' },
+  { who: 'Neha',   where: 'Sylvania',        what: 'McSpicy + fries',               from: "McDonald's · Seasons" },
 ];
 
 export function LiveOrders() {

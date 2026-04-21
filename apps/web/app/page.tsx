@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { CartDrawer } from '@/components/cart-drawer';
 import { LandingPulse } from '@/components/landing-pulse';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from '@/lib/session';
 
 export const metadata = {
   title: 'Magarpatta Go — Daily delights, delivered within your township',
@@ -13,6 +15,12 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Landing() {
+  // Signed-in users bypass the pre-auth landing and go straight to the app.
+  // Their mg_session cookie (30-day maxAge) means tab close + reopen lands
+  // them back on /menu, not this page.
+  const session = await getServerSession();
+  if (session) redirect('/menu');
+
   const [itemCount, vendorCount, societyCount] = await Promise.all([
     prisma.product.count({ where: { inStock: true } }),
     prisma.vendor.count({ where: { active: true } }),

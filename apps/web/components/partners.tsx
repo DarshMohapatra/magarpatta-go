@@ -1,12 +1,12 @@
 const PARTNERS = [
   'Destination Centre',
-  'Seasons Mall',
   'Kalika Sweets',
   'Magarpatta Pharmacy',
-  'Amanora Fresh',
-  'Dorabjee\'s',
   'Shraddha Meats',
-  'The Baker\'s Basket',
+  'Starbucks · Seasons',
+  "McDonald's · Seasons",
+  'Coffee Bean & Tea Leaf',
+  'Malaka Spice · Seasons',
 ];
 
 export function Partners() {

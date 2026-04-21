@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 
 const FRESH_ROTATION = [
-  { where: 'Kalika Sweets',          what: 'Hot jalebi',            ago: 'just now' },
-  { where: "Baker's Basket",         what: 'Sourdough loaves',      ago: '7 min ago' },
-  { where: 'Destination Centre',     what: 'Alphonso mangoes',      ago: '14 min ago' },
-  { where: 'Kalika Sweets',          what: 'Kadhai samosa',         ago: '20 min ago' },
-  { where: 'Magarpatta Pharmacy',    what: 'Daily refills ready',   ago: 'standing by' },
+  { where: 'Kalika Sweets',                       what: 'Hot jalebi',                ago: 'just now' },
+  { where: 'Starbucks · Seasons',                 what: 'Single-origin pour-over',   ago: '6 min ago' },
+  { where: 'Destination Centre',                  what: 'Alphonso mangoes',          ago: '14 min ago' },
+  { where: 'Kalika Sweets',                       what: 'Kadhai samosa',             ago: '20 min ago' },
+  { where: 'Malaka Spice · Seasons',              what: 'Thai red curry',            ago: '24 min ago' },
+  { where: 'Magarpatta Pharmacy',                 what: 'Daily refills ready',       ago: 'standing by' },
 ];
 
 export function LandingPulse() {
