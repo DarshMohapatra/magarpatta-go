@@ -2,30 +2,30 @@
 
 @theme {
   /* Neutrals */
-  --color-ink: #0f0f0e;
-  --color-ink-soft: #2a2a28;
-  --color-paper: #fffdf9;
-  --color-cream: #faf4ea;
-  --color-cream-soft: #f1e9d5;
-  --color-bone: #e6ddc9;
+  --color-ink: #14110c;
+  --color-ink-soft: #3a3530;
+  --color-paper: #fffdf7;
+  --color-cream: #f7efe1;
+  --color-cream-soft: #eee3ce;
+  --color-bone: #e1d4bc;
 
-  /* Brand primary — richer emerald-forest */
-  --color-forest: #0f5132;
-  --color-forest-dark: #06381f;
+  /* Brand primary — deeper, richer forest */
+  --color-forest: #0d4a2e;
+  --color-forest-dark: #06311c;
   --color-moss: #2d6b48;
   --color-sage: #5a7a63;
 
-  /* Accents — more saturated */
-  --color-saffron: #e59024;
+  /* Accents — amped up */
+  --color-saffron: #e68a17;
   --color-saffron-soft: #f4b564;
+  --color-gold: #c79321;
+  --color-gold-soft: #e6c15d;
   --color-terracotta: #c64f2e;
-  --color-terracotta-dark: #9f3a1e;
-
-  /* New punchier accents */
-  --color-gold: #d9a521;
-  --color-plum: #6b2e4d;
-  --color-teal: #0c7c6a;
-  --color-coral: #ee6c4d;
+  --color-terracotta-dark: #962f15;
+  --color-burgundy: #7a1f2b;
+  --color-plum: #5e2544;
+  --color-teal: #0e6b5c;
+  --color-coral: #e85d3d;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-instrument), 'Times New Roman', serif;
