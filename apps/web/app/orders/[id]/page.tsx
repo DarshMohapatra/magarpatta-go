@@ -49,11 +49,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           notes: order.notes,
           items: order.items.map((i) => ({
             id: i.id,
+            productId: i.productId,
             name: i.name,
             vendorName: i.vendorName,
             unit: i.unit,
             priceInr: i.priceInr,
             mrpInr: i.mrpInr,
+            isRegulated: i.isRegulated,
             quantity: i.quantity,
             accent: i.accent,
             glyph: i.glyph,

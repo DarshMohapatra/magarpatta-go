@@ -75,6 +75,11 @@ model Vendor {
   hub         String
   description String?
   accent      String?
+  vendorType  String    @default("restaurant") // restaurant | cafe | bakery | sweets | grocery | meat | pharmacy
+  tags        String[]  @default([])            // cuisines or subcategories: Indian, Italian, Chinese, Organic, ...
+  rating      Float?    // seeded / averaged later
+  etaMinutes  Int       @default(25)
+  costForTwo  Int?      // approx ₹ for two (restaurants only)
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   products    Product[]

@@ -1,18 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { OrderStatus, PaymentMethod } from '@prisma/client';
 import { OrderTracker, useLiveOrder } from './order-tracker';
 import { ProductGlyph } from '@/components/product-glyph';
 import { expectedStatusForElapsed } from '@/lib/orders';
+import { useCart } from '@/lib/cart';
 
 interface OrderItem {
   id: string;
+  productId: string;
   name: string;
   vendorName: string;
   unit: string | null;
   priceInr: number;
   mrpInr?: number | null;
+  isRegulated: boolean;
   quantity: number;
   accent: string | null;
   glyph: string | null;
@@ -53,6 +57,9 @@ function paymentLabel(m: PaymentMethod): string {
 }
 
 export function OrderDetailClient({ order }: { order: OrderData }) {
+  const router = useRouter();
+  const cartAdd = useCart((s) => s.add);
+
   const initialElapsed = Math.floor((Date.now() - new Date(order.placedAt).getTime()) / 1000);
   const initialStatus = expectedStatusForElapsed(initialElapsed);
 
@@ -62,6 +69,26 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
   });
 
   const placedDate = new Date(order.placedAt);
+
+  function reorder() {
+    for (const it of order.items) {
+      for (let i = 0; i < it.quantity; i++) {
+        cartAdd({
+          id: it.productId,
+          name: it.name,
+          priceInr: it.priceInr,
+          mrpInr: it.mrpInr ?? it.priceInr,
+          isRegulated: it.isRegulated,
+          unit: it.unit,
+          accent: it.accent,
+          glyph: it.glyph,
+          imageUrl: it.imageUrl,
+          vendorName: it.vendorName,
+        });
+      }
+    }
+    router.push('/checkout');
+  }
 
   return (
     <section className="pt-24 pb-20">
@@ -73,12 +100,12 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           All orders
         </Link>
 
-        <div className="flex items-start justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
           <div>
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
               Order #{order.id.slice(-6)}
             </div>
-            <h1 className="mt-3 font-serif text-[36px] lg:text-[48px] leading-[1.02] tracking-[-0.02em]">
+            <h1 className="mt-3 font-serif text-[32px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.02em]">
               {live.status === 'DELIVERED' ? (
                 <>Delivered. <span className="italic text-[color:var(--color-forest)]">Enjoy.</span></>
               ) : (
@@ -89,6 +116,16 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
               Placed {placedDate.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
+          <button
+            onClick={reorder}
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-forest)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)] hover:text-[color:var(--color-cream)] transition-colors"
+            title="Re-add these items to your cart"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M11 4H3m0 0l3-3M3 4l3 3M3 10h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Reorder
+          </button>
         </div>
 
         {/* Animated tracker */}

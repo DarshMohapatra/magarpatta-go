@@ -77,8 +77,8 @@ export function MenuClient({
             </h1>
             <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
               Sourced from nine partner shops inside or adjacent to Magarpatta.{' '}
-              <a href="/shops" className="text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]">
-                Browse by shop →
+              <a href="/restaurants" className="text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]">
+                Browse by restaurant & shop →
               </a>
             </p>
           </div>
