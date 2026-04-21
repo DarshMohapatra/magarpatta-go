@@ -30,6 +30,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           id: order.id,
           status: order.status,
           placedAt: order.placedAt.toISOString(),
+          deliveredAt: order.deliveredAt?.toISOString() ?? null,
           subtotalInr: order.subtotalInr,
           convenienceInr: order.convenienceInr,
           taxInr: order.taxInr,

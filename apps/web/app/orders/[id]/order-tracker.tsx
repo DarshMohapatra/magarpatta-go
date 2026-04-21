@@ -243,30 +243,38 @@ function formatElapsed(seconds: number): string {
   return `${m}m ${s}s`;
 }
 
-/** Custom hook — polls /api/orders/[id] every 3s so the tracker stays live. */
+/** Custom hook — polls /api/orders/[id] every 3s until the order reaches a
+ * terminal state (DELIVERED / CANCELLED), then stops polling so the elapsed
+ * counter freezes at the delivery moment.
+ */
 export function useLiveOrder(id: string, initial: { status: OrderStatus; elapsedSeconds: number }) {
   const [state, setState] = useState(initial);
 
   useEffect(() => {
+    if (state.status === 'DELIVERED' || state.status === 'CANCELLED') return;
+
     let cancelled = false;
+    let handle: ReturnType<typeof setInterval> | null = null;
     async function tick() {
       try {
         const res = await fetch(`/api/orders/${id}`, { cache: 'no-store' });
         const data = await res.json();
-        if (!cancelled && data.ok) {
-          setState({ status: data.order.status, elapsedSeconds: data.order.elapsedSeconds });
+        if (cancelled || !data.ok) return;
+        setState({ status: data.order.status, elapsedSeconds: data.order.elapsedSeconds });
+        if (data.order.status === 'DELIVERED' || data.order.status === 'CANCELLED') {
+          if (handle) clearInterval(handle);
         }
       } catch {
         /* ignore */
       }
     }
-    const id2 = setInterval(tick, 3000);
+    handle = setInterval(tick, 3000);
     tick();
     return () => {
       cancelled = true;
-      clearInterval(id2);
+      if (handle) clearInterval(handle);
     };
-  }, [id]);
+  }, [id, state.status]);
 
   return state;
 }

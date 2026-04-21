@@ -33,13 +33,20 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       data: { status: expected, ...patch },
     });
     order.status = expected;
+    if (patch.deliveredAt) order.deliveredAt = patch.deliveredAt;
   }
+
+  // Freeze the elapsed counter at the delivery moment once the order is done.
+  const finalElapsed =
+    order.status === 'DELIVERED' && order.deliveredAt
+      ? Math.floor((order.deliveredAt.getTime() - order.placedAt.getTime()) / 1000)
+      : elapsed;
 
   return NextResponse.json({
     ok: true,
     order: {
       ...order,
-      elapsedSeconds: elapsed,
+      elapsedSeconds: finalElapsed,
     },
   });
 }

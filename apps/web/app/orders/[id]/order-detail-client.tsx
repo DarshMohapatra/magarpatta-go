@@ -28,6 +28,7 @@ interface OrderData {
   id: string;
   status: OrderStatus;
   placedAt: string;
+  deliveredAt: string | null;
   subtotalInr: number;
   convenienceInr: number;
   taxInr: number;
@@ -62,8 +63,17 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
   const cartAdd = useCart((s) => s.add);
   const cartClear = useCart((s) => s.clear);
 
-  const initialElapsed = Math.floor((Date.now() - new Date(order.placedAt).getTime()) / 1000);
-  const initialStatus = expectedStatusForElapsed(initialElapsed);
+  const placedMs = new Date(order.placedAt).getTime();
+  const wallElapsed = Math.floor((Date.now() - placedMs) / 1000);
+  const initialStatus =
+    order.status === 'DELIVERED' || order.status === 'CANCELLED'
+      ? order.status
+      : expectedStatusForElapsed(wallElapsed);
+  // If already delivered, freeze the counter at (deliveredAt − placedAt).
+  const initialElapsed =
+    initialStatus === 'DELIVERED' && order.deliveredAt
+      ? Math.floor((new Date(order.deliveredAt).getTime() - placedMs) / 1000)
+      : wallElapsed;
 
   const live = useLiveOrder(order.id, {
     status: initialStatus,
