@@ -37,7 +37,7 @@ export function Navbar({ initialSession = null }: NavbarProps) {
       )}
     >
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2.5 group">
+        <a href={initialSession ? '/menu' : '/'} className="flex items-center gap-2.5 group">
           <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
           <span className="text-[15px] tracking-tight font-medium">
             Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { CartDrawer } from '@/components/cart-drawer';
+import { LandingPulse } from '@/components/landing-pulse';
 
 export const metadata = {
   title: 'Magarpatta Go — Daily delights, delivered within your township',
@@ -43,54 +44,61 @@ export default async function Landing() {
         </svg>
 
         <div className="relative mx-auto max-w-[1280px] w-full px-6 lg:px-10">
-          <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)]/60 backdrop-blur-sm px-3 py-1.5">
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
-              <span className="text-[11px] tracking-[0.16em] uppercase text-[color:var(--color-ink-soft)]">
-                Magarpatta City · Pune · est. 2026
-              </span>
-            </div>
+          <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-center">
+            {/* Left — editorial content */}
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)]/60 backdrop-blur-sm px-3 py-1.5">
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
+                <span className="text-[11px] tracking-[0.16em] uppercase text-[color:var(--color-ink-soft)]">
+                  Magarpatta City · Pune · est. 2026
+                </span>
+              </div>
 
-            <h1 className="mt-10 font-serif text-[56px] sm:text-[84px] lg:text-[120px] leading-[0.92] tracking-[-0.025em] text-[color:var(--color-ink)]">
-              A shop that
-              <br />
-              <span className="italic text-[color:var(--color-forest)]">delivers.</span>
-              <br />
-              Nothing more.
-            </h1>
+              <h1 className="mt-8 font-serif text-[52px] sm:text-[72px] lg:text-[92px] leading-[0.94] tracking-[-0.025em] text-[color:var(--color-ink)]">
+                A shop that
+                <br />
+                <span className="italic text-[color:var(--color-forest)]">delivers.</span>
+                <br />
+                Nothing more.
+              </h1>
 
-            <p className="mt-8 max-w-2xl text-[17px] lg:text-[19px] leading-[1.5] text-[color:var(--color-ink-soft)]">
-              Food, groceries, medicines, fresh meat — sourced only from within Magarpatta and
-              delivered in under twenty-five minutes. By neighbours, for neighbours.
-            </p>
+              <p className="mt-7 max-w-xl text-[16px] lg:text-[18px] leading-[1.5] text-[color:var(--color-ink-soft)]">
+                Food, groceries, medicines, fresh meat — sourced only from within Magarpatta and
+                delivered in under twenty-five minutes. By neighbours, for neighbours.
+              </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <Link
-                href="/menu"
-                className="inline-flex items-center gap-2 px-7 py-4 rounded-full text-[15px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
-              >
-                Browse the menu
-                <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 px-7 py-4 rounded-full text-[15px] font-medium border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] text-[color:var(--color-ink)] hover:border-[color:var(--color-forest)]/40 transition-colors"
-              >
-                Create an account
-              </Link>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/menu"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
+                >
+                  Browse the menu
+                  <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[14.5px] font-medium border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] text-[color:var(--color-ink)] hover:border-[color:var(--color-forest)]/40 transition-colors"
+                >
+                  Create an account
+                </Link>
+              </div>
+
               <Link
                 href="/home"
-                className="text-[14px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] underline underline-offset-4 ml-1"
+                className="inline-block mt-5 text-[13.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] underline underline-offset-4"
               >
                 Or see how it works →
               </Link>
             </div>
+
+            {/* Right — live status pulse */}
+            <LandingPulse />
           </div>
 
           {/* Thin stat strip */}
-          <div className="mt-20 lg:mt-28 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-ink)]/10">
+          <div className="mt-20 lg:mt-24 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-ink)]/10">
             {[
               { v: '16', l: 'societies mapped' },
               { v: '25', l: 'min median delivery' },
