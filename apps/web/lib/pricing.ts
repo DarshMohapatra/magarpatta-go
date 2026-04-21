@@ -45,7 +45,7 @@ export interface Breakdown {
 
 export function computeBreakdown(
   items: PriceableItem[],
-  opts: { giftWrap?: boolean; insurance?: boolean; coupon?: CouponInput | null } = {},
+  opts: { giftWrap?: boolean; insurance?: boolean; tipInr?: number; coupon?: CouponInput | null } = {},
 ): Breakdown {
   let subtotal = 0;
   let convenience = 0;
@@ -57,7 +57,8 @@ export function computeBreakdown(
     }
   }
 
-  const addOns = (opts.giftWrap ? GIFT_WRAP_FEE : 0) + (opts.insurance ? INSURANCE_FEE : 0);
+  const tip = Math.max(0, Math.floor(opts.tipInr ?? 0));
+  const addOns = (opts.giftWrap ? GIFT_WRAP_FEE : 0) + (opts.insurance ? INSURANCE_FEE : 0) + tip;
   const tax = Math.round(subtotal * TAX_RATE);
 
   let discount = 0;

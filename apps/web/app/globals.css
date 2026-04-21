@@ -95,6 +95,7 @@ body {
   border-radius: 9999px;
   background: currentColor;
   animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  pointer-events: none;
 }
 
 /* Thin rule */

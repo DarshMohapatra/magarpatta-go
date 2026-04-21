@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useCart } from '@/lib/cart';
+import { useCart, type CartProduct } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
+import { VendorSwitchDialog } from './vendor-switch-dialog';
 import { cn } from '@/lib/utils';
 
 export interface ProductCardData {
@@ -31,9 +32,31 @@ const ACCENT_BG: Record<string, string> = {
 export function ProductCard({ product }: { product: ProductCardData }) {
   const item = useCart((s) => s.items.find((i) => i.id === product.id));
   const add = useCart((s) => s.add);
+  const replaceCartWith = useCart((s) => s.replaceCartWith);
   const increment = useCart((s) => s.increment);
   const decrement = useCart((s) => s.decrement);
   const [imgError, setImgError] = useState(false);
+  const [conflict, setConflict] = useState<{ currentVendorName: string; nextVendorName: string } | null>(null);
+
+  const cartProduct: CartProduct = {
+    id: product.id,
+    name: product.name,
+    priceInr: product.priceInr,
+    mrpInr: product.mrpInr ?? product.priceInr,
+    isRegulated: product.isRegulated,
+    unit: product.unit,
+    accent: product.accent,
+    glyph: product.glyph,
+    imageUrl: product.imageUrl,
+    vendorSlug: product.vendor.slug,
+    vendorName: product.vendor.name,
+    vendorHub: product.vendor.hub,
+  };
+
+  function handleAdd() {
+    const result = add(cartProduct);
+    if (!result.ok) setConflict(result.conflict);
+  }
 
   const showImage = product.imageUrl && !imgError;
   // Always show MRP to customer; markup surfaces only as convenience fee at checkout.
@@ -123,20 +146,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             </div>
           ) : (
             <button
-              onClick={() =>
-                add({
-                  id: product.id,
-                  name: product.name,
-                  priceInr: product.priceInr,
-                  mrpInr: product.mrpInr ?? product.priceInr,
-                  isRegulated: product.isRegulated,
-                  unit: product.unit,
-                  accent: product.accent,
-                  glyph: product.glyph,
-                  imageUrl: product.imageUrl,
-                  vendorName: product.vendor.name,
-                })
-              }
+              onClick={handleAdd}
               className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-forest)] hover:bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium transition-colors"
             >
               Add
@@ -147,6 +157,18 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           )}
         </div>
       </div>
+
+      {conflict && (
+        <VendorSwitchDialog
+          currentVendorName={conflict.currentVendorName}
+          nextVendorName={conflict.nextVendorName}
+          onCancel={() => setConflict(null)}
+          onConfirm={() => {
+            replaceCartWith(cartProduct);
+            setConflict(null);
+          }}
+        />
+      )}
     </article>
   );
 }

@@ -27,12 +27,15 @@ export function ReorderButton({
 }) {
   const router = useRouter();
   const cartAdd = useCart((s) => s.add);
+  const cartClear = useCart((s) => s.clear);
   const [busy, setBusy] = useState(false);
 
   function go(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     setBusy(true);
+    // Replace current cart wholesale — reorder intent is "redo this exact order".
+    cartClear();
     for (const it of items) {
       for (let i = 0; i < it.quantity; i++) {
         cartAdd({

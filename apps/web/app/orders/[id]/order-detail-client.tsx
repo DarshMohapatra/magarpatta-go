@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import type { OrderStatus, PaymentMethod } from '@prisma/client';
 import { OrderTracker, useLiveOrder } from './order-tracker';
 import { ProductGlyph } from '@/components/product-glyph';
-import { expectedStatusForElapsed } from '@/lib/orders';
+import { expectedStatusForElapsed, deliveryOtp } from '@/lib/orders';
 import { useCart } from '@/lib/cart';
+import { GIFT_WRAP_FEE, INSURANCE_FEE } from '@/lib/pricing';
 
 interface OrderItem {
   id: string;
@@ -59,6 +60,7 @@ function paymentLabel(m: PaymentMethod): string {
 export function OrderDetailClient({ order }: { order: OrderData }) {
   const router = useRouter();
   const cartAdd = useCart((s) => s.add);
+  const cartClear = useCart((s) => s.clear);
 
   const initialElapsed = Math.floor((Date.now() - new Date(order.placedAt).getTime()) / 1000);
   const initialStatus = expectedStatusForElapsed(initialElapsed);
@@ -71,6 +73,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
   const placedDate = new Date(order.placedAt);
 
   function reorder() {
+    cartClear();
     for (const it of order.items) {
       for (let i = 0; i < it.quantity; i++) {
         cartAdd({
@@ -137,6 +140,26 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           building={order.building}
           flat={order.flat}
         />
+
+        {/* Delivery OTP — shown while the rider is inbound, hidden after delivery */}
+        {live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
+          <div className="mt-6 rounded-2xl border border-[color:var(--color-saffron)]/30 bg-gradient-to-br from-[color:var(--color-saffron)]/10 to-[color:var(--color-gold)]/8 p-5 flex items-center justify-between gap-4 flex-wrap">
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Delivery OTP</div>
+              <div className="mt-1 font-serif text-[20px] leading-tight">Read this to the rider on drop.</div>
+              <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/80">
+                The rider will ask for this 4-digit code before handing over your order.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 font-mono text-[32px] font-semibold tracking-[0.25em] text-[color:var(--color-ink)]">
+              {deliveryOtp(order.id).split('').map((d, i) => (
+                <span key={i} className="inline-flex h-12 w-10 items-center justify-center rounded-lg bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/12 shadow-sm">
+                  {d}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 grid lg:grid-cols-[1.4fr_1fr] gap-8">
           {/* Left — items */}
@@ -210,15 +233,27 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                   <span>₹{order.taxInr}</span>
                 </div>
               )}
-              {order.addOnsInr > 0 && (
+              {order.giftWrap && (
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[color:var(--color-ink-soft)]">
-                    Add-ons
-                    {order.giftWrap && order.insurance ? ' · gift wrap + insurance' : order.giftWrap ? ' · gift wrap' : ' · insurance'}
-                  </span>
-                  <span>₹{order.addOnsInr}</span>
+                  <span className="text-[color:var(--color-ink-soft)]">Gift wrap</span>
+                  <span>₹{GIFT_WRAP_FEE}</span>
                 </div>
               )}
+              {order.insurance && (
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-[color:var(--color-ink-soft)]">Insurance</span>
+                  <span>₹{INSURANCE_FEE}</span>
+                </div>
+              )}
+              {(() => {
+                const tip = order.addOnsInr - (order.giftWrap ? GIFT_WRAP_FEE : 0) - (order.insurance ? INSURANCE_FEE : 0);
+                return tip > 0 ? (
+                  <div className="flex items-center justify-between text-[13px]">
+                    <span className="text-[color:var(--color-ink-soft)]">Rider tip</span>
+                    <span>₹{tip}</span>
+                  </div>
+                ) : null;
+              })()}
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-[color:var(--color-ink-soft)]">Delivery fee</span>
                 <span>{order.deliveryFeeInr === 0 ? 'FREE' : `₹${order.deliveryFeeInr}`}</span>

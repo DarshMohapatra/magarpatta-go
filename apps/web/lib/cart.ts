@@ -13,19 +13,30 @@ export interface CartProduct {
   accent?: string | null;
   glyph?: string | null;
   imageUrl?: string | null;
+  vendorSlug?: string;       // preferred vendor key; falls back to vendorName
   vendorName: string;
+  vendorHub?: string | null;
+}
+
+function vendorKey(p: { vendorSlug?: string | null; vendorName: string }): string {
+  return (p.vendorSlug && p.vendorSlug.trim()) || p.vendorName;
 }
 
 export interface CartItem extends CartProduct {
   qty: number;
 }
 
+export type AddResult =
+  | { ok: true }
+  | { ok: false; conflict: { currentVendorName: string; nextVendorName: string } };
+
 interface CartState {
   items: CartItem[];
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
-  add: (p: CartProduct) => void;
+  add: (p: CartProduct) => AddResult;
+  replaceCartWith: (p: CartProduct) => void;
   increment: (id: string) => void;
   decrement: (id: string) => void;
   remove: (id: string) => void;
@@ -34,22 +45,37 @@ interface CartState {
 
 export const useCart = create<CartState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       items: [],
       drawerOpen: false,
       openDrawer: () => set({ drawerOpen: true }),
       closeDrawer: () => set({ drawerOpen: false }),
-      add: (p) =>
-        set((state) => {
-          const existing = state.items.find((i) => i.id === p.id);
-          if (existing) {
-            return {
-              items: state.items.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i)),
-              drawerOpen: true,
-            };
-          }
-          return { items: [...state.items, { ...p, qty: 1 }], drawerOpen: true };
-        }),
+      add: (p) => {
+        const state = get();
+        const existing = state.items.find((i) => i.id === p.id);
+        if (existing) {
+          set({
+            items: state.items.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i)),
+            drawerOpen: true,
+          });
+          return { ok: true };
+        }
+        // Single-vendor enforcement: reject add if cart already has items from a different shop.
+        const current = state.items[0];
+        if (current && vendorKey(current) !== vendorKey(p)) {
+          return {
+            ok: false,
+            conflict: {
+              currentVendorName: current.vendorName,
+              nextVendorName: p.vendorName,
+            },
+          };
+        }
+        set({ items: [...state.items, { ...p, qty: 1 }], drawerOpen: true });
+        return { ok: true };
+      },
+      replaceCartWith: (p) =>
+        set({ items: [{ ...p, qty: 1 }], drawerOpen: true }),
       increment: (id) =>
         set((state) => ({
           items: state.items.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i)),
@@ -63,7 +89,7 @@ export const useCart = create<CartState>()(
       remove: (id) => set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
       clear: () => set({ items: [] }),
     }),
-    { name: 'mg-cart-v2' },
+    { name: 'mg-cart-v3' },
   ),
 );
 

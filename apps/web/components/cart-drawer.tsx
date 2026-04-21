@@ -48,7 +48,7 @@ export function CartDrawer() {
         <header className="flex items-center justify-between px-6 py-5 border-b border-[color:var(--color-ink)]/8">
           <div>
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-              Your cart
+              {items[0]?.vendorName ? `From ${items[0].vendorName}` : 'Your cart'}
             </div>
             <h2 className="mt-1 font-serif text-[26px] leading-tight text-[color:var(--color-ink)]">
               {items.length === 0

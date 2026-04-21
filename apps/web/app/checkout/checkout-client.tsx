@@ -49,6 +49,7 @@ export function CheckoutClient({ session }: Props) {
   const [notes, setNotes] = useState('');
   const [giftWrap, setGiftWrap] = useState(false);
   const [insurance, setInsurance] = useState(false);
+  const [tip, setTip] = useState(0);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export function CheckoutClient({ session }: Props) {
   const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
   const convenience = useMemo(() => cartConvenience(items), [items]);
   const tax = Math.round(subtotal * TAX_RATE);
-  const addOns = (giftWrap ? GIFT_WRAP_FEE : 0) + (insurance ? INSURANCE_FEE : 0);
+  const addOns = (giftWrap ? GIFT_WRAP_FEE : 0) + (insurance ? INSURANCE_FEE : 0) + tip;
   const baseDelivery = items.length > 0 ? DELIVERY_FEE : 0;
   const deliveryFee = coupon?.freeDelivery ? 0 : baseDelivery;
   const discount = coupon?.discountInr ?? 0;
@@ -157,6 +158,7 @@ export function CheckoutClient({ session }: Props) {
           paymentMethod: payMethod,
           giftWrap,
           insurance,
+          tipInr: tip,
           deliveryMode: 'standard',
           couponCode: coupon?.code,
         }),
@@ -273,6 +275,8 @@ export function CheckoutClient({ session }: Props) {
                   setGiftWrap={setGiftWrap}
                   insurance={insurance}
                   setInsurance={setInsurance}
+                  tip={tip}
+                  setTip={setTip}
                   error={error}
                   onBack={() => setStep('address')}
                   onSubmit={placeOrder}
@@ -290,7 +294,9 @@ export function CheckoutClient({ session }: Props) {
                   <Row label="Convenience fee" value={`₹${convenience}`} />
                 )}
                 <Row label="Tax (5%)" value={`₹${tax}`} />
-                {addOns > 0 && <Row label="Add-ons" value={`₹${addOns}`} />}
+                {giftWrap && <Row label="Gift wrap" value={`₹${GIFT_WRAP_FEE}`} />}
+                {insurance && <Row label="Insurance" value={`₹${INSURANCE_FEE}`} />}
+                {tip > 0 && <Row label="Rider tip" value={`₹${tip}`} />}
                 <Row
                   label="Delivery"
                   value={coupon?.freeDelivery ? 'FREE' : `₹${deliveryFee}`}
@@ -595,6 +601,8 @@ function PaymentStep(props: {
   setGiftWrap: (v: boolean) => void;
   insurance: boolean;
   setInsurance: (v: boolean) => void;
+  tip: number;
+  setTip: (v: number) => void;
   error: string | null;
   onBack: () => void;
   onSubmit: () => void;
@@ -696,6 +704,29 @@ function PaymentStep(props: {
         <div className="flex flex-wrap gap-5">
           <AddOnCheckbox label="Gift wrap" sub="+₹50" icon="🎁" checked={props.giftWrap} onChange={props.setGiftWrap} />
           <AddOnCheckbox label="Order insurance" sub="+₹100" icon="🛡" checked={props.insurance} onChange={props.setInsurance} />
+        </div>
+      </Card>
+
+      <Card label="Tip the rider">
+        <p className="text-[12.5px] text-[color:var(--color-ink-soft)] mb-3">
+          100% goes to your rider. A small tip goes a long way for neighbours cycling through Pune heat.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[0, 10, 20, 50].map((amount) => (
+            <button
+              key={amount}
+              type="button"
+              onClick={() => props.setTip(amount)}
+              className={cn(
+                'px-4 py-2 rounded-full text-[13px] border transition-colors',
+                props.tip === amount
+                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
+                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink)] border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40',
+              )}
+            >
+              {amount === 0 ? 'No tip' : `₹${amount}`}
+            </button>
+          ))}
         </div>
       </Card>
 

@@ -16,6 +16,7 @@ interface IncomingBody {
   paymentMethod?: PaymentMethod;
   giftWrap?: boolean;
   insurance?: boolean;
+  tipInr?: number;
   deliveryMode?: string;
   couponCode?: string;
 }
@@ -41,6 +42,15 @@ export async function POST(req: Request) {
 
     if (products.length !== productIds.length) {
       return NextResponse.json({ ok: false, error: 'Some items are no longer available' }, { status: 400 });
+    }
+
+    // Single-vendor enforcement: reject mixed-vendor carts at the API boundary.
+    const distinctVendors = new Set(products.map((p) => p.vendor.id));
+    if (distinctVendors.size > 1) {
+      return NextResponse.json(
+        { ok: false, error: 'Each order must be from a single shop. Please split into separate orders.' },
+        { status: 400 },
+      );
     }
 
     const byId = new Map(products.map((p) => [p.id, p]));
@@ -73,6 +83,7 @@ export async function POST(req: Request) {
       {
         giftWrap: body.giftWrap,
         insurance: body.insurance,
+        tipInr: body.tipInr,
         coupon: coupon
           ? {
               type: coupon.type,
@@ -98,8 +109,7 @@ export async function POST(req: Request) {
       update: {},
     });
 
-    const uniqueVendors = [...new Set(products.map((p) => p.vendor.name))];
-    const primaryVendor = uniqueVendors.length === 1 ? products[0].vendor : null;
+    const primaryVendor = products[0].vendor;
 
     const order = await prisma.order.create({
       data: {
@@ -120,8 +130,8 @@ export async function POST(req: Request) {
         giftWrap: Boolean(body.giftWrap),
         insurance: Boolean(body.insurance),
         deliveryMode: body.deliveryMode ?? 'standard',
-        vendorName: primaryVendor?.name ?? (uniqueVendors.length > 1 ? 'Multi-vendor' : null),
-        vendorHub: primaryVendor?.hub ?? null,
+        vendorName: primaryVendor.name,
+        vendorHub: primaryVendor.hub,
         notes: body.notes ?? null,
         items: {
           create: priceItems.map((i) => ({

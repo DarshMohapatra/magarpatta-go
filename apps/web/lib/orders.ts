@@ -39,3 +39,16 @@ export function statusProgress(status: OrderStatus): number {
 export function riderIsMoving(status: OrderStatus): boolean {
   return status === 'PICKED_UP' || status === 'OUT_FOR_DELIVERY';
 }
+
+/**
+ * Deterministic 4-digit delivery OTP derived from the order id. The customer
+ * reads it aloud to the rider on drop, and the rider taps it on their end to
+ * confirm delivery. Derived (not stored) so we don't need a schema change.
+ */
+export function deliveryOtp(orderId: string): string {
+  let h = 0;
+  for (let i = 0; i < orderId.length; i++) {
+    h = ((h << 5) - h + orderId.charCodeAt(i)) | 0;
+  }
+  return String(Math.abs(h) % 10000).padStart(4, '0');
+}
