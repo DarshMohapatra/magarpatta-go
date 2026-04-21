@@ -23,8 +23,12 @@ interface OrderData {
   status: OrderStatus;
   placedAt: string;
   subtotalInr: number;
+  taxInr: number;
+  addOnsInr: number;
   deliveryFeeInr: number;
   totalInr: number;
+  giftWrap: boolean;
+  insurance: boolean;
   society: string;
   building: string;
   flat: string;
@@ -33,6 +37,15 @@ interface OrderData {
   paymentMethod: PaymentMethod;
   notes: string | null;
   items: OrderItem[];
+}
+
+function paymentLabel(m: PaymentMethod): string {
+  switch (m) {
+    case 'COD': return 'Cash on delivery';
+    case 'UPI': return 'UPI';
+    case 'CARD': return 'Card';
+    case 'NET_BANKING': return 'Net banking';
+  }
 }
 
 export function OrderDetailClient({ order }: { order: OrderData }) {
@@ -144,6 +157,21 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                 <span className="text-[color:var(--color-ink-soft)]">Subtotal</span>
                 <span>₹{order.subtotalInr}</span>
               </div>
+              {order.taxInr > 0 && (
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-[color:var(--color-ink-soft)]">Tax (5%)</span>
+                  <span>₹{order.taxInr}</span>
+                </div>
+              )}
+              {order.addOnsInr > 0 && (
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-[color:var(--color-ink-soft)]">
+                    Add-ons
+                    {order.giftWrap && order.insurance ? ' · gift wrap + insurance' : order.giftWrap ? ' · gift wrap' : ' · insurance'}
+                  </span>
+                  <span>₹{order.addOnsInr}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-[color:var(--color-ink-soft)]">Delivery fee</span>
                 <span>₹{order.deliveryFeeInr}</span>
@@ -153,7 +181,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                 <span className="font-serif text-[24px] text-[color:var(--color-forest)]">₹{order.totalInr}</span>
               </div>
               <div className="pt-2 text-[11.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">
-                {order.paymentMethod === 'COD' ? 'Cash on delivery' : order.paymentMethod}
+                Paid via {paymentLabel(order.paymentMethod)}
               </div>
             </div>
           </aside>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { PaymentMethod } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/session';
 import { expectedStatusForElapsed } from '@/lib/orders';
@@ -7,6 +8,20 @@ interface IncomingItem {
   productId: string;
   quantity: number;
 }
+
+interface IncomingBody {
+  items: IncomingItem[];
+  notes?: string;
+  paymentMethod?: PaymentMethod;
+  giftWrap?: boolean;
+  insurance?: boolean;
+  deliveryMode?: string;
+}
+
+const TAX_RATE = 0.05;         // 5% on the subtotal (food delivery service rate)
+const DELIVERY_FEE = 25;
+const GIFT_WRAP_FEE = 50;
+const INSURANCE_FEE = 100;
 
 export async function POST(req: Request) {
   const session = await getServerSession();
@@ -19,12 +34,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = (await req.json()) as { items: IncomingItem[]; notes?: string; paymentMethod?: 'COD' | 'UPI' | 'CARD' };
+    const body = (await req.json()) as IncomingBody;
     if (!Array.isArray(body.items) || body.items.length === 0) {
       return NextResponse.json({ ok: false, error: 'Cart is empty' }, { status: 400 });
     }
 
-    // Resolve products from DB (trust server-side prices, not client-submitted)
     const productIds = body.items.map((i) => i.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, inStock: true },
@@ -42,32 +56,33 @@ export async function POST(req: Request) {
     let subtotal = 0;
     const itemsForCreate = body.items.map((i) => {
       const p = byId.get(i.productId)!;
-      const lineTotal = p.priceInr * Math.max(1, Math.floor(i.quantity));
-      subtotal += lineTotal;
+      const qty = Math.max(1, Math.floor(i.quantity));
+      subtotal += p.priceInr * qty;
       return {
         productId: p.id,
         name: p.name,
         vendorName: p.vendor.name,
         unit: p.unit,
         priceInr: p.priceInr,
-        quantity: Math.max(1, Math.floor(i.quantity)),
+        quantity: qty,
         accent: p.accent,
         glyph: p.glyph,
         imageUrl: p.imageUrl,
       };
     });
 
-    const deliveryFee = 25;
-    const total = subtotal + deliveryFee;
+    const tax = Math.round(subtotal * TAX_RATE);
+    const addOns =
+      (body.giftWrap ? GIFT_WRAP_FEE : 0) + (body.insurance ? INSURANCE_FEE : 0);
+    const deliveryFee = DELIVERY_FEE;
+    const total = subtotal + tax + addOns + deliveryFee;
 
-    // Find user
     const user = await prisma.user.upsert({
       where: { phone: session.phone },
       create: { phone: session.phone, name: session.name ?? undefined },
       update: {},
     });
 
-    // Single-vendor orders get a pickup snapshot
     const uniqueVendors = [...new Set(products.map((p) => p.vendor.name))];
     const primaryVendor = uniqueVendors.length === 1 ? products[0].vendor : null;
 
@@ -80,8 +95,13 @@ export async function POST(req: Request) {
         building: session.building,
         flat: session.flat,
         subtotalInr: subtotal,
+        taxInr: tax,
+        addOnsInr: addOns,
         deliveryFeeInr: deliveryFee,
         totalInr: total,
+        giftWrap: Boolean(body.giftWrap),
+        insurance: Boolean(body.insurance),
+        deliveryMode: body.deliveryMode ?? 'standard',
         vendorName: primaryVendor?.name ?? (uniqueVendors.length > 1 ? 'Multi-vendor' : null),
         vendorHub: primaryVendor?.hub ?? null,
         notes: body.notes ?? null,
@@ -113,13 +133,11 @@ export async function GET() {
     include: { items: { select: { name: true, quantity: true, imageUrl: true, accent: true, glyph: true } } },
   });
 
-  // Apply demo auto-progression on the fly
   const now = Date.now();
-  const projected = orders.map((o) => {
-    const elapsed = Math.floor((now - o.placedAt.getTime()) / 1000);
-    const expected = expectedStatusForElapsed(elapsed);
-    return { ...o, status: expected };
-  });
+  const projected = orders.map((o) => ({
+    ...o,
+    status: expectedStatusForElapsed(Math.floor((now - o.placedAt.getTime()) / 1000)),
+  }));
 
   return NextResponse.json({ ok: true, orders: projected });
 }

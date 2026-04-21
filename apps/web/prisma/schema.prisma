@@ -129,6 +129,7 @@ enum PaymentMethod {
   COD
   UPI
   CARD
+  NET_BANKING
 }
 
 model Order {
@@ -144,8 +145,15 @@ model Order {
 
   // Rupee totals
   subtotalInr    Int
+  taxInr         Int           @default(0)
+  addOnsInr      Int           @default(0)
   deliveryFeeInr Int
   totalInr       Int
+
+  // Add-on flags (for display on receipt)
+  giftWrap       Boolean       @default(false)
+  insurance      Boolean       @default(false)
+  deliveryMode   String        @default("standard")
 
   // Vendor snapshot — for single-vendor orders, the pickup shop
   vendorName     String?
