@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RIDERS } from '@/lib/riders';
 
@@ -49,8 +50,10 @@ export function RiderSignInClient() {
           <span className="italic text-[color:var(--color-forest)]">neighbour.</span>
         </h1>
         <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
-          Enter your 10-digit rider phone number. Phase 1 roster is hardcoded — only the
-          four of you can sign in here.
+          Enter your 10-digit rider phone. New to Magarpatta Go?{' '}
+          <Link href="/rider/register" className="text-[color:var(--color-forest)] underline underline-offset-2">
+            Apply to ride
+          </Link>.
         </p>
 
         <form onSubmit={submit} className="mt-8 space-y-4">

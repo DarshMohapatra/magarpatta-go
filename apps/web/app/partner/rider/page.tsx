@@ -38,18 +38,18 @@ export default function RiderLanding() {
                 tip on top if the customer likes your vibe. Magarpatta Go riders are neighbours first.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a href="mailto:ops@magarpatta.go?subject=Rider%20application" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] px-6 py-3.5 text-[14px] font-medium transition-colors">
+                <Link href="/rider/register" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] px-6 py-3.5 text-[14px] font-medium transition-colors">
                   Apply to ride
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </a>
+                </Link>
                 <Link href="/rider/signin" className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-forest)]/30 text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)] hover:text-[color:var(--color-cream)] px-6 py-3.5 text-[14px] font-medium transition-colors">
                   Rider sign in
                 </Link>
               </div>
               <p className="mt-6 text-[12px] text-[color:var(--color-ink-soft)]/70">
-                On the Phase-1 roster? Sign in with your 10-digit phone.
+                Already approved? Sign in with your 10-digit phone.
               </p>
             </div>
 
@@ -123,9 +123,9 @@ export default function RiderLanding() {
           </ol>
 
           <div className="mt-12">
-            <a href="mailto:ops@magarpatta.go?subject=Rider%20application" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-6 py-3.5 text-[14px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+            <Link href="/rider/register" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-6 py-3.5 text-[14px] font-medium hover:bg-[color:var(--color-forest-dark)]">
               Apply to ride →
-            </a>
+            </Link>
           </div>
         </div>
       </section>

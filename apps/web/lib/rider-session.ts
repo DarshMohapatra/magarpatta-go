@@ -1,7 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { cookies } from 'next/headers';
-import { findRider, type Rider } from './riders';
+import { prisma } from './prisma';
 
 export interface RiderSession {
   phone: string;
@@ -25,11 +25,11 @@ export const getRiderSession = cache(async function getRiderSession(): Promise<R
   }
   if (!phone) return null;
 
-  const rider = findRider(phone);
-  if (!rider) return null;
+  const rider = await prisma.riderProfile.findUnique({ where: { phone } });
+  if (!rider || rider.approvalStatus !== 'APPROVED') return null;
   return { phone: rider.phone, name: rider.name, perDropInr: rider.perDropInr };
 });
 
-export function encodeRiderToken(rider: Rider): string {
-  return Buffer.from(JSON.stringify({ phone: rider.phone })).toString('base64url');
+export function encodeRiderToken(phone: string): string {
+  return Buffer.from(JSON.stringify({ phone })).toString('base64url');
 }
