@@ -68,6 +68,13 @@ model Building {
   @@index([societyId])
 }
 
+enum VendorApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
 model Vendor {
   id          String    @id @default(cuid())
   slug        String    @unique
@@ -76,13 +83,57 @@ model Vendor {
   description String?
   accent      String?
   vendorType  String    @default("restaurant") // restaurant | cafe | bakery | sweets | grocery | meat | pharmacy
-  tags        String[]  @default([])            // cuisines or subcategories: Indian, Italian, Chinese, Organic, ...
-  rating      Float?    // seeded / averaged later
+  tags        String[]  @default([])            // cuisines or subcategories
+  rating      Float?
   etaMinutes  Int       @default(25)
-  costForTwo  Int?      // approx ₹ for two (restaurants only)
+  costForTwo  Int?
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   products    Product[]
+
+  // Approval lifecycle
+  approvalStatus VendorApprovalStatus @default(APPROVED)
+  approvalNote   String?
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+
+  // Owner login / KYC
+  ownerName         String?
+  ownerPhone        String?  @unique
+  ownerEmail        String?
+  ownerPasswordHash String?   // sha256 hex — dev-only, replace with bcrypt in prod
+
+  // KYC docs
+  gstin       String?
+  fssaiNumber String?
+  drugLicense String?
+  panNumber   String?
+  aadhaarLast4 String?
+
+  // Address + geo
+  addressLine String?
+  latitude    Float?
+  longitude   Float?
+
+  // Hours (24h "HH:MM")
+  openTime  String?
+  closeTime String?
+
+  // Payouts
+  bankAccountNumber String?
+  bankIfsc          String?
+  bankAccountName   String?
+  upiId             String?
+  commissionPct     Int    @default(15)
+
+  // Fulfilment model
+  supportsSelfDelivery Boolean @default(false)
+  selfDeliveryFeeInr   Int?
+
+  orders Order[]
+
+  @@index([approvalStatus])
+  @@index([hub])
 }
 
 model Category {
@@ -137,6 +188,11 @@ enum PaymentMethod {
   NET_BANKING
 }
 
+enum OrderFulfilmentMode {
+  PLATFORM_RIDER
+  VENDOR_SELF
+}
+
 enum CouponType {
   PERCENT
   FLAT
@@ -148,10 +204,10 @@ model Coupon {
   code           String     @unique
   description    String
   type           CouponType
-  percentOff     Int?       // 1..100 when type = PERCENT
-  flatOffInr     Int?       // rupees when type = FLAT
+  percentOff     Int?
+  flatOffInr     Int?
   minSubtotalInr Int        @default(0)
-  maxDiscountInr Int?       // cap for percent coupons
+  maxDiscountInr Int?
   active         Boolean    @default(true)
   validUntil     DateTime?
   perUserLimit   Int        @default(1)
@@ -164,16 +220,16 @@ model Coupon {
 model Order {
   id             String        @id @default(cuid())
   userId         String
+  vendorId       String?
   status         OrderStatus   @default(PLACED)
   paymentMethod  PaymentMethod @default(COD)
 
-  // Address snapshot at time of order
+  // Address snapshot
   society        String
   building       String
   flat           String
 
-  // Rupee totals — subtotal is MRP-based, convenience fee captures the
-  // per-unit markup we add on non-regulated items at checkout.
+  // Rupee totals
   subtotalInr      Int
   convenienceInr   Int          @default(0)
   taxInr           Int          @default(0)
@@ -187,28 +243,42 @@ model Order {
   insurance      Boolean       @default(false)
   deliveryMode   String        @default("standard")
 
-  // Vendor snapshot — for single-vendor orders, the pickup shop
+  // Vendor snapshot
   vendorName     String?
   vendorHub      String?
 
-  // Rider assignment — when set, real rider actions drive status
-  // transitions (demo auto-progression is disabled for this order).
+  // Fulfilment
+  hub            String?
+  fulfilmentMode OrderFulfilmentMode @default(PLATFORM_RIDER)
+
+  // Rider assignment
   riderPhone     String?
   riderName      String?
 
   notes          String?
-  placedAt       DateTime      @default(now())
-  acceptedAt     DateTime?
-  pickedUpAt     DateTime?
-  deliveredAt    DateTime?
+
+  // Timeline timestamps — populated by real actors
+  placedAt          DateTime  @default(now())
+  vendorAcceptedAt  DateTime?
+  vendorReadyAt     DateTime?
+  riderAssignedAt   DateTime?
+  acceptedAt        DateTime?   // legacy — mirrored to vendorAcceptedAt
+  pickedUpAt        DateTime?
+  deliveredAt       DateTime?
+  cancelledAt       DateTime?
+  cancelReason      String?
 
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor         Vendor?       @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   items          OrderItem[]
 
   @@index([userId])
+  @@index([vendorId])
   @@index([status])
   @@index([placedAt])
   @@index([riderPhone])
+  @@index([hub])
+  @@index([fulfilmentMode])
 }
 
 model OrderItem {
@@ -218,8 +288,8 @@ model OrderItem {
   name        String
   vendorName  String
   unit        String?
-  priceInr    Int       // what we charged per unit (MRP for regulated, MRP+1 for non-reg)
-  mrpInr      Int?      // MRP shown to customer for line total display
+  priceInr    Int
+  mrpInr      Int?
   isRegulated Boolean @default(true)
   quantity    Int
   accent      String?
@@ -229,4 +299,47 @@ model OrderItem {
   product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
+}
+
+enum RiderApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+model RiderProfile {
+  id             String              @id @default(cuid())
+  phone          String              @unique // 10-digit, no +91
+  name           String
+  email          String?
+  aadhaarNumber  String?
+  dlNumber       String?
+  vehicleType    String?             // bicycle | scooter | motorcycle
+  vehicleNumber  String?
+  approvalStatus RiderApprovalStatus @default(PENDING)
+  approvalNote   String?
+  perDropInr     Int                 @default(30)
+  onDuty         Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+  approvedAt     DateTime?
+
+  @@index([approvalStatus])
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  OPS
+  FINANCE
+  SUPPORT
+}
+
+model Admin {
+  id           String    @id @default(cuid())
+  phone        String    @unique
+  email        String?
+  name         String
+  role         AdminRole @default(OPS)
+  passwordHash String    // sha256 hex — dev-only, replace with bcrypt in prod
+  createdAt    DateTime  @default(now())
 }

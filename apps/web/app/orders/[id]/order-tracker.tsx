@@ -5,6 +5,14 @@ import type { OrderStatus } from '@prisma/client';
 import { STATUS_TIMELINE, statusLabel, statusProgress, riderIsMoving } from '@/lib/orders';
 import { cn } from '@/lib/utils';
 
+interface Stamps {
+  placedAt?: string | null;
+  vendorAcceptedAt?: string | null;
+  vendorReadyAt?: string | null;
+  pickedUpAt?: string | null;
+  deliveredAt?: string | null;
+}
+
 interface Props {
   status: OrderStatus;
   elapsedSeconds: number;
@@ -12,6 +20,9 @@ interface Props {
   society: string;
   building: string;
   flat: string;
+  stamps?: Stamps;
+  riderName?: string | null;
+  fulfilmentMode?: 'PLATFORM_RIDER' | 'VENDOR_SELF';
 }
 
 /**
@@ -20,7 +31,8 @@ interface Props {
  * polygon. Rider appears during PICKED_UP + OUT_FOR_DELIVERY and smoothly
  * slides along the SVG path tied to statusProgress().
  */
-export function OrderTracker({ status, elapsedSeconds, vendorName, society, building, flat }: Props) {
+export function OrderTracker({ status, elapsedSeconds, vendorName, society, building, flat, stamps, riderName, fulfilmentMode }: Props) {
+  const vendorSelf = fulfilmentMode === 'VENDOR_SELF';
   const progress = statusProgress(status); // 0..1
   const moving = riderIsMoving(status);
   const delivered = status === 'DELIVERED';
@@ -125,31 +137,39 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
             </text>
           </g>
 
-          {/* Rider — appears when moving or delivered */}
-          {(moving || delivered) && (
+          {/* Rider / vendor courier — appears when moving or delivered */}
+          {(moving || delivered) && !vendorSelf && (
             <g
               transform={`translate(${rider.x}, ${rider.y}) rotate(${rider.angle})`}
               style={{ transition: moving ? 'transform 2s linear' : 'none' }}
             >
-              {/* Drop shadow */}
               <ellipse cx="0" cy="8" rx="10" ry="2" fill="var(--color-ink)" fillOpacity="0.18" />
-              {/* Bike silhouette — viewed from above */}
               <g transform="translate(-10, -8)">
-                {/* wheels */}
                 <circle cx="2" cy="4" r="3.5" fill="var(--color-ink)" />
                 <circle cx="2" cy="4" r="1.5" fill="var(--color-saffron)" />
                 <circle cx="18" cy="4" r="3.5" fill="var(--color-ink)" />
                 <circle cx="18" cy="4" r="1.5" fill="var(--color-saffron)" />
-                {/* body */}
                 <rect x="4" y="1" width="12" height="6" rx="2" fill="var(--color-saffron)" stroke="var(--color-ink)" strokeWidth="0.6" />
-                {/* handlebar */}
                 <line x1="18" y1="-2" x2="18" y2="2" stroke="var(--color-ink)" strokeWidth="0.8" strokeLinecap="round" />
-                {/* rider helmet */}
                 <circle cx="10" cy="1" r="2.5" fill="var(--color-forest)" />
                 <circle cx="10" cy="0.5" r="1" fill="var(--color-cream)" />
-                {/* delivery box */}
                 <rect x="5" y="8" width="7" height="5" rx="0.8" fill="var(--color-terracotta)" stroke="var(--color-ink)" strokeWidth="0.4" />
                 <text x="8.5" y="11.5" fontSize="3" fill="var(--color-cream)" textAnchor="middle">MG</text>
+              </g>
+            </g>
+          )}
+          {(moving || delivered) && vendorSelf && (
+            <g
+              transform={`translate(${rider.x}, ${rider.y})`}
+              style={{ transition: moving ? 'transform 2s linear' : 'none' }}
+            >
+              <ellipse cx="0" cy="7" rx="8" ry="1.8" fill="var(--color-ink)" fillOpacity="0.18" />
+              {/* Vendor courier — stylised person carrying a tiffin/parcel */}
+              <g transform="translate(-7, -10)">
+                <circle cx="7" cy="2" r="2.5" fill="var(--color-forest)" />
+                <rect x="4.5" y="5" width="5" height="7" rx="1.2" fill="var(--color-forest)" />
+                <rect x="2" y="7" width="4" height="4" rx="0.6" fill="var(--color-terracotta)" stroke="var(--color-ink)" strokeWidth="0.4" />
+                <text x="4" y="10" fontSize="2.4" fill="var(--color-cream)" textAnchor="middle">MG</text>
               </g>
             </g>
           )}
@@ -177,6 +197,7 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
           {STATUS_TIMELINE.map((step, i) => {
             const done = statusProgress(status) >= i / (STATUS_TIMELINE.length - 1);
             const current = step.status === status;
+            const stampIso = stepStampIso(step.status, stamps);
             return (
               <div key={step.status} className="flex-1 flex items-center gap-2 min-w-0">
                 <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
@@ -208,6 +229,12 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                   )}>
                     {stepShortLabel(step.status)}
                   </span>
+                  <span className={cn(
+                    'text-[9.5px] font-mono tabular-nums tracking-tight text-center',
+                    done ? 'text-[color:var(--color-ink-soft)]/70' : 'text-[color:var(--color-ink-soft)]/30',
+                  )}>
+                    {stampIso ? formatTimeIst(stampIso) : '—'}
+                  </span>
                 </div>
                 {i < STATUS_TIMELINE.length - 1 && (
                   <div className={cn(
@@ -219,9 +246,49 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
             );
           })}
         </div>
+        {(stamps?.vendorAcceptedAt || stamps?.pickedUpAt || riderName) && (
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[11px] text-[color:var(--color-ink-soft)]/80">
+            {vendorSelf && (
+              <span className="rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] uppercase bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]">
+                Vendor-direct delivery
+              </span>
+            )}
+            {vendorName && stamps?.vendorAcceptedAt && (
+              <span><span className="text-[color:var(--color-ink-soft)]/55">Vendor</span> · {vendorName.split(' · ')[0]} accepted at {formatTimeIst(stamps.vendorAcceptedAt)}</span>
+            )}
+            {!vendorSelf && riderName && stamps?.pickedUpAt && (
+              <span><span className="text-[color:var(--color-ink-soft)]/55">Rider</span> · {riderName} picked up at {formatTimeIst(stamps.pickedUpAt)}</span>
+            )}
+            {vendorSelf && stamps?.pickedUpAt && (
+              <span><span className="text-[color:var(--color-ink-soft)]/55">On the way</span> · {vendorName?.split(' · ')[0]} left at {formatTimeIst(stamps.pickedUpAt)}</span>
+            )}
+            {stamps?.deliveredAt && (
+              <span><span className="text-[color:var(--color-ink-soft)]/55">Delivered</span> · {formatTimeIst(stamps.deliveredAt)}</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+function stepStampIso(s: OrderStatus, stamps?: Stamps): string | null | undefined {
+  if (!stamps) return null;
+  switch (s) {
+    case 'PLACED': return stamps.placedAt;
+    case 'ACCEPTED': return stamps.vendorAcceptedAt;
+    case 'PREPARING': return stamps.vendorReadyAt;
+    case 'PICKED_UP': return stamps.pickedUpAt;
+    case 'OUT_FOR_DELIVERY': return stamps.pickedUpAt;
+    case 'DELIVERED': return stamps.deliveredAt;
+    default: return null;
+  }
+}
+
+function formatTimeIst(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-IN', {
+    hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata',
+  });
 }
 
 function stepShortLabel(s: OrderStatus): string {
@@ -247,7 +314,14 @@ function formatElapsed(seconds: number): string {
  * terminal state (DELIVERED / CANCELLED), then stops polling so the elapsed
  * counter freezes at the delivery moment.
  */
-export function useLiveOrder(id: string, initial: { status: OrderStatus; elapsedSeconds: number }) {
+export interface LiveOrderState {
+  status: OrderStatus;
+  elapsedSeconds: number;
+  riderName: string | null;
+  stamps: Stamps;
+}
+
+export function useLiveOrder(id: string, initial: LiveOrderState) {
   const [state, setState] = useState(initial);
 
   useEffect(() => {
@@ -260,7 +334,18 @@ export function useLiveOrder(id: string, initial: { status: OrderStatus; elapsed
         const res = await fetch(`/api/orders/${id}`, { cache: 'no-store' });
         const data = await res.json();
         if (cancelled || !data.ok) return;
-        setState({ status: data.order.status, elapsedSeconds: data.order.elapsedSeconds });
+        setState({
+          status: data.order.status,
+          elapsedSeconds: data.order.elapsedSeconds,
+          riderName: data.order.riderName ?? null,
+          stamps: {
+            placedAt: data.order.placedAt,
+            vendorAcceptedAt: data.order.vendorAcceptedAt,
+            vendorReadyAt: data.order.vendorReadyAt,
+            pickedUpAt: data.order.pickedUpAt,
+            deliveredAt: data.order.deliveredAt,
+          },
+        });
         if (data.order.status === 'DELIVERED' || data.order.status === 'CANCELLED') {
           if (handle) clearInterval(handle);
         }

@@ -14,7 +14,11 @@ export async function GET() {
 
   const [available, active, history] = await Promise.all([
     prisma.order.findMany({
-      where: { status: 'PLACED', riderPhone: null },
+      where: {
+        status: { in: ['ACCEPTED', 'PREPARING'] },
+        riderPhone: null,
+        fulfilmentMode: 'PLATFORM_RIDER',
+      },
       orderBy: { placedAt: 'asc' },
       include: { items: { select: { name: true, quantity: true } } },
       take: 20,

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { OrderStatus, PaymentMethod } from '@prisma/client';
+import type { OrderStatus, PaymentMethod, OrderFulfilmentMode } from '@prisma/client';
 import { OrderTracker, useLiveOrder } from './order-tracker';
 import { ProductGlyph } from '@/components/product-glyph';
 import { expectedStatusForElapsed, deliveryOtp } from '@/lib/orders';
@@ -28,7 +28,12 @@ interface OrderData {
   id: string;
   status: OrderStatus;
   placedAt: string;
+  vendorAcceptedAt: string | null;
+  vendorReadyAt: string | null;
+  riderAssignedAt: string | null;
+  pickedUpAt: string | null;
   deliveredAt: string | null;
+  cancelledAt: string | null;
   riderName: string | null;
   subtotalInr: number;
   convenienceInr: number;
@@ -45,6 +50,7 @@ interface OrderData {
   flat: string;
   vendorName: string | null;
   vendorHub: string | null;
+  fulfilmentMode: OrderFulfilmentMode;
   paymentMethod: PaymentMethod;
   notes: string | null;
   items: OrderItem[];
@@ -79,6 +85,14 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
   const live = useLiveOrder(order.id, {
     status: initialStatus,
     elapsedSeconds: initialElapsed,
+    riderName: order.riderName,
+    stamps: {
+      placedAt: order.placedAt,
+      vendorAcceptedAt: order.vendorAcceptedAt,
+      vendorReadyAt: order.vendorReadyAt,
+      pickedUpAt: order.pickedUpAt,
+      deliveredAt: order.deliveredAt,
+    },
   });
 
   const placedDate = new Date(order.placedAt);
@@ -150,10 +164,29 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           society={order.society}
           building={order.building}
           flat={order.flat}
+          riderName={live.riderName}
+          stamps={live.stamps}
+          fulfilmentMode={order.fulfilmentMode}
         />
 
-        {/* Rider assignment card */}
-        {order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
+        {/* Rider / vendor-courier assignment card */}
+        {order.fulfilmentMode === 'VENDOR_SELF' && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
+          <div className="mt-6 rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-forest)]/5 p-5 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
+              {(order.vendorName ?? 'S')[0]}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Vendor-direct delivery</div>
+              <div className="mt-0.5 font-serif text-[18px] leading-tight">
+                {order.vendorName} is handling this one themselves.
+              </div>
+              <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
+                No middle-rider — someone from the shop is bringing it over. They&apos;ll ask for the OTP below on drop.
+              </p>
+            </div>
+          </div>
+        )}
+        {order.fulfilmentMode === 'PLATFORM_RIDER' && order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
           <div className="mt-6 rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-forest)]/5 p-5 flex items-center gap-4">
             <div className="h-10 w-10 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
               {order.riderName[0]}

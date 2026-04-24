@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { useCart, cartSubtotalMrp, cartConvenience } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
 import { cn } from '@/lib/utils';
 
@@ -46,9 +46,9 @@ export function CartDrawer() {
         aria-label="Cart"
       >
         <header className="flex items-center justify-between px-6 py-5 border-b border-[color:var(--color-ink)]/8">
-          <div>
+          <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-              {items[0]?.vendorName ? `From ${items[0].vendorName}` : 'Your cart'}
+              {cartHub(items) ? `From ${cartHub(items)}` : 'Your cart'}
             </div>
             <h2 className="mt-1 font-serif text-[26px] leading-tight text-[color:var(--color-ink)]">
               {items.length === 0
@@ -57,6 +57,11 @@ export function CartDrawer() {
                   ? '1 thing lined up'
                   : `${items.length} things lined up`}
             </h2>
+            {cartVendors(items).length > 1 && (
+              <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75 truncate">
+                {cartVendors(items).join(' + ')} · one hub, one trip
+              </p>
+            )}
           </div>
           <button
             onClick={close}

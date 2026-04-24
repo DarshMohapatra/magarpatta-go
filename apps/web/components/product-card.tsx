@@ -36,7 +36,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   const increment = useCart((s) => s.increment);
   const decrement = useCart((s) => s.decrement);
   const [imgError, setImgError] = useState(false);
-  const [conflict, setConflict] = useState<{ currentVendorName: string; nextVendorName: string } | null>(null);
+  const [conflict, setConflict] = useState<{ currentHub: string; nextHub: string; currentVendorName: string; nextVendorName: string } | null>(null);
 
   const cartProduct: CartProduct = {
     id: product.id,
@@ -160,6 +160,8 @@ export function ProductCard({ product }: { product: ProductCardData }) {
 
       {conflict && (
         <VendorSwitchDialog
+          currentHub={conflict.currentHub}
+          nextHub={conflict.nextHub}
           currentVendorName={conflict.currentVendorName}
           nextVendorName={conflict.nextVendorName}
           onCancel={() => setConflict(null)}

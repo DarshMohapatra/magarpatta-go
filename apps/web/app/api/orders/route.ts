@@ -44,11 +44,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'Some items are no longer available' }, { status: 400 });
     }
 
-    // Single-vendor enforcement: reject mixed-vendor carts at the API boundary.
-    const distinctVendors = new Set(products.map((p) => p.vendor.id));
-    if (distinctVendors.size > 1) {
+    // Single-hub enforcement: cart may mix vendors, but only within the same
+    // hub (so a rider picks up from one place, not across the township).
+    const distinctHubs = new Set(products.map((p) => p.vendor.hub));
+    if (distinctHubs.size > 1) {
       return NextResponse.json(
-        { ok: false, error: 'Each order must be from a single shop. Please split into separate orders.' },
+        { ok: false, error: 'Your cart has items from multiple hubs. Split into separate orders — a rider can only pick up from one hub per trip.' },
         { status: 400 },
       );
     }
@@ -109,13 +110,23 @@ export async function POST(req: Request) {
       update: {},
     });
 
+    // Fulfilment mode: VENDOR_SELF only if every vendor in the order supports
+    // self-delivery. Any non-self-delivery vendor ⇒ a platform rider handles
+    // the whole pickup (including the others' items) from the shared hub.
+    const vendorsInCart = [...new Map(products.map((p) => [p.vendor.id, p.vendor])).values()];
+    const everyVendorSelfDelivers = vendorsInCart.length > 0 && vendorsInCart.every((v) => v.supportsSelfDelivery);
+    const fulfilmentMode = everyVendorSelfDelivers ? 'VENDOR_SELF' : 'PLATFORM_RIDER';
     const primaryVendor = products[0].vendor;
+    const hub = primaryVendor.hub;
 
     const order = await prisma.order.create({
       data: {
         userId: user.id,
+        vendorId: primaryVendor.id,
         status: 'PLACED',
         paymentMethod: body.paymentMethod ?? 'COD',
+        hub,
+        fulfilmentMode,
         society: session.society,
         building: session.building,
         flat: session.flat,

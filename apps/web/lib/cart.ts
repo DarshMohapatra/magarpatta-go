@@ -18,17 +18,17 @@ export interface CartProduct {
   vendorHub?: string | null;
 }
 
-function vendorKey(p: { vendorSlug?: string | null; vendorName: string }): string {
-  return (p.vendorSlug && p.vendorSlug.trim()) || p.vendorName;
-}
-
 export interface CartItem extends CartProduct {
   qty: number;
 }
 
 export type AddResult =
   | { ok: true }
-  | { ok: false; conflict: { currentVendorName: string; nextVendorName: string } };
+  | { ok: false; conflict: { currentHub: string; nextHub: string; currentVendorName: string; nextVendorName: string } };
+
+function hubKey(p: { vendorHub?: string | null; vendorName: string }): string {
+  return (p.vendorHub && p.vendorHub.trim()) || p.vendorName;
+}
 
 interface CartState {
   items: CartItem[];
@@ -60,12 +60,15 @@ export const useCart = create<CartState>()(
           });
           return { ok: true };
         }
-        // Single-vendor enforcement: reject add if cart already has items from a different shop.
+        // Single-hub enforcement: cart may mix vendors, but only within the
+        // same hub (e.g. both Seasons Mall). Cross-hub adds are rejected.
         const current = state.items[0];
-        if (current && vendorKey(current) !== vendorKey(p)) {
+        if (current && hubKey(current) !== hubKey(p)) {
           return {
             ok: false,
             conflict: {
+              currentHub: current.vendorHub ?? current.vendorName,
+              nextHub: p.vendorHub ?? p.vendorName,
               currentVendorName: current.vendorName,
               nextVendorName: p.vendorName,
             },
@@ -113,4 +116,17 @@ export function cartConvenience(items: CartItem[]): number {
 /** Legacy: actual-price subtotal (mrp + markup). Not shown to customer. */
 export function cartSubtotal(items: CartItem[]): number {
   return items.reduce((s, i) => s + i.priceInr * i.qty, 0);
+}
+
+/** Distinct vendor names in the cart, in insertion order. */
+export function cartVendors(items: CartItem[]): string[] {
+  const out: string[] = [];
+  for (const i of items) if (!out.includes(i.vendorName)) out.push(i.vendorName);
+  return out;
+}
+
+/** The cart's locked hub (first item's hub). Null if cart empty. */
+export function cartHub(items: CartItem[]): string | null {
+  const first = items[0];
+  return first?.vendorHub ?? first?.vendorName ?? null;
 }

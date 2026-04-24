@@ -3,13 +3,15 @@
 import { useEffect } from 'react';
 
 interface Props {
+  currentHub: string;
+  nextHub: string;
   currentVendorName: string;
   nextVendorName: string;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-export function VendorSwitchDialog({ currentVendorName, nextVendorName, onCancel, onConfirm }: Props) {
+export function VendorSwitchDialog({ currentHub, nextHub, currentVendorName, nextVendorName, onCancel, onConfirm }: Props) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onCancel();
@@ -25,20 +27,20 @@ export function VendorSwitchDialog({ currentVendorName, nextVendorName, onCancel
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[420px] rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 shadow-[0_24px_70px_-20px_rgba(15,15,14,0.35)] overflow-hidden"
+        className="w-full max-w-[440px] rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 shadow-[0_24px_70px_-20px_rgba(15,15,14,0.35)] overflow-hidden"
       >
         <div className="p-6">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-            Start a new order?
+            Different hub
           </div>
           <h2 className="mt-2 font-serif text-[24px] leading-tight text-[color:var(--color-ink)]">
-            One order, one shop.
+            One trip, one hub.
           </h2>
           <p className="mt-3 text-[13.5px] leading-[1.55] text-[color:var(--color-ink-soft)]">
-            Your cart already has items from{' '}
-            <span className="font-medium text-[color:var(--color-ink)]">{currentVendorName}</span>. To order
-            from <span className="font-medium text-[color:var(--color-ink)]">{nextVendorName}</span>, we&apos;ll
-            clear the current cart first.
+            Your cart is for <span className="font-medium text-[color:var(--color-ink)]">{currentHub}</span> ({currentVendorName}).
+            To add from <span className="font-medium text-[color:var(--color-ink)]">{nextVendorName}</span> — which is in{' '}
+            <span className="font-medium text-[color:var(--color-ink)]">{nextHub}</span> — we&apos;ll clear the current cart first.
+            Orders can mix shops within the same hub, but a rider can&apos;t criss-cross hubs in one run.
           </p>
         </div>
         <div className="flex items-center justify-end gap-2 px-6 py-4 bg-[color:var(--color-cream)]/50 border-t border-[color:var(--color-ink)]/8">
@@ -46,7 +48,7 @@ export function VendorSwitchDialog({ currentVendorName, nextVendorName, onCancel
             onClick={onCancel}
             className="px-4 py-2 rounded-full text-[13px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5"
           >
-            Keep {currentVendorName}
+            Keep {currentHub}
           </button>
           <button
             onClick={onConfirm}

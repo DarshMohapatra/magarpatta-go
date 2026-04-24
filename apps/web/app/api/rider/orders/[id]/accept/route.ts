@@ -18,8 +18,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     data: {
       riderPhone: rider.phone,
       riderName: rider.name,
-      status: 'ACCEPTED',
-      acceptedAt: order.acceptedAt ?? new Date(),
+      riderAssignedAt: order.riderAssignedAt ?? new Date(),
+      // Don't regress the status — vendor may already have marked PREPARING.
+      // Only bump PLACED → ACCEPTED for legacy orders with no vendor actor.
+      ...(order.status === 'PLACED'
+        ? { status: 'ACCEPTED', acceptedAt: order.acceptedAt ?? new Date() }
+        : {}),
     },
   });
 

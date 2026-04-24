@@ -2,11 +2,12 @@ import type { OrderStatus } from '@prisma/client';
 
 /**
  * Demo auto-progression: computes what the order status *should* be based on
- * elapsed time since placedAt. This lets us show a realistic end-to-end
- * delivery flow (like Zomato / Swiggy's live tracker) without having a real
- * vendor/rider workflow yet.
+ * elapsed time since placedAt. This is the fallback when no real vendor/rider
+ * is driving the order (legacy orders / orders from vendors without owner
+ * accounts yet).
  *
- * Real vendor acceptance + rider dispatch replaces this in Phase 2.
+ * When a real vendor has clicked "accept" on their dashboard OR a rider has
+ * claimed the order, the DB timestamps take over and this function is bypassed.
  */
 export const STATUS_TIMELINE: Array<{ status: OrderStatus; atSeconds: number; label: string }> = [
   { status: 'PLACED',           atSeconds: 0,   label: 'Order placed' },
@@ -35,15 +36,12 @@ export function statusProgress(status: OrderStatus): number {
   return idx / (STATUS_TIMELINE.length - 1);
 }
 
-/** Used by the tracker to tell whether the rider should be visible + animating. */
 export function riderIsMoving(status: OrderStatus): boolean {
   return status === 'PICKED_UP' || status === 'OUT_FOR_DELIVERY';
 }
 
 /**
- * Deterministic 4-digit delivery OTP derived from the order id. The customer
- * reads it aloud to the rider on drop, and the rider taps it on their end to
- * confirm delivery. Derived (not stored) so we don't need a schema change.
+ * Deterministic 4-digit delivery OTP derived from the order id.
  */
 export function deliveryOtp(orderId: string): string {
   let h = 0;
@@ -51,4 +49,68 @@ export function deliveryOtp(orderId: string): string {
     h = ((h << 5) - h + orderId.charCodeAt(i)) | 0;
   }
   return String(Math.abs(h) % 10000).padStart(4, '0');
+}
+
+/**
+ * Real-timestamp-driven status: walks vendorAcceptedAt → vendorReadyAt →
+ * pickedUpAt → deliveredAt and returns the furthest step that has a timestamp.
+ * Callers pass the Order row; any null timestamp is treated as "not yet."
+ */
+export interface OrderTimestamps {
+  placedAt: Date;
+  vendorAcceptedAt?: Date | null;
+  vendorReadyAt?: Date | null;
+  pickedUpAt?: Date | null;
+  deliveredAt?: Date | null;
+  cancelledAt?: Date | null;
+  status: OrderStatus;
+}
+
+export function statusFromTimestamps(o: OrderTimestamps): OrderStatus {
+  if (o.status === 'CANCELLED' || o.cancelledAt) return 'CANCELLED';
+  if (o.deliveredAt) return 'DELIVERED';
+  if (o.pickedUpAt) return 'OUT_FOR_DELIVERY';
+  if (o.vendorReadyAt) return 'PREPARING';
+  if (o.vendorAcceptedAt) return 'ACCEPTED';
+  return 'PLACED';
+}
+
+export interface TimelineStep {
+  status: OrderStatus;
+  label: string;
+  at: Date | null;
+  reached: boolean;
+}
+
+/**
+ * Timeline rows for the customer tracker — each step carries the real IST
+ * timestamp when it's been reached, or null for future steps.
+ */
+export function timelineRows(o: OrderTimestamps): TimelineStep[] {
+  const status = statusFromTimestamps(o);
+  const progressIdx = STATUS_TIMELINE.findIndex((s) => s.status === status);
+  return STATUS_TIMELINE.map((step, idx) => {
+    const reached = idx <= progressIdx;
+    let at: Date | null = null;
+    if (reached) {
+      switch (step.status) {
+        case 'PLACED':           at = o.placedAt; break;
+        case 'ACCEPTED':         at = o.vendorAcceptedAt ?? null; break;
+        case 'PREPARING':        at = o.vendorReadyAt ?? null; break;
+        case 'PICKED_UP':        at = o.pickedUpAt ?? null; break;
+        case 'OUT_FOR_DELIVERY': at = o.pickedUpAt ?? null; break;
+        case 'DELIVERED':        at = o.deliveredAt ?? null; break;
+        default:                 at = null;
+      }
+    }
+    return { status: step.status, label: step.label, at, reached };
+  });
+}
+
+/**
+ * True if the order is being driven by real vendor/rider actions (i.e. any
+ * vendor or rider timestamp exists). When false, use demo auto-progression.
+ */
+export function isRealtimeDriven(o: Pick<OrderTimestamps, 'vendorAcceptedAt' | 'pickedUpAt' | 'deliveredAt'>): boolean {
+  return Boolean(o.vendorAcceptedAt || o.pickedUpAt || o.deliveredAt);
 }
