@@ -29,8 +29,8 @@ Then http://localhost:3000 for the customer site; same `/vendor`, `/rider`, `/ad
 
 | Shop | Hub | Delivery mode | Owner phone | Password |
 | --- | --- | --- | --- | --- |
-| Kalika Sweets | Magarpatta Market | **Self-delivery** (₹20 fee) | 9000000001 | `kalika123` |
-| The Baker's Basket | Seasons Mall | Platform rider | 9000000002 | `bakers123` |
+| Kalika Sweets | Magarpatta Market | Platform rider | 9000000001 | `kalika123` |
+| The Baker's Basket | Seasons Mall | **Self-delivery** (₹20 fee) | 9000000002 | `bakers123` |
 | Destination Centre | Destination Centre | Platform rider | 9000000004 | `dcmart123` |
 | Shraddha Meats | Magarpatta Market | Platform rider | 9000000005 | `shraddha123` |
 | Magarpatta Pharmacy | Magarpatta | Platform rider | 9000000006 | `mgpharma123` |
