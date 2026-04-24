@@ -336,6 +336,72 @@ async function main() {
   });
   console.log(`  ✓ Demo Dosa House (PENDING) seeded for admin review`);
 
+  // ── Concierge-only vendor (no dashboard, rider walks in) ─────
+  await prisma.vendor.upsert({
+    where: { slug: 'gulab-paan' },
+    update: {
+      approvalStatus: 'APPROVED',
+      approvedAt: new Date(),
+      active: true,
+      onPlatform: false,           // concierge-only
+      supportsSelfDelivery: false,
+    },
+    create: {
+      slug: 'gulab-paan',
+      name: 'Gulab Paan Corner',
+      hub: 'Magarpatta Market',
+      vendorType: 'sweets',
+      description: 'Legendary paan stand outside the market gate. Walk-in only — our rider picks up for you.',
+      accent: 'terracotta',
+      active: true,
+      approvalStatus: 'APPROVED',
+      approvedAt: new Date(),
+      addressLine: 'Pavement stall, near Magarpatta Market gate',
+      openTime: '16:00',
+      closeTime: '23:30',
+      commissionPct: 0,           // concierge vendors don't share commission
+      onPlatform: false,
+      supportsSelfDelivery: false,
+      selfDeliveryAvailable: true,
+    },
+  });
+  console.log(`  ✓ Gulab Paan Corner (CONCIERGE-ONLY · off platform) seeded`);
+
+  // Add a couple of stock items so customers can order from the concierge vendor.
+  const sweetsCategory = await prisma.category.upsert({
+    where: { slug: 'sweets-snacks' },
+    update: {},
+    create: { slug: 'sweets-snacks', name: 'Sweets & Snacks', glyph: 'sweet', order: 10 },
+  });
+  const paanVendor = await prisma.vendor.findUnique({ where: { slug: 'gulab-paan' } });
+  if (paanVendor) {
+    const paanItems = [
+      { name: 'Classic Meetha Paan',    mrp: 40, unit: '1 pc' },
+      { name: 'Chocolate Paan',         mrp: 60, unit: '1 pc' },
+      { name: 'Banarasi Paan',          mrp: 80, unit: '1 pc' },
+    ];
+    for (const it of paanItems) {
+      const existing = await prisma.product.findFirst({ where: { vendorId: paanVendor.id, name: it.name } });
+      const data = {
+        vendorId: paanVendor.id,
+        categoryId: sweetsCategory.id,
+        name: it.name,
+        description: 'Freshly folded at the stall.',
+        priceInr: it.mrp + 1,
+        mrpInr: it.mrp,
+        unit: it.unit,
+        isVeg: true,
+        isRegulated: false,
+        accent: 'terracotta',
+        glyph: 'sweet',
+        inStock: true,
+      };
+      if (existing) await prisma.product.update({ where: { id: existing.id }, data });
+      else          await prisma.product.create({ data });
+    }
+    console.log(`  ✓ Gulab Paan Corner menu · ${paanItems.length} items`);
+  }
+
   // ── Admin ────────────────────────────────────────────────────
   await prisma.admin.upsert({
     where: { phone: '9999999999' },

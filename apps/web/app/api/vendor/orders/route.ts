@@ -14,7 +14,12 @@ export async function GET() {
   const s = await getVendorSession();
   if (!s) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
-  const base = { vendorId: s.vendorId };
+  // Concierge orders bypass the vendor dashboard entirely — the vendor isn't
+  // aware of those (the rider walks in and orders in person).
+  const base = {
+    vendorId: s.vendorId,
+    fulfilmentMode: { not: 'PLATFORM_RIDER_CONCIERGE' as const },
+  };
   const [incoming, preparing, ready, onTheWay, history, todayDelivered] = await Promise.all([
     prisma.order.findMany({
       where: { ...base, status: 'PLACED' },

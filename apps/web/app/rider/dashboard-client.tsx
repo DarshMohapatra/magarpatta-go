@@ -30,6 +30,7 @@ interface HistoryRow {
 
 interface Data {
   available: OrderPreview[];
+  concierge: OrderPreview[];
   active: OrderPreview[];
   history: HistoryRow[];
   todayDrops: number;
@@ -53,6 +54,7 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
       }
       setData({
         available: body.available,
+        concierge: body.concierge ?? [],
         active: body.active,
         history: body.history,
         todayDrops: body.todayDrops,
@@ -166,17 +168,17 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
           )}
         </div>
 
-        {/* Available orders */}
+        {/* Available orders — vendor has marked READY */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-serif text-[22px]">Available now</h2>
+            <h2 className="font-serif text-[22px]">Ready to pick up</h2>
             <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
               {data?.available.length ?? 0} waiting
             </span>
           </div>
           {(data?.available.length ?? 0) === 0 ? (
             <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]">
-              Queue is empty. Fresh orders land here live.
+              Nothing ready yet. Orders appear here the moment a vendor marks them ready.
             </div>
           ) : (
             <ul className="space-y-3">
@@ -199,6 +201,37 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
             </ul>
           )}
         </div>
+
+        {/* Concierge — walk in and buy for the neighbour */}
+        {(data?.concierge.length ?? 0) > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-serif text-[22px]">Concierge · walk in + buy</h2>
+              <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">
+                {data?.concierge.length ?? 0} waiting
+              </span>
+            </div>
+            <p className="text-[12px] text-[color:var(--color-ink-soft)]/75 mb-2 -mt-1">
+              The shop isn&apos;t on Magarpatta Go. Walk in, place the order at the counter, pay from your float,
+              bring it back, drop it at the customer&apos;s door. Magarpatta Go reimburses you with the order receipt.
+            </p>
+            <ul className="space-y-3">
+              {data!.concierge.map((o) => (
+                <li key={o.id} className="rounded-2xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/5 p-4">
+                  <OrderRow o={o} accent="concierge" />
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={() => accept(o.id)}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium hover:brightness-95"
+                    >
+                      Pick this up →
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Recent history */}
         {(data?.history.length ?? 0) > 0 && (
@@ -226,14 +259,18 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
   );
 }
 
-function OrderRow({ o, accent }: { o: OrderPreview; accent: 'active' | 'available' }) {
+function OrderRow({ o, accent }: { o: OrderPreview; accent: 'active' | 'available' | 'concierge' }) {
   const placed = new Date(o.placedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+  const statusColor =
+    accent === 'active' ? 'text-[color:var(--color-forest)]' :
+    accent === 'concierge' ? 'text-[color:var(--color-terracotta)]' :
+    'text-[color:var(--color-saffron)]';
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.12em]">
-          <span className={accent === 'active' ? 'text-[color:var(--color-forest)]' : 'text-[color:var(--color-saffron)]'}>
-            {o.status.replace('_', ' ')}
+          <span className={statusColor}>
+            {accent === 'concierge' ? 'Walk-in · concierge' : o.status.replace('_', ' ')}
           </span>
           <span className="text-[color:var(--color-ink-soft)]/50">· #{o.id.slice(-6)}</span>
         </div>

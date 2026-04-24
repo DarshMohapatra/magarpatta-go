@@ -22,7 +22,7 @@ interface Props {
   flat: string;
   stamps?: Stamps;
   riderName?: string | null;
-  fulfilmentMode?: 'PLATFORM_RIDER' | 'VENDOR_SELF';
+  fulfilmentMode?: 'PLATFORM_RIDER' | 'VENDOR_SELF' | 'PLATFORM_RIDER_CONCIERGE';
 }
 
 /**

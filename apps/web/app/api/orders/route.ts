@@ -110,12 +110,21 @@ export async function POST(req: Request) {
       update: {},
     });
 
-    // Fulfilment mode: VENDOR_SELF only if every vendor in the order supports
-    // self-delivery. Any non-self-delivery vendor ⇒ a platform rider handles
-    // the whole pickup (including the others' items) from the shared hub.
+    // Fulfilment decision tree:
+    //   any vendor off-platform                    → PLATFORM_RIDER_CONCIERGE (rider walks in + buys)
+    //   every vendor supports self-delivery
+    //     and has selfDeliveryAvailable=true       → VENDOR_SELF              (vendor's staff delivers)
+    //   else                                       → PLATFORM_RIDER           (vendor accepts; rider picks up when ready)
     const vendorsInCart = [...new Map(products.map((p) => [p.vendor.id, p.vendor])).values()];
-    const everyVendorSelfDelivers = vendorsInCart.length > 0 && vendorsInCart.every((v) => v.supportsSelfDelivery);
-    const fulfilmentMode = everyVendorSelfDelivers ? 'VENDOR_SELF' : 'PLATFORM_RIDER';
+    const anyOffPlatform = vendorsInCart.some((v) => !v.onPlatform);
+    const everyVendorCanSelfDeliverNow =
+      vendorsInCart.length > 0 &&
+      vendorsInCart.every((v) => v.supportsSelfDelivery && v.selfDeliveryAvailable);
+    const fulfilmentMode = anyOffPlatform
+      ? 'PLATFORM_RIDER_CONCIERGE'
+      : everyVendorCanSelfDeliverNow
+        ? 'VENDOR_SELF'
+        : 'PLATFORM_RIDER';
     const primaryVendor = products[0].vendor;
     const hub = primaryVendor.hub;
 

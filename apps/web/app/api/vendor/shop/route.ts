@@ -17,6 +17,7 @@ export async function GET() {
       bankAccountNumber: true, bankIfsc: true, bankAccountName: true, upiId: true,
       commissionPct: true,
       supportsSelfDelivery: true, selfDeliveryFeeInr: true,
+      selfDeliveryAvailable: true, onPlatform: true,
     },
   });
   return NextResponse.json({ ok: true, vendor });
@@ -32,7 +33,7 @@ export async function PATCH(req: Request) {
     'ownerName', 'ownerEmail', 'gstin', 'fssaiNumber', 'drugLicense', 'panNumber',
     'addressLine', 'openTime', 'closeTime',
     'bankAccountNumber', 'bankIfsc', 'bankAccountName', 'upiId',
-    'supportsSelfDelivery', 'selfDeliveryFeeInr',
+    'supportsSelfDelivery', 'selfDeliveryFeeInr', 'selfDeliveryAvailable',
   ] as const;
   const data: Record<string, unknown> = {};
   for (const k of allow) {

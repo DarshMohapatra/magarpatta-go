@@ -128,8 +128,14 @@ model Vendor {
   commissionPct     Int    @default(15)
 
   // Fulfilment model
-  supportsSelfDelivery Boolean @default(false)
-  selfDeliveryFeeInr   Int?
+  supportsSelfDelivery  Boolean @default(false)
+  selfDeliveryFeeInr    Int?
+  // Vendor toggles off when their delivery team is busy — new orders then
+  // fall through to PLATFORM_RIDER even though supportsSelfDelivery=true.
+  selfDeliveryAvailable Boolean @default(true)
+  // False = concierge-only: vendor is not on the platform, gets no dashboard
+  // notifications, and the rider walks into the shop to place the order.
+  onPlatform            Boolean @default(true)
 
   orders   Order[]
   feedback OrderFeedback[]
@@ -191,8 +197,9 @@ enum PaymentMethod {
 }
 
 enum OrderFulfilmentMode {
-  PLATFORM_RIDER
-  VENDOR_SELF
+  PLATFORM_RIDER              // vendor is on the platform, accepts + marks ready; rider picks up
+  VENDOR_SELF                 // vendor's own delivery staff takes it to the customer
+  PLATFORM_RIDER_CONCIERGE    // vendor not aware (off-platform, or their team busy); rider walks in, orders in person, brings back
 }
 
 enum CouponType {

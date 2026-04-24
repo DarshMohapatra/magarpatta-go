@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Feedback {
   foodRating: number | null;
@@ -10,6 +11,7 @@ interface Feedback {
 }
 
 export function FeedbackForm({ orderId, vendorName, riderName, hasRider }: { orderId: string; vendorName: string | null; riderName: string | null; hasRider: boolean }) {
+  const router = useRouter();
   const [existing, setExisting] = useState<Feedback | null>(null);
   const [foodRating, setFoodRating] = useState<number>(0);
   const [foodComment, setFoodComment] = useState('');
@@ -52,7 +54,10 @@ export function FeedbackForm({ orderId, vendorName, riderName, hasRider }: { ord
       const j = await res.json();
       if (!j.ok) { setMsg(j.error ?? 'Could not save'); return; }
       setExisting(j.feedback);
-      setMsg('Thanks! Feedback saved.');
+      setMsg('Thanks! Feedback saved — heading back to the menu.');
+      // Brief pause so the success toast is visible, then take the customer
+      // back to the menu to order again.
+      setTimeout(() => router.push('/menu'), 900);
     } finally { setSaving(false); }
   }
 

@@ -28,6 +28,8 @@ interface Vendor {
   upiId: string | null;
   supportsSelfDelivery: boolean;
   selfDeliveryFeeInr: number | null;
+  selfDeliveryAvailable: boolean;
+  onPlatform: boolean;
   createdAt: string;
   submittedAt: string | null;
   approvedAt: string | null;
@@ -185,26 +187,76 @@ export function AdminVendorsClient({ initialStatus }: { initialStatus: string })
 
             <div className="pt-3 border-t border-[color:var(--color-ink)]/8">
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65 mb-2">Fulfilment</div>
-              <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selected.supportsSelfDelivery}
-                  onChange={async (e) => {
-                    setBusy(true);
-                    try {
-                      const r = await fetch(`/api/admin/vendors/${selected.id}/fulfilment`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ supportsSelfDelivery: e.target.checked }),
-                      });
-                      const j = await r.json();
-                      if (j.ok) { setSelected({ ...selected, supportsSelfDelivery: e.target.checked }); load(); }
-                    } finally { setBusy(false); }
-                  }}
-                  className="accent-[color:var(--color-forest)]"
-                />
-                Supports self-delivery (vendor handles delivery; no platform rider)
-              </label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selected.onPlatform}
+                    onChange={async (e) => {
+                      setBusy(true);
+                      try {
+                        const r = await fetch(`/api/admin/vendors/${selected.id}/fulfilment`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ onPlatform: e.target.checked }),
+                        });
+                        const j = await r.json();
+                        if (j.ok) { setSelected({ ...selected, onPlatform: e.target.checked }); load(); }
+                      } finally { setBusy(false); }
+                    }}
+                    className="accent-[color:var(--color-forest)]"
+                  />
+                  On the Magarpatta Go platform (gets dashboard + notifications)
+                </label>
+                {!selected.onPlatform && (
+                  <p className="pl-6 text-[11.5px] text-[color:var(--color-terracotta)]">
+                    Concierge-only · orders from this shop never hit the vendor dashboard; our rider walks in and buys in person.
+                  </p>
+                )}
+                <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selected.supportsSelfDelivery}
+                    disabled={!selected.onPlatform}
+                    onChange={async (e) => {
+                      setBusy(true);
+                      try {
+                        const r = await fetch(`/api/admin/vendors/${selected.id}/fulfilment`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ supportsSelfDelivery: e.target.checked }),
+                        });
+                        const j = await r.json();
+                        if (j.ok) { setSelected({ ...selected, supportsSelfDelivery: e.target.checked }); load(); }
+                      } finally { setBusy(false); }
+                    }}
+                    className="accent-[color:var(--color-forest)]"
+                  />
+                  Supports self-delivery (vendor handles delivery; no platform rider)
+                </label>
+                {selected.supportsSelfDelivery && (
+                  <label className="flex items-center gap-2 text-[12.5px] cursor-pointer pl-6">
+                    <input
+                      type="checkbox"
+                      checked={selected.selfDeliveryAvailable}
+                      onChange={async (e) => {
+                        setBusy(true);
+                        try {
+                          const r = await fetch(`/api/admin/vendors/${selected.id}/fulfilment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ selfDeliveryAvailable: e.target.checked }),
+                          });
+                          const j = await r.json();
+                          if (j.ok) { setSelected({ ...selected, selfDeliveryAvailable: e.target.checked }); load(); }
+                        } finally { setBusy(false); }
+                      }}
+                      className="accent-[color:var(--color-forest)]"
+                    />
+                    Delivery team available right now (off ⇒ fall through to platform rider)
+                  </label>
+                )}
+              </div>
               {selected.supportsSelfDelivery && selected.selfDeliveryFeeInr != null && (
                 <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/70">Self-delivery fee · ₹{selected.selfDeliveryFeeInr}</p>
               )}
