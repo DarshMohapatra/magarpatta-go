@@ -5,7 +5,7 @@ import { getServerSession } from '@/lib/session';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
-import { expectedStatusForElapsed, statusLabel } from '@/lib/orders';
+import { statusLabel } from '@/lib/orders';
 import { ProductGlyph } from '@/components/product-glyph';
 import { ReorderButton } from '@/components/reorder-button';
 
@@ -23,8 +23,6 @@ export default async function OrdersPage() {
         include: { items: true },
       })
     : [];
-
-  const now = Date.now();
 
   return (
     <main className="relative z-10 min-h-screen">
@@ -55,8 +53,7 @@ export default async function OrdersPage() {
           ) : (
             <ul className="mt-10 space-y-4">
               {orders.map((o) => {
-                const elapsed = Math.floor((now - o.placedAt.getTime()) / 1000);
-                const status = expectedStatusForElapsed(elapsed);
+                const status = o.status;
                 const label = statusLabel(status);
                 const isLive = status !== 'DELIVERED' && status !== 'CANCELLED';
 

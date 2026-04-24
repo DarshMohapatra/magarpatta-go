@@ -22,9 +22,10 @@ const COL = [
     title: 'Company',
     links: [
       { label: 'About', href: '#' },
-      { label: 'Careers', href: '#' },
-      { label: 'Partner with us', href: '#' },
-      { label: 'Rider sign in', href: '/rider' },
+      { label: 'Partner with us', href: '/partner' },
+      { label: 'List your shop', href: '/partner/vendor' },
+      { label: 'Deliver with us', href: '/partner/rider' },
+      { label: 'Admin console', href: '/partner/admin' },
     ],
   },
   {

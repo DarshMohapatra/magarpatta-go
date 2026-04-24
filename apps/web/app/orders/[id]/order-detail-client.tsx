@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { OrderStatus, PaymentMethod, OrderFulfilmentMode } from '@prisma/client';
 import { OrderTracker, useLiveOrder } from './order-tracker';
 import { ProductGlyph } from '@/components/product-glyph';
-import { expectedStatusForElapsed, deliveryOtp } from '@/lib/orders';
+import { deliveryOtp } from '@/lib/orders';
 import { useCart } from '@/lib/cart';
 import { GIFT_WRAP_FEE, INSURANCE_FEE } from '@/lib/pricing';
 
@@ -72,11 +72,8 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
 
   const placedMs = new Date(order.placedAt).getTime();
   const wallElapsed = Math.floor((Date.now() - placedMs) / 1000);
-  const initialStatus =
-    order.status === 'DELIVERED' || order.status === 'CANCELLED'
-      ? order.status
-      : expectedStatusForElapsed(wallElapsed);
-  // If already delivered, freeze the counter at (deliveredAt − placedAt).
+  // Status only advances on real vendor / rider actions — no demo clock.
+  const initialStatus = order.status;
   const initialElapsed =
     initialStatus === 'DELIVERED' && order.deliveredAt
       ? Math.floor((new Date(order.deliveredAt).getTime() - placedMs) / 1000)

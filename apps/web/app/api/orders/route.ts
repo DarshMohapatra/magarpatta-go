@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { PaymentMethod } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/session';
-import { expectedStatusForElapsed } from '@/lib/orders';
+// status only advances via vendor/rider actions — no demo auto-progression
 import { computeBreakdown } from '@/lib/pricing';
 
 interface IncomingItem {
@@ -189,11 +189,5 @@ export async function GET() {
     include: { items: { select: { name: true, quantity: true, imageUrl: true, accent: true, glyph: true } } },
   });
 
-  const now = Date.now();
-  const projected = orders.map((o) => ({
-    ...o,
-    status: expectedStatusForElapsed(Math.floor((now - o.placedAt.getTime()) / 1000)),
-  }));
-
-  return NextResponse.json({ ok: true, orders: projected });
+  return NextResponse.json({ ok: true, orders });
 }
