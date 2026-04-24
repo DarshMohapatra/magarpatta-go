@@ -234,28 +234,6 @@ export function AdminVendorsClient({ initialStatus }: { initialStatus: string })
                   />
                   Supports self-delivery (vendor handles delivery; no platform rider)
                 </label>
-                {selected.supportsSelfDelivery && (
-                  <label className="flex items-center gap-2 text-[12.5px] cursor-pointer pl-6">
-                    <input
-                      type="checkbox"
-                      checked={selected.selfDeliveryAvailable}
-                      onChange={async (e) => {
-                        setBusy(true);
-                        try {
-                          const r = await fetch(`/api/admin/vendors/${selected.id}/fulfilment`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ selfDeliveryAvailable: e.target.checked }),
-                          });
-                          const j = await r.json();
-                          if (j.ok) { setSelected({ ...selected, selfDeliveryAvailable: e.target.checked }); load(); }
-                        } finally { setBusy(false); }
-                      }}
-                      className="accent-[color:var(--color-forest)]"
-                    />
-                    Delivery team available right now (off ⇒ fall through to platform rider)
-                  </label>
-                )}
               </div>
               {selected.supportsSelfDelivery && selected.selfDeliveryFeeInr != null && (
                 <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/70">Self-delivery fee · ₹{selected.selfDeliveryFeeInr}</p>

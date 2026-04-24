@@ -172,33 +172,15 @@ export function VendorShopClient() {
             </span>
           </label>
           {form.supportsSelfDelivery && (
-            <>
-              <Field label="Self-delivery fee (₹ — optional; leave blank to use platform default)">
-                <input
-                  type="number"
-                  value={form.selfDeliveryFeeInr ?? ''}
-                  onChange={(e) => setForm({ ...form, selfDeliveryFeeInr: e.target.value ? Number(e.target.value) : null })}
-                  className={inp}
-                  placeholder="e.g. 20"
-                />
-              </Field>
-              <label className="flex items-start gap-3 cursor-pointer rounded-xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/5 p-3">
-                <input
-                  type="checkbox"
-                  checked={form.selfDeliveryAvailable ?? true}
-                  onChange={(e) => setForm({ ...form, selfDeliveryAvailable: e.target.checked })}
-                  className="mt-0.5 h-4 w-4 accent-[color:var(--color-forest)]"
-                />
-                <span>
-                  <span className="text-[13px] font-medium">My delivery team is available right now</span>
-                  <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/80 mt-0.5">
-                    Keep this on when your drivers can take new orders. Flip it off if they&apos;re all busy —
-                    new orders will automatically route to a Magarpatta Go rider instead. Flip it back on when
-                    you have capacity again.
-                  </p>
-                </span>
-              </label>
-            </>
+            <Field label="Self-delivery fee (₹ — optional; leave blank to use platform default)">
+              <input
+                type="number"
+                value={form.selfDeliveryFeeInr ?? ''}
+                onChange={(e) => setForm({ ...form, selfDeliveryFeeInr: e.target.value ? Number(e.target.value) : null })}
+                className={inp}
+                placeholder="e.g. 20"
+              />
+            </Field>
           )}
         </div>
       </Card>

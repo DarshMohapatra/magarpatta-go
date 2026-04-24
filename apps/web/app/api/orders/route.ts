@@ -111,16 +111,15 @@ export async function POST(req: Request) {
     });
 
     // Two flows, nothing more:
-    //   every vendor supports self-delivery
-    //     and has selfDeliveryAvailable=true  → VENDOR_SELF         (vendor sees + delivers)
-    //   else                                  → PLATFORM_RIDER      (concierge: vendor NOT notified; our rider
-    //                                                                walks into the shop, places the order at
-    //                                                                the counter, pays, brings it to the customer)
+    //   every vendor supports self-delivery  → VENDOR_SELF      (vendor sees + delivers themselves)
+    //   else                                 → PLATFORM_RIDER   (concierge: vendor NOT notified; our rider
+    //                                                            walks into the shop, places the order at
+    //                                                            the counter, pays, brings it to the customer)
+    // If a vendor has self-delivery on, all their orders go to them — no "busy team" fallback.
     const vendorsInCart = [...new Map(products.map((p) => [p.vendor.id, p.vendor])).values()];
-    const everyVendorCanSelfDeliverNow =
-      vendorsInCart.length > 0 &&
-      vendorsInCart.every((v) => v.supportsSelfDelivery && v.selfDeliveryAvailable);
-    const fulfilmentMode = everyVendorCanSelfDeliverNow ? 'VENDOR_SELF' : 'PLATFORM_RIDER';
+    const everyVendorSelfDelivers =
+      vendorsInCart.length > 0 && vendorsInCart.every((v) => v.supportsSelfDelivery);
+    const fulfilmentMode = everyVendorSelfDelivers ? 'VENDOR_SELF' : 'PLATFORM_RIDER';
     const primaryVendor = products[0].vendor;
     const hub = primaryVendor.hub;
 

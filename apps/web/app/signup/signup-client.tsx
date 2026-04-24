@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { ConfirmationResult } from 'firebase/auth';
 import { MAGARPATTA_SOCIETIES, getBuildings, getBuilding, validateFlat, type Building } from '@/lib/societies';
+import { sendPhoneOtp, resetRecaptcha } from '@/lib/firebase-phone';
 import { cn } from '@/lib/utils';
 
 type Step = 0 | 1 | 2;
@@ -14,17 +16,17 @@ export function SignUpClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Step 0
+  // Step 0: identity
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
 
-  // Step 1
+  // Step 1: OTP
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''));
   const [resendIn, setResendIn] = useState(30);
-  const [sendMsg, setSendMsg] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
 
-  // Step 2
+  // Step 2: address
   const [society, setSociety] = useState<string | null>(null);
   const [building, setBuilding] = useState<Building | null>(null);
   const [flat, setFlat] = useState('');
@@ -32,12 +34,14 @@ export function SignUpClient() {
   const phoneValid = /^[6-9]\d{9}$/.test(phone);
   const nameValid = name.trim().length >= 2;
 
+  // Resend timer
   useEffect(() => {
     if (step !== 1 || resendIn <= 0) return;
     const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [resendIn, step]);
 
+  // Focus first OTP box
   useEffect(() => {
     if (step === 1) otpRefs.current[0]?.focus();
   }, [step]);
@@ -49,28 +53,28 @@ export function SignUpClient() {
     () => (building && flat ? validateFlat(flat, building) : null),
     [flat, building],
   );
+
   const addressComplete = !!society && !!building && flatValidation?.ok === true;
 
   async function sendOtp() {
     if (!nameValid || !phoneValid) return;
-    setLoading(true); setError(null); setSendMsg(null);
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/auth/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, purpose: 'CUSTOMER_SIGNIN' }),
-      });
-      const j = await res.json();
-      if (!j.ok) { setError(j.error ?? 'Could not send OTP.'); return; }
+      const confirmation = await sendPhoneOtp(`+91${phone}`, 'recaptcha-container');
+      confirmationRef.current = confirmation;
       setStep(1);
       setResendIn(30);
       setDigits(Array(6).fill(''));
-      setSendMsg(
-        j.demoOtp
-          ? `Demo phone — use code ${j.demoOtp}.`
-          : j.smsSent
-            ? 'Code sent via SMS. Expires in 5 minutes.'
-            : 'Code generated. Check server logs.',
+    } catch (e) {
+      const msg = (e as Error).message;
+      resetRecaptcha('recaptcha-container');
+      setError(
+        msg.includes('too-many-requests')
+          ? 'Too many attempts. Try again in a few minutes.'
+          : msg.includes('invalid-phone-number')
+            ? 'That phone number looks invalid.'
+            : `Could not send OTP: ${msg}`,
       );
     } finally {
       setLoading(false);
@@ -80,52 +84,53 @@ export function SignUpClient() {
   async function verifyOtp(finalCode?: string) {
     const toVerify = finalCode ?? code;
     if (toVerify.length !== 6) return;
-    setLoading(true); setError(null);
+    if (!confirmationRef.current) {
+      setError('Session expired. Please resend the code.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/auth/otp/signin', {
+      const credential = await confirmationRef.current.confirm(toVerify);
+      const idToken = await credential.user.getIdToken();
+
+      const res = await fetch('/api/auth/firebase-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code: toVerify }),
+        body: JSON.stringify({ idToken }),
       });
-      const j = await res.json();
-      if (!j.ok) {
-        setError(j.error ?? 'Verification failed.');
-        setDigits(Array(6).fill(''));
-        otpRefs.current[0]?.focus();
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.error ?? 'Session failed');
         return;
       }
+
       await fetch('/api/users/me', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name }),
       });
       setStep(2);
+    } catch (e) {
+      const msg = (e as Error).message;
+      setError(
+        msg.includes('invalid-verification-code')
+          ? 'Incorrect code'
+          : msg.includes('code-expired')
+            ? 'Code expired. Request a new one.'
+            : `Verification failed: ${msg}`,
+      );
+      setDigits(Array(6).fill(''));
+      otpRefs.current[0]?.focus();
     } finally {
       setLoading(false);
     }
   }
 
-  async function resendOtp() {
-    if (resendIn > 0) return;
-    setResendIn(30);
-    setError(null);
-    try {
-      const res = await fetch('/api/auth/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, purpose: 'CUSTOMER_SIGNIN' }),
-      });
-      const j = await res.json();
-      if (!j.ok) setError(j.error ?? 'Could not resend.');
-      else if (j.demoOtp) setSendMsg(`Demo phone — use code ${j.demoOtp}.`);
-    } catch (e) {
-      setError(`Could not resend: ${(e as Error).message}`);
-    }
-  }
-
   async function saveAddress() {
     if (!addressComplete) return;
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/users/me', {
         method: 'POST',
@@ -137,9 +142,9 @@ export function SignUpClient() {
           flat,
         }),
       });
-      const j = await res.json();
-      if (!j.ok) {
-        setError(j.error ?? 'Could not save address');
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.error ?? 'Could not save address');
         return;
       }
       router.refresh();
@@ -148,6 +153,19 @@ export function SignUpClient() {
       setError('Network error. Try again.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function resendOtp() {
+    if (resendIn > 0) return;
+    setResendIn(30);
+    setError(null);
+    resetRecaptcha();
+    try {
+      const confirmation = await sendPhoneOtp(`+91${phone}`, 'recaptcha-container');
+      confirmationRef.current = confirmation;
+    } catch (e) {
+      setError(`Could not resend: ${(e as Error).message}`);
     }
   }
 
@@ -181,6 +199,10 @@ export function SignUpClient() {
 
   return (
     <div className="space-y-8">
+      {/* Invisible reCAPTCHA container — Firebase mounts here. */}
+      <div id="recaptcha-container" />
+
+      {/* Step indicator */}
       <Progress step={step} />
 
       {error && (
@@ -193,6 +215,7 @@ export function SignUpClient() {
         </div>
       )}
 
+      {/* Step 0 — identity */}
       {step === 0 && (
         <form
           onSubmit={(e) => {
@@ -246,6 +269,7 @@ export function SignUpClient() {
         </form>
       )}
 
+      {/* Step 1 — verify */}
       {step === 1 && (
         <div className="space-y-5">
           <p className="text-[13.5px] text-[color:var(--color-ink-soft)]">
@@ -258,15 +282,14 @@ export function SignUpClient() {
               change
             </button>
           </p>
-          {sendMsg && (
-            <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">{sendMsg}</p>
-          )}
 
           <div className="flex items-center gap-2.5" onPaste={handlePaste}>
             {digits.map((d, i) => (
               <input
                 key={i}
-                ref={(el) => { otpRefs.current[i] = el; }}
+                ref={(el) => {
+                  otpRefs.current[i] = el;
+                }}
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={1}
@@ -315,6 +338,7 @@ export function SignUpClient() {
         </div>
       )}
 
+      {/* Step 2 — address */}
       {step === 2 && (
         <div className="space-y-5">
           <p className="text-[13.5px] text-[color:var(--color-ink-soft)]">
@@ -500,6 +524,7 @@ function AddressPicker({
   const filteredSocs = MAGARPATTA_SOCIETIES.filter((s) =>
     s.name.toLowerCase().includes(q.toLowerCase()),
   );
+
   const filteredBlds = society
     ? getBuildings(society).filter((b) => b.name.toLowerCase().includes(q.toLowerCase()))
     : [];
@@ -516,7 +541,9 @@ function AddressPicker({
           className="w-full text-left rounded-2xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-5 py-4 hover:border-[color:var(--color-forest)]/40 flex items-center justify-between"
         >
           <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Society</div>
+            <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+              Society
+            </div>
             <div
               className={cn(
                 'mt-1 text-[16px] truncate',
@@ -526,7 +553,13 @@ function AddressPicker({
               {society ?? 'Select your society'}
             </div>
           </div>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={cn('shrink-0 ml-3 transition-transform', open === 'society' && 'rotate-180')}>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            className={cn('shrink-0 ml-3 transition-transform', open === 'society' && 'rotate-180')}
+          >
             <path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
@@ -536,7 +569,11 @@ function AddressPicker({
             q={q}
             setQ={setQ}
             placeholder="Search Magarpatta societies…"
-            items={filteredSocs.map((s) => ({ key: s.name, label: s.name, sub: `${s.buildings.length} bldgs` }))}
+            items={filteredSocs.map((s) => ({
+              key: s.name,
+              label: s.name,
+              sub: `${s.buildings.length} bldgs`,
+            }))}
             selected={society}
             onPick={(v) => {
               setSociety(v);
@@ -565,7 +602,9 @@ function AddressPicker({
             )}
           >
             <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Building</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+                Building
+              </div>
               <div
                 className={cn(
                   'mt-1 text-[16px] truncate',
@@ -575,7 +614,13 @@ function AddressPicker({
                 {building?.name ?? (society ? 'Select' : '—')}
               </div>
             </div>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={cn('shrink-0 ml-3 transition-transform', open === 'building' && 'rotate-180')}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              className={cn('shrink-0 ml-3 transition-transform', open === 'building' && 'rotate-180')}
+            >
               <path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -585,7 +630,11 @@ function AddressPicker({
               q={q}
               setQ={setQ}
               placeholder={`Search ${society} buildings…`}
-              items={filteredBlds.map((b) => ({ key: b.name, label: b.name, sub: `G+${b.floors - 1} · ${b.flatsPerFloor}/fl` }))}
+              items={filteredBlds.map((b) => ({
+                key: b.name,
+                label: b.name,
+                sub: `G+${b.floors - 1} · ${b.flatsPerFloor}/fl`,
+              }))}
               selected={building?.name ?? null}
               onPick={(v) => {
                 const b = getBuilding(society, v);
@@ -603,7 +652,9 @@ function AddressPicker({
             !building && 'opacity-50',
           )}
         >
-          <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Flat</label>
+          <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+            Flat
+          </label>
           <input
             disabled={!building}
             inputMode="numeric"
