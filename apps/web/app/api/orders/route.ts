@@ -110,21 +110,17 @@ export async function POST(req: Request) {
       update: {},
     });
 
-    // Fulfilment decision tree:
-    //   any vendor off-platform                    → PLATFORM_RIDER_CONCIERGE (rider walks in + buys)
+    // Two flows, nothing more:
     //   every vendor supports self-delivery
-    //     and has selfDeliveryAvailable=true       → VENDOR_SELF              (vendor's staff delivers)
-    //   else                                       → PLATFORM_RIDER           (vendor accepts; rider picks up when ready)
+    //     and has selfDeliveryAvailable=true  → VENDOR_SELF         (vendor sees + delivers)
+    //   else                                  → PLATFORM_RIDER      (concierge: vendor NOT notified; our rider
+    //                                                                walks into the shop, places the order at
+    //                                                                the counter, pays, brings it to the customer)
     const vendorsInCart = [...new Map(products.map((p) => [p.vendor.id, p.vendor])).values()];
-    const anyOffPlatform = vendorsInCart.some((v) => !v.onPlatform);
     const everyVendorCanSelfDeliverNow =
       vendorsInCart.length > 0 &&
       vendorsInCart.every((v) => v.supportsSelfDelivery && v.selfDeliveryAvailable);
-    const fulfilmentMode = anyOffPlatform
-      ? 'PLATFORM_RIDER_CONCIERGE'
-      : everyVendorCanSelfDeliverNow
-        ? 'VENDOR_SELF'
-        : 'PLATFORM_RIDER';
+    const fulfilmentMode = everyVendorCanSelfDeliverNow ? 'VENDOR_SELF' : 'PLATFORM_RIDER';
     const primaryVendor = products[0].vendor;
     const hub = primaryVendor.hub;
 

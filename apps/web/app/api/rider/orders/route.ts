@@ -3,42 +3,28 @@ import { prisma } from '@/lib/prisma';
 import { getRiderSession } from '@/lib/rider-session';
 
 /**
- * Buckets for the rider dashboard:
- *   available  — platform-rider orders the vendor has marked READY (PREPARING).
- *                Strict gate: no picking up until the vendor flips ready.
- *   concierge  — off-platform orders the vendor isn't aware of. The rider
- *                walks into the shop, orders and pays in person, and brings
- *                the order back to the customer.
- *   active     — orders currently in this rider's hands.
- *   history    — last 20 delivered, for earnings display.
+ * Rider buckets:
+ *   available  — every PLATFORM_RIDER order that's waiting for a rider.
+ *                The vendor was NOT notified; the rider walks into the shop,
+ *                places the order at the counter, pays from the float, and
+ *                brings it back to the customer — personalised service.
+ *   active     — orders in this rider's hands right now.
+ *   history    — last 20 delivered by this rider.
  *
- * Stale cutoff: 60 minutes — any order whose trigger timestamp is older
- * than that falls off the queue regardless of other state.
+ * Stale cutoff is 60 minutes on placedAt — older unclaimed orders drop off.
  */
 export async function GET() {
   const rider = await getRiderSession();
   if (!rider) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
   const staleCutoff = new Date(Date.now() - 60 * 60 * 1000);
-  const [available, concierge, active, history] = await Promise.all([
-    // Vendor-ready platform-rider orders only. No rider-visibility before READY.
-    prisma.order.findMany({
-      where: {
-        status: 'PREPARING',
-        riderPhone: null,
-        fulfilmentMode: 'PLATFORM_RIDER',
-        vendorReadyAt: { gte: staleCutoff },
-      },
-      orderBy: { vendorReadyAt: 'asc' },
-      include: { items: { select: { name: true, quantity: true } } },
-      take: 20,
-    }),
-    // Concierge — vendor never accepts; rider acts as personal shopper.
+  const [available, active, history] = await Promise.all([
     prisma.order.findMany({
       where: {
         status: 'PLACED',
         riderPhone: null,
-        fulfilmentMode: 'PLATFORM_RIDER_CONCIERGE',
+        // Both enum values are legacy; both map to "rider walks in + buys".
+        fulfilmentMode: { in: ['PLATFORM_RIDER', 'PLATFORM_RIDER_CONCIERGE'] },
         placedAt: { gte: staleCutoff },
       },
       orderBy: { placedAt: 'asc' },
@@ -70,7 +56,6 @@ export async function GET() {
     ok: true,
     rider,
     available,
-    concierge,
     active,
     history,
     todayDrops,

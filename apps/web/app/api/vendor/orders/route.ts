@@ -14,11 +14,12 @@ export async function GET() {
   const s = await getVendorSession();
   if (!s) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
-  // Concierge orders bypass the vendor dashboard entirely — the vendor isn't
-  // aware of those (the rider walks in and orders in person).
+  // Vendors only ever see VENDOR_SELF orders. Everything routed through a
+  // Magarpatta Go rider is handled concierge-style — the rider walks into the
+  // shop and orders in person, so the vendor doesn't need a notification.
   const base = {
     vendorId: s.vendorId,
-    fulfilmentMode: { not: 'PLATFORM_RIDER_CONCIERGE' as const },
+    fulfilmentMode: 'VENDOR_SELF' as const,
   };
   const [incoming, preparing, ready, onTheWay, history, todayDelivered] = await Promise.all([
     prisma.order.findMany({

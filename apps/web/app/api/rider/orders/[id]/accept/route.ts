@@ -13,20 +13,15 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ ok: false, error: 'Another rider claimed this order.' }, { status: 409 });
   }
 
-  // Concierge: vendor never accepts, so status must stay PLACED until the
-  // rider physically picks up. For normal PLATFORM_RIDER the vendor has
-  // already progressed PLACED → ACCEPTED → PREPARING; we don't regress it.
-  const isConcierge = order.fulfilmentMode === 'PLATFORM_RIDER_CONCIERGE';
-
+  // All platform-rider orders are concierge-style: the vendor was never
+  // notified. Status stays PLACED through rider accept and only moves when
+  // the rider actually picks up.
   await prisma.order.update({
     where: { id },
     data: {
       riderPhone: rider.phone,
       riderName: rider.name,
       riderAssignedAt: order.riderAssignedAt ?? new Date(),
-      ...(!isConcierge && order.status === 'PLACED'
-        ? { status: 'ACCEPTED', acceptedAt: order.acceptedAt ?? new Date() }
-        : {}),
     },
   });
 

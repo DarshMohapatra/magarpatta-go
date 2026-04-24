@@ -184,18 +184,19 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
             </div>
           </div>
         )}
-        {order.fulfilmentMode === 'PLATFORM_RIDER' && order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
-          <div className="mt-6 rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-forest)]/5 p-5 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
+        {(order.fulfilmentMode === 'PLATFORM_RIDER' || order.fulfilmentMode === 'PLATFORM_RIDER_CONCIERGE') && order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
+          <div className="mt-6 rounded-2xl border border-[color:var(--color-terracotta)]/25 bg-[color:var(--color-terracotta)]/5 p-5 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
               {order.riderName[0]}
             </div>
             <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Your rider</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">Your personal shopper</div>
               <div className="mt-0.5 font-serif text-[18px] leading-tight">
-                {order.riderName} is on this one.
+                {order.riderName} is picking this up for you.
               </div>
               <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
-                A neighbour on a Magarpatta-registered cycle. They&apos;ll ask for the OTP below on drop.
+                A neighbour&apos;s walking into {order.vendorName ?? 'the shop'}, placing your order at the counter,
+                and bringing it over. They&apos;ll ask for the OTP below on drop.
               </p>
             </div>
           </div>

@@ -13,17 +13,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ ok: false, error: 'Not your order.' }, { status: 403 });
   }
 
-  // Pickup gate:
-  //   PLATFORM_RIDER    — only once the vendor has marked ready (status=PREPARING)
-  //   CONCIERGE         — rider just walked in + paid at the shop; always allowed
-  //   (VENDOR_SELF doesn't route through this endpoint.)
-  if (order.fulfilmentMode === 'PLATFORM_RIDER' && order.status !== 'PREPARING') {
-    return NextResponse.json(
-      { ok: false, error: 'Vendor has not marked this order ready yet. Wait for their Ready for pickup.' },
-      { status: 409 },
-    );
-  }
-
+  // Platform-rider orders are concierge-style — the rider has just placed the
+  // order at the vendor's counter and paid. Pickup is allowed any time after
+  // accepting. VENDOR_SELF orders never route through this endpoint.
   await prisma.order.update({
     where: { id },
     data: {

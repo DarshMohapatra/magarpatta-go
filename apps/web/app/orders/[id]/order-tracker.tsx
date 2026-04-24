@@ -33,6 +33,13 @@ interface Props {
  */
 export function OrderTracker({ status, elapsedSeconds, vendorName, society, building, flat, stamps, riderName, fulfilmentMode }: Props) {
   const vendorSelf = fulfilmentMode === 'VENDOR_SELF';
+  const concierge = fulfilmentMode === 'PLATFORM_RIDER' || fulfilmentMode === 'PLATFORM_RIDER_CONCIERGE';
+  // For concierge orders the vendor is never notified, so the "Vendor
+  // accepted" and "Preparing" steps never happen — hide them from the
+  // customer's timeline. Four steps instead of six.
+  const timeline = concierge
+    ? STATUS_TIMELINE.filter((s) => !['ACCEPTED', 'PREPARING'].includes(s.status))
+    : STATUS_TIMELINE;
   const progress = statusProgress(status); // 0..1
   const moving = riderIsMoving(status);
   const delivered = status === 'DELIVERED';
@@ -194,8 +201,11 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
       {/* Timeline — horizontal steps */}
       <div className="px-6 py-6 border-t border-[color:var(--color-ink)]/8">
         <div className="flex items-center justify-between gap-2">
-          {STATUS_TIMELINE.map((step, i) => {
-            const done = statusProgress(status) >= i / (STATUS_TIMELINE.length - 1);
+          {timeline.map((step, i) => {
+            // Progress computed against the filtered timeline so concierge
+            // orders reach "100%" when delivered, not 67%.
+            const selfIdx = timeline.findIndex((s) => s.status === status);
+            const done = selfIdx >= 0 ? i <= selfIdx : statusProgress(status) >= i / Math.max(1, timeline.length - 1);
             const current = step.status === status;
             const stampIso = stepStampIso(step.status, stamps);
             return (
@@ -236,7 +246,7 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                     {stampIso ? formatTimeIst(stampIso) : '—'}
                   </span>
                 </div>
-                {i < STATUS_TIMELINE.length - 1 && (
+                {i < timeline.length - 1 && (
                   <div className={cn(
                     'h-px flex-1 shrink-0 transition-colors self-start mt-3',
                     done ? 'bg-[color:var(--color-forest)]/40' : 'bg-[color:var(--color-ink)]/12',
@@ -246,18 +256,23 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
             );
           })}
         </div>
-        {(stamps?.vendorAcceptedAt || stamps?.pickedUpAt || riderName) && (
+        {(stamps?.pickedUpAt || riderName || concierge) && (
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[11px] text-[color:var(--color-ink-soft)]/80">
             {vendorSelf && (
               <span className="rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] uppercase bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]">
                 Vendor-direct delivery
               </span>
             )}
-            {vendorName && stamps?.vendorAcceptedAt && (
+            {concierge && (
+              <span className="rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] uppercase bg-[color:var(--color-terracotta)]/12 text-[color:var(--color-terracotta)]">
+                Personal shopper — walk-in pickup
+              </span>
+            )}
+            {vendorSelf && vendorName && stamps?.vendorAcceptedAt && (
               <span><span className="text-[color:var(--color-ink-soft)]/55">Vendor</span> · {vendorName.split(' · ')[0]} accepted at {formatTimeIst(stamps.vendorAcceptedAt)}</span>
             )}
-            {!vendorSelf && riderName && stamps?.pickedUpAt && (
-              <span><span className="text-[color:var(--color-ink-soft)]/55">Rider</span> · {riderName} picked up at {formatTimeIst(stamps.pickedUpAt)}</span>
+            {concierge && riderName && stamps?.pickedUpAt && (
+              <span><span className="text-[color:var(--color-ink-soft)]/55">Rider</span> · {riderName} collected from {vendorName?.split(' · ')[0] ?? 'the shop'} at {formatTimeIst(stamps.pickedUpAt)}</span>
             )}
             {vendorSelf && stamps?.pickedUpAt && (
               <span><span className="text-[color:var(--color-ink-soft)]/55">On the way</span> · {vendorName?.split(' · ')[0]} left at {formatTimeIst(stamps.pickedUpAt)}</span>

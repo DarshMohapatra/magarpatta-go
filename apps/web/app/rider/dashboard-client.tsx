@@ -30,7 +30,6 @@ interface HistoryRow {
 
 interface Data {
   available: OrderPreview[];
-  concierge: OrderPreview[];
   active: OrderPreview[];
   history: HistoryRow[];
   todayDrops: number;
@@ -54,7 +53,6 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
       }
       setData({
         available: body.available,
-        concierge: body.concierge ?? [],
         active: body.active,
         history: body.history,
         todayDrops: body.todayDrops,
@@ -168,55 +166,25 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
           )}
         </div>
 
-        {/* Available orders — vendor has marked READY */}
+        {/* Available — every platform-rider order is concierge: walk in + buy */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-serif text-[22px]">Ready to pick up</h2>
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+            <h2 className="font-serif text-[22px]">Walk in + buy</h2>
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">
               {data?.available.length ?? 0} waiting
             </span>
           </div>
+          <p className="text-[12px] text-[color:var(--color-ink-soft)]/75 mb-3 -mt-1">
+            The shop hasn&apos;t been pinged — you&apos;re the personal shopper here. Walk in, place the order at the
+            counter, pay from your Magarpatta Go float, bring it back to the customer&apos;s door.
+          </p>
           {(data?.available.length ?? 0) === 0 ? (
             <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]">
-              Nothing ready yet. Orders appear here the moment a vendor marks them ready.
+              No neighbours waiting yet. Orders land here live.
             </div>
           ) : (
             <ul className="space-y-3">
               {data!.available.map((o) => (
-                <li key={o.id} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4">
-                  <OrderRow o={o} accent="available" />
-                  <div className="mt-3 flex justify-end">
-                    <button
-                      onClick={() => accept(o.id)}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)]"
-                    >
-                      Accept order
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Concierge — walk in and buy for the neighbour */}
-        {(data?.concierge.length ?? 0) > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-serif text-[22px]">Concierge · walk in + buy</h2>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">
-                {data?.concierge.length ?? 0} waiting
-              </span>
-            </div>
-            <p className="text-[12px] text-[color:var(--color-ink-soft)]/75 mb-2 -mt-1">
-              The shop isn&apos;t on Magarpatta Go. Walk in, place the order at the counter, pay from your float,
-              bring it back, drop it at the customer&apos;s door. Magarpatta Go reimburses you with the order receipt.
-            </p>
-            <ul className="space-y-3">
-              {data!.concierge.map((o) => (
                 <li key={o.id} className="rounded-2xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/5 p-4">
                   <OrderRow o={o} accent="concierge" />
                   <div className="mt-3 flex justify-end">
@@ -230,8 +198,8 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
                 </li>
               ))}
             </ul>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Recent history */}
         {(data?.history.length ?? 0) > 0 && (
