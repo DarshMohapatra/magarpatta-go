@@ -12,14 +12,21 @@ export async function GET() {
   const rider = await getRiderSession();
   if (!rider) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
+  // Strict guardrail: riders only see currently-pickable orders.
+  //   - platform-rider mode (not vendor self-delivery)
+  //   - vendor has already accepted (ACCEPTED or PREPARING)
+  //   - no rider is assigned yet
+  //   - vendor accepted within the last 60 minutes (stale orders drop off)
+  const staleCutoff = new Date(Date.now() - 60 * 60 * 1000);
   const [available, active, history] = await Promise.all([
     prisma.order.findMany({
       where: {
         status: { in: ['ACCEPTED', 'PREPARING'] },
         riderPhone: null,
         fulfilmentMode: 'PLATFORM_RIDER',
+        vendorAcceptedAt: { gte: staleCutoff },
       },
-      orderBy: { placedAt: 'asc' },
+      orderBy: { vendorAcceptedAt: 'asc' },
       include: { items: { select: { name: true, quantity: true } } },
       take: 20,
     }),

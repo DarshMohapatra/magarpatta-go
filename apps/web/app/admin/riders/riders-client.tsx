@@ -19,16 +19,26 @@ interface Rider {
   approvedAt: string | null;
 }
 
-const TABS = [
-  { key: 'PENDING', label: 'Pending' },
-  { key: 'APPROVED', label: 'Approved' },
-  { key: 'SUSPENDED', label: 'Suspended' },
-  { key: 'REJECTED', label: 'Rejected' },
+const TABS: Array<{ key: string; label: string }> = [
+  { key: 'PENDING',    label: 'Pending' },
+  { key: 'APPROVED',   label: 'Approved' },
+  { key: 'SUSPENDED',  label: 'Suspended' },
+  { key: 'REJECTED',   label: 'Rejected' },
+  { key: 'PERFORMANCE', label: 'Performance' },
 ];
+
+interface PerformanceRow {
+  id: string; phone: string; name: string;
+  vehicleType: string | null; vehicleNumber: string | null;
+  perDropInr: number; onDuty: boolean;
+  drops30: number; dropsToday: number; earnings30Inr: number;
+  ratingCount: number; avgRating: number; avgDeliverMin: number;
+}
 
 export function AdminRidersClient({ initialStatus }: { initialStatus: string }) {
   const [tab, setTab] = useState<string>(TABS.find((t) => t.key === initialStatus)?.key ?? 'PENDING');
   const [riders, setRiders] = useState<Rider[]>([]);
+  const [perf, setPerf] = useState<PerformanceRow[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ phone: '', name: '', email: '', aadhaarNumber: '', dlNumber: '', vehicleType: 'motorcycle', vehicleNumber: '', perDropInr: 30 });
@@ -36,6 +46,12 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
   const [note, setNote] = useState<Record<string, string>>({});
 
   async function load() {
+    if (tab === 'PERFORMANCE') {
+      const r = await fetch('/api/admin/riders/performance', { cache: 'no-store' });
+      const j = await r.json();
+      if (j.ok) setPerf(j.riders);
+      return;
+    }
     const r = await fetch(`/api/admin/riders?status=${tab}`, { cache: 'no-store' });
     const j = await r.json();
     if (j.ok) {
@@ -98,11 +114,59 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
                 ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
                 : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12'
             }`}>
-            {t.label} <span className="ml-1.5 opacity-70">{counts[t.key] ?? 0}</span>
+            {t.label}
+            {t.key !== 'PERFORMANCE' && <span className="ml-1.5 opacity-70">{counts[t.key] ?? 0}</span>}
           </button>
         ))}
       </div>
 
+      {tab === 'PERFORMANCE' && (
+        <section className="mt-5 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
+          <div className="px-5 py-3 border-b border-[color:var(--color-ink)]/8 grid grid-cols-12 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+            <div className="col-span-3">Rider</div>
+            <div className="col-span-1 text-right">Today</div>
+            <div className="col-span-1 text-right">30d drops</div>
+            <div className="col-span-2 text-right">30d earnings</div>
+            <div className="col-span-2 text-right">Avg pickup→drop</div>
+            <div className="col-span-3 text-right">Rating</div>
+          </div>
+          {perf.length === 0 ? (
+            <div className="p-8 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+              No performance data yet — riders need delivered drops first.
+            </div>
+          ) : (
+            <ul className="divide-y divide-[color:var(--color-ink)]/8">
+              {perf.map((r) => (
+                <li key={r.id} className="px-5 py-3 grid grid-cols-12 items-center gap-3 text-[13px]">
+                  <div className="col-span-3 min-w-0">
+                    <div className="font-medium truncate">{r.name}</div>
+                    <div className="text-[11.5px] text-[color:var(--color-ink-soft)]/70">+91 {r.phone} · {r.vehicleType ?? '—'}</div>
+                  </div>
+                  <div className="col-span-1 text-right tabular-nums">{r.dropsToday}</div>
+                  <div className="col-span-1 text-right tabular-nums">{r.drops30}</div>
+                  <div className="col-span-2 text-right font-serif text-[color:var(--color-forest)]">₹{r.earnings30Inr.toLocaleString('en-IN')}</div>
+                  <div className="col-span-2 text-right">
+                    {r.avgDeliverMin ? `${r.avgDeliverMin} min` : <span className="text-[color:var(--color-ink-soft)]/50">—</span>}
+                  </div>
+                  <div className="col-span-3 text-right">
+                    {r.ratingCount === 0 ? (
+                      <span className="text-[color:var(--color-ink-soft)]/50">no ratings</span>
+                    ) : (
+                      <>
+                        <span className="text-[color:var(--color-saffron)]">★</span>{' '}
+                        <span className="font-serif text-[15px]">{r.avgRating.toFixed(1)}</span>
+                        <span className="text-[11px] text-[color:var(--color-ink-soft)]/70"> · {r.ratingCount}</span>
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {tab !== 'PERFORMANCE' && (
       <ul className="mt-5 grid md:grid-cols-2 gap-3">
         {riders.length === 0 && (
           <li className="md:col-span-2 rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
@@ -169,6 +233,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
           </li>
         ))}
       </ul>
+      )}
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[color:var(--color-ink)]/40 backdrop-blur-sm">

@@ -103,7 +103,10 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
               <span className="ml-1.5 text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <Link href="/rider/feedback" className="text-[12px] text-[color:var(--color-forest)] hover:underline">
+              Feedback
+            </Link>
             <div className="text-right leading-tight hidden sm:block">
               <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-saffron)]">On shift</div>
               <div className="text-[13px] font-medium">{rider.name}</div>

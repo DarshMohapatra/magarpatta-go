@@ -31,8 +31,8 @@ async function main() {
     bankIfsc: 'HDFC0001234',
     upiId: 'kalika@hdfcbank',
     commissionPct: 15,
-    supportsSelfDelivery: true,
-    selfDeliveryFeeInr: 20,
+    supportsSelfDelivery: false,
+    selfDeliveryFeeInr: null,
   };
   const kalika = await prisma.vendor.upsert({
     where: { slug: 'kalika' },
@@ -46,7 +46,7 @@ async function main() {
       ...kalikaFields,
     },
   });
-  console.log(`  ✓ Kalika Sweets approved · self-delivery ON · login 9000000001 / kalika123`);
+  console.log(`  ✓ Kalika Sweets approved · rider pickup · login 9000000001 / kalika123`);
 
   const bakersFields = {
     approvalStatus: 'APPROVED' as const,
@@ -68,8 +68,8 @@ async function main() {
     bankIfsc: 'ICIC0000222',
     upiId: 'bakers@icici',
     commissionPct: 18,
-    supportsSelfDelivery: false,
-    selfDeliveryFeeInr: null,
+    supportsSelfDelivery: true,
+    selfDeliveryFeeInr: 20,
   };
   const bakers = await prisma.vendor.upsert({
     where: { slug: 'bakers' },
@@ -83,7 +83,56 @@ async function main() {
       ...bakersFields,
     },
   });
-  console.log(`  ✓ Baker's Basket approved · rider pickup · login 9000000002 / bakers123`);
+  console.log(`  ✓ Baker's Basket approved · self-delivery ON · login 9000000002 / bakers123`);
+
+  // ── Extra items for Baker's Basket (upsert by vendor+name) ────
+  const bakeryCategory = await prisma.category.upsert({
+    where: { slug: 'bakery' },
+    update: {},
+    create: { slug: 'bakery', name: 'Bakery', glyph: 'loaf', order: 50 },
+  });
+  const beveragesCategory = await prisma.category.upsert({
+    where: { slug: 'beverages' },
+    update: {},
+    create: { slug: 'beverages', name: 'Beverages', glyph: 'cup', order: 80 },
+  });
+  const bakersItems = [
+    { name: 'Butter Croissant',    category: bakeryCategory,    mrp: 90,  unit: '1 pc',    desc: 'All-butter laminated dough. Flaky, warm on arrival.' },
+    { name: 'Chocolate Croissant', category: bakeryCategory,    mrp: 120, unit: '1 pc',    desc: 'Dark chocolate baton folded in.' },
+    { name: 'Cheese Danish',       category: bakeryCategory,    mrp: 110, unit: '1 pc',    desc: 'Cream cheese + buttery pastry.' },
+    { name: 'Multigrain Loaf',     category: bakeryCategory,    mrp: 180, unit: '500g',    desc: 'Oats, seeds, whole wheat. Baked daily at 4am.' },
+    { name: 'Red Velvet Slice',    category: bakeryCategory,    mrp: 160, unit: '1 slice', desc: 'Cream cheese frosting.' },
+    { name: 'Tiramisu Cup',        category: bakeryCategory,    mrp: 180, unit: '1 cup',   desc: 'Coffee-soaked ladyfingers, mascarpone.' },
+    { name: 'Garlic Focaccia',     category: bakeryCategory,    mrp: 160, unit: '250g',    desc: 'Olive oil, rosemary, Maldon salt.' },
+    { name: 'Plum Cake',           category: bakeryCategory,    mrp: 220, unit: '400g',    desc: 'Rum-soaked fruit, holiday classic.' },
+    { name: 'Cold Coffee',         category: beveragesCategory, mrp: 140, unit: '300ml',   desc: 'House blend, milk, sugar. Not too sweet.' },
+    { name: 'Masala Chai',         category: beveragesCategory, mrp: 60,  unit: '200ml',   desc: 'Stovetop brew, cardamom-ginger.' },
+  ];
+  for (const it of bakersItems) {
+    const existing = await prisma.product.findFirst({
+      where: { vendorId: bakers.id, name: it.name },
+    });
+    const productData = {
+      vendorId: bakers.id,
+      categoryId: it.category.id,
+      name: it.name,
+      description: it.desc,
+      priceInr: it.mrp + 1,        // non-regulated +₹1 markup
+      mrpInr: it.mrp,
+      unit: it.unit,
+      isVeg: true,
+      isRegulated: false,
+      accent: 'saffron',
+      glyph: it.category.slug === 'bakery' ? 'loaf' : 'cup',
+      inStock: true,
+    };
+    if (existing) {
+      await prisma.product.update({ where: { id: existing.id }, data: productData });
+    } else {
+      await prisma.product.create({ data: productData });
+    }
+  }
+  console.log(`  ✓ Baker's Basket menu · ${bakersItems.length} items upserted`);
 
   // ── Approve the rest of the seeded catalog as demo vendors ────
   // Each one upserts so it works whether the base catalog seed has run or not.

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { OrderStatus, PaymentMethod, OrderFulfilmentMode } from '@prisma/client';
 import { OrderTracker, useLiveOrder } from './order-tracker';
+import { FeedbackForm } from './feedback-form';
 import { ProductGlyph } from '@/components/product-glyph';
 import { deliveryOtp } from '@/lib/orders';
 import { useCart } from '@/lib/cart';
@@ -198,6 +199,16 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
               </p>
             </div>
           </div>
+        )}
+
+        {/* Feedback form — only once delivered */}
+        {live.status === 'DELIVERED' && (
+          <FeedbackForm
+            orderId={order.id}
+            vendorName={order.vendorName}
+            riderName={order.riderName}
+            hasRider={order.fulfilmentMode === 'PLATFORM_RIDER'}
+          />
         )}
 
         {/* Delivery OTP — shown while the rider is inbound, hidden after delivery */}
