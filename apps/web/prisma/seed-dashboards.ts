@@ -10,59 +10,77 @@ function sha(pw: string): string {
 async function main() {
   console.log('🌱 Seeding vendor/admin/rider dashboards…');
 
-  // ── Approved demo vendors ─────────────────────────────────────
-  const kalika = await prisma.vendor.update({
+  // ── Approved demo vendors (upsert so it works on a fresh DB too) ────
+  const kalikaFields = {
+    approvalStatus: 'APPROVED' as const,
+    approvedAt: new Date(),
+    active: true,
+    vendorType: 'sweets',
+    ownerName: 'Rajesh Kalika',
+    ownerPhone: '9000000001',
+    ownerEmail: 'owner@kalika.example',
+    ownerPasswordHash: sha('kalika123'),
+    addressLine: 'Shop 4, Magarpatta Market, Hadapsar',
+    openTime: '08:00',
+    closeTime: '22:30',
+    gstin: '27AAAPL1234C1Z5',
+    fssaiNumber: '11521998000123',
+    panNumber: 'AAAPL1234C',
+    bankAccountName: 'Kalika Sweets & Snacks',
+    bankAccountNumber: '50100123456789',
+    bankIfsc: 'HDFC0001234',
+    upiId: 'kalika@hdfcbank',
+    commissionPct: 15,
+    supportsSelfDelivery: true,
+    selfDeliveryFeeInr: 20,
+  };
+  const kalika = await prisma.vendor.upsert({
     where: { slug: 'kalika' },
-    data: {
-      approvalStatus: 'APPROVED',
-      approvedAt: new Date(),
-      active: true,
-      vendorType: 'sweets',
-      ownerName: 'Rajesh Kalika',
-      ownerPhone: '9000000001',
-      ownerEmail: 'owner@kalika.example',
-      ownerPasswordHash: sha('kalika123'),
-      addressLine: 'Shop 4, Magarpatta Market, Hadapsar',
-      openTime: '08:00',
-      closeTime: '22:30',
-      gstin: '27AAAPL1234C1Z5',
-      fssaiNumber: '11521998000123',
-      panNumber: 'AAAPL1234C',
-      bankAccountName: 'Kalika Sweets & Snacks',
-      bankAccountNumber: '50100123456789',
-      bankIfsc: 'HDFC0001234',
-      upiId: 'kalika@hdfcbank',
-      commissionPct: 15,
-      supportsSelfDelivery: true,    // demo flow A — vendor-direct delivery
-      selfDeliveryFeeInr: 20,
+    update: kalikaFields,
+    create: {
+      slug: 'kalika',
+      name: 'Kalika Sweets',
+      hub: 'Magarpatta Market',
+      description: 'Fresh-from-the-kadhai sweets and snacks. Institutional Magarpatta since 1998.',
+      accent: 'saffron',
+      ...kalikaFields,
     },
   });
   console.log(`  ✓ Kalika Sweets approved · self-delivery ON · login 9000000001 / kalika123`);
 
-  const bakers = await prisma.vendor.update({
+  const bakersFields = {
+    approvalStatus: 'APPROVED' as const,
+    approvedAt: new Date(),
+    active: true,
+    vendorType: 'bakery',
+    ownerName: 'Priya Menon',
+    ownerPhone: '9000000002',
+    ownerEmail: 'hello@bakersbasket.example',
+    ownerPasswordHash: sha('bakers123'),
+    addressLine: 'Ground floor, Seasons Mall, Magarpatta',
+    openTime: '07:00',
+    closeTime: '23:00',
+    gstin: '27BAKPL4321M1Z9',
+    fssaiNumber: '11521998000456',
+    panNumber: 'BAKPL4321M',
+    bankAccountName: "The Baker's Basket LLP",
+    bankAccountNumber: '00222244446666',
+    bankIfsc: 'ICIC0000222',
+    upiId: 'bakers@icici',
+    commissionPct: 18,
+    supportsSelfDelivery: false,
+    selfDeliveryFeeInr: null,
+  };
+  const bakers = await prisma.vendor.upsert({
     where: { slug: 'bakers' },
-    data: {
-      approvalStatus: 'APPROVED',
-      approvedAt: new Date(),
-      active: true,
-      vendorType: 'bakery',
-      ownerName: 'Priya Menon',
-      ownerPhone: '9000000002',
-      ownerEmail: 'hello@bakersbasket.example',
-      ownerPasswordHash: sha('bakers123'),
-      addressLine: 'Ground floor, Seasons Mall, Magarpatta',
-      openTime: '07:00',
-      closeTime: '23:00',
-      gstin: '27BAKPL4321M1Z9',
-      fssaiNumber: '11521998000456',
-      panNumber: 'BAKPL4321M',
-      bankAccountName: "The Baker's Basket LLP",
-      bankAccountNumber: '00222244446666',
-      bankIfsc: 'ICIC0000222',
-      upiId: 'bakers@icici',
-      commissionPct: 18,
-      supportsSelfDelivery: false,   // demo flow B — platform rider does pickup
-      selfDeliveryFeeInr: null,
+    update: bakersFields,
+    create: {
+      slug: 'bakers',
+      name: "The Baker's Basket",
+      hub: 'Seasons Mall',
+      description: 'Sourdough, croissants, seasonal loaves. Still-warm deliveries every morning.',
+      accent: 'saffron',
+      ...bakersFields,
     },
   });
   console.log(`  ✓ Baker's Basket approved · rider pickup · login 9000000002 / bakers123`);
