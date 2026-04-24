@@ -3,39 +3,36 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { OtpFlow } from '@/components/otp-flow';
 
-const DEMO_LOGINS = [
-  { label: 'Kalika Sweets', phone: '9000000001', password: 'kalika123' },
-  { label: "Baker's Basket", phone: '9000000002', password: 'bakers123' },
+const DEMO_PHONES = [
+  { label: 'Kalika Sweets',        phone: '9000000001' },
+  { label: "Baker's Basket",       phone: '9000000002' },
+  { label: 'Destination Centre',   phone: '9000000004' },
+  { label: 'Shraddha Meats',       phone: '9000000005' },
+  { label: 'Magarpatta Pharmacy',  phone: '9000000006' },
+  { label: 'Starbucks · Seasons',  phone: '9000000007' },
 ];
 
 export function VendorSignInClient() {
   const router = useRouter();
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setErr(null);
+  async function verify(code: string) {
+    setBusy(true); setErr(null);
     try {
-      const res = await fetch('/api/vendor/session', {
+      const r = await fetch('/api/vendor/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
+        body: JSON.stringify({ phone, code }),
       });
-      const data = await res.json();
-      if (!data.ok) {
-        setErr(data.error ?? 'Could not sign in.');
-        setBusy(false);
-        return;
-      }
+      const j = await r.json();
+      if (!j.ok) { setErr(j.error ?? 'Could not sign in.'); return; }
       router.push('/vendor');
       router.refresh();
-    } catch {
-      setErr('Network error.');
+    } finally {
       setBusy(false);
     }
   }
@@ -54,65 +51,33 @@ export function VendorSignInClient() {
           Open your <span className="italic text-[color:var(--color-forest)]">counter.</span>
         </h1>
         <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
-          Sign in with the owner phone you registered with. New shop?{' '}
+          Sign in with your registered owner phone. We&apos;ll send a 6-digit OTP. New shop?{' '}
           <Link href="/vendor/register" className="text-[color:var(--color-forest)] underline underline-offset-2">
             Register here
           </Link>.
         </p>
 
-        <form onSubmit={submit} className="mt-8 space-y-4">
-          <label className="block">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">
-              Owner phone
-            </span>
-            <div className="mt-1 flex items-center gap-2 rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 focus-within:border-[color:var(--color-forest)]">
-              <span className="text-[13px] text-[color:var(--color-ink-soft)]">+91</span>
-              <input
-                autoFocus
-                inputMode="numeric"
-                maxLength={10}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="10-digit number"
-                className="flex-1 bg-transparent outline-none text-[15px] tracking-[0.04em]"
-              />
-            </div>
-          </label>
-
-          <label className="block">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">
-              Password
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[15px] outline-none focus:border-[color:var(--color-forest)]"
-            />
-          </label>
-
-          {err && <p className="text-[12.5px] text-[color:var(--color-terracotta-dark)]">{err}</p>}
-
-          <button
-            type="submit"
-            disabled={phone.length !== 10 || password.length < 3 || busy}
-            className="w-full rounded-xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-3.5 text-[14.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {busy ? 'Opening…' : 'Open counter'}
-          </button>
-        </form>
+        <OtpFlow
+          purpose="VENDOR_SIGNIN"
+          phone={phone}
+          onChangePhone={setPhone}
+          busy={busy}
+          submitLabel="Open counter"
+          onVerify={verify}
+          topError={err}
+        />
 
         <details className="mt-8 text-[12px] text-[color:var(--color-ink-soft)]/80">
-          <summary className="cursor-pointer">Demo logins · tap to prefill</summary>
+          <summary className="cursor-pointer">Demo vendors · tap to prefill · OTP is 123456</summary>
           <div className="mt-2 space-y-1 font-mono">
-            {DEMO_LOGINS.map((d) => (
+            {DEMO_PHONES.map((d) => (
               <button
                 key={d.phone}
                 type="button"
-                onClick={() => { setPhone(d.phone); setPassword(d.password); }}
+                onClick={() => setPhone(d.phone)}
                 className="block text-left text-[color:var(--color-forest)] hover:underline"
               >
-                {d.phone} / {d.password} · <span className="font-sans text-[color:var(--color-ink)]">{d.label}</span>
+                {d.phone} · <span className="font-sans text-[color:var(--color-ink)]">{d.label}</span>
               </button>
             ))}
           </div>

@@ -2,39 +2,40 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { verifyOtp } from '@/lib/otp';
-import { ADMIN_COOKIE, encodeAdminToken } from '@/lib/admin-session';
 
 /**
- * Admin signin via phone OTP. Password field retained in DB for audit but
- * no longer used for authentication.
+ * Customer OTP signin. Verifies the code and sets mg_session. Creates the
+ * User row if this phone is new — same "signin = signup" UX we had with
+ * Firebase phone auth.
  */
 export async function POST(req: Request) {
   const body = (await req.json()) as { phone?: string; code?: string };
   const phone = (body.phone ?? '').replace(/\D/g, '').slice(-10);
   const code = (body.code ?? '').trim();
 
-  const admin = await prisma.admin.findUnique({ where: { phone } });
-  if (!admin) {
-    return NextResponse.json({ ok: false, error: 'No admin account on that phone.' }, { status: 401 });
-  }
-
-  const v = await verifyOtp(phone, 'ADMIN_SIGNIN', code);
+  const v = await verifyOtp(phone, 'CUSTOMER_SIGNIN', code);
   if (!v.ok) return NextResponse.json({ ok: false, error: v.error }, { status: 400 });
 
+  const user = await prisma.user.upsert({
+    where: { phone },
+    create: { phone },
+    update: {},
+  });
+
+  const token = Buffer.from(JSON.stringify({ phone: user.phone })).toString('base64url');
   const jar = await cookies();
-  jar.set(ADMIN_COOKIE, encodeAdminToken(phone), {
+  jar.set('mg_session', token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 30,
   });
-
-  return NextResponse.json({ ok: true, admin: { name: admin.name, role: admin.role } });
+  return NextResponse.json({ ok: true, phone: user.phone });
 }
 
 export async function DELETE() {
   const jar = await cookies();
-  jar.delete(ADMIN_COOKIE);
+  jar.delete('mg_session');
   return NextResponse.json({ ok: true });
 }

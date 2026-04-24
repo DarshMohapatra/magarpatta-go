@@ -27,18 +27,57 @@ export function RiderRegisterClient() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
+  // OTP state
+  const [otpStage, setOtpStage] = useState<'form' | 'otp'>('form');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSentMsg, setOtpSentMsg] = useState<string | null>(null);
+  const [resendIn, setResendIn] = useState(0);
+
   function set<K extends keyof Form>(k: K, v: Form[K]) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
+  async function sendOtp() {
+    setBusy(true); setErr(null); setOtpSentMsg(null);
+    try {
+      const r = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: form.phone, purpose: 'RIDER_REGISTER' }),
+      });
+      const j = await r.json();
+      if (!j.ok) { setErr(j.error ?? 'Could not send OTP.'); return; }
+      setOtpStage('otp');
+      setOtpSentMsg(
+        j.demoOtp
+          ? `Demo phone — use code ${j.demoOtp}.`
+          : j.smsSent
+            ? 'Code sent via SMS. Expires in 5 minutes.'
+            : 'Code generated. Check the Vercel server logs for it.',
+      );
+      setResendIn(30);
+      const t = setInterval(() => setResendIn((s) => {
+        if (s <= 1) { clearInterval(t); return 0; }
+        return s - 1;
+      }), 1000);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (otpStage === 'form') {
+      await sendOtp();
+      return;
+    }
+    if (otpCode.length !== 6) { setErr('Enter the 6-digit code.'); return; }
     setBusy(true); setErr(null);
     try {
       const r = await fetch('/api/rider/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, otpCode }),
       });
       const j = await r.json();
       if (!j.ok) { setErr(j.error ?? 'Could not submit'); setBusy(false); return; }
@@ -154,6 +193,48 @@ export function RiderRegisterClient() {
             with anyone outside our ops team.
           </p>
 
+          {otpStage === 'otp' && (
+            <div className="pt-4 border-t border-[color:var(--color-ink)]/8 space-y-3">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Verify phone</div>
+                <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
+                  We&apos;ll text a 6-digit code to <span className="font-medium text-[color:var(--color-ink)]">+91 {form.phone}</span>.
+                  That phone becomes your signin identity.
+                </p>
+                {otpSentMsg && <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/80">{otpSentMsg}</p>}
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <Field label="Enter 6-digit OTP">
+                  <input
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="••••••"
+                    className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-forest)]"
+                  />
+                </Field>
+              </div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => { setOtpStage('form'); setOtpCode(''); setOtpSentMsg(null); }}
+                  className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]"
+                >
+                  ← Edit details
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || resendIn > 0}
+                  onClick={sendOtp}
+                  className="text-[12px] text-[color:var(--color-forest)] hover:underline disabled:opacity-40 disabled:no-underline"
+                >
+                  {resendIn > 0 ? `Resend in ${resendIn}s` : 'Resend code'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {err && (
             <div className="rounded-xl bg-[color:var(--color-terracotta)]/10 border border-[color:var(--color-terracotta)]/25 px-4 py-3 text-[13px] text-[color:var(--color-terracotta-dark)]">
               {err}
@@ -162,10 +243,12 @@ export function RiderRegisterClient() {
 
           <button
             type="submit"
-            disabled={busy || !form.name || form.phone.length !== 10}
+            disabled={busy || !form.name || form.phone.length !== 10 || (otpStage === 'otp' && otpCode.length !== 6)}
             className="w-full rounded-xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-3.5 text-[14.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {busy ? 'Submitting…' : 'Submit for verification'}
+            {busy
+              ? (otpStage === 'form' ? 'Sending OTP…' : 'Submitting…')
+              : (otpStage === 'form' ? 'Send OTP to verify phone' : 'Verify & submit')}
           </button>
         </form>
       </div>

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hashPassword } from '@/lib/password';
+import { verifyOtp } from '@/lib/otp';
 
 interface Body {
   shopName?: string;
   ownerName?: string;
   ownerPhone?: string;
   ownerEmail?: string;
-  password?: string;
+  otpCode?: string;
   vendorType?: string;
   hub?: string;
   addressLine?: string;
@@ -32,14 +32,18 @@ export async function POST(req: Request) {
   const shopName = (b.shopName ?? '').trim();
   const ownerName = (b.ownerName ?? '').trim();
   const ownerPhone = (b.ownerPhone ?? '').replace(/\D/g, '').slice(-10);
-  const password = (b.password ?? '').trim();
+  const otpCode = (b.otpCode ?? '').trim();
 
-  if (!shopName || !ownerName || ownerPhone.length !== 10 || password.length < 6) {
+  if (!shopName || !ownerName || ownerPhone.length !== 10) {
     return NextResponse.json(
-      { ok: false, error: 'Fill shop name, owner name, 10-digit phone, and a 6+ character password.' },
+      { ok: false, error: 'Fill shop name, owner name, and a 10-digit phone.' },
       { status: 400 },
     );
   }
+
+  // Must verify phone via OTP before we create the pending vendor.
+  const v = await verifyOtp(ownerPhone, 'VENDOR_REGISTER', otpCode);
+  if (!v.ok) return NextResponse.json({ ok: false, error: v.error }, { status: 400 });
 
   const existingByPhone = await prisma.vendor.findUnique({ where: { ownerPhone } });
   if (existingByPhone) {
@@ -64,7 +68,7 @@ export async function POST(req: Request) {
       ownerName,
       ownerPhone,
       ownerEmail: b.ownerEmail?.trim() || null,
-      ownerPasswordHash: hashPassword(password),
+      ownerPasswordHash: null,         // OTP-only — no password stored for new vendors
       addressLine: b.addressLine?.trim() || null,
       gstin: b.gstin?.trim() || null,
       fssaiNumber: b.fssaiNumber?.trim() || null,
@@ -76,7 +80,7 @@ export async function POST(req: Request) {
       upiId: b.upiId?.trim() || null,
       openTime: b.openTime?.trim() || null,
       closeTime: b.closeTime?.trim() || null,
-      active: false, // live only after admin approval
+      active: false,
     },
   });
 

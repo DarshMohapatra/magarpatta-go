@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { verifyOtp } from '@/lib/otp';
 import { encodeRiderToken, COOKIE_NAME } from '@/lib/rider-session';
 
+/**
+ * Rider signin via phone OTP. Replaces the previous phone-only flow which
+ * had no credential check.
+ */
 export async function POST(req: Request) {
-  const body = (await req.json()) as { phone?: string };
+  const body = (await req.json()) as { phone?: string; code?: string };
   const phone = (body.phone ?? '').replace(/\D/g, '').slice(-10);
+  const code = (body.code ?? '').trim();
   if (phone.length !== 10) {
     return NextResponse.json({ ok: false, error: 'Enter a 10-digit phone.' }, { status: 400 });
   }
@@ -26,6 +32,9 @@ export async function POST(req: Request) {
   if (rider.approvalStatus === 'SUSPENDED') {
     return NextResponse.json({ ok: false, error: 'Your rider account is currently suspended.' }, { status: 403 });
   }
+
+  const v = await verifyOtp(phone, 'RIDER_SIGNIN', code);
+  if (!v.ok) return NextResponse.json({ ok: false, error: v.error }, { status: 400 });
 
   const jar = await cookies();
   jar.set(COOKIE_NAME, encodeRiderToken(rider.phone), {

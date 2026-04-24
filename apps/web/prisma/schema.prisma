@@ -364,6 +364,22 @@ model Admin {
   email        String?
   name         String
   role         AdminRole @default(OPS)
-  passwordHash String    // sha256 hex — dev-only, replace with bcrypt in prod
+  passwordHash String    // legacy — retained for audit; OTP is the live signin path
   createdAt    DateTime  @default(now())
+}
+
+/// One active OTP per (phone, purpose). Upserted on each send.
+/// codeHash is sha256 of the plaintext code — we never store plaintext.
+model OtpCode {
+  id         String    @id @default(cuid())
+  phone      String
+  purpose    String    // CUSTOMER_SIGNIN | VENDOR_SIGNIN | VENDOR_REGISTER | RIDER_SIGNIN | RIDER_REGISTER | ADMIN_SIGNIN
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([phone, purpose])
+  @@index([phone])
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyOtp } from '@/lib/otp';
 
 interface Body {
   name?: string;
@@ -9,15 +10,20 @@ interface Body {
   dlNumber?: string;
   vehicleType?: string;
   vehicleNumber?: string;
+  otpCode?: string;
 }
 
 export async function POST(req: Request) {
   const b = (await req.json()) as Body;
   const name = (b.name ?? '').trim();
   const phone = (b.phone ?? '').replace(/\D/g, '').slice(-10);
+  const otpCode = (b.otpCode ?? '').trim();
   if (!name || phone.length !== 10) {
     return NextResponse.json({ ok: false, error: 'Name and 10-digit phone are required.' }, { status: 400 });
   }
+
+  const v = await verifyOtp(phone, 'RIDER_REGISTER', otpCode);
+  if (!v.ok) return NextResponse.json({ ok: false, error: v.error }, { status: 400 });
 
   const existing = await prisma.riderProfile.findUnique({ where: { phone } });
   if (existing) {

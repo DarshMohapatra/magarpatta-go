@@ -1,20 +1,7 @@
-import { VerifyClient } from './verify-client';
-import { AuthShell } from '@/components/auth/auth-shell';
+import { redirect } from 'next/navigation';
 
+// The OTP flow is now inline on /signin. This legacy Firebase verify step
+// redirects so any cached bookmarks still land somewhere sensible.
 export default function VerifyPage() {
-  return (
-    <AuthShell
-      eyebrow="Verify · one more step"
-      title={
-        <>
-          Enter the
-          <br />
-          <span className="italic text-[color:var(--color-saffron-soft)]">6-digit code.</span>
-        </>
-      }
-      subtitle="We just SMSed a code to your phone. Enter it below and you're in."
-    >
-      <VerifyClient />
-    </AuthShell>
-  );
+  redirect('/signin');
 }
