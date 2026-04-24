@@ -85,6 +85,176 @@ async function main() {
   });
   console.log(`  ✓ Baker's Basket approved · rider pickup · login 9000000002 / bakers123`);
 
+  // ── Approve the rest of the seeded catalog as demo vendors ────
+  // Each one upserts so it works whether the base catalog seed has run or not.
+  const MORE_VENDORS: Array<{
+    slug: string;
+    name: string;
+    hub: string;
+    description: string;
+    accent: string;
+    vendorType: string;
+    ownerName: string;
+    ownerPhone: string;
+    ownerEmail: string;
+    password: string;
+    addressLine: string;
+    openTime: string;
+    closeTime: string;
+    gstin?: string;
+    fssaiNumber?: string;
+    drugLicense?: string;
+    panNumber: string;
+    bankAccountName: string;
+    bankAccountNumber: string;
+    bankIfsc: string;
+    upiId: string;
+    commissionPct: number;
+    supportsSelfDelivery: boolean;
+    selfDeliveryFeeInr: number | null;
+  }> = [
+    {
+      slug: 'dc',
+      name: 'Destination Centre',
+      hub: 'Destination Centre',
+      description: "The township's flagship grocery + supermarket. Everything, one aisle away.",
+      accent: 'forest',
+      vendorType: 'grocery',
+      ownerName: 'Anil Deshmukh',
+      ownerPhone: '9000000004',
+      ownerEmail: 'owner@dc.example',
+      password: 'dcmart123',
+      addressLine: 'Destination Centre, Magarpatta City, Hadapsar',
+      openTime: '08:00',
+      closeTime: '23:00',
+      gstin: '27DCLPL5678N1Z8',
+      fssaiNumber: '11521998000234',
+      panNumber: 'DCLPL5678N',
+      bankAccountName: 'Destination Centre Retail Pvt Ltd',
+      bankAccountNumber: '40012345678900',
+      bankIfsc: 'AXIS0000321',
+      upiId: 'dc@axisbank',
+      commissionPct: 12,
+      supportsSelfDelivery: false,
+      selfDeliveryFeeInr: null,
+    },
+    {
+      slug: 'shraddha',
+      name: 'Shraddha Meats',
+      hub: 'Magarpatta Market',
+      description: 'Cut-to-order fresh meat. Halal and jhatka clearly labelled. Chill chain maintained.',
+      accent: 'terracotta',
+      vendorType: 'meat',
+      ownerName: 'Shraddha Bhosale',
+      ownerPhone: '9000000005',
+      ownerEmail: 'owner@shraddhameats.example',
+      password: 'shraddha123',
+      addressLine: 'Shop 7, Magarpatta Market, Hadapsar',
+      openTime: '07:00',
+      closeTime: '21:00',
+      fssaiNumber: '11521998000345',
+      panNumber: 'SHRDM2345P',
+      bankAccountName: 'Shraddha Meats',
+      bankAccountNumber: '60098765432100',
+      bankIfsc: 'HDFC0004567',
+      upiId: 'shraddha@hdfcbank',
+      commissionPct: 15,
+      supportsSelfDelivery: false,
+      selfDeliveryFeeInr: null,
+    },
+    {
+      slug: 'mg-pharmacy',
+      name: 'Magarpatta Pharmacy',
+      hub: 'Magarpatta',
+      description: 'Registered pharmacist on site. Prescription refills handled with care.',
+      accent: 'forest',
+      vendorType: 'pharmacy',
+      ownerName: 'Dr. Meera Joshi',
+      ownerPhone: '9000000006',
+      ownerEmail: 'rx@mgpharma.example',
+      password: 'mgpharma123',
+      addressLine: 'Ground floor, Nyati Millenium, Magarpatta',
+      openTime: '08:00',
+      closeTime: '23:00',
+      drugLicense: 'MH/PUNE/R/2018/00421',
+      fssaiNumber: '',
+      panNumber: 'MGPHR7890Q',
+      bankAccountName: 'Magarpatta Pharmacy',
+      bankAccountNumber: '33311122244455',
+      bankIfsc: 'SBIN0006789',
+      upiId: 'mgpharma@sbi',
+      commissionPct: 10,
+      supportsSelfDelivery: false,
+      selfDeliveryFeeInr: null,
+    },
+    {
+      slug: 'starbucks',
+      name: 'Starbucks · Seasons',
+      hub: 'Seasons Mall',
+      description: 'Coffee from the counter to your door in under 20 minutes.',
+      accent: 'forest',
+      vendorType: 'cafe',
+      ownerName: 'Tata Starbucks · Magarpatta',
+      ownerPhone: '9000000007',
+      ownerEmail: 'mgr.seasons@starbucks.example',
+      password: 'sbuxmg123',
+      addressLine: 'Ground floor, Seasons Mall, Magarpatta',
+      openTime: '07:00',
+      closeTime: '23:30',
+      gstin: '27SBUKS9999S1Z1',
+      fssaiNumber: '11521998000567',
+      panNumber: 'SBUCS9999S',
+      bankAccountName: 'Tata Starbucks Pvt Ltd',
+      bankAccountNumber: '90011122233344',
+      bankIfsc: 'HDFC0000100',
+      upiId: 'starbucks@hdfc',
+      commissionPct: 20,
+      supportsSelfDelivery: true,
+      selfDeliveryFeeInr: 25,
+    },
+  ];
+
+  for (const v of MORE_VENDORS) {
+    const fields = {
+      approvalStatus: 'APPROVED' as const,
+      approvedAt: new Date(),
+      active: true,
+      vendorType: v.vendorType,
+      ownerName: v.ownerName,
+      ownerPhone: v.ownerPhone,
+      ownerEmail: v.ownerEmail,
+      ownerPasswordHash: sha(v.password),
+      addressLine: v.addressLine,
+      openTime: v.openTime,
+      closeTime: v.closeTime,
+      gstin: v.gstin ?? null,
+      fssaiNumber: v.fssaiNumber ?? null,
+      drugLicense: v.drugLicense ?? null,
+      panNumber: v.panNumber,
+      bankAccountName: v.bankAccountName,
+      bankAccountNumber: v.bankAccountNumber,
+      bankIfsc: v.bankIfsc,
+      upiId: v.upiId,
+      commissionPct: v.commissionPct,
+      supportsSelfDelivery: v.supportsSelfDelivery,
+      selfDeliveryFeeInr: v.selfDeliveryFeeInr,
+    };
+    await prisma.vendor.upsert({
+      where: { slug: v.slug },
+      update: fields,
+      create: {
+        slug: v.slug,
+        name: v.name,
+        hub: v.hub,
+        description: v.description,
+        accent: v.accent,
+        ...fields,
+      },
+    });
+    const mode = v.supportsSelfDelivery ? 'self-delivery ON' : 'rider pickup';
+    console.log(`  ✓ ${v.name} approved · ${mode} · login ${v.ownerPhone} / ${v.password}`);
+  }
+
   // ── Pending demo vendor for admin approval queue ──────────────
   await prisma.vendor.upsert({
     where: { slug: 'dosa-house' },
