@@ -31,6 +31,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       await tx.product.update({ where: { id: change.entityId }, data: { inStock: false } });
     } else if (change.entity === 'RIDER' && change.entityId && change.operation === 'UPDATE') {
       await tx.riderProfile.update({ where: { id: change.entityId }, data: payload as Prisma.RiderProfileUpdateInput });
+    } else if (change.entity === 'CAMPAIGN' && change.entityId && change.operation === 'DELETE') {
+      await tx.campaign.delete({ where: { id: change.entityId } });
     }
 
     await tx.pendingChange.update({

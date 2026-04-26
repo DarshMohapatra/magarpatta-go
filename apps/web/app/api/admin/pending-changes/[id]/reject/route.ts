@@ -14,14 +14,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ ok: false, error: 'Not pending' }, { status: 400 });
   }
 
-  await prisma.pendingChange.update({
-    where: { id },
-    data: {
-      status: 'REJECTED',
-      reviewedBy: admin.id,
-      reviewedAt: new Date(),
-      reviewNote: body.note?.trim() || null,
-    },
+  await prisma.$transaction(async (tx) => {
+    // Rolling back a campaign-removal? Bring the campaign back to life so it
+    // shows up on customer feeds again.
+    if (change.entity === 'CAMPAIGN' && change.operation === 'DELETE' && change.entityId) {
+      await tx.campaign.update({ where: { id: change.entityId }, data: { active: true } });
+    }
+
+    await tx.pendingChange.update({
+      where: { id },
+      data: {
+        status: 'REJECTED',
+        reviewedBy: admin.id,
+        reviewedAt: new Date(),
+        reviewNote: body.note?.trim() || null,
+      },
+    });
   });
 
   return NextResponse.json({ ok: true });

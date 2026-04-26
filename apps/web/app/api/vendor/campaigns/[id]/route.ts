@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
+import { queueChange } from '@/lib/pending-change';
 
 interface Body {
   title?: string;
@@ -52,6 +53,32 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!existing || existing.vendorId !== s.vendorId) {
     return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
   }
-  await prisma.campaign.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+
+  // If still PENDING (vendor never had this approved), drop it outright —
+  // there's nothing live to roll back.
+  if (existing.approvalStatus !== 'APPROVED') {
+    await prisma.campaign.delete({ where: { id } });
+    return NextResponse.json({ ok: true, queued: false });
+  }
+
+  // Already-pending removal? Don't double-queue.
+  const dupe = await prisma.pendingChange.findFirst({
+    where: { entity: 'CAMPAIGN', entityId: id, operation: 'DELETE', status: 'PENDING' },
+  });
+  if (dupe) return NextResponse.json({ ok: true, queued: true, pendingId: dupe.id, alreadyQueued: true });
+
+  // Hide from customers immediately so removal feels instant; the row stays
+  // until admin approves the deletion.
+  await prisma.campaign.update({ where: { id }, data: { active: false } });
+
+  const change = await queueChange({
+    entity: 'CAMPAIGN',
+    entityId: id,
+    operation: 'DELETE',
+    payload: {} as never,
+    before: { type: existing.type, title: existing.title } as never,
+    summary: `${s.shopName} · remove campaign "${existing.title}"`,
+    vendorId: s.vendorId,
+  });
+  return NextResponse.json({ ok: true, queued: true, pendingId: change.id });
 }

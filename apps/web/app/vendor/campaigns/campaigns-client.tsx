@@ -60,10 +60,13 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
   }
 
   async function remove(id: string) {
-    if (!confirm('Remove this campaign?')) return;
+    if (!confirm('Remove this campaign? Removal goes through admin review — customers stop seeing it immediately, but the row clears once admin approves.')) return;
     setBusy(true);
     try {
-      await fetch(`/api/vendor/campaigns/${id}`, { method: 'DELETE' });
+      const r = await fetch(`/api/vendor/campaigns/${id}`, { method: 'DELETE' });
+      const j = await r.json();
+      setMsg(j.queued ? 'Removal submitted for review ✓' : 'Removed ✓');
+      setTimeout(() => setMsg(null), 3000);
       load();
     } finally { setBusy(false); }
   }
@@ -174,9 +177,16 @@ function CampaignForm({ editing, onClose, onSaved }: {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const SALE_TYPES = new Set(['FLASH_SALE', 'BOGO', 'WEEKEND', 'FESTIVAL', 'EARLY_BIRD', 'LATE_NIGHT']);
+  const discountRequired = SALE_TYPES.has(form.type);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
+    if (discountRequired && (form.discountPct === '' || Number(form.discountPct) <= 0)) {
+      setErr('Set a discount % — for sale-type campaigns this is what actually moves prices on the menu.');
+      return;
+    }
     setBusy(true);
     try {
       const payload = {
@@ -227,8 +237,22 @@ function CampaignForm({ editing, onClose, onSaved }: {
           <input value={form.ctaLabel} onChange={(e) => setForm({ ...form, ctaLabel: e.target.value })} className={inp} placeholder="Shop the box →" />
         </label>
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Discount % (optional)</span>
-          <input type="number" min={0} max={90} value={form.discountPct} onChange={(e) => setForm({ ...form, discountPct: e.target.value })} className={inp} />
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
+            Discount % {discountRequired ? '· required for sale campaigns' : '· optional'}
+          </span>
+          <input
+            type="number"
+            min={1}
+            max={90}
+            required={discountRequired}
+            value={form.discountPct}
+            onChange={(e) => setForm({ ...form, discountPct: e.target.value })}
+            placeholder="e.g. 40"
+            className={inp}
+          />
+          <span className="mt-1 block text-[11px] text-[color:var(--color-ink-soft)]/70">
+            This is what actually changes prices on the customer menu (crossed-out original, new price highlighted). Writing &ldquo;40% off&rdquo; in the title alone won&apos;t move prices — fill this field.
+          </span>
         </label>
         <label className="block">
           <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Starts</span>

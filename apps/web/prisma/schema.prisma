@@ -425,6 +425,7 @@ enum PendingChangeEntity {
   VENDOR
   PRODUCT
   RIDER
+  CAMPAIGN
 }
 
 enum PendingChangeOperation {
