@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
+import { queueChange, pickFields } from '@/lib/pending-change';
 
 interface PatchBody {
   name?: string;
@@ -37,11 +38,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (typeof b.imageUrl === 'string') data.imageUrl = b.imageUrl.trim() || null;
   if (typeof b.accent === 'string') data.accent = b.accent.trim();
   if (typeof b.glyph === 'string') data.glyph = b.glyph.trim();
-  if (typeof b.inStock === 'boolean') data.inStock = b.inStock;
   if (typeof b.isVeg === 'boolean') data.isVeg = b.isVeg;
+  if (typeof b.isRegulated === 'boolean') data.isRegulated = b.isRegulated;
 
   const isRegulated = typeof b.isRegulated === 'boolean' ? b.isRegulated : existing.isRegulated;
-  if (typeof b.isRegulated === 'boolean') data.isRegulated = b.isRegulated;
 
   if (typeof b.mrpInr === 'number' || typeof b.priceInr === 'number') {
     const mrp = Math.max(0, Math.floor(b.mrpInr ?? existing.mrpInr ?? existing.priceInr));
@@ -52,8 +52,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     data.priceInr = price;
   }
 
-  const product = await prisma.product.update({ where: { id }, data });
-  return NextResponse.json({ ok: true, product });
+  // Stock toggle is operational (vendor knows when an item runs out — it must
+  // hide from the menu instantly to prevent new orders). Apply immediately.
+  if (typeof b.inStock === 'boolean') {
+    await prisma.product.update({ where: { id }, data: { inStock: b.inStock } });
+  }
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ ok: true, queued: false });
+  }
+
+  const before = pickFields(existing as unknown as Record<string, unknown>, Object.keys(data));
+  const change = await queueChange({
+    entity: 'PRODUCT',
+    entityId: id,
+    operation: 'UPDATE',
+    payload: data as never,
+    before: before as never,
+    summary: `${s.shopName} · edit "${existing.name}"`,
+    vendorId: s.vendorId,
+  });
+
+  return NextResponse.json({ ok: true, queued: true, pendingId: change.id });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -69,8 +89,15 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
   }
 
-  // Soft-delete: set inStock=false and null the image. Hard-delete would fail
-  // on historical orders (orderItems reference products).
-  await prisma.product.update({ where: { id }, data: { inStock: false } });
-  return NextResponse.json({ ok: true });
+  const change = await queueChange({
+    entity: 'PRODUCT',
+    entityId: id,
+    operation: 'DELETE',
+    payload: {} as never,
+    before: { name: existing.name, inStock: existing.inStock } as never,
+    summary: `${s.shopName} · remove "${existing.name}"`,
+    vendorId: s.vendorId,
+  });
+
+  return NextResponse.json({ ok: true, queued: true, pendingId: change.id });
 }

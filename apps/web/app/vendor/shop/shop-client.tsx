@@ -41,11 +41,12 @@ export function VendorShopClient() {
   const [form, setForm] = useState<Partial<ShopData>>({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [hasPendingEdit, setHasPendingEdit] = useState(false);
 
   async function load() {
     const r = await fetch('/api/vendor/shop', { cache: 'no-store' });
     const j = await r.json();
-    if (j.ok) { setShop(j.vendor); setForm(j.vendor); }
+    if (j.ok) { setShop(j.vendor); setForm(j.vendor); setHasPendingEdit(Boolean(j.pendingEdit)); }
   }
 
   useEffect(() => { load(); }, []);
@@ -60,10 +61,13 @@ export function VendorShopClient() {
         body: JSON.stringify(form),
       });
       const j = await r.json();
-      if (j.ok) { setMsg('Saved ✓'); load(); } else { setMsg(j.error ?? 'Save failed'); }
+      if (j.ok) {
+        setMsg(j.queued ? 'Submitted for review ✓' : 'Saved ✓');
+        load();
+      } else { setMsg(j.error ?? 'Save failed'); }
     } finally {
       setSaving(false);
-      setTimeout(() => setMsg(null), 2500);
+      setTimeout(() => setMsg(null), 3500);
     }
   }
 
@@ -109,6 +113,18 @@ export function VendorShopClient() {
           Status · <span className="font-medium uppercase tracking-[0.12em]">{shop.approvalStatus}</span>
           {shop.approvalNote && <p className="mt-1 text-[color:var(--color-ink-soft)]/80">Note: {shop.approvalNote}</p>}
         </div>
+      )}
+
+      {!pending && hasPendingEdit && (
+        <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 px-5 py-4 text-[13px]">
+          You have an edit waiting on Magarpatta Go review. Until it&apos;s approved, customers continue to see your last approved details.
+        </div>
+      )}
+
+      {!pending && (
+        <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
+          Saving changes here submits them to Magarpatta Go for review. Pause / Go-live is instant — that&apos;s an operational setting.
+        </p>
       )}
 
       <Card title="Storefront">

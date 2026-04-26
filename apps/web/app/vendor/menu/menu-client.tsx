@@ -55,6 +55,8 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
 
   async function load() {
     try {
@@ -63,6 +65,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       if (!j.ok) { setErr(j.error ?? 'Could not load'); return; }
       setProducts(j.products);
       setCategories(j.categories);
+      setPendingCount(Array.isArray(j.pendingEdits) ? j.pendingEdits.length : 0);
       if (!form.categorySlug && j.categories.length) {
         setForm((f) => ({ ...f, categorySlug: j.categories[0].slug }));
       }
@@ -127,6 +130,8 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       const j = await r.json();
       if (!j.ok) { alert(j.error ?? 'Could not save'); setSaving(false); return; }
       setDrawerOpen(false);
+      setToast(j.queued ? 'Submitted for review ✓' : 'Saved ✓');
+      setTimeout(() => setToast(null), 3000);
       load();
     } finally {
       setSaving(false);
@@ -134,8 +139,11 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
   }
 
   async function remove(p: Product) {
-    if (!confirm(`Remove "${p.name}"? It will stop appearing to customers.`)) return;
-    await fetch(`/api/vendor/products/${p.id}`, { method: 'DELETE' });
+    if (!confirm(`Remove "${p.name}"? Goes through admin approval before it leaves the menu.`)) return;
+    const r = await fetch(`/api/vendor/products/${p.id}`, { method: 'DELETE' });
+    const j = await r.json();
+    setToast(j.queued ? 'Removal submitted for review ✓' : 'Removed ✓');
+    setTimeout(() => setToast(null), 3000);
     load();
   }
 
@@ -167,12 +175,24 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           </h1>
           <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
             Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
+            <span className="block mt-1">Add / edit / remove goes through Magarpatta Go review. Stock toggle is instant.</span>
           </p>
+          {pendingCount > 0 && (
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-saffron)]/12 text-[color:var(--color-saffron)] px-3 py-1 text-[11.5px]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)]" />
+              {pendingCount} edit{pendingCount === 1 ? '' : 's'} awaiting review
+            </div>
+          )}
         </div>
         <button onClick={openNew} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]">
           + Add item
         </button>
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] shadow-lg">
+          {toast}
+        </div>
+      )}
 
       {err && <div className="mt-4 rounded-xl bg-[color:var(--color-terracotta)]/10 border border-[color:var(--color-terracotta)]/25 px-4 py-3 text-[13px] text-[color:var(--color-terracotta-dark)]">{err}</div>}
 

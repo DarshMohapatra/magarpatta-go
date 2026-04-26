@@ -14,9 +14,11 @@ export default async function AdminHome() {
   const admin = await getAdminSession();
   if (!admin) redirect('/admin/signin');
 
-  const [pendingVendors, pendingRiders, activeOrders, todayOrders, todayDelivered, totalVendors, totalRiders, totalCustomers] = await Promise.all([
+  const [pendingVendors, pendingRiders, pendingChanges, pendingCampaigns, activeOrders, todayOrders, todayDelivered, totalVendors, totalRiders, totalCustomers] = await Promise.all([
     prisma.vendor.count({ where: { approvalStatus: 'PENDING' } }),
     prisma.riderProfile.count({ where: { approvalStatus: 'PENDING' } }),
+    prisma.pendingChange.count({ where: { status: 'PENDING' } }),
+    prisma.campaign.count({ where: { approvalStatus: 'PENDING' } }),
     prisma.order.count({ where: { status: { in: ['PLACED', 'ACCEPTED', 'PREPARING', 'PICKED_UP', 'OUT_FOR_DELIVERY'] } } }),
     prisma.order.count({ where: { placedAt: { gte: startOfDay() } } }),
     prisma.order.findMany({
@@ -46,9 +48,14 @@ export default async function AdminHome() {
         <Stat label="Today's GMV" value={`₹${todayGMV.toLocaleString('en-IN')}`} note={`${todayDelivered.length} delivered / ${todayOrders} placed`} href="/admin/finance" />
       </div>
 
-      <div className="mt-6 grid md:grid-cols-3 gap-4">
+      <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Stat label="Edits awaiting review" value={String(pendingChanges)} accent={pendingChanges > 0 ? 'saffron' : undefined} href="/admin/changes" />
+        <Stat label="Campaigns awaiting review" value={String(pendingCampaigns)} accent={pendingCampaigns > 0 ? 'saffron' : undefined} href="/admin/campaigns" />
         <MiniStat label="Approved vendors" value={String(totalVendors)} href="/admin/vendors?status=APPROVED" />
         <MiniStat label="Approved riders" value={String(totalRiders)} href="/admin/riders?status=APPROVED" />
+      </div>
+
+      <div className="mt-3 grid md:grid-cols-2 gap-4">
         <MiniStat label="Customers" value={String(totalCustomers)} href="/admin/customers" />
       </div>
 
@@ -57,6 +64,8 @@ export default async function AdminHome() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <Tile href="/admin/vendors?status=PENDING" title="Review vendor applications" body="Approve or reject new shops waiting to go live." />
           <Tile href="/admin/riders?status=PENDING" title="Review rider applications" body="Verify DL, Aadhaar, vehicle RC before approval." />
+          <Tile href="/admin/changes" title="Pending edits" body="Vendor + rider config edits queued for review." />
+          <Tile href="/admin/campaigns" title="Pending campaigns" body="Flash sales, festival pushes, late-night deals." />
           <Tile href="/admin/orders" title="Live orders board" body="Reassign riders, cancel with refund note." />
         </div>
       </div>

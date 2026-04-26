@@ -139,6 +139,8 @@ model Vendor {
 
   orders   Order[]
   feedback OrderFeedback[]
+  campaigns      Campaign[]
+  pendingChanges PendingChange[]
 
   @@index([approvalStatus])
   @@index([hub])
@@ -373,6 +375,95 @@ model Admin {
   role         AdminRole @default(OPS)
   passwordHash String    // legacy — retained for audit; OTP is the live signin path
   createdAt    DateTime  @default(now())
+}
+
+enum CampaignType {
+  NEW_OPENING
+  FLASH_SALE
+  FESTIVAL
+  LATE_NIGHT
+  WEEKEND
+  BOGO
+  EARLY_BIRD
+  TIFFIN_SERVICE
+}
+
+enum CampaignApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Campaign {
+  id             String                  @id @default(cuid())
+  vendorId       String
+  type           CampaignType
+  title          String
+  body           String
+  ctaLabel       String?
+  productIds     String[]                @default([])
+  discountPct    Int?
+  startsAt       DateTime
+  endsAt         DateTime
+  active         Boolean                 @default(true)
+  approvalStatus CampaignApprovalStatus  @default(PENDING)
+  approvalNote   String?
+  submittedAt    DateTime                @default(now())
+  approvedAt     DateTime?
+  approvedBy     String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([approvalStatus])
+  @@index([endsAt])
+}
+
+enum PendingChangeEntity {
+  VENDOR
+  PRODUCT
+  RIDER
+}
+
+enum PendingChangeOperation {
+  UPDATE
+  CREATE
+  DELETE
+}
+
+enum PendingChangeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Generic config-edit approval queue. Vendor/rider portal edits write here
+/// (when the entity is already APPROVED) instead of mutating the live row.
+/// Operational actions (accepting orders, toggling pause, on-duty) bypass
+/// this queue and are applied instantly.
+model PendingChange {
+  id          String                 @id @default(cuid())
+  entity      PendingChangeEntity
+  entityId    String?
+  operation   PendingChangeOperation
+  payload     Json
+  before      Json?
+  summary     String
+  vendorId    String?
+  riderId     String?
+  submittedAt DateTime               @default(now())
+  status      PendingChangeStatus    @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNote  String?
+
+  vendor Vendor? @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([entity, entityId])
+  @@index([vendorId])
 }
 
 /// One active OTP per (phone, purpose). Upserted on each send.
