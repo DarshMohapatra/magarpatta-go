@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { ProductCard, type ProductCardData } from '@/components/product-card';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
+import { getVendorBySlug, getVendorProducts } from '@/lib/menu-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,13 +21,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
 
   // Cheap header query first — the hero paints as soon as this lands; the
   // (slower) menu+discount fetch streams in via Suspense.
-  const vendor = await prisma.vendor.findUnique({
-    where: { slug },
-    select: {
-      id: true, slug: true, name: true, hub: true, accent: true, tags: true,
-      description: true, rating: true, etaMinutes: true, costForTwo: true,
-    },
-  });
+  const vendor = await getVendorBySlug(slug);
 
   if (!vendor) notFound();
 
@@ -106,14 +100,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
 async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendorAccent: string | null }) {
   void vendorAccent;
   const [products, discounts] = await Promise.all([
-    prisma.product.findMany({
-      where: { vendorId, inStock: true },
-      orderBy: [{ category: { order: 'asc' } }, { name: 'asc' }],
-      include: {
-        category: { select: { name: true, slug: true, order: true } },
-        vendor: { select: { id: true, slug: true, name: true, hub: true } },
-      },
-    }),
+    getVendorProducts(vendorId),
     getActiveDiscounts(),
   ]);
 

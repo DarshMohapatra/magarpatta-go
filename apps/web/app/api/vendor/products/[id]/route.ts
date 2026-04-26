@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange, pickFields } from '@/lib/pending-change';
@@ -56,6 +57,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   // hide from the menu instantly to prevent new orders). Apply immediately.
   if (typeof b.inStock === 'boolean') {
     await prisma.product.update({ where: { id }, data: { inStock: b.inStock } });
+    revalidateTag('menu');
   }
 
   if (Object.keys(data).length === 0) {

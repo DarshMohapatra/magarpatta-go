@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/admin-session';
 
@@ -15,5 +16,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       approvalNote: null,
     },
   });
+  revalidateTag('menu');
   return NextResponse.json({ ok: true, campaign: c });
 }

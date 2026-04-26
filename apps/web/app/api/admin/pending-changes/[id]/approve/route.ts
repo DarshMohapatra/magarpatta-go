@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/admin-session';
 
@@ -40,6 +41,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       data: { status: 'APPROVED', reviewedBy: admin.id, reviewedAt: new Date() },
     });
   });
+
+  // Bust the menu cache so customers see the new state immediately rather
+  // than waiting for the 30s TTL.
+  revalidateTag('menu');
 
   return NextResponse.json({ ok: true });
 }

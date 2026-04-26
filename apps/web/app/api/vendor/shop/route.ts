@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange, pickFields, summariseFieldEdit } from '@/lib/pending-change';
@@ -55,6 +56,7 @@ export async function PATCH(req: Request) {
   // Pause/unpause is operational — apply instantly when APPROVED.
   if (typeof b.active === 'boolean' && vendor.approvalStatus === 'APPROVED') {
     await prisma.vendor.update({ where: { id: s.vendorId }, data: { active: b.active } });
+    revalidateTag('menu');
   }
 
   if (Object.keys(data).length === 0) {

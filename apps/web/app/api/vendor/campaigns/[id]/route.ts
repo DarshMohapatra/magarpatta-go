@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange } from '@/lib/pending-change';
@@ -70,6 +71,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   // Hide from customers immediately so removal feels instant; the row stays
   // until admin approves the deletion.
   await prisma.campaign.update({ where: { id }, data: { active: false } });
+  revalidateTag('menu');
 
   const change = await queueChange({
     entity: 'CAMPAIGN',
