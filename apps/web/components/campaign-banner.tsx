@@ -47,6 +47,7 @@ export function CampaignBanner() {
   }, []);
 
   const visible = campaigns.filter((c) => !dismissed.has(c.id));
+  const hiddenCount = campaigns.length - visible.length;
 
   useEffect(() => {
     if (visible.length <= 1) return;
@@ -55,6 +56,12 @@ export function CampaignBanner() {
     }, 5500);
     return () => clearInterval(t);
   }, [visible.length]);
+
+  function restoreAll() {
+    setDismissed(new Set());
+    writeDismissed(new Set());
+    setActiveIdx(0);
+  }
 
   // One-shot toast for time-urgent campaigns (FLASH_SALE / LATE_NIGHT) on first visit per session.
   const urgent = visible.find((c) => c.type === 'FLASH_SALE' || c.type === 'LATE_NIGHT');
@@ -68,7 +75,18 @@ export function CampaignBanner() {
     return () => clearTimeout(t);
   }, [urgent, toastShown]);
 
-  if (visible.length === 0) return null;
+  if (campaigns.length === 0) return null;
+
+  if (visible.length === 0) {
+    return (
+      <section className="mx-auto max-w-[1280px] px-6 lg:px-10 mt-2">
+        <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] px-5 py-3 text-[12.5px] text-[color:var(--color-ink-soft)] flex items-center justify-between gap-3">
+          <span>{hiddenCount} campaign{hiddenCount === 1 ? '' : 's'} hidden this session.</span>
+          <button onClick={restoreAll} className="text-[color:var(--color-forest)] hover:underline">Show campaigns</button>
+        </div>
+      </section>
+    );
+  }
 
   const current = visible[activeIdx % visible.length];
 
@@ -124,18 +142,37 @@ export function CampaignBanner() {
                 >
                   Hide
                 </button>
-                {visible.length > 1 && (
-                  <div className="ml-auto flex items-center gap-1">
-                    {visible.map((_, i) => (
+                <div className="ml-auto flex items-center gap-2">
+                  {visible.length > 1 && (
+                    <>
                       <button
-                        key={i}
-                        aria-label={`Show campaign ${i + 1}`}
-                        onClick={() => setActiveIdx(i)}
-                        className={`h-1.5 rounded-full transition-all ${i === activeIdx ? 'w-6 bg-[color:var(--color-forest)]' : 'w-1.5 bg-[color:var(--color-ink)]/20'}`}
-                      />
-                    ))}
-                  </div>
-                )}
+                        aria-label="Previous campaign"
+                        onClick={() => setActiveIdx((i) => (i - 1 + visible.length) % visible.length)}
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-full border border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40 text-[color:var(--color-ink-soft)]"
+                      >‹</button>
+                      <div className="flex items-center gap-1">
+                        {visible.map((_, i) => (
+                          <button
+                            key={i}
+                            aria-label={`Show campaign ${i + 1}`}
+                            onClick={() => setActiveIdx(i)}
+                            className={`h-1.5 rounded-full transition-all ${i === activeIdx ? 'w-6 bg-[color:var(--color-forest)]' : 'w-1.5 bg-[color:var(--color-ink)]/20'}`}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        aria-label="Next campaign"
+                        onClick={() => setActiveIdx((i) => (i + 1) % visible.length)}
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-full border border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40 text-[color:var(--color-ink-soft)]"
+                      >›</button>
+                    </>
+                  )}
+                  {hiddenCount > 0 && (
+                    <button onClick={restoreAll} className="text-[11px] text-[color:var(--color-forest)] hover:underline">
+                      Show {hiddenCount} hidden
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

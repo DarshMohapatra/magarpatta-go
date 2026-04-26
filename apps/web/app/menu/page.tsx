@@ -4,6 +4,7 @@ import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { CampaignBanner } from '@/components/campaign-banner';
 import { MenuClient } from './menu-client';
+import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import type { ProductCardData } from '@/components/product-card';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,7 @@ export default async function MenuPage({
   const q = params.q ?? '';
   const vegOnly = params.veg === '1';
 
-  const [categories, products] = await Promise.all([
+  const [categories, products, discounts] = await Promise.all([
     prisma.category.findMany({
       orderBy: { order: 'asc' },
       select: {
@@ -45,27 +46,34 @@ export default async function MenuPage({
       },
       orderBy: [{ category: { order: 'asc' } }, { name: 'asc' }],
       include: {
-        vendor: { select: { slug: true, name: true, hub: true } },
+        vendor: { select: { id: true, slug: true, name: true, hub: true } },
         category: { select: { slug: true, name: true } },
       },
     }),
+    getActiveDiscounts(),
   ]);
 
-  const productData: ProductCardData[] = products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    priceInr: p.priceInr,
-    mrpInr: p.mrpInr,
-    unit: p.unit,
-    isVeg: p.isVeg,
-    isRegulated: p.isRegulated,
-    accent: p.accent,
-    glyph: p.glyph,
-    tagline: p.tagline,
-    imageUrl: p.imageUrl,
-    vendor: p.vendor,
-  }));
+  const productData: ProductCardData[] = products.map((p) => {
+    const pct = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated }, discounts);
+    const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, pct);
+    return {
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      priceInr: priced.priceInr,
+      mrpInr: priced.mrpInr,
+      originalMrpInr: priced.originalMrpInr,
+      discountPct: priced.discountPct,
+      unit: p.unit,
+      isVeg: p.isVeg,
+      isRegulated: p.isRegulated,
+      accent: p.accent,
+      glyph: p.glyph,
+      tagline: p.tagline,
+      imageUrl: p.imageUrl,
+      vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
+    };
+  });
 
   const totalProducts = categories.reduce((sum, c) => sum + c._count.products, 0);
 

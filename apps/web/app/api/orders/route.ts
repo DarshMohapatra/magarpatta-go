@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/session';
 // status only advances via vendor/rider actions — no demo auto-progression
 import { computeBreakdown } from '@/lib/pricing';
+import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 
 interface IncomingItem {
   productId: string;
@@ -54,13 +55,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // Re-derive every line price from the live catalogue + active campaigns
+    // so a customer can't pin stale (pre-discount or pre-hike) prices in
+    // their cart.
+    const activeDiscounts = await getActiveDiscounts();
     const byId = new Map(products.map((p) => [p.id, p]));
     const priceItems = body.items.map((i) => {
       const p = byId.get(i.productId)!;
       const qty = Math.max(1, Math.floor(i.quantity));
+      const pct = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated }, activeDiscounts);
+      const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, pct);
       return {
-        mrpInr: p.mrpInr ?? p.priceInr,
-        priceInr: p.priceInr,
+        mrpInr: priced.mrpInr ?? priced.priceInr,
+        priceInr: priced.priceInr,
         isRegulated: p.isRegulated,
         quantity: qty,
         product: p,

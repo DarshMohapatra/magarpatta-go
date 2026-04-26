@@ -20,6 +20,10 @@ export interface ProductCardData {
   tagline?: string | null;
   imageUrl?: string | null;
   vendor: { slug: string; name: string; hub: string };
+  /** Pre-discount MRP, only set when a campaign discount is live on this item. */
+  originalMrpInr?: number | null;
+  /** Active campaign discount percentage; 0 if none. */
+  discountPct?: number;
 }
 
 const ACCENT_BG: Record<string, string> = {
@@ -59,7 +63,10 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   }
 
   const showImage = product.imageUrl && !imgError;
+  const onSale = (product.discountPct ?? 0) > 0 && product.originalMrpInr != null;
   // Always show MRP to customer; markup surfaces only as convenience fee at checkout.
+  // When a campaign discount is live, the MRP shown is already discounted,
+  // and the original MRP is rendered crossed-out alongside.
   const displayPrice = product.mrpInr ?? product.priceInr;
 
   return (
@@ -108,6 +115,12 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             </span>
           )}
         </div>
+
+        {onSale && (
+          <span className="absolute top-2.5 right-2.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.12em] font-medium shadow-[0_4px_14px_-6px_rgba(15,15,14,0.4)]">
+            {product.discountPct}% off
+          </span>
+        )}
       </div>
 
       <div className="p-4">
@@ -120,10 +133,15 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         </p>
 
         <div className="mt-3 flex items-end justify-between gap-3">
-          <div>
-            <span className="font-serif text-[22px] text-[color:var(--color-ink)]">
+          <div className="flex items-baseline gap-2">
+            <span className={cn('font-serif text-[22px]', onSale ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink)]')}>
               ₹{displayPrice}
             </span>
+            {onSale && (
+              <span className="text-[12px] text-[color:var(--color-ink-soft)]/55 line-through">
+                ₹{product.originalMrpInr}
+              </span>
+            )}
           </div>
 
           {item ? (
