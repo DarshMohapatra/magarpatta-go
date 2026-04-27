@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors, cartCampaignSavings, cartCampaignTitles } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +24,8 @@ export function CartDrawer() {
 
   const subtotal = cartSubtotalMrp(items);
   const convenience = cartConvenience(items);
+  const campaignSavings = cartCampaignSavings(items);
+  const campaignTitles = cartCampaignTitles(items);
   const deliveryFee = items.length > 0 ? 25 : 0;
   const total = subtotal + convenience + deliveryFee;
 
@@ -135,9 +137,14 @@ export function CartDrawer() {
                         </button>
                       </div>
                       <div className="text-right">
-                        <div className="font-serif text-[17px] text-[color:var(--color-ink)]">
+                        <div className={cn('font-serif text-[17px]', it.originalMrpInr ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink)]')}>
                           ₹{it.mrpInr * it.qty}
                         </div>
+                        {it.originalMrpInr && it.originalMrpInr > it.mrpInr && (
+                          <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/55 line-through">
+                            ₹{it.originalMrpInr * it.qty}
+                          </div>
+                        )}
                         <button
                           onClick={() => remove(it.id)}
                           className="text-[11px] text-[color:var(--color-ink-soft)]/65 hover:text-[color:var(--color-terracotta)] underline underline-offset-2"
@@ -157,8 +164,19 @@ export function CartDrawer() {
           <footer className="border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]/60 px-6 py-5 space-y-3">
             <div className="flex items-center justify-between text-[13px]">
               <span className="text-[color:var(--color-ink-soft)]">Subtotal (MRP)</span>
-              <span className="text-[color:var(--color-ink)]">₹{subtotal}</span>
+              <span className="text-[color:var(--color-ink)]">₹{subtotal + campaignSavings}</span>
             </div>
+            {campaignSavings > 0 && (
+              <div className="flex items-center justify-between text-[13px] text-[color:var(--color-forest)]">
+                <span className="inline-flex items-center gap-2 min-w-0">
+                  <span className="rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold shrink-0">
+                    Sale
+                  </span>
+                  <span className="truncate">{campaignTitles.join(' · ') || 'Campaign'}</span>
+                </span>
+                <span>−₹{campaignSavings}</span>
+              </div>
+            )}
             {convenience > 0 && (
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-[color:var(--color-ink-soft)]">Convenience fee</span>

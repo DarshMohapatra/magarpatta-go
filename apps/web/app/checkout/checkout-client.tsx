@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCart, cartSubtotalMrp, cartConvenience } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles } from '@/lib/cart';
 import { ProductGlyph } from '@/components/product-glyph';
 import { cn } from '@/lib/utils';
 import {
@@ -67,6 +67,9 @@ export function CheckoutClient({ session }: Props) {
 
   const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
   const convenience = useMemo(() => cartConvenience(items), [items]);
+  const campaignSavings = useMemo(() => cartCampaignSavings(items), [items]);
+  const hasCampaign = useMemo(() => cartHasCampaignDiscount(items), [items]);
+  const campaignTitles = useMemo(() => cartCampaignTitles(items), [items]);
   const tax = Math.round(subtotal * TAX_RATE);
   const addOns = (giftWrap ? GIFT_WRAP_FEE : 0) + (insurance ? INSURANCE_FEE : 0) + tip;
   const baseDelivery = items.length > 0 ? DELIVERY_FEE : 0;
@@ -289,7 +292,18 @@ export function CheckoutClient({ session }: Props) {
             <aside className="lg:sticky lg:top-24 lg:self-start rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 sm:p-6 shadow-[0_12px_40px_-20px_rgba(13,74,46,0.16)]">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Order total</div>
               <div className="mt-3 space-y-1.5 text-[13px]">
-                <Row label="Subtotal (MRP)" value={`₹${subtotal}`} />
+                <Row label="Subtotal (MRP)" value={`₹${subtotal + campaignSavings}`} />
+                {campaignSavings > 0 && (
+                  <div className="flex items-center justify-between text-[color:var(--color-forest)]">
+                    <span className="inline-flex items-center gap-2 min-w-0">
+                      <span className="rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold shrink-0">
+                        Sale
+                      </span>
+                      <span className="truncate">{campaignTitles.join(' · ') || 'Campaign discount'}</span>
+                    </span>
+                    <span>−₹{campaignSavings}</span>
+                  </div>
+                )}
                 {convenience > 0 && (
                   <Row label="Convenience fee" value={`₹${convenience}`} />
                 )}
@@ -315,7 +329,16 @@ export function CheckoutClient({ session }: Props) {
 
               {/* Coupon input */}
               <div className="mt-4 pt-4 border-t border-[color:var(--color-ink)]/8">
-                {coupon ? (
+                {hasCampaign ? (
+                  <div className="rounded-xl bg-[color:var(--color-forest)]/5 border border-[color:var(--color-forest)]/20 p-3">
+                    <div className="text-[12.5px] text-[color:var(--color-forest)] font-medium">
+                      Already saving with {campaignTitles[0] ?? 'a campaign'}
+                    </div>
+                    <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]">
+                      Coupon codes can&apos;t stack on top of an active sale. Save ₹{campaignSavings} this order.
+                    </div>
+                  </div>
+                ) : coupon ? (
                   <div className="rounded-xl bg-[color:var(--color-forest)]/5 border border-[color:var(--color-forest)]/20 p-3 flex items-start gap-3">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -484,7 +507,16 @@ function CartStep({ items, increment, decrement, remove, onNext }: {
                   </button>
                 </div>
               </div>
-              <div className="text-right shrink-0 font-serif text-[16px]">₹{it.mrpInr * it.qty}</div>
+              <div className="text-right shrink-0">
+                <div className={cn('font-serif text-[16px]', it.originalMrpInr ? 'text-[color:var(--color-terracotta)]' : '')}>
+                  ₹{it.mrpInr * it.qty}
+                </div>
+                {it.originalMrpInr && it.originalMrpInr > it.mrpInr && (
+                  <div className="text-[11px] text-[color:var(--color-ink-soft)]/55 line-through">
+                    ₹{it.originalMrpInr * it.qty}
+                  </div>
+                )}
+              </div>
             </li>
           ))}
         </ul>

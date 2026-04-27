@@ -24,6 +24,10 @@ export interface ProductCardData {
   originalMrpInr?: number | null;
   /** Active campaign discount percentage; 0 if none. */
   discountPct?: number;
+  /** Active campaign title — shown in the cart as a coupon-style line. */
+  campaignTitle?: string | null;
+  /** Active campaign type (e.g. WEEKEND, FLASH_SALE) — used for the cart label. */
+  campaignType?: string | null;
 }
 
 const ACCENT_BG: Record<string, string> = {
@@ -55,6 +59,9 @@ export function ProductCard({ product }: { product: ProductCardData }) {
     vendorSlug: product.vendor.slug,
     vendorName: product.vendor.name,
     vendorHub: product.vendor.hub,
+    originalMrpInr: product.originalMrpInr ?? null,
+    campaignTitle: product.campaignTitle ?? null,
+    campaignType: product.campaignType ?? null,
   };
 
   function handleAdd() {

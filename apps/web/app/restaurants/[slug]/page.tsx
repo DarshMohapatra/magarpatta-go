@@ -140,8 +140,8 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
                 {products.map((p) => {
-                  const pct = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated }, discounts);
-                  const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, pct);
+                  const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated }, discounts);
+                  const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.pct);
                   const data: ProductCardData = {
                     id: p.id,
                     name: p.name,
@@ -150,6 +150,8 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
                     mrpInr: priced.mrpInr,
                     originalMrpInr: priced.originalMrpInr,
                     discountPct: priced.discountPct,
+                    campaignTitle: match.campaign?.title ?? null,
+                    campaignType: match.campaign?.type ?? null,
                     unit: p.unit,
                     isVeg: p.isVeg,
                     isRegulated: p.isRegulated,

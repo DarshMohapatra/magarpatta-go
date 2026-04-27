@@ -69,8 +69,8 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
   ]);
 
   const productData: ProductCardData[] = products.map((p) => {
-    const pct = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated }, discounts);
-    const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, pct);
+    const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated }, discounts);
+    const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.pct);
     return {
       id: p.id,
       name: p.name,
@@ -79,6 +79,8 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
       mrpInr: priced.mrpInr,
       originalMrpInr: priced.originalMrpInr,
       discountPct: priced.discountPct,
+      campaignTitle: match.campaign?.title ?? null,
+      campaignType: match.campaign?.type ?? null,
       unit: p.unit,
       isVeg: p.isVeg,
       isRegulated: p.isRegulated,

@@ -2,9 +2,12 @@ import 'server-only';
 import { prisma } from './prisma';
 
 export interface ActiveCampaignDiscount {
+  id: string;
   vendorId: string;
   productIds: string[];   // empty = applies to all of the vendor's products
   discountPct: number;
+  type: string;           // CampaignType (kept loose for Json transport)
+  title: string;
 }
 
 export async function getActiveDiscounts(): Promise<ActiveCampaignDiscount[]> {
@@ -18,30 +21,40 @@ export async function getActiveDiscounts(): Promise<ActiveCampaignDiscount[]> {
       discountPct: { not: null, gt: 0 },
       vendor: { active: true, approvalStatus: 'APPROVED' },
     },
-    select: { vendorId: true, productIds: true, discountPct: true },
+    select: { id: true, vendorId: true, productIds: true, discountPct: true, type: true, title: true },
   });
   return campaigns
-    .filter((c): c is { vendorId: string; productIds: string[]; discountPct: number } => c.discountPct != null)
-    .map((c) => ({ vendorId: c.vendorId, productIds: c.productIds, discountPct: c.discountPct }));
+    .filter((c): c is { id: string; vendorId: string; productIds: string[]; discountPct: number; type: string; title: string } =>
+      c.discountPct != null,
+    )
+    .map((c) => ({
+      id: c.id,
+      vendorId: c.vendorId,
+      productIds: c.productIds,
+      discountPct: c.discountPct,
+      type: c.type,
+      title: c.title,
+    }));
 }
 
 /**
  * Pick the highest applicable discount for a single product. Regulated MRP
  * goods are excluded — Legal Metrology forbids selling below printed MRP.
+ * Returns the matching campaign so callers can surface its label in the cart.
  */
 export function discountFor(
   product: { id: string; vendorId: string; isRegulated: boolean },
   campaigns: ActiveCampaignDiscount[],
-): number {
-  if (product.isRegulated) return 0;
-  let max = 0;
+): { pct: number; campaign: ActiveCampaignDiscount | null } {
+  if (product.isRegulated) return { pct: 0, campaign: null };
+  let best: ActiveCampaignDiscount | null = null;
   for (const c of campaigns) {
     if (c.vendorId !== product.vendorId) continue;
     const matches = c.productIds.length === 0 || c.productIds.includes(product.id);
     if (!matches) continue;
-    if (c.discountPct > max) max = c.discountPct;
+    if (!best || c.discountPct > best.discountPct) best = c;
   }
-  return max;
+  return { pct: best?.discountPct ?? 0, campaign: best };
 }
 
 /**

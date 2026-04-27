@@ -6,8 +6,8 @@ import { persist } from 'zustand/middleware';
 export interface CartProduct {
   id: string;
   name: string;
-  priceInr: number;       // what we charge (mrp + ₹1 for non-reg)
-  mrpInr: number;         // sticker price shown to customer
+  priceInr: number;       // what we charge (mrp + ₹1 for non-reg, or discounted)
+  mrpInr: number;         // sticker price shown to customer (post-discount if any)
   isRegulated: boolean;   // true = no markup
   unit?: string | null;
   accent?: string | null;
@@ -16,6 +16,12 @@ export interface CartProduct {
   vendorSlug?: string;       // preferred vendor key; falls back to vendorName
   vendorName: string;
   vendorHub?: string | null;
+  /** Pre-discount MRP — non-null when an active campaign cut this item's price. */
+  originalMrpInr?: number | null;
+  /** Title of the campaign that's discounting this item (for the cart breakdown). */
+  campaignTitle?: string | null;
+  /** Campaign type (e.g. WEEKEND) — drives the coupon-style code label. */
+  campaignType?: string | null;
 }
 
 export interface CartItem extends CartProduct {
@@ -129,4 +135,29 @@ export function cartVendors(items: CartItem[]): string[] {
 export function cartHub(items: CartItem[]): string | null {
   const first = items[0];
   return first?.vendorHub ?? first?.vendorName ?? null;
+}
+
+/**
+ * Total ₹ saved across the cart from active campaign discounts. Computed
+ * against the pre-discount MRP each item carried at add-time.
+ */
+export function cartCampaignSavings(items: CartItem[]): number {
+  return items.reduce((s, i) => {
+    if (!i.originalMrpInr || i.originalMrpInr <= i.mrpInr) return s;
+    return s + (i.originalMrpInr - i.mrpInr) * i.qty;
+  }, 0);
+}
+
+/** Any item in the cart currently riding a campaign discount? */
+export function cartHasCampaignDiscount(items: CartItem[]): boolean {
+  return items.some((i) => i.originalMrpInr != null && i.originalMrpInr > i.mrpInr);
+}
+
+/** The unique campaign titles in the cart, in insertion order. */
+export function cartCampaignTitles(items: CartItem[]): string[] {
+  const out: string[] = [];
+  for (const i of items) {
+    if (i.campaignTitle && !out.includes(i.campaignTitle)) out.push(i.campaignTitle);
+  }
+  return out;
 }

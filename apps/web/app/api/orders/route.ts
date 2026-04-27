@@ -60,11 +60,13 @@ export async function POST(req: Request) {
     // their cart.
     const activeDiscounts = await getActiveDiscounts();
     const byId = new Map(products.map((p) => [p.id, p]));
+    let cartHasCampaign = false;
     const priceItems = body.items.map((i) => {
       const p = byId.get(i.productId)!;
       const qty = Math.max(1, Math.floor(i.quantity));
-      const pct = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated }, activeDiscounts);
-      const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, pct);
+      const match = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated }, activeDiscounts);
+      const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.pct);
+      if (match.pct > 0) cartHasCampaign = true;
       return {
         mrpInr: priced.mrpInr ?? priced.priceInr,
         priceInr: priced.priceInr,
@@ -73,6 +75,15 @@ export async function POST(req: Request) {
         product: p,
       };
     });
+
+    // No coupon stacking on top of an active campaign — the discount is
+    // already baked into the line prices.
+    if (cartHasCampaign && body.couponCode) {
+      return NextResponse.json(
+        { ok: false, error: 'A campaign discount is already applied — coupons can’t stack on top.' },
+        { status: 400 },
+      );
+    }
 
     // Validate + load coupon
     let coupon = null as Awaited<ReturnType<typeof prisma.coupon.findUnique>> | null;
