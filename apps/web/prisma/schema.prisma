@@ -411,6 +411,9 @@ model Campaign {
   submittedAt    DateTime                @default(now())
   approvedAt     DateTime?
   approvedBy     String?
+  // Vendor has requested removal — admin reviews on the campaigns tab.
+  pendingRemoval   Boolean   @default(false)
+  pendingRemovalAt DateTime?
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @updatedAt
 

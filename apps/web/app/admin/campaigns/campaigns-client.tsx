@@ -17,6 +17,8 @@ interface Campaign {
   approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
   approvalNote: string | null;
   submittedAt: string;
+  pendingRemoval?: boolean;
+  pendingRemovalAt?: string | null;
   vendor: { id: string; name: string; slug: string; hub: string };
 }
 
@@ -110,8 +112,15 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
                     : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]'
                 }`}
               >
-                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
-                  {CAMPAIGN_TYPE_LABELS[c.type] ?? c.type}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
+                    {CAMPAIGN_TYPE_LABELS[c.type] ?? c.type}
+                  </div>
+                  {c.pendingRemoval && (
+                    <span className="rounded-full bg-[color:var(--color-terracotta)]/12 text-[color:var(--color-terracotta)] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em]">
+                      Removal
+                    </span>
+                  )}
                 </div>
                 <div className="mt-1 font-serif text-[18px] leading-tight">{c.title}</div>
                 <div className="text-[12px] text-[color:var(--color-ink-soft)] truncate">{c.vendor.name} · {c.vendor.hub}</div>
@@ -149,7 +158,28 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
               <KV label="Vendor turned on">{selected.active ? 'Yes' : 'Paused'}</KV>
             </div>
 
-            {selected.approvalStatus === 'PENDING' ? (
+            {selected.pendingRemoval ? (
+              <>
+                <div className="rounded-xl bg-[color:var(--color-terracotta)]/8 border border-[color:var(--color-terracotta)]/20 px-4 py-3 text-[13px]">
+                  Vendor wants to take this campaign down. The campaign is still live to customers — approving deletes it; rejecting keeps it running.
+                </div>
+                <label className="block pt-1">
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Note (sent on reject)</span>
+                  <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]" />
+                </label>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <button disabled={busy} onClick={() => act(selected.id, 'approve')}
+                    className="rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:opacity-90 disabled:opacity-50">
+                    Approve removal · delete
+                  </button>
+                  <button disabled={busy} onClick={() => act(selected.id, 'reject')}
+                    className="rounded-full border border-[color:var(--color-forest)]/40 text-[color:var(--color-forest)] px-4 py-2 text-[12.5px] hover:bg-[color:var(--color-forest)]/8 disabled:opacity-50">
+                    Reject · keep running
+                  </button>
+                </div>
+              </>
+            ) : selected.approvalStatus === 'PENDING' ? (
               <>
                 <label className="block pt-1">
                   <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Note (sent on reject)</span>

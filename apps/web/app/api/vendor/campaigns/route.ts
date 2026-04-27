@@ -11,23 +11,11 @@ const VALID_TYPES: CampaignType[] = [
 export async function GET() {
   const s = await getVendorSession();
   if (!s) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
-  const [campaigns, pendingRemovals] = await Promise.all([
-    prisma.campaign.findMany({
-      where: { vendorId: s.vendorId },
-      orderBy: [{ active: 'desc' }, { endsAt: 'desc' }],
-    }),
-    prisma.pendingChange.findMany({
-      where: {
-        vendorId: s.vendorId,
-        entity: 'CAMPAIGN',
-        operation: 'DELETE',
-        status: 'PENDING',
-      },
-      select: { entityId: true },
-    }),
-  ]);
-  const pendingRemovalIds = pendingRemovals.map((p) => p.entityId).filter((x): x is string => !!x);
-  return NextResponse.json({ ok: true, campaigns, pendingRemovalIds });
+  const campaigns = await prisma.campaign.findMany({
+    where: { vendorId: s.vendorId },
+    orderBy: [{ active: 'desc' }, { endsAt: 'desc' }],
+  });
+  return NextResponse.json({ ok: true, campaigns });
 }
 
 interface Body {

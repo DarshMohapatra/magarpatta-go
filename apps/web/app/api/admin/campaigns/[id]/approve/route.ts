@@ -6,7 +6,18 @@ import { getAdminSession } from '@/lib/admin-session';
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const admin = await getAdminSession();
   if (!admin) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
+
   const { id } = await params;
+  const existing = await prisma.campaign.findUnique({ where: { id } });
+  if (!existing) return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
+
+  // Approving a removal request → delete the campaign outright.
+  if (existing.pendingRemoval) {
+    await prisma.campaign.delete({ where: { id } });
+    revalidateTag('menu');
+    return NextResponse.json({ ok: true, removed: true });
+  }
+
   const c = await prisma.campaign.update({
     where: { id },
     data: {

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
-import { queueChange } from '@/lib/pending-change';
 
 interface Body {
   title?: string;
@@ -54,24 +53,17 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
   }
 
-  // Already-pending removal? Don't double-queue.
-  const dupe = await prisma.pendingChange.findFirst({
-    where: { entity: 'CAMPAIGN', entityId: id, operation: 'DELETE', status: 'PENDING' },
-  });
-  if (dupe) return NextResponse.json({ ok: true, queued: true, pendingId: dupe.id, alreadyQueued: true });
+  if (existing.pendingRemoval) {
+    return NextResponse.json({ ok: true, queued: true, alreadyQueued: true });
+  }
 
-  // The campaign stays live and visible to customers until admin approves the
-  // removal — that's what "every change goes through admin" actually means
-  // for removals. The vendor UI surfaces a "Removal pending" badge so it's
-  // clear an admin action is required to take it down.
-  const change = await queueChange({
-    entity: 'CAMPAIGN',
-    entityId: id,
-    operation: 'DELETE',
-    payload: {} as never,
-    before: { type: existing.type, title: existing.title, approvalStatus: existing.approvalStatus } as never,
-    summary: `${s.shopName} · remove campaign "${existing.title}"`,
-    vendorId: s.vendorId,
+  // The campaign stays live until admin approves the removal — admin sees it
+  // on the campaigns tab right alongside edits and new submissions, so the
+  // whole campaign lifecycle lives in one place.
+  await prisma.campaign.update({
+    where: { id },
+    data: { pendingRemoval: true, pendingRemovalAt: new Date() },
   });
-  return NextResponse.json({ ok: true, queued: true, pendingId: change.id });
+
+  return NextResponse.json({ ok: true, queued: true });
 }

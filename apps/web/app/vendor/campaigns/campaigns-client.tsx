@@ -17,6 +17,7 @@ interface Campaign {
   approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
   approvalNote: string | null;
   submittedAt: string;
+  pendingRemoval?: boolean;
 }
 
 const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]';
@@ -34,7 +35,6 @@ function defaultRange() {
 
 export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: string }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [pendingRemovalIds, setPendingRemovalIds] = useState<Set<string>>(new Set());
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Campaign | null>(null);
   const [busy, setBusy] = useState(false);
@@ -45,10 +45,7 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
   async function load() {
     const r = await fetch('/api/vendor/campaigns', { cache: 'no-store' });
     const j = await r.json();
-    if (j.ok) {
-      setCampaigns(j.campaigns);
-      setPendingRemovalIds(new Set<string>(Array.isArray(j.pendingRemovalIds) ? j.pendingRemovalIds : []));
-    }
+    if (j.ok) setCampaigns(j.campaigns);
   }
 
   useEffect(() => { load(); }, []);
@@ -136,7 +133,7 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
                 status={c.approvalStatus}
                 active={c.active}
                 endsAt={c.endsAt}
-                pendingRemoval={pendingRemovalIds.has(c.id)}
+                pendingRemoval={Boolean(c.pendingRemoval)}
               />
             </div>
             <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] leading-relaxed">{c.body}</p>
@@ -150,7 +147,7 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
                 <span className="text-[color:var(--color-ink-soft)]/70">Reviewer:</span> {c.approvalNote}
               </div>
             )}
-            {pendingRemovalIds.has(c.id) && (
+            {c.pendingRemoval && (
               <div className="mt-3 rounded-xl bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/25 px-3 py-2 text-[12px] text-[color:var(--color-ink)]">
                 Removal awaiting Magarpatta Go review. The campaign stays live until admin approves.
               </div>
@@ -158,14 +155,14 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
             <div className="mt-4 flex flex-wrap gap-2 text-[12px]">
               <button
                 onClick={() => openEdit(c)}
-                disabled={pendingRemovalIds.has(c.id)}
+                disabled={Boolean(c.pendingRemoval)}
                 className="rounded-full border border-[color:var(--color-ink)]/15 px-3 py-1 hover:border-[color:var(--color-forest)]/40 disabled:opacity-50 disabled:cursor-not-allowed"
               >Edit</button>
               <button
                 onClick={() => remove(c.id)}
-                disabled={busy || pendingRemovalIds.has(c.id)}
+                disabled={busy || Boolean(c.pendingRemoval)}
                 className="rounded-full border border-[color:var(--color-terracotta)]/35 text-[color:var(--color-terracotta)] px-3 py-1 hover:bg-[color:var(--color-terracotta)]/8 disabled:opacity-50 disabled:cursor-not-allowed"
-              >{pendingRemovalIds.has(c.id) ? 'Removal pending' : 'Remove'}</button>
+              >{c.pendingRemoval ? 'Removal pending' : 'Remove'}</button>
             </div>
           </article>
         ))}
