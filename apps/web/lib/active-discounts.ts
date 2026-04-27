@@ -24,15 +24,13 @@ export async function getActiveDiscounts(): Promise<ActiveCampaignDiscount[]> {
     select: { id: true, vendorId: true, productIds: true, discountPct: true, type: true, title: true },
   });
   return campaigns
-    .filter((c): c is { id: string; vendorId: string; productIds: string[]; discountPct: number; type: string; title: string } =>
-      c.discountPct != null,
-    )
+    .filter((c) => c.discountPct != null && c.discountPct > 0)
     .map((c) => ({
       id: c.id,
       vendorId: c.vendorId,
       productIds: c.productIds,
-      discountPct: c.discountPct,
-      type: c.type,
+      discountPct: c.discountPct as number,
+      type: c.type as string,
       title: c.title,
     }));
 }
