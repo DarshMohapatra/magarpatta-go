@@ -34,6 +34,7 @@ function defaultRange() {
 
 export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: string }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [pendingRemovalIds, setPendingRemovalIds] = useState<Set<string>>(new Set());
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Campaign | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,7 +45,10 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
   async function load() {
     const r = await fetch('/api/vendor/campaigns', { cache: 'no-store' });
     const j = await r.json();
-    if (j.ok) setCampaigns(j.campaigns);
+    if (j.ok) {
+      setCampaigns(j.campaigns);
+      setPendingRemovalIds(new Set<string>(Array.isArray(j.pendingRemovalIds) ? j.pendingRemovalIds : []));
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -128,7 +132,12 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
                 </div>
                 <h3 className="mt-1 font-serif text-[20px] leading-tight">{c.title}</h3>
               </div>
-              <StatusBadge status={c.approvalStatus} active={c.active} endsAt={c.endsAt} />
+              <StatusBadge
+                status={c.approvalStatus}
+                active={c.active}
+                endsAt={c.endsAt}
+                pendingRemoval={pendingRemovalIds.has(c.id)}
+              />
             </div>
             <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] leading-relaxed">{c.body}</p>
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75">
@@ -141,9 +150,22 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
                 <span className="text-[color:var(--color-ink-soft)]/70">Reviewer:</span> {c.approvalNote}
               </div>
             )}
+            {pendingRemovalIds.has(c.id) && (
+              <div className="mt-3 rounded-xl bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/25 px-3 py-2 text-[12px] text-[color:var(--color-ink)]">
+                Removal awaiting Magarpatta Go review. The campaign stays live until admin approves.
+              </div>
+            )}
             <div className="mt-4 flex flex-wrap gap-2 text-[12px]">
-              <button onClick={() => openEdit(c)} className="rounded-full border border-[color:var(--color-ink)]/15 px-3 py-1 hover:border-[color:var(--color-forest)]/40">Edit</button>
-              <button onClick={() => remove(c.id)} disabled={busy} className="rounded-full border border-[color:var(--color-terracotta)]/35 text-[color:var(--color-terracotta)] px-3 py-1 hover:bg-[color:var(--color-terracotta)]/8 disabled:opacity-50">Remove</button>
+              <button
+                onClick={() => openEdit(c)}
+                disabled={pendingRemovalIds.has(c.id)}
+                className="rounded-full border border-[color:var(--color-ink)]/15 px-3 py-1 hover:border-[color:var(--color-forest)]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              >Edit</button>
+              <button
+                onClick={() => remove(c.id)}
+                disabled={busy || pendingRemovalIds.has(c.id)}
+                className="rounded-full border border-[color:var(--color-terracotta)]/35 text-[color:var(--color-terracotta)] px-3 py-1 hover:bg-[color:var(--color-terracotta)]/8 disabled:opacity-50 disabled:cursor-not-allowed"
+              >{pendingRemovalIds.has(c.id) ? 'Removal pending' : 'Remove'}</button>
             </div>
           </article>
         ))}
@@ -283,8 +305,9 @@ function CampaignForm({ editing, onClose, onSaved }: {
   );
 }
 
-function StatusBadge({ status, active, endsAt }: { status: string; active: boolean; endsAt: string }) {
+function StatusBadge({ status, active, endsAt, pendingRemoval }: { status: string; active: boolean; endsAt: string; pendingRemoval?: boolean }) {
   const expired = new Date(endsAt) < new Date();
+  if (pendingRemoval) return <Badge tone="saffron">Removal pending</Badge>;
   if (expired) return <Badge tone="muted">Expired</Badge>;
   if (status === 'APPROVED' && active) return <Badge tone="forest">Live</Badge>;
   if (status === 'APPROVED' && !active) return <Badge tone="muted">Paused</Badge>;

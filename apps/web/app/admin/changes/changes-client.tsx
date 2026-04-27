@@ -143,7 +143,7 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
               </p>
             </div>
 
-            <Diff payload={selected.payload} before={selected.before} operation={selected.operation} />
+            <Diff payload={selected.payload} before={selected.before} operation={selected.operation} entity={selected.entity} />
 
             {selected.status === 'PENDING' && (
               <>
@@ -178,13 +178,23 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
   );
 }
 
-function Diff({ payload, before, operation }: { payload: Record<string, unknown>; before: Record<string, unknown> | null; operation: string }) {
+function Diff({ payload, before, operation, entity }: { payload: Record<string, unknown>; before: Record<string, unknown> | null; operation: string; entity?: string }) {
   const keys = Array.from(new Set([...Object.keys(payload || {}), ...Object.keys(before || {})]));
   if (operation === 'DELETE') {
+    const subject =
+      entity === 'CAMPAIGN' ? 'campaign' :
+      entity === 'PRODUCT'  ? 'menu item' :
+      'item';
+    const label = before?.title ?? before?.name;
     return (
       <div className="rounded-xl border border-[color:var(--color-terracotta)]/25 bg-[color:var(--color-terracotta)]/6 px-4 py-3 text-[13px]">
-        Vendor wants to remove this item from the menu.
-        {before?.name ? <span className="block mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">"{String(before.name)}"</span> : null}
+        Vendor wants to remove this {subject}.
+        {label ? <span className="block mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">&ldquo;{String(label)}&rdquo;</span> : null}
+        {entity === 'CAMPAIGN' && (
+          <span className="block mt-1.5 text-[11.5px] text-[color:var(--color-ink-soft)]/70">
+            The campaign stays live to customers until you approve. Approving deletes it; rejecting keeps it running.
+          </span>
+        )}
       </div>
     );
   }
