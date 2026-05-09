@@ -8,16 +8,24 @@ export type OtpPurpose =
   | 'VENDOR_REGISTER'
   | 'RIDER_SIGNIN'
   | 'RIDER_REGISTER'
-  | 'ADMIN_SIGNIN';
+  | 'ADMIN_SIGNIN'
+  | 'CURATOR_SIGNIN'
+  | 'HELPDESK_SIGNIN';
 
 const OTP_VALIDITY_SECONDS = 5 * 60;
 const MAX_ATTEMPTS = 5;
 const RESEND_COOLDOWN_SECONDS = 30;
 
 /**
- * Phones that accept the demo OTP "123456" without sending a real SMS.
- * Keeps the test flow instant for the seeded vendors, riders, and admin.
- * Real customer phones always go through Fast2SMS.
+ * DEMO_MODE = true → every phone (including brand-new sign-ups) accepts the
+ * static OTP "123456" and no real SMS goes out. Flip to false before launch
+ * so genuine customers actually receive a one-time code via Fast2SMS.
+ */
+const DEMO_MODE = true;
+
+/**
+ * Phones that always accept the demo OTP regardless of DEMO_MODE — keeps the
+ * seeded vendors, riders, and admin working even after demo mode is turned off.
  */
 const DEMO_PHONES = new Set([
   // vendors
@@ -26,6 +34,8 @@ const DEMO_PHONES = new Set([
   '8888888801', '8888888802', '8888888803', '8888888804', '8888888805',
   // admin
   '9999999999',
+  // curator
+  '7000000001',
 ]);
 const DEMO_OTP = '123456';
 
@@ -57,7 +67,7 @@ export async function sendOtp(phone: string, purpose: OtpPurpose): Promise<SendR
     return { ok: false, error: `Wait ${wait}s before asking for a new code.` };
   }
 
-  const isDemoPhone = DEMO_PHONES.has(phone);
+  const isDemoPhone = DEMO_MODE || DEMO_PHONES.has(phone);
   const code = isDemoPhone ? DEMO_OTP : random6();
   const expiresAt = new Date(Date.now() + OTP_VALIDITY_SECONDS * 1000);
 
@@ -132,5 +142,5 @@ async function sendFast2SMS(phone: string, code: string): Promise<boolean> {
 
 /** Exposed for the UI so the signin forms can render a subtle demo hint. */
 export function isDemoPhone(phone: string): boolean {
-  return DEMO_PHONES.has(phone);
+  return DEMO_MODE || DEMO_PHONES.has(phone);
 }

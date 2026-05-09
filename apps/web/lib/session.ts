@@ -1,14 +1,27 @@
 import 'server-only';
 import { cache } from 'react';
 import { cookies } from 'next/headers';
+import type { AddressLabel } from '@prisma/client';
 import { prisma } from './prisma';
+
+export interface SessionAddress {
+  id: string;
+  label: AddressLabel;
+  society: string;
+  building: string;
+  flat: string;
+  verified: boolean;
+  isDefault: boolean;
+}
 
 export interface SessionUser {
   phone: string;
   name: string | null;
+  // Convenience fields — point to the default address (or null when none).
   society: string | null;
   building: string | null;
   flat: string | null;
+  addresses: SessionAddress[];
 }
 
 /**
@@ -34,15 +47,26 @@ export const getServerSession = cache(async function getServerSession(): Promise
 
   const user = await prisma.user.findUnique({
     where: { phone },
-    include: { addresses: { orderBy: { createdAt: 'desc' }, take: 1 } },
+    include: { addresses: { orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }] } },
   });
 
-  const addr = user?.addresses[0];
+  const addresses: SessionAddress[] = (user?.addresses ?? []).map((a) => ({
+    id: a.id,
+    label: a.label,
+    society: a.society,
+    building: a.building,
+    flat: a.flat,
+    verified: a.verified,
+    isDefault: a.isDefault,
+  }));
+  const defaultAddr = addresses.find((a) => a.isDefault) ?? addresses[0] ?? null;
+
   return {
     phone,
     name: user?.name ?? null,
-    society: addr?.society ?? null,
-    building: addr?.building ?? null,
-    flat: addr?.flat ?? null,
+    society: defaultAddr?.society ?? null,
+    building: defaultAddr?.building ?? null,
+    flat: defaultAddr?.flat ?? null,
+    addresses,
   };
 });
