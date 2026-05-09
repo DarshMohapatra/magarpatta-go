@@ -106,6 +106,43 @@ export function cartCount(items: CartItem[]): number {
   return items.reduce((s, i) => s + i.qty, 0);
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Cart-vs-user fence
+//
+// The cart lives in localStorage so it survives reloads. That's great for
+// one user — terrible for shared browsers. Without anything else, signing
+// out and signing in as someone else would inherit the previous person's
+// cart. The two helpers below pin the cart to whoever is signed in.
+// ─────────────────────────────────────────────────────────────────────
+const LAST_PHONE_KEY = 'mg_last_signed_phone';
+
+/**
+ * Wipe the cart and forget who owned it. Call from any signout flow before
+ * navigating away.
+ */
+export function clearCartForSignout(): void {
+  useCart.getState().clear();
+  try { localStorage.removeItem(LAST_PHONE_KEY); } catch { /* SSR or private mode */ }
+}
+
+/**
+ * Call after a successful sign-in. If a different phone owned the cart last
+ * (shared browser, missed signout), the cart is wiped before the new session
+ * sees it. Same phone or first-ever signin on this browser: cart untouched,
+ * so a guest who built a cart and signed in to check out keeps their items.
+ */
+export function rememberSignedInPhone(phone: string): void {
+  try {
+    const prev = localStorage.getItem(LAST_PHONE_KEY);
+    if (prev && prev !== phone) {
+      useCart.getState().clear();
+    }
+    localStorage.setItem(LAST_PHONE_KEY, phone);
+  } catch {
+    /* localStorage unavailable — best-effort, don't block the signin. */
+  }
+}
+
 /** MRP-based subtotal — what the customer sees on line items. */
 export function cartSubtotalMrp(items: CartItem[]): number {
   return items.reduce((s, i) => s + i.mrpInr * i.qty, 0);

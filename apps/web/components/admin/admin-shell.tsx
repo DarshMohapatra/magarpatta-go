@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 const NAV = [
   { href: '/admin', label: 'Overview' },
@@ -10,8 +11,14 @@ const NAV = [
   { href: '/admin/riders', label: 'Riders' },
   { href: '/admin/orders', label: 'Orders' },
   { href: '/admin/campaigns', label: 'Campaigns' },
+  { href: '/admin/changes', label: 'Approvals' },
   { href: '/admin/customers', label: 'Customers' },
+  { href: '/admin/support', label: 'Support' },
+  { href: '/admin/kb', label: 'Knowledge' },
+  { href: '/admin/deviations', label: 'Deviations' },
   { href: '/admin/finance', label: 'Finance' },
+  { href: '/admin/analytics/support', label: 'Analytics' },
+  { href: '/admin/activity', label: 'Activity' },
 ];
 
 export function AdminShell({ name, role, children }: { name: string; role: string; children: React.ReactNode }) {
@@ -33,7 +40,7 @@ export function AdminShell({ name, role, children }: { name: string; role: strin
           <div className="flex items-center gap-3 min-w-0">
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
             <span className="text-[14px] tracking-tight font-medium whitespace-nowrap">
-              Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
               <span className="ml-1.5 text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Admin</span>
             </span>
             <span className="hidden sm:inline text-[color:var(--color-ink-soft)]/30">·</span>

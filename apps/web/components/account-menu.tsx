@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { clearCartForSignout } from '@/lib/cart';
 import type { SessionUser } from '@/lib/session';
 
 interface Props {
@@ -38,6 +39,9 @@ export function AccountMenu({ initialSession }: Props) {
     setSigningOut(true);
     setOpen(false);
     setSession(null);
+    // Drop the cart before navigating: cart is browser-local, so the next
+    // person to sign in on this device must not inherit these items.
+    clearCartForSignout();
     try {
       await fetch('/api/auth/session', { method: 'DELETE' });
     } catch {
@@ -123,8 +127,11 @@ export function AccountMenu({ initialSession }: Props) {
             <Link href="/orders" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Orders
             </Link>
-            <Link href="/signup" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
-              Update address
+            <Link href="/account/addresses" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+              Manage addresses
+            </Link>
+            <Link href="/support" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+              Support &amp; complaints
             </Link>
           </nav>
 
