@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyOtp } from '@/lib/otp';
+import { siteConfig } from '@/lib/site-config';
 
 interface Body {
   shopName?: string;
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
     data: {
       slug,
       name: shopName,
-      hub: b.hub?.trim() || 'Magarpatta',
+      hub: b.hub?.trim() || siteConfig.defaultHub,
       vendorType: b.vendorType || 'restaurant',
       approvalStatus: 'PENDING',
       submittedAt: new Date(),

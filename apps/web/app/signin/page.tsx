@@ -1,10 +1,11 @@
 import { SignInClient } from './signin-client';
 import { AuthShell } from '@/components/auth/auth-shell';
+import { siteConfig } from '@/lib/site-config';
 
 export default function SignInPage() {
   return (
     <AuthShell
-      eyebrow="Sign in · Magarpatta only"
+      eyebrow={`Sign in · ${siteConfig.siteName} only`}
       title={
         <>
           Welcome back,

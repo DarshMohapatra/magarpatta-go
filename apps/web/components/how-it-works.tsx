@@ -1,8 +1,11 @@
+import { siteConfig } from '@/lib/site-config';
+import { TOTAL_BUILDINGS } from '@/lib/societies';
+
 const STEPS = [
   {
     n: '01',
     title: 'Pick your tower',
-    desc: 'Select from our curated list of 120 Magarpatta towers. If you\'re outside the gates, we\'ll respectfully ask you to wait — we\'re not a generalist, we\'re your neighbour.',
+    desc: `Select from our curated list of ${TOTAL_BUILDINGS} ${siteConfig.siteName} towers. If you're outside the gates, we'll respectfully ask you to wait — we're not a generalist, we're your neighbour.`,
   },
   {
     n: '02',

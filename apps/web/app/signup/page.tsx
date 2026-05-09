@@ -1,10 +1,11 @@
 import { SignUpClient } from './signup-client';
 import { AuthShell } from '@/components/auth/auth-shell';
+import { siteConfig } from '@/lib/site-config';
 
 export default function SignUpPage() {
   return (
     <AuthShell
-      eyebrow="Create your account · Magarpatta only"
+      eyebrow={`Create your account · ${siteConfig.siteName} only`}
       title={
         <>
           Let&rsquo;s get you

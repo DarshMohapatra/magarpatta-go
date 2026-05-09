@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { ConfirmationResult } from 'firebase/auth';
 import { MAGARPATTA_SOCIETIES, getBuildings, getBuilding, validateFlat, type Building } from '@/lib/societies';
-import { sendPhoneOtp, resetRecaptcha } from '@/lib/firebase-phone';
+import { rememberSignedInPhone } from '@/lib/cart';
+import { siteConfig } from '@/lib/site-config';
 import { cn } from '@/lib/utils';
 
 type Step = 0 | 1 | 2;
@@ -23,8 +23,8 @@ export function SignUpClient() {
   // Step 1: OTP
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''));
   const [resendIn, setResendIn] = useState(30);
+  const [otpHint, setOtpHint] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const confirmationRef = useRef<ConfirmationResult | null>(null);
 
   // Step 2: address
   const [society, setSociety] = useState<string | null>(null);
@@ -61,21 +61,25 @@ export function SignUpClient() {
     setLoading(true);
     setError(null);
     try {
-      const confirmation = await sendPhoneOtp(`+91${phone}`, 'recaptcha-container');
-      confirmationRef.current = confirmation;
+      const r = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, purpose: 'CUSTOMER_SIGNIN' }),
+      });
+      const j = await r.json();
+      if (!j.ok) { setError(j.error ?? 'Could not send OTP.'); return; }
       setStep(1);
       setResendIn(30);
       setDigits(Array(6).fill(''));
-    } catch (e) {
-      const msg = (e as Error).message;
-      resetRecaptcha('recaptcha-container');
-      setError(
-        msg.includes('too-many-requests')
-          ? 'Too many attempts. Try again in a few minutes.'
-          : msg.includes('invalid-phone-number')
-            ? 'That phone number looks invalid.'
-            : `Could not send OTP: ${msg}`,
+      setOtpHint(
+        j.demoOtp
+          ? `Demo mode — use code ${j.demoOtp} (no SMS sent).`
+          : j.smsSent
+            ? 'Code sent via SMS. It expires in 5 minutes.'
+            : 'Code generated. Check the Vercel server logs for it.',
       );
+    } catch (e) {
+      setError(`Could not send OTP: ${(e as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -84,27 +88,27 @@ export function SignUpClient() {
   async function verifyOtp(finalCode?: string) {
     const toVerify = finalCode ?? code;
     if (toVerify.length !== 6) return;
-    if (!confirmationRef.current) {
-      setError('Session expired. Please resend the code.');
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const credential = await confirmationRef.current.confirm(toVerify);
-      const idToken = await credential.user.getIdToken();
-
-      const res = await fetch('/api/auth/firebase-session', {
+      const r = await fetch('/api/auth/otp/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ phone, code: toVerify }),
       });
-      const data = await res.json();
-      if (!data.ok) {
-        setError(data.error ?? 'Session failed');
+      const j = await r.json();
+      if (!j.ok) {
+        setError(j.error ?? 'Verification failed');
+        setDigits(Array(6).fill(''));
+        otpRefs.current[0]?.focus();
         return;
       }
 
+      // Pin the cart to this phone — wipes any cart left behind by a
+      // different user on this browser.
+      rememberSignedInPhone(phone);
+
+      // Session cookie is now set; record the name on the user row.
       await fetch('/api/users/me', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,14 +116,7 @@ export function SignUpClient() {
       });
       setStep(2);
     } catch (e) {
-      const msg = (e as Error).message;
-      setError(
-        msg.includes('invalid-verification-code')
-          ? 'Incorrect code'
-          : msg.includes('code-expired')
-            ? 'Code expired. Request a new one.'
-            : `Verification failed: ${msg}`,
-      );
+      setError(`Verification failed: ${(e as Error).message}`);
       setDigits(Array(6).fill(''));
       otpRefs.current[0]?.focus();
     } finally {
@@ -160,10 +157,21 @@ export function SignUpClient() {
     if (resendIn > 0) return;
     setResendIn(30);
     setError(null);
-    resetRecaptcha();
     try {
-      const confirmation = await sendPhoneOtp(`+91${phone}`, 'recaptcha-container');
-      confirmationRef.current = confirmation;
+      const r = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, purpose: 'CUSTOMER_SIGNIN' }),
+      });
+      const j = await r.json();
+      if (!j.ok) { setError(j.error ?? 'Could not resend.'); return; }
+      setOtpHint(
+        j.demoOtp
+          ? `Demo mode — use code ${j.demoOtp} (no SMS sent).`
+          : j.smsSent
+            ? 'Code resent via SMS.'
+            : 'Code regenerated. Check the Vercel server logs for it.',
+      );
     } catch (e) {
       setError(`Could not resend: ${(e as Error).message}`);
     }
@@ -199,9 +207,6 @@ export function SignUpClient() {
 
   return (
     <div className="space-y-8">
-      {/* Invisible reCAPTCHA container — Firebase mounts here. */}
-      <div id="recaptcha-container" />
-
       {/* Step indicator */}
       <Progress step={step} />
 
@@ -282,6 +287,10 @@ export function SignUpClient() {
               change
             </button>
           </p>
+
+          {otpHint && (
+            <p className="text-[12.5px] text-[color:var(--color-forest)]">{otpHint}</p>
+          )}
 
           <div className="flex items-center gap-2.5" onPaste={handlePaste}>
             {digits.map((d, i) => (
@@ -568,7 +577,7 @@ function AddressPicker({
           <PickerPanel
             q={q}
             setQ={setQ}
-            placeholder="Search Magarpatta societies…"
+            placeholder={`Search ${siteConfig.siteName} societies…`}
             items={filteredSocs.map((s) => ({
               key: s.name,
               label: s.name,

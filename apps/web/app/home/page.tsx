@@ -9,10 +9,11 @@ import { WaitlistCta } from '@/components/cta-waitlist';
 import { Footer } from '@/components/footer';
 import { LiveOrders } from '@/components/live-orders';
 import { CartDrawer } from '@/components/cart-drawer';
+import { siteConfig } from '@/lib/site-config';
 
 export const metadata = {
-  title: 'Magarpatta Go — Home',
-  description: 'Food, groceries, medicines and more — sourced and delivered within Magarpatta City, Pune. Under 25 minutes.',
+  title: `${siteConfig.platformName} — Home`,
+  description: `Food, groceries, medicines and more — sourced and delivered within ${siteConfig.siteName}, ${siteConfig.city}. Under 25 minutes.`,
 };
 
 export default async function HomePage() {

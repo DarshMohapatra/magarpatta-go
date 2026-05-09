@@ -1,6 +1,9 @@
+import { siteConfig } from '@/lib/site-config';
+import { SOCIETY_COUNT } from '@/lib/societies';
+
 const COL = [
   {
-    title: 'Magarpatta Go',
+    title: siteConfig.platformName,
     links: [
       { label: 'How it works', href: '#how' },
       { label: 'Partners', href: '#partners' },
@@ -48,14 +51,14 @@ export function Footer() {
             <div className="flex items-center gap-2.5">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
               <span className="text-[15px] tracking-tight font-medium text-[color:var(--color-cream)]">
-                Magarpatta <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
+                {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
               </span>
             </div>
             <p className="mt-5 font-serif text-[22px] leading-[1.35] text-[color:var(--color-cream)]">
-              Hyper-local delivery, made only for the 35,000 of us inside the gates.
+              Hyper-local delivery, made only for the residents inside the gates.
             </p>
             <p className="mt-4 text-[13px] leading-[1.6] text-[color:var(--color-cream)]/60">
-              Built in Magarpatta City, Pune. Four riders. Sixteen societies. Zero borders crossed.
+              Built in {siteConfig.siteName}, {siteConfig.city}. {SOCIETY_COUNT} societies. Zero borders crossed.
             </p>
           </div>
 
@@ -81,9 +84,9 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[12px] text-[color:var(--color-cream)]/55">
-          <div>© 2026 Magarpatta Go. Not affiliated with MTDCC. FSSAI pending.</div>
+          <div>© 2026 {siteConfig.platformName}. FSSAI pending.</div>
           <div className="flex items-center gap-5">
-            <span>Made with care in Magarpatta City</span>
+            <span>Made with care in {siteConfig.siteName}</span>
             <span className="h-4 w-px bg-[color:var(--color-cream)]/20" />
             <span>v0.1.0 · Phase 1 · MVP</span>
           </div>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PartnerNav } from '@/components/partner/partner-nav';
+import { siteConfig } from '@/lib/site-config';
 
 export const dynamic = 'force-static';
 
@@ -9,7 +10,7 @@ const RESPONSIBILITIES = [
   { title: 'Live order board', body: 'Every active order across the township — reassign, cancel, compensate.' },
   { title: 'Finance reconciliation', body: 'GMV, take-rate, commission by vendor. Exports feed into Tally.' },
   { title: 'Customer support', body: 'Search by phone. Pull order history. Issue refunds. Block if abusive.' },
-  { title: 'Zone & pricing', body: 'Magarpatta polygon, pincodes, delivery fee rules, surge windows.' },
+  { title: 'Zone & pricing', body: `${siteConfig.siteName} polygon, pincodes, delivery fee rules, surge windows.` },
 ];
 
 export default function AdminLandingPage() {
@@ -27,7 +28,7 @@ export default function AdminLandingPage() {
                 <span className="italic text-[color:var(--color-forest)]">console.</span>
               </h1>
               <p className="mt-6 text-[15px] sm:text-[16.5px] leading-[1.55] text-[color:var(--color-ink-soft)] max-w-[540px]">
-                The small, quiet room where Magarpatta Go stays honest. Vendors, riders, orders, and money —
+                The small, quiet room where {siteConfig.platformName} stays honest. Vendors, riders, orders, and money —
                 all visible, all reversible, all logged. If you&apos;re on the ops team, sign in below.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">

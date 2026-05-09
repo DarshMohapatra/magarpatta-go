@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 interface Vendor {
   id: string;
@@ -206,7 +207,7 @@ export function AdminVendorsClient({ initialStatus }: { initialStatus: string })
                     }}
                     className="accent-[color:var(--color-forest)]"
                   />
-                  On the Magarpatta Go platform (gets dashboard + notifications)
+                  On the {siteConfig.platformName} platform (gets dashboard + notifications)
                 </label>
                 {!selected.onPlatform && (
                   <p className="pl-6 text-[11.5px] text-[color:var(--color-terracotta)]">

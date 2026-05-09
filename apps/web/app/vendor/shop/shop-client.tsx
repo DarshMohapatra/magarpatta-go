@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 interface ShopData {
   id: string;
@@ -117,13 +118,13 @@ export function VendorShopClient() {
 
       {!pending && hasPendingEdit && (
         <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 px-5 py-4 text-[13px]">
-          You have an edit waiting on Magarpatta Go review. Until it&apos;s approved, customers continue to see your last approved details.
+          You have an edit waiting on {siteConfig.platformName} review. Until it&apos;s approved, customers continue to see your last approved details.
         </div>
       )}
 
       {!pending && (
         <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
-          Saving changes here submits them to Magarpatta Go for review. Pause / Go-live is instant — that&apos;s an operational setting.
+          Saving changes here submits them to {siteConfig.platformName} for review. Pause / Go-live is instant — that&apos;s an operational setting.
         </p>
       )}
 
@@ -182,8 +183,8 @@ export function VendorShopClient() {
             <span>
               <span className="text-[13.5px] font-medium">I deliver my own orders</span>
               <p className="text-[12px] text-[color:var(--color-ink-soft)]/80 mt-0.5">
-                If on, your staff picks up + delivers within Magarpatta. No platform rider is involved and customers
-                see you on the tracker directly. If off, a Magarpatta Go rider collects from your counter.
+                If on, your staff picks up + delivers within {siteConfig.siteName}. No platform rider is involved and customers
+                see you on the tracker directly. If off, a {siteConfig.platformName} rider collects from your counter.
               </p>
             </span>
           </label>

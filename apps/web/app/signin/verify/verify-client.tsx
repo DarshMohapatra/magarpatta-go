@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ConfirmationResult } from 'firebase/auth';
 import { sendPhoneOtp, resetRecaptcha } from '@/lib/firebase-phone';
+import { rememberSignedInPhone } from '@/lib/cart';
 import { cn } from '@/lib/utils';
 
 const LEN = 6;
@@ -92,6 +93,10 @@ export function VerifyClient() {
         refs.current[0]?.focus();
         return;
       }
+      // Pin the cart to this phone — wipes any cart left behind by a
+      // different user on this browser.
+      rememberSignedInPhone(phone);
+
       sessionStorage.removeItem('mg_phone');
       delete window.__mgConfirmation;
       router.refresh();

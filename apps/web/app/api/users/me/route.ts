@@ -1,38 +1,27 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { prisma } from '@/lib/prisma';
-import { getBuilding, validateFlat } from '@/lib/societies';
-
-async function getPhoneFromSession(): Promise<string | null> {
-  const jar = await cookies();
-  const token = jar.get('mg_session')?.value;
-  if (!token) return null;
-  try {
-    const decoded = JSON.parse(Buffer.from(token, 'base64url').toString());
-    return decoded.phone ?? null;
-  } catch {
-    return null;
-  }
-}
+import { getCustomerScope } from '@/lib/customer-scope';
+import { getBuilding, isVerifiedAddress, validateFlat } from '@/lib/societies';
 
 export async function GET() {
-  const phone = await getPhoneFromSession();
-  if (!phone) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
+  const scope = await getCustomerScope();
+  if (!scope) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
-  const user = await prisma.user.findUnique({
-    where: { phone },
+  // findFirst with empty where: wrapper rewrites to `{ id: <session userId> }`.
+  const user = await scope.db.user.findFirst({
+    where: {},
     include: { addresses: { orderBy: { createdAt: 'desc' } } },
   });
 
   return NextResponse.json({
     ok: true,
-    user: user ?? { phone, name: null, addresses: [] },
+    user: user ?? { phone: scope.session.phone, name: null, addresses: [] },
   });
 }
 
 export async function POST(req: Request) {
-  const phone = await getPhoneFromSession();
-  if (!phone) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
+  const scope = await getCustomerScope();
+  if (!scope) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
+  const { db } = scope;
 
   try {
     const { name, society, building, flat } = await req.json();
@@ -61,44 +50,47 @@ export async function POST(req: Request) {
       }
     }
 
-    const user = await prisma.user.upsert({
-      where: { phone },
-      create: { phone, name: name ?? undefined },
-      update: { name: name ?? undefined },
+    // db.user.update enforces id = session userId via the wrapper.
+    await db.user.update({
+      where: { id: scope.userId },
+      data: { name: name ?? undefined },
     });
 
     if (society && building && flat) {
-      await prisma.userAddress.upsert({
+      const verified = isVerifiedAddress(society, building);
+      // db.userAddress.upsert injects userId into both `where` and `create`.
+      const created = await db.userAddress.upsert({
         where: {
           userId_society_building_flat: {
-            userId: user.id,
+            userId: scope.userId,
             society,
             building,
             flat: String(flat),
           },
         },
         create: {
-          userId: user.id,
+          // userId redundantly listed for the type system — wrapper would
+          // override anything else the caller put here.
+          userId: scope.userId,
+          label: 'HOME',
           society,
           building,
           flat: String(flat),
+          verified,
           isDefault: true,
         },
-        update: { isDefault: true },
+        update: { verified, isDefault: true },
       });
 
-      // Demote other addresses for this user.
-      await prisma.userAddress.updateMany({
-        where: {
-          userId: user.id,
-          NOT: { society, building, flat: String(flat) },
-        },
+      // Demote other addresses for this user (wrapper auto-scopes the where).
+      await db.userAddress.updateMany({
+        where: { NOT: { id: created.id } },
         data: { isDefault: false },
       });
     }
 
-    const refreshed = await prisma.user.findUnique({
-      where: { id: user.id },
+    const refreshed = await db.user.findFirst({
+      where: {},
       include: { addresses: { orderBy: { createdAt: 'desc' } } },
     });
 

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { VendorShell } from '@/components/vendor/vendor-shell';
+import { siteConfig } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export default async function VendorHome() {
         <div className="rounded-3xl border border-[color:var(--color-saffron)]/30 bg-gradient-to-br from-[color:var(--color-saffron)]/10 to-[color:var(--color-gold)]/5 p-8">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Under review</div>
           <h1 className="mt-3 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-            Your shop is waiting on <span className="italic text-[color:var(--color-forest)]">Magarpatta Go</span> review.
+            Your shop is waiting on <span className="italic text-[color:var(--color-forest)]">{siteConfig.platformName}</span> review.
           </h1>
           <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
             We usually approve within 24 hours. While you wait, finish filling in your shop details and menu so everything&apos;s

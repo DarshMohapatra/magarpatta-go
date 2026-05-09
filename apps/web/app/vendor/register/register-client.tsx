@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { siteConfig } from '@/lib/site-config';
 
 type Step = 1 | 2 | 3 | 4 | 'done';
 
@@ -38,7 +39,7 @@ interface Form {
 
 const EMPTY: Form = {
   shopName: '', vendorType: 'restaurant', ownerName: '', ownerPhone: '', ownerEmail: '',
-  hub: 'Magarpatta', addressLine: '', openTime: '10:00', closeTime: '22:00',
+  hub: siteConfig.defaultHub, addressLine: '', openTime: '10:00', closeTime: '22:00',
   gstin: '', fssaiNumber: '', drugLicense: '', panNumber: '',
   bankAccountName: '', bankAccountNumber: '', bankIfsc: '', upiId: '',
 };
@@ -75,7 +76,7 @@ export function VendorRegisterClient() {
       if (!j.ok) { setErr(j.error ?? 'Could not send OTP.'); return; }
       setOtpSentMsg(
         j.demoOtp
-          ? `Demo phone — use code ${j.demoOtp}.`
+          ? `Demo mode — use code ${j.demoOtp}.`
           : j.smsSent
             ? 'Code sent via SMS. Expires in 5 minutes.'
             : 'Code generated. Check the Vercel server logs for it.',
@@ -124,7 +125,7 @@ export function VendorRegisterClient() {
             Thanks, <span className="italic text-[color:var(--color-forest)]">neighbour.</span>
           </h1>
           <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
-            Your application is with the Magarpatta Go team. We usually approve in under 24 hours. You&apos;ll get a call on
+            Your application is with the {siteConfig.platformName} team. We usually approve in under 24 hours. You&apos;ll get a call on
             <span className="font-medium text-[color:var(--color-ink)]"> +91 {form.ownerPhone} </span>
             once your shop goes live. Signin is OTP-based — no password to remember.
           </p>
@@ -153,7 +154,7 @@ export function VendorRegisterClient() {
           <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Vendor onboarding</span>
         </div>
         <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Put your shop on <span className="italic text-[color:var(--color-forest)]">Magarpatta Go.</span>
+          Put your shop on <span className="italic text-[color:var(--color-forest)]">{siteConfig.platformName}.</span>
         </h1>
 
         <ol className="mt-8 flex items-center gap-2">
@@ -183,8 +184,8 @@ export function VendorRegisterClient() {
                   {VENDOR_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </Row>
-              <Row label="Hub / location inside Magarpatta">
-                <input value={form.hub} onChange={(e) => set('hub', e.target.value)} className={inp} placeholder="Seasons Mall / Destination Centre / Magarpatta Market" />
+              <Row label={`Hub / location inside ${siteConfig.siteName}`}>
+                <input value={form.hub} onChange={(e) => set('hub', e.target.value)} className={inp} placeholder={siteConfig.hubSuggestions.join(' / ')} />
               </Row>
               <Row label="Full address">
                 <input value={form.addressLine} onChange={(e) => set('addressLine', e.target.value)} className={inp} placeholder="Shop no., floor, landmark" />

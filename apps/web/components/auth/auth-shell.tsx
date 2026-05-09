@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { siteConfig } from '@/lib/site-config';
+import { SOCIETY_COUNT } from '@/lib/societies';
 
 export function AuthShell({
   eyebrow,
@@ -27,7 +29,7 @@ export function AuthShell({
         <Link href="/" className="relative inline-flex items-center gap-2.5 w-max">
           <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
           <span className="text-[15px] tracking-tight font-medium">
-            Magarpatta <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
+            {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
           </span>
         </Link>
 
@@ -40,10 +42,10 @@ export function AuthShell({
             <br />
             <span className="italic text-[color:var(--color-saffron-soft)]">But we already know</span>
             <br />
-            which lift in Cosmos is slow, which guard works the late shift at Aspen&rsquo;s east gate, and which dal at Kalika sells out by 8 PM.
+            which lift is slow, which guard works the late shift, and which dal sells out by 8 PM.
           </p>
           <p className="mt-6 text-[14px] text-[color:var(--color-cream)]/70 max-w-md">
-            We live in Magarpatta too. Welcome in.
+            We live in {siteConfig.siteName} too. Welcome in.
           </p>
           <p className="mt-5 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-saffron-soft)]/75">
             — The team · launching April 2026
@@ -52,7 +54,7 @@ export function AuthShell({
 
         <div className="relative grid grid-cols-3 gap-4 text-[color:var(--color-cream)]/70">
           {[
-            { v: '16', l: 'societies' },
+            { v: String(SOCIETY_COUNT), l: 'societies' },
             { v: '4', l: 'riders' },
             { v: '25m', l: 'median ETA' },
           ].map((s) => (
@@ -70,7 +72,7 @@ export function AuthShell({
           <Link href="/" className="inline-flex items-center gap-2.5">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
             <span className="text-[15px] tracking-tight font-medium">
-              Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
             </span>
           </Link>
         </div>
@@ -87,7 +89,7 @@ export function AuthShell({
           <div className="mt-10">{children}</div>
 
           <p className="mt-10 text-[12.5px] text-[color:var(--color-ink-soft)]/70">
-            New to Magarpatta Go?{' '}
+            New to {siteConfig.platformName}?{' '}
             <Link href="/signup" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
               Create an account
             </Link>

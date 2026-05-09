@@ -4,6 +4,9 @@ import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { RiderSession } from '@/lib/rider-session';
+import { siteConfig } from '@/lib/site-config';
+import { LocationTracker } from '@/components/rider/location-tracker';
+import { DeviationPrompt } from '@/components/rider/deviation-prompt';
 
 interface OrderPreview {
   id: string;
@@ -93,13 +96,15 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
 
   return (
     <main className="min-h-screen">
+      <LocationTracker />
+      <DeviationPrompt />
       {/* Header strip */}
       <header className="border-b border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]">
         <div className="mx-auto max-w-[1080px] px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
             <span className="text-[14px] tracking-tight font-medium">
-              Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
               <span className="ml-1.5 text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
             </span>
           </div>
@@ -176,7 +181,7 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
           </div>
           <p className="text-[12px] text-[color:var(--color-ink-soft)]/75 mb-3 -mt-1">
             The shop hasn&apos;t been pinged — you&apos;re the personal shopper here. Walk in, place the order at the
-            counter, pay from your Magarpatta Go float, bring it back to the customer&apos;s door.
+            counter, pay from your {siteConfig.platformName} float, bring it back to the customer&apos;s door.
           </p>
           {(data?.available.length ?? 0) === 0 ? (
             <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]">

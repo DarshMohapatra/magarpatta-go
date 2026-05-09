@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ConfirmationResult } from 'firebase/auth';
 import { sendPhoneOtp, resetRecaptcha } from '@/lib/firebase-phone';
+import { siteConfig } from '@/lib/site-config';
 import { cn } from '@/lib/utils';
 
 declare global {
@@ -117,7 +118,7 @@ export function SignInClient() {
       </button>
 
       <p className="text-[12px] text-[color:var(--color-ink-soft)]/65 text-center pt-1">
-        By continuing you accept our terms. We only text about Magarpatta Go.
+        By continuing you accept our terms. We only text about {siteConfig.platformName}.
       </p>
     </form>
   );

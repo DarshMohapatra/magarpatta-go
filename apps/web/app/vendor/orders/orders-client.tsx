@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 interface OrderRow {
   id: string;
@@ -73,7 +74,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
         <h2 className="font-serif text-[22px]">Orders go live after approval</h2>
         <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
-          Once the Magarpatta Go team approves your shop, incoming orders will appear here in real time.
+          Once the {siteConfig.platformName} team approves your shop, incoming orders will appear here in real time.
         </p>
       </div>
     );

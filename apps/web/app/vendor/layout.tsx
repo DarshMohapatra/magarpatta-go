@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 export const metadata = {
-  title: 'Magarpatta Go · Vendor',
-  description: 'Vendor workspace for partner shops in Magarpatta City.',
+  title: `${siteConfig.platformName} · Vendor`,
+  description: `Vendor workspace for partner shops in ${siteConfig.siteName}.`,
 };
 
 export default function VendorLayout({ children }: { children: ReactNode }) {

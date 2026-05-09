@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { siteConfig } from '@/lib/site-config';
 
 interface Form {
   name: string;
@@ -50,7 +51,7 @@ export function RiderRegisterClient() {
       setOtpStage('otp');
       setOtpSentMsg(
         j.demoOtp
-          ? `Demo phone — use code ${j.demoOtp}.`
+          ? `Demo mode — use code ${j.demoOtp}.`
           : j.smsSent
             ? 'Code sent via SMS. Expires in 5 minutes.'
             : 'Code generated. Check the Vercel server logs for it.',
@@ -189,7 +190,7 @@ export function RiderRegisterClient() {
           </div>
 
           <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/70 leading-[1.55]">
-            By submitting, you agree to let Magarpatta Go verify your DL and vehicle RC. We never share Aadhaar
+            By submitting, you agree to let {siteConfig.platformName} verify your DL and vehicle RC. We never share Aadhaar
             with anyone outside our ops team.
           </p>
 

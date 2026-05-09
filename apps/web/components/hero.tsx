@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { TowerSelect } from './tower-select';
 import { HeroPreview } from './hero-preview';
+import { siteConfig } from '@/lib/site-config';
+import { SOCIETY_COUNT, TOTAL_BUILDINGS } from '@/lib/societies';
 
 export function Hero() {
   return (
@@ -12,7 +14,7 @@ export function Hero() {
             <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)]/60 backdrop-blur-sm px-3 py-1.5">
               <span className="relative inline-flex h-1.5 w-1.5 items-center justify-center rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
               <span className="text-[11px] tracking-[0.16em] uppercase text-[color:var(--color-ink-soft)]">
-                Magarpatta City · Pune
+                {siteConfig.siteName} · {siteConfig.city}
               </span>
             </div>
 
@@ -26,8 +28,8 @@ export function Hero() {
 
             <p className="mt-6 max-w-xl text-[16px] lg:text-[17px] leading-[1.55] text-[color:var(--color-ink-soft)]">
               Food, groceries, medicines, fresh meat and daily essentials — sourced only from
-              within Magarpatta and delivered in under 25 minutes. By neighbours, for neighbours.
-              Four riders. Sixteen societies. Two hundred and fifty-nine buildings. Zero borders
+              within {siteConfig.siteName} and delivered in under 25 minutes. By neighbours, for
+              neighbours. {SOCIETY_COUNT} societies. {TOTAL_BUILDINGS} buildings. Zero borders
               crossed.
             </p>
 
@@ -49,11 +51,11 @@ export function Hero() {
                 >
                   Create an account
                 </Link>
-                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">62 items live · 16 societies</span>
+                <span className="text-[12px] text-[color:var(--color-ink-soft)]/70">{SOCIETY_COUNT} societies mapped</span>
               </div>
               <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)]/70 max-w-xl">
                 We deliver <span className="font-medium text-[color:var(--color-ink)]">only</span>{' '}
-                inside Magarpatta City. Addresses outside the geofence are politely declined.
+                inside {siteConfig.siteName}. Addresses outside the geofence are politely declined.
               </p>
             </div>
           </div>
@@ -65,8 +67,8 @@ export function Hero() {
         {/* Stats strip */}
         <div className="mt-16 lg:mt-20 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-ink)]/10">
           {[
-            { v: '16', l: 'societies mapped' },
-            { v: '259', l: 'buildings · Magarpatta' },
+            { v: String(SOCIETY_COUNT), l: 'societies mapped' },
+            { v: String(TOTAL_BUILDINGS), l: `buildings · ${siteConfig.wordmarkRoot}` },
             { v: '25', l: 'min median delivery' },
             { v: '9', l: 'partner shops' },
           ].map((s) => (

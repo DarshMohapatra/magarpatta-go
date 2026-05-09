@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { siteConfig } from '@/lib/site-config';
 
 export function PartnerNav() {
   return (
@@ -7,7 +8,7 @@ export function PartnerNav() {
         <Link href="/" className="inline-flex items-center gap-2.5">
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
           <span className="text-[14px] tracking-tight font-medium">
-            Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+            {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
           </span>
         </Link>
         <nav className="flex items-center gap-5 text-[12.5px]">

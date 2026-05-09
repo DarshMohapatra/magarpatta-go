@@ -8,6 +8,7 @@ import {
   validateFlat,
   type Building,
 } from '@/lib/societies';
+import { siteConfig } from '@/lib/site-config';
 import { cn } from '@/lib/utils';
 
 type Step = 'society' | 'building' | null;
@@ -155,8 +156,8 @@ export function TowerSelect() {
                   setStep('building');
                   setQuery('');
                 }}
-                placeholder="Search Magarpatta societies…"
-                empty="No society matches. Are you inside Magarpatta?"
+                placeholder={`Search ${siteConfig.siteName} societies…`}
+                empty={`No society matches. Are you inside ${siteConfig.siteName}?`}
               />
             )}
           </div>

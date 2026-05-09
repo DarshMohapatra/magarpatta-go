@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 const DROPS = [
   { where: 'Kalika Sweets',               what: 'Hot jalebi',                  when: 'just now',   tag: 'sweets' },
@@ -47,7 +48,7 @@ export function FreshDrops() {
             </p>
             <div className="mt-8 inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/80">
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-terracotta)] pulse-ring" />
-              Magarpatta time · {time || '—'}
+              {siteConfig.wordmarkRoot} time · {time || '—'}
             </div>
           </div>
 

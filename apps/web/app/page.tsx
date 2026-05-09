@@ -5,11 +5,11 @@ import { CartDrawer } from '@/components/cart-drawer';
 import { LandingPulse } from '@/components/landing-pulse';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/session';
+import { siteConfig } from '@/lib/site-config';
 
 export const metadata = {
-  title: 'Magarpatta Go — Daily delights, delivered within your township',
-  description:
-    'Hyper-local delivery inside Magarpatta City, Pune. Food, groceries, medicines, fresh meat. Under 25 minutes. By neighbours, for neighbours.',
+  title: `${siteConfig.platformName} — Daily delights, delivered within your township`,
+  description: `Hyper-local delivery inside ${siteConfig.siteName}, ${siteConfig.city}. Food, groceries, medicines, fresh meat. Under 25 minutes. By neighbours, for neighbours.`,
 };
 
 export const dynamic = 'force-dynamic';
@@ -67,7 +67,7 @@ export default async function Landing() {
               <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)]/60 backdrop-blur-sm px-3 py-1.5">
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
                 <span className="text-[11px] tracking-[0.16em] uppercase text-[color:var(--color-ink-soft)]">
-                  Magarpatta City · Pune · est. 2026
+                  {siteConfig.siteName} · {siteConfig.city} · est. 2026
                 </span>
               </div>
 
@@ -80,7 +80,7 @@ export default async function Landing() {
               </h1>
 
               <p className="mt-7 max-w-xl text-[16px] lg:text-[18px] leading-[1.5] text-[color:var(--color-ink-soft)]">
-                Food, groceries, medicines, fresh meat — sourced only from within Magarpatta and
+                Food, groceries, medicines, fresh meat — sourced only from within {siteConfig.siteName} and
                 delivered in under twenty-five minutes. By neighbours, for neighbours.
               </p>
 
@@ -148,11 +148,10 @@ export default async function Landing() {
           </p>
           <p className="mt-6 max-w-2xl text-[14.5px] leading-[1.6] text-[color:var(--color-ink-soft)]">
             No app stores, no billboards, no Bengaluru defaults. Four riders, one postcode, a
-            single afternoon to get to know which lift in Cosmos is slow and which dal at Kalika
-            sells out by 8 PM.
+            single afternoon to get to know which lift is slow and which dal sells out by 8 PM.
           </p>
           <p className="mt-8 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">
-            — The team, Magarpatta Go · launching 2026
+            — The team, {siteConfig.platformName} · launching 2026
           </p>
         </div>
       </section>
@@ -163,7 +162,7 @@ export default async function Landing() {
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
             <span className="text-[14px] tracking-tight font-medium">
-              Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
             </span>
           </div>
           <nav className="flex items-center gap-6 text-[13px] text-[color:var(--color-ink-soft)]">
@@ -173,7 +172,7 @@ export default async function Landing() {
             <Link href="/signup" className="hover:text-[color:var(--color-forest)]">Create account</Link>
           </nav>
           <div className="text-[12px] text-[color:var(--color-ink-soft)]/60">
-            © 2026 · Made in Magarpatta
+            © 2026 · Made in {siteConfig.siteName}
           </div>
         </div>
       </footer>

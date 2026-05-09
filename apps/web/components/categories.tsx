@@ -1,7 +1,9 @@
+import { siteConfig } from '@/lib/site-config';
+
 const CATS = [
   {
     title: 'Food & Dining',
-    desc: 'Fresh from Kalika Sweets, Seasons Mall kitchens, and your favourite Magarpatta cafés.',
+    desc: `Fresh from local kitchens and your favourite ${siteConfig.siteName} cafés.`,
     tag: '40+ kitchens',
     tone: 'forest',
     icon: (
@@ -27,7 +29,7 @@ const CATS = [
   },
   {
     title: 'Medicines',
-    desc: 'Prescription refills with a registered Magarpatta pharmacist. Reminders built in.',
+    desc: `Prescription refills with a registered ${siteConfig.siteName} pharmacist. Reminders built in.`,
     tag: 'Rx verified',
     tone: 'terracotta',
     icon: (
@@ -108,7 +110,7 @@ export function Categories() {
               What you can order
             </div>
             <h2 className="mt-4 font-serif text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
-              Everything Magarpatta <span className="italic text-[color:var(--color-forest)]">already has.</span>
+              Everything {siteConfig.wordmarkRoot} <span className="italic text-[color:var(--color-forest)]">already has.</span>
             </h2>
           </div>
           <p className="max-w-md text-[15px] leading-[1.6] text-[color:var(--color-ink-soft)]">

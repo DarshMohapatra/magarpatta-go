@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from '@/lib/session';
+import { getCustomerScope } from '@/lib/customer-scope';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
@@ -12,17 +11,14 @@ import { ReorderButton } from '@/components/reorder-button';
 export const dynamic = 'force-dynamic';
 
 export default async function OrdersPage() {
-  const session = await getServerSession();
-  if (!session) redirect('/signin');
+  const scope = await getCustomerScope();
+  if (!scope) redirect('/signin');
 
-  const user = await prisma.user.findUnique({ where: { phone: session.phone } });
-  const orders = user
-    ? await prisma.order.findMany({
-        where: { userId: user.id },
-        orderBy: { placedAt: 'desc' },
-        include: { items: true },
-      })
-    : [];
+  // Wrapper auto-applies userId — empty where is safe.
+  const orders = await scope.db.order.findMany({
+    orderBy: { placedAt: 'desc' },
+    include: { items: true },
+  });
 
   return (
     <main className="relative z-10 min-h-screen">

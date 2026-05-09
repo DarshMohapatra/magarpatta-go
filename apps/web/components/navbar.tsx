@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { CartButton } from './cart-button';
 import { AccountMenu } from './account-menu';
+import { siteConfig } from '@/lib/site-config';
 import type { SessionUser } from '@/lib/session';
 
 const LINKS = [
@@ -51,7 +52,7 @@ export function Navbar({ initialSession = null }: NavbarProps) {
           <Link href={initialSession ? '/menu' : '/'} className="flex items-center gap-2.5 group">
             <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
             <span className="text-[15px] tracking-tight font-medium">
-              Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
             </span>
           </Link>
 

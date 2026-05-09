@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PartnerNav } from '@/components/partner/partner-nav';
+import { siteConfig } from '@/lib/site-config';
 
 export const dynamic = 'force-static';
 
@@ -7,7 +8,7 @@ const TILES = [
   {
     href: '/partner/vendor',
     kicker: 'For shops',
-    title: 'Sell on Magarpatta Go',
+    title: `Sell on ${siteConfig.platformName}`,
     body: 'Run your counter, accept orders, manage inventory, and get paid daily — without Swiggy-scale fees.',
     cta: 'Vendor workspace →',
     accent: 'saffron',
@@ -16,7 +17,7 @@ const TILES = [
     href: '/partner/rider',
     kicker: 'For riders',
     title: 'Earn as a neighbour',
-    body: 'Deliver within Magarpatta on your own time. Four slots, flat per-drop payout, no surge games.',
+    body: `Deliver within ${siteConfig.siteName} on your own time. Four slots, flat per-drop payout, no surge games.`,
     cta: 'Rider app →',
     accent: 'forest',
   },
@@ -43,7 +44,7 @@ export default function PartnerIndex() {
               <span className="italic text-[color:var(--color-forest)]">for the township.</span>
             </h1>
             <p className="mt-6 text-[15px] sm:text-[16.5px] leading-[1.55] text-[color:var(--color-ink-soft)] max-w-[620px]">
-              Magarpatta Go runs on three roles working together — the shops that make what you love, the
+              {siteConfig.platformName} runs on three roles working together — the shops that make what you love, the
               neighbours who deliver it, and the small ops team that keeps it honest. Pick yours below.
             </p>
           </div>

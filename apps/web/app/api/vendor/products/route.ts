@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange } from '@/lib/pending-change';
+import { logActivity } from '@/lib/activity-log';
 
 export async function GET() {
   const s = await getVendorSession();
@@ -79,6 +80,15 @@ export async function POST(req: Request) {
     payload: payload as never,
     summary: `${s.shopName} · new item "${name}"`,
     vendorId: s.vendorId,
+  });
+
+  await logActivity({
+    actorRole: 'VENDOR',
+    actorId: s.vendorId,
+    actorName: s.shopName,
+    action: 'PRODUCT_CREATE',
+    summary: `${s.shopName} added item "${name}"`,
+    metadata: { pendingChangeId: change.id, name },
   });
 
   return NextResponse.json({ ok: true, queued: true, pendingId: change.id });

@@ -1,7 +1,9 @@
+import { siteConfig } from '@/lib/site-config';
+
 const POINTS = [
   {
     title: 'We live here too',
-    body: 'Our four riders aren\'t gig workers from another neighbourhood. They are Magarpatta residents. They know which lift in Cosmos is slow, which gate to use after 9 PM, and which building has the hardest-to-find flat numbers.',
+    body: `Our four riders aren't gig workers from another neighbourhood. They are ${siteConfig.siteName} residents. They know which lift is slow, which gate to use after 9 PM, and which building has the hardest-to-find flat numbers.`,
   },
   {
     title: 'Transparent pricing, always',
@@ -21,7 +23,7 @@ const POINTS = [
   },
   {
     title: 'Veg / Jain / Satvik first',
-    body: 'Not a tag buried in filters. A first-class switch in the UI. We\'re built for the dietary reality of Magarpatta, not force-fitted from Bengaluru defaults.',
+    body: `Not a tag buried in filters. A first-class switch in the UI. We're built for the dietary reality of ${siteConfig.siteName}, not force-fitted from Bengaluru defaults.`,
   },
 ];
 
@@ -42,7 +44,7 @@ export function WhyMagarpatta() {
             Why us · not them
           </div>
           <h2 className="mt-4 font-serif text-[44px] lg:text-[64px] leading-[0.98] tracking-[-0.02em]">
-            Zomato delivers to Magarpatta.
+            Zomato delivers to {siteConfig.wordmarkRoot}.
             <br />
             <span className="italic text-[color:var(--color-saffron-soft)]">We deliver for it.</span>
           </h2>

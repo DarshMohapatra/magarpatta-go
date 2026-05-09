@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 const FRESH_ROTATION = [
   { where: 'Kalika Sweets',                       what: 'Hot jalebi',                ago: 'just now' },
@@ -121,7 +122,7 @@ export function LandingPulse() {
             <div className="absolute top-3 left-3 rounded-full bg-[color:var(--color-paper)]/95 backdrop-blur px-3 py-1.5 inline-flex items-center gap-1.5 border border-[color:var(--color-ink)]/10">
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-forest)] pulse-ring" />
               <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
-                Live · Magarpatta
+                Live · {siteConfig.wordmarkRoot}
               </span>
             </div>
 

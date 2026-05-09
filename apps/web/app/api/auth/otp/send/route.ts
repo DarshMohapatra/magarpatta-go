@@ -8,6 +8,8 @@ const VALID: OtpPurpose[] = [
   'RIDER_SIGNIN',
   'RIDER_REGISTER',
   'ADMIN_SIGNIN',
+  'CURATOR_SIGNIN',
+  'HELPDESK_SIGNIN',
 ];
 
 export async function POST(req: Request) {

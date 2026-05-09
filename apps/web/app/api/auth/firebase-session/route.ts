@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { adminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 
 /**
  * Exchanges a verified Firebase ID token (from phone OTP) for our own
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'idToken required' }, { status: 400 });
     }
 
-    const decoded = await adminAuth.verifyIdToken(idToken);
+    const decoded = await getAdminAuth().verifyIdToken(idToken);
 
     // We only accept phone-number sign-ins.
     if (decoded.firebase?.sign_in_provider !== 'phone') {

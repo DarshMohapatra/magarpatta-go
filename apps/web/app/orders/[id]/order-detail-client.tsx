@@ -142,16 +142,25 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
               Placed {placedDate.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
             </p>
           </div>
-          <button
-            onClick={reorder}
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-forest)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)] hover:text-[color:var(--color-cream)] transition-colors"
-            title="Re-add these items to your cart"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M11 4H3m0 0l3-3M3 4l3 3M3 10h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Reorder
-          </button>
+          <div className="shrink-0 flex items-center gap-2 flex-wrap justify-end">
+            <button
+              onClick={reorder}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-forest)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)] hover:text-[color:var(--color-cream)] transition-colors"
+              title="Re-add these items to your cart"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M11 4H3m0 0l3-3M3 4l3 3M3 10h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Reorder
+            </button>
+            <a
+              href={`/support/new?orderId=${order.id}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-terracotta)] hover:bg-[color:var(--color-terracotta)] hover:text-[color:var(--color-cream)] transition-colors"
+              title="File a complaint about this order"
+            >
+              Report an issue
+            </a>
+          </div>
         </div>
 
         {/* Animated tracker */}

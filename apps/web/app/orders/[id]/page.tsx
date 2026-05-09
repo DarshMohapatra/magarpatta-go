@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from '@/lib/session';
+import { getCustomerScope } from '@/lib/customer-scope';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
@@ -10,14 +9,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getServerSession();
-  if (!session) redirect('/signin');
+  const scope = await getCustomerScope();
+  if (!scope) redirect('/signin');
 
-  const user = await prisma.user.findUnique({ where: { phone: session.phone } });
-  if (!user) notFound();
-
-  const order = await prisma.order.findFirst({
-    where: { id, userId: user.id },
+  // Wrapper auto-narrows by userId — wrong-id requests come back as null and
+  // we 404, exactly the same as a non-existent order.
+  const order = await scope.db.order.findFirst({
+    where: { id },
     include: { items: true },
   });
   if (!order) notFound();

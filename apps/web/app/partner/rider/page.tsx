@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { PartnerNav } from '@/components/partner/partner-nav';
+import { siteConfig } from '@/lib/site-config';
 
 export const dynamic = 'force-static';
 
 const BENEFITS = [
   { title: '₹30 per drop · flat', body: 'No surge roulette. Every delivered order pays the same.' },
-  { title: 'Walk / cycle / scooter', body: 'All three work. Magarpatta is 400 acres. Nobody is going far.' },
+  { title: 'Walk / cycle / scooter', body: `All three work. ${siteConfig.siteName} is compact. Nobody is going far.` },
   { title: 'Peak 2 hours a day', body: 'Lunch + dinner push. Do a few drops between classes or errands.' },
   { title: 'Weekly payouts', body: 'Money in your bank every Monday. No waiting cycle, no deductions.' },
   { title: 'OTP-verified drop', body: 'Customer reads a 4-digit code. No disputes about "who got it".' },
@@ -15,7 +16,7 @@ const BENEFITS = [
 const STEPS = [
   { n: 1, title: 'Tell us who you are', body: 'Name, phone, DL / Aadhaar numbers, vehicle plate.' },
   { n: 2, title: 'Quick verification', body: 'Ops calls you; we check DL + RC in person. 15 minutes.' },
-  { n: 3, title: 'Onboarding kit', body: 'Magarpatta Go delivery bag + helmet sticker. Yours to keep.' },
+  { n: 3, title: 'Onboarding kit', body: `${siteConfig.platformName} delivery bag + helmet sticker. Yours to keep.` },
   { n: 4, title: 'First shift', body: 'Sign in at /rider, go on-duty, claim your first order.' },
 ];
 
@@ -35,7 +36,7 @@ export default function RiderLanding() {
               </h1>
               <p className="mt-6 text-[15px] sm:text-[16.5px] leading-[1.55] text-[color:var(--color-ink-soft)] max-w-[540px]">
                 No cross-city grind. Pick up from the hub, drop inside the gates. Flat ₹30 a drop and a proper
-                tip on top if the customer likes your vibe. Magarpatta Go riders are neighbours first.
+                tip on top if the customer likes your vibe. {siteConfig.platformName} riders are neighbours first.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="/rider/register" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] px-6 py-3.5 text-[14px] font-medium transition-colors">

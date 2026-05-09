@@ -8,7 +8,9 @@ export type OtpPurpose =
   | 'VENDOR_REGISTER'
   | 'RIDER_SIGNIN'
   | 'RIDER_REGISTER'
-  | 'ADMIN_SIGNIN';
+  | 'ADMIN_SIGNIN'
+  | 'CURATOR_SIGNIN'
+  | 'HELPDESK_SIGNIN';
 
 interface Props {
   purpose: OtpPurpose;
@@ -53,7 +55,7 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
       setResendAt(Date.now() + 30 * 1000);
       setMsg(
         j.demoOtp
-          ? `Demo phone detected — use code ${j.demoOtp} (no SMS sent).`
+          ? `Demo mode — use code ${j.demoOtp} (no SMS sent).`
           : j.smsSent
             ? 'Code sent via SMS. It expires in 5 minutes.'
             : 'Code generated. Check the Vercel server logs for it.',

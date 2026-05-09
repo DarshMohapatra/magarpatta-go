@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/admin-session';
 import { AdminShell } from '@/components/admin/admin-shell';
+import { siteConfig } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,10 +15,13 @@ export default async function AdminHome() {
   const admin = await getAdminSession();
   if (!admin) redirect('/admin/signin');
 
-  const [pendingVendors, pendingRiders, pendingCampaigns, activeOrders, todayOrders, todayDelivered, totalVendors, totalRiders, totalCustomers] = await Promise.all([
+  const [pendingVendors, pendingRiders, pendingCampaigns, pendingChanges, activeOrders, todayOrders, todayDelivered, totalVendors, totalRiders, totalCustomers] = await Promise.all([
     prisma.vendor.count({ where: { approvalStatus: 'PENDING' } }),
     prisma.riderProfile.count({ where: { approvalStatus: 'PENDING' } }),
-    prisma.campaign.count({ where: { approvalStatus: 'PENDING' } }),
+    // Removal requests count toward "awaiting review" too — admin needs to act on
+    // them (approve = delete, reject = keep running) so they belong in this badge.
+    prisma.campaign.count({ where: { OR: [{ approvalStatus: 'PENDING' }, { pendingRemoval: true }] } }),
+    prisma.pendingChange.count({ where: { status: 'PENDING' } }),
     prisma.order.count({ where: { status: { in: ['PLACED', 'ACCEPTED', 'PREPARING', 'PICKED_UP', 'OUT_FOR_DELIVERY'] } } }),
     prisma.order.count({ where: { placedAt: { gte: startOfDay() } } }),
     prisma.order.findMany({
@@ -36,7 +40,7 @@ export default async function AdminHome() {
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Ops overview</div>
         <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Magarpatta Go, <span className="italic text-[color:var(--color-forest)]">under your watch.</span>
+          {siteConfig.platformName}, <span className="italic text-[color:var(--color-forest)]">under your watch.</span>
         </h1>
       </div>
 
@@ -47,13 +51,14 @@ export default async function AdminHome() {
         <Stat label="Today's GMV" value={`₹${todayGMV.toLocaleString('en-IN')}`} note={`${todayDelivered.length} delivered / ${todayOrders} placed`} href="/admin/finance" />
       </div>
 
-      <div className="mt-6 grid md:grid-cols-3 lg:grid-cols-3 gap-4">
+      <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-2 gap-4">
         <Stat label="Campaigns awaiting review" value={String(pendingCampaigns)} accent={pendingCampaigns > 0 ? 'saffron' : undefined} href="/admin/campaigns" />
-        <MiniStat label="Approved vendors" value={String(totalVendors)} href="/admin/vendors?status=APPROVED" />
-        <MiniStat label="Approved riders" value={String(totalRiders)} href="/admin/riders?status=APPROVED" />
+        <Stat label="Menu / vendor edits awaiting" value={String(pendingChanges)} note="Curator-forwarded items + vendor edits" accent={pendingChanges > 0 ? 'saffron' : undefined} href="/admin/changes" />
       </div>
 
-      <div className="mt-3 grid md:grid-cols-2 gap-4">
+      <div className="mt-3 grid md:grid-cols-3 gap-4">
+        <MiniStat label="Approved vendors" value={String(totalVendors)} href="/admin/vendors?status=APPROVED" />
+        <MiniStat label="Approved riders" value={String(totalRiders)} href="/admin/riders?status=APPROVED" />
         <MiniStat label="Customers" value={String(totalCustomers)} href="/admin/customers" />
       </div>
 
@@ -63,6 +68,7 @@ export default async function AdminHome() {
           <Tile href="/admin/vendors?status=PENDING" title="Review vendor applications" body="Approve or reject new shops waiting to go live." />
           <Tile href="/admin/riders?status=PENDING" title="Review rider applications" body="Verify DL, Aadhaar, vehicle RC before approval." />
           <Tile href="/admin/campaigns" title="Pending campaigns" body="Flash sales, festival pushes, late-night deals." />
+          <Tile href="/admin/changes" title="Pending menu approvals" body="Curator-forwarded menu imports and vendor edits." />
           <Tile href="/admin/orders" title="Live orders board" body="Reassign riders, cancel with refund note." />
         </div>
       </div>

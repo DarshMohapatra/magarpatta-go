@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Instrument_Serif } from 'next/font/google';
+import { siteConfig } from '@/lib/site-config';
 import './globals.css';
 
 const inter = Inter({
@@ -17,13 +18,12 @@ const instrument = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: 'Magarpatta Go — Daily delights, delivered within your township',
-  description:
-    'Food, groceries, medicines and more — sourced and delivered within Magarpatta City, Pune. Under 25 minutes. By neighbours, for neighbours.',
+  title: `${siteConfig.platformName} — Daily delights, delivered within your township`,
+  description: `Food, groceries, medicines and more — sourced and delivered within ${siteConfig.siteName}, ${siteConfig.city}. Under 25 minutes. By neighbours, for neighbours.`,
   metadataBase: new URL('https://magarpatta-go.vercel.app'),
   openGraph: {
-    title: 'Magarpatta Go',
-    description: 'Hyper-local delivery, only inside Magarpatta City.',
+    title: siteConfig.platformName,
+    description: `Hyper-local delivery, only inside ${siteConfig.siteName}.`,
     type: 'website',
   },
   icons: {

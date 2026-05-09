@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PartnerNav } from '@/components/partner/partner-nav';
+import { siteConfig } from '@/lib/site-config';
 
 export const dynamic = 'force-static';
 
@@ -8,7 +9,7 @@ const BENEFITS = [
   { title: 'Daily settlement', body: 'Money in your bank by the next morning. UPI option for instant.' },
   { title: 'Run your kitchen', body: 'Accept, prep, mark ready — the queue respects your prep-time ETA.' },
   { title: 'Your delivery, your choice', body: 'Toggle self-delivery and keep the customer relationship directly.' },
-  { title: 'Township-only reach', body: 'We never deliver outside Magarpatta. The customer is your neighbour.' },
+  { title: 'Township-only reach', body: `We never deliver outside ${siteConfig.siteName}. The customer is your neighbour.` },
   { title: 'MRP-compliant by design', body: 'Regulated goods list at MRP. No Legal Metrology surprises.' },
 ];
 
@@ -28,10 +29,10 @@ export default function VendorLanding() {
         <div className="mx-auto max-w-[1180px] px-4 sm:px-6">
           <div className="grid lg:grid-cols-[1.15fr_1fr] gap-14 items-center">
             <div>
-              <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">For Magarpatta shops</div>
+              <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">For {siteConfig.siteName} shops</div>
               <h1 className="mt-4 font-serif text-[44px] sm:text-[58px] lg:text-[72px] leading-[0.98] tracking-[-0.02em]">
                 Put your counter on{' '}
-                <span className="italic text-[color:var(--color-forest)]">Magarpatta Go.</span>
+                <span className="italic text-[color:var(--color-forest)]">{siteConfig.platformName}.</span>
               </h1>
               <p className="mt-6 text-[15px] sm:text-[16.5px] leading-[1.55] text-[color:var(--color-ink-soft)] max-w-[540px]">
                 Thirty-five thousand neighbours inside the gates. One app. Zero cross-city noise. Keep your

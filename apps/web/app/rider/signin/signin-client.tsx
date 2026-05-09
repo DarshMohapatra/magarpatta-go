@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OtpFlow } from '@/components/otp-flow';
 import { RIDERS } from '@/lib/riders';
+import { siteConfig } from '@/lib/site-config';
 
 export function RiderSignInClient() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function RiderSignInClient() {
         <div className="inline-flex items-center gap-2.5 mb-6">
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
           <span className="text-[15px] tracking-tight font-medium">
-            Magarpatta <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+            {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
             <span className="ml-2 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
           </span>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { siteConfig } from '@/lib/site-config';
 
 export function WaitlistCta() {
   const [phone, setPhone] = useState('');
@@ -115,7 +116,7 @@ export function WaitlistCta() {
             )}
 
             <p className="mt-6 text-[12px] text-[color:var(--color-ink-soft)]/70 max-w-xl">
-              We only text about Magarpatta Go. No promotional blasts. DLT-compliant sender ID
+              We only text about {siteConfig.platformName}. No promotional blasts. DLT-compliant sender ID
               registered with TRAI.
             </p>
           </div>

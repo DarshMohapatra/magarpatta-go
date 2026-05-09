@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { RiderSession } from '@/lib/rider-session';
+import { siteConfig } from '@/lib/site-config';
+import { LocationTracker } from '@/components/rider/location-tracker';
 
 interface OrderData {
   id: string;
@@ -74,6 +76,7 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
 
   return (
     <main className="min-h-screen">
+      <LocationTracker orderId={order.id} />
       <header className="border-b border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]">
         <div className="mx-auto max-w-[720px] px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link href="/rider" className="text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">
@@ -99,7 +102,7 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
         <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-5">
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-forest)]">Drop at</div>
           <div className="mt-1 font-serif text-[24px] leading-tight">Flat {order.flat}, {order.building}</div>
-          <div className="text-[13px] text-[color:var(--color-ink-soft)]">{order.society} · Magarpatta City</div>
+          <div className="text-[13px] text-[color:var(--color-ink-soft)]">{order.society} · {siteConfig.siteName}</div>
           {order.notes && (
             <div className="mt-3 rounded-lg bg-[color:var(--color-cream)] p-3">
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Customer note</div>
