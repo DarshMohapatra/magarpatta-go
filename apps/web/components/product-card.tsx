@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart, type CartProduct } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
 import { VendorSwitchDialog } from './vendor-switch-dialog';
@@ -24,6 +25,8 @@ export interface ProductCardData {
   originalMrpInr?: number | null;
   /** Active campaign discount percentage; 0 if none. */
   discountPct?: number;
+  /** Active campaign flat discount in ₹; null if none. */
+  discountFlatInr?: number | null;
   /** Active campaign title — shown in the cart as a coupon-style line. */
   campaignTitle?: string | null;
   /** Active campaign type (e.g. WEEKEND, FLASH_SALE) — used for the cart label. */
@@ -37,7 +40,20 @@ const ACCENT_BG: Record<string, string> = {
   sage: 'bg-[color:var(--color-sage)]/12',
 };
 
-export function ProductCard({ product }: { product: ProductCardData }) {
+export function ProductCard({
+  product,
+  viewShopOnAdd = false,
+}: {
+  product: ProductCardData;
+  /**
+   * When true (search/menu page), tapping the card body navigates to the
+   * vendor's shop page with this item highlighted, and "Add" both adds the
+   * item to the cart AND navigates to the shop so the user can keep ordering
+   * other things from the same vendor.
+   */
+  viewShopOnAdd?: boolean;
+}) {
+  const router = useRouter();
   const item = useCart((s) => s.items.find((i) => i.id === product.id));
   const add = useCart((s) => s.add);
   const replaceCartWith = useCart((s) => s.replaceCartWith);
@@ -64,20 +80,50 @@ export function ProductCard({ product }: { product: ProductCardData }) {
     campaignType: product.campaignType ?? null,
   };
 
+  function gotoShop() {
+    router.push(`/restaurants/${product.vendor.slug}?highlight=${product.id}`);
+  }
+
   function handleAdd() {
     const result = add(cartProduct);
-    if (!result.ok) setConflict(result.conflict);
+    if (!result.ok) {
+      setConflict(result.conflict);
+      return;
+    }
+    if (viewShopOnAdd) gotoShop();
+  }
+
+  // Card-body click in search context: navigate to the shop with this item
+  // pre-highlighted, without adding. Lets users browse the rest of the menu
+  // before committing. Action buttons (Add / +/-) stop propagation themselves.
+  function handleCardClick(e: React.MouseEvent<HTMLElement>) {
+    if (!viewShopOnAdd) return;
+    if ((e.target as HTMLElement).closest('button')) return;
+    gotoShop();
   }
 
   const showImage = product.imageUrl && !imgError;
-  const onSale = (product.discountPct ?? 0) > 0 && product.originalMrpInr != null;
+  const hasPctDiscount = (product.discountPct ?? 0) > 0;
+  const hasFlatDiscount = (product.discountFlatInr ?? 0) > 0;
+  const onSale = (hasPctDiscount || hasFlatDiscount) && product.originalMrpInr != null;
+  const saleBadge = hasPctDiscount
+    ? `${product.discountPct}% off`
+    : hasFlatDiscount
+      ? `₹${product.discountFlatInr} off`
+      : null;
   // Always show MRP to customer; markup surfaces only as convenience fee at checkout.
   // When a campaign discount is live, the MRP shown is already discounted,
   // and the original MRP is rendered crossed-out alongside.
   const displayPrice = product.mrpInr ?? product.priceInr;
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]">
+    <article
+      onClick={handleCardClick}
+      className={cn(
+        'group relative overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
+        viewShopOnAdd && 'cursor-pointer',
+      )}
+    >
       <div
         className={cn(
           'relative h-44 border-b border-[color:var(--color-ink)]/8 flex items-center justify-center overflow-hidden',
@@ -123,9 +169,9 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           )}
         </div>
 
-        {onSale && (
+        {onSale && saleBadge && (
           <span className="absolute top-2.5 right-2.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.12em] font-medium shadow-[0_4px_14px_-6px_rgba(15,15,14,0.4)]">
-            {product.discountPct}% off
+            {saleBadge}
           </span>
         )}
       </div>
@@ -138,6 +184,14 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           {product.vendor.name}
           {product.unit && <span> · {product.unit}</span>}
         </p>
+        {viewShopOnAdd && (
+          <p className="mt-1 text-[11px] text-[color:var(--color-forest)]/85 inline-flex items-center gap-1">
+            View shop & more items
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+              <path d="M2 5h6m0 0L5 2m3 3L5 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </p>
+        )}
 
         <div className="mt-3 flex items-end justify-between gap-3">
           <div className="flex items-baseline gap-2">
@@ -193,6 +247,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           onConfirm={() => {
             replaceCartWith(cartProduct);
             setConflict(null);
+            if (viewShopOnAdd) gotoShop();
           }}
         />
       )}

@@ -5,6 +5,7 @@ import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { ProductCard, type ProductCardData } from '@/components/product-card';
+import { HighlightOnMount } from '@/components/highlight-on-mount';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getVendorBySlug, getVendorProducts } from '@/lib/menu-cache';
 
@@ -91,6 +92,10 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
         <VendorMenu vendorId={vendor.id} vendorAccent={vendor.accent} />
       </Suspense>
 
+      <Suspense fallback={null}>
+        <HighlightOnMount />
+      </Suspense>
+
       <Footer />
       <CartDrawer />
     </main>
@@ -162,7 +167,11 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
                     imageUrl: p.imageUrl,
                     vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
                   };
-                  return <ProductCard key={p.id} product={data} />;
+                  return (
+                    <div key={p.id} id={`product-${p.id}`} className="rounded-2xl scroll-mt-32">
+                      <ProductCard product={data} />
+                    </div>
+                  );
                 })}
               </div>
             </section>
