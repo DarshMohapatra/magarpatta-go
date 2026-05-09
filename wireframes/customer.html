@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magarpatta Go — Customer Mobile Wireframe</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: {
+        ink: '#14110c', 'ink-soft': '#3a3530',
+        paper: '#fffdf7', cream: '#f7efe1', 'cream-soft': '#eee3ce', bone: '#e1d4bc',
+        forest: '#0d4a2e', 'forest-dark': '#06311c', moss: '#2d6b48', sage: '#5a7a63',
+        saffron: '#e68a17', 'saffron-soft': '#f4b564', gold: '#c79321', 'gold-soft': '#e6c15d',
+        terracotta: '#c64f2e', 'terracotta-dark': '#962f15',
+      },
+      fontFamily: { sans: ['Inter','sans-serif'], serif: ['Instrument Serif','serif'] },
+    }}
+  }
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100vh; overflow: hidden; }
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e1d4bc 0%, #f7efe1 100%); color: #14110c; padding: 12px; }
+  .phone-shell { height: min(862px, calc(100vh - 24px)); width: calc(min(862px, calc(100vh - 24px)) * 408 / 862); background: #14110c; border-radius: 54px; padding: 9px; box-shadow: 0 30px 80px rgba(20,17,12,0.25), 0 0 0 1px rgba(20,17,12,0.6); position: relative; flex-shrink: 0; }
+  .phone-frame { width: 100%; height: 100%; background: #f7efe1; border-radius: 46px; overflow: hidden; position: relative; contain: paint; isolation: isolate; }
+  .status-bar { position: absolute; top:0; left:0; right:0; height: 44px; padding: 14px 28px 0; display:flex; align-items: flex-start; justify-content: space-between; font-size: 14px; font-weight: 600; color: #14110c; z-index: 200; pointer-events: none; }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 110px; height: 28px; background: #14110c; border-radius: 20px; z-index: 201; }
+  .screen { position: absolute; inset: 0; padding-top: 44px; padding-bottom: 12px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: #f7efe1; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+  .screen.active { opacity: 1; pointer-events: auto; z-index: 10; }
+  .screen::-webkit-scrollbar { width: 0; height: 0; }
+  .pulse-ring { position: relative; display: inline-block; }
+  .pulse-ring::after { content:''; position:absolute; inset:0; border-radius: 9999px; background: currentColor; animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; pointer-events: none; }
+  @keyframes pulse-ring { 0% { transform: scale(0.9); opacity: 0.9; } 80%, 100% { transform: scale(2.4); opacity: 0; } }
+  .drawer-overlay { position:absolute; inset:0; background: rgba(20,17,12,0.55); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 220; }
+  .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+  .drawer { position:absolute; bottom: 0; left:0; right:0; background: #f7efe1; border-top-left-radius: 28px; border-top-right-radius: 28px; max-height: calc(100% - 8px); transform: translateY(101%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); overflow-y: auto; overscroll-behavior: contain; z-index: 230; box-shadow: 0 -10px 40px rgba(20,17,12,0.2); }
+  .drawer.active { transform: translateY(0); }
+  .drawer::-webkit-scrollbar { width: 0; }
+  .home-indicator { position: absolute; bottom: 6px; left:50%; transform: translateX(-50%); width: 110px; height: 4px; background: rgba(20,17,12,0.85); border-radius: 999px; z-index: 90; pointer-events: none; }
+  .nav-shell { position: fixed; top: 32px; left: 32px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+  .nav-pill { background: #14110c; color: #f7efe1; padding: 10px 18px; border-radius: 999px; font-size: 12px; display: flex; gap: 10px; align-items: center; }
+  .nav-pill button { background: rgba(247,239,225,0.14); padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: background 0.15s; font-size: 12px; }
+  .nav-pill button:hover { background: rgba(247,239,225,0.28); }
+  .nav-info { background: #fffdf7; padding: 10px 16px; border-radius: 14px; font-size: 11.5px; color: #14110c; box-shadow: 0 4px 12px rgba(20,17,12,0.08); max-width: 230px; line-height: 1.5; }
+  .nav-info b { font-weight: 600; }
+  .legend { position: fixed; bottom: 32px; left: 32px; background: #fffdf7; padding: 12px 16px; border-radius: 14px; font-size: 11px; color: #3a3530; max-width: 220px; line-height: 1.6; box-shadow: 0 4px 12px rgba(20,17,12,0.08); z-index: 1000; }
+  .legend h4 { font-weight: 600; color: #14110c; margin-bottom: 4px; font-size: 11px; }
+  .legend kbd { background: #f7efe1; padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 10px; }
+  /* Veg/Non-veg indicator */
+  .veg-dot { width: 11px; height: 11px; border: 1.5px solid; border-radius: 2px; display: inline-flex; align-items:center; justify-content:center; }
+  .veg-dot::after { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+  .veg-dot.veg { border-color: #0d4a2e; } .veg-dot.veg::after { background: #0d4a2e; }
+  .veg-dot.nonveg { border-color: #c64f2e; } .veg-dot.nonveg::after { background: #c64f2e; }
+  /* Subtle hairline */
+  .hairline { background: linear-gradient(90deg, transparent, rgba(20,17,12,0.16), transparent); height: 1px; width: 100%; }
+  /* Hero ornament gradient */
+  .hero-grad { background: radial-gradient(700px 400px at 80% -10%, rgba(229,144,36,0.16), transparent 60%), radial-gradient(500px 350px at -10% 10%, rgba(15,81,50,0.13), transparent 60%); }
+  .step-dot { width: 22px; height: 22px; border-radius: 999px; background: #eee3ce; color: #3a3530; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .step-dot.active { background: #0d4a2e; color: #f7efe1; }
+  .step-dot.done { background: #0d4a2e; color: #f7efe1; }
+  .step-line { flex: 1; height: 1px; background: #eee3ce; margin: 0 6px; }
+  .step-line.done { background: #0d4a2e; }
+  /* Status pill */
+  .status { padding: 3px 9px; border-radius: 999px; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; }
+  .status.placed { background: rgba(229,144,36,0.14); color: #c79321; }
+  .status.confirmed { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.preparing { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.out { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.delivered { background: rgba(20,17,12,0.08); color: #3a3530; }
+</style>
+</head>
+<body class="flex items-center justify-center">
+
+<!-- Phone -->
+<div class="phone-shell">
+<div class="phone-frame">
+<div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+<div class="notch"></div>
+
+<!-- ============================================ -->
+<!-- 1. LANDING (/) — pre-auth -->
+<!-- ============================================ -->
+<div id="landing" class="screen active hero-grad" data-label="/ landing">
+  <div class="px-6 pt-6 pb-8">
+    <div class="flex items-center justify-between mb-12">
+      <div class="flex items-center gap-2">
+        <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+        <span class="text-[14px] tracking-tight">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      </div>
+      <button onclick="navigate('signin')" class="text-[12px] text-ink-soft underline-offset-2 hover:underline">Sign in</button>
+    </div>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-saffron"></span>
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft">Magarpatta City · Pune · est. 2026</span>
+    </div>
+
+    <h1 class="font-serif text-[56px] leading-[1.02] tracking-tight mb-6">
+      A shop that<br>
+      <span class="italic">delivers.</span> Nothing<br>more.
+    </h1>
+
+    <p class="text-[14px] leading-[1.65] text-ink-soft mb-8 max-w-[320px]">
+      Food, groceries, medicines, fresh meat — sourced only from within Magarpatta City and delivered in under twenty-five minutes. By neighbours, for neighbours.
+    </p>
+
+    <div class="flex flex-col gap-3 mb-10">
+      <button onclick="navigate('menu')" class="bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight hover:bg-forest-dark transition-colors">Browse the menu</button>
+      <button onclick="navigate('signup-1')" class="border border-ink/14 text-ink py-3.5 rounded-full text-[14px] font-medium tracking-tight hover:bg-paper transition-colors">Create an account</button>
+      <button onclick="navigate('home')" class="text-[12.5px] text-ink-soft hover:text-ink mt-1">Or see how it works →</button>
+    </div>
+
+    <div class="hairline mb-6"></div>
+    <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+      <div><div class="font-serif text-[24px] text-forest leading-none">16</div><div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mt-1.5">societies mapped</div></div>
+      <div><div class="font-serif text-[24px] text-forest leading-none">25 min</div><div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mt-1.5">median delivery</div></div>
+      <div><div class="font-serif text-[24px] text-forest leading-none">9</div><div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mt-1.5">partner shops</div></div>
+      <div><div class="font-serif text-[24px] text-forest leading-none">240+</div><div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mt-1.5">items live</div></div>
+    </div>
+
+    <div class="hairline mt-8 mb-5"></div>
+    <div class="flex flex-wrap gap-x-5 gap-y-2 text-[11.5px] text-ink-soft">
+      <button onclick="navigate('menu')" class="hover:text-ink">Menu</button>
+      <button onclick="navigate('home')" class="hover:text-ink">How it works</button>
+      <button onclick="navigate('signin')" class="hover:text-ink">Sign in</button>
+      <button onclick="navigate('signup-1')" class="hover:text-ink">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. SIGN IN (/signin) -->
+<!-- ============================================ -->
+<div id="signin" class="screen" data-label="/signin">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('landing')" class="text-[12px] text-ink-soft mb-10 hover:text-ink">← Back</button>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-saffron"></span>
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft">Sign in · Magarpatta City only</span>
+    </div>
+
+    <h1 class="font-serif text-[40px] leading-[1.05] tracking-tight mb-4">
+      Welcome back,<br><span class="italic text-saffron-soft">neighbour.</span>
+    </h1>
+    <p class="text-[13px] leading-[1.6] text-ink-soft mb-10">Enter your phone number. We'll send a 6-digit code via SMS. That's it — no passwords, no forgotten emails.</p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Phone number</label>
+    <div class="flex items-center bg-paper border border-ink/14 rounded-2xl overflow-hidden mb-6">
+      <span class="pl-4 pr-3 py-3.5 text-[15px] text-ink-soft border-r border-ink/10">+91</span>
+      <input id="signinPhone" inputmode="numeric" maxlength="10" placeholder="98765 43210" class="flex-1 py-3.5 pr-4 bg-transparent outline-none text-[15px] tracking-wide" oninput="signinValidate()">
+      <span id="signinTick" class="pr-4 text-forest opacity-0 transition-opacity">✓</span>
+    </div>
+
+    <button id="signinSendBtn" onclick="navigate('signin-otp'); startOtpAnimation('signin')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight opacity-50 transition-opacity disabled:cursor-not-allowed">Send OTP</button>
+
+    <p class="text-[11px] text-ink-soft text-center mt-6 leading-relaxed">
+      By continuing you accept our terms.<br>We only text about Magarpatta Go.
+    </p>
+
+    <div class="hairline my-7"></div>
+    <p class="text-center text-[12.5px] text-ink-soft">
+      New here? <button onclick="navigate('signup-1')" class="text-forest underline underline-offset-2 hover:text-forest-dark">Create account →</button>
+    </p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3. SIGN IN OTP (/signin/verify) -->
+<!-- ============================================ -->
+<div id="signin-otp" class="screen" data-label="/signin/verify">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signin')" class="text-[12px] text-ink-soft mb-10 hover:text-ink">← Change number</button>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-saffron"></span>
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft">Verify phone</span>
+    </div>
+
+    <h1 class="font-serif text-[40px] leading-[1.05] tracking-tight mb-4">
+      One <span class="italic">6-digit</span> code.
+    </h1>
+    <p class="text-[13px] leading-[1.6] text-ink-soft mb-2">Sent to <b class="text-ink">+91 <span id="signinPhoneDisplay">98765 43210</span></b> · <button onclick="navigate('signin')" class="underline">change</button></p>
+    <p class="text-[11.5px] text-saffron mb-10">Demo mode — use code <b>123456</b></p>
+
+    <div class="grid grid-cols-6 gap-2.5 mb-8">
+      <div id="signin-otp-1" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-2" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-3" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-4" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-5" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-6" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+    </div>
+
+    <div class="text-center text-[12px] text-ink-soft mb-8">
+      <span id="signinResendCounter">Resend code in <b>30s</b></span>
+    </div>
+
+    <p class="text-center text-[11px] text-ink-soft mt-12">Auto-advances when all 6 digits filled.</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4. SIGN UP STEP 0 — IDENTITY (/signup) -->
+<!-- ============================================ -->
+<div id="signup-1" class="screen" data-label="/signup · you">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('landing')" class="text-[12px] text-ink-soft mb-8 hover:text-ink">← Back</button>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-saffron"></span>
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft">Create your account · Magarpatta City only</span>
+    </div>
+
+    <h1 class="font-serif text-[40px] leading-[1.05] tracking-tight mb-3">
+      Let's get you <span class="italic text-saffron-soft">sorted.</span>
+    </h1>
+    <p class="text-[13px] leading-[1.6] text-ink-soft mb-8">Three quick steps — your name, your phone, your flat. We'll text you a one-time code, then you're in.</p>
+
+    <div class="flex items-center mb-9">
+      <span class="step-dot active">1</span><span class="step-line"></span>
+      <span class="step-dot">2</span><span class="step-line"></span>
+      <span class="step-dot">3</span>
+    </div>
+    <div class="flex justify-between text-[10.5px] uppercase tracking-[0.14em] text-ink-soft -mt-7 mb-9 px-1">
+      <span class="text-forest font-medium">You</span><span>Verify</span><span>Address</span>
+    </div>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Your name</label>
+    <input placeholder="Priya Rao" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3.5 mb-5 text-[15px] outline-none focus:border-forest">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Phone</label>
+    <div class="flex items-center bg-paper border border-ink/14 rounded-2xl overflow-hidden mb-7">
+      <span class="pl-4 pr-3 py-3.5 text-[15px] text-ink-soft border-r border-ink/10">+91</span>
+      <input inputmode="numeric" maxlength="10" placeholder="98765 43210" class="flex-1 py-3.5 pr-4 bg-transparent outline-none text-[15px] tracking-wide">
+    </div>
+
+    <button onclick="navigate('signup-2'); startOtpAnimation('signup')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight hover:bg-forest-dark transition-colors mb-4">Send OTP</button>
+    <p class="text-center text-[12px] text-ink-soft">Already have an account? <button onclick="navigate('signin')" class="text-forest underline underline-offset-2">Sign in instead</button></p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 5. SIGN UP STEP 1 — OTP -->
+<!-- ============================================ -->
+<div id="signup-2" class="screen" data-label="/signup · verify">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signup-1')" class="text-[12px] text-ink-soft mb-8 hover:text-ink">← Back</button>
+
+    <div class="flex items-center mb-9">
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot active">2</span><span class="step-line"></span>
+      <span class="step-dot">3</span>
+    </div>
+    <div class="flex justify-between text-[10.5px] uppercase tracking-[0.14em] text-ink-soft -mt-7 mb-9 px-1">
+      <span class="text-ink-soft">You</span><span class="text-forest font-medium">Verify</span><span>Address</span>
+    </div>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-5">
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft">Verify phone</span>
+    </div>
+    <h1 class="font-serif text-[34px] leading-[1.08] tracking-tight mb-3">
+      Code sent to <span class="italic">+91 98765 43210.</span>
+    </h1>
+    <p class="text-[12px] text-saffron mb-8">Demo mode — use code <b>123456</b></p>
+
+    <div class="grid grid-cols-6 gap-2.5 mb-6">
+      <div id="signup-otp-1" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[26px] flex items-center justify-center"></div>
+      <div id="signup-otp-2" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[26px] flex items-center justify-center"></div>
+      <div id="signup-otp-3" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[26px] flex items-center justify-center"></div>
+      <div id="signup-otp-4" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[26px] flex items-center justify-center"></div>
+      <div id="signup-otp-5" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[26px] flex items-center justify-center"></div>
+      <div id="signup-otp-6" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[26px] flex items-center justify-center"></div>
+    </div>
+    <p class="text-center text-[12px] text-ink-soft mb-8"><span>Resend code in <b>30s</b></span></p>
+    <button onclick="navigate('signup-3')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight hover:bg-forest-dark transition-colors">Continue →</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 6. SIGN UP STEP 2 — ADDRESS -->
+<!-- ============================================ -->
+<div id="signup-3" class="screen" data-label="/signup · address">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signup-2')" class="text-[12px] text-ink-soft mb-8 hover:text-ink">← Back</button>
+
+    <div class="flex items-center mb-9">
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot active">3</span>
+    </div>
+    <div class="flex justify-between text-[10.5px] uppercase tracking-[0.14em] text-ink-soft -mt-7 mb-9 px-1">
+      <span class="text-ink-soft">You</span><span class="text-ink-soft">Verify</span><span class="text-forest font-medium">Address</span>
+    </div>
+
+    <h1 class="font-serif text-[32px] leading-[1.1] tracking-tight mb-3">
+      Nice to meet you, <span class="italic text-saffron-soft">Priya.</span><br>
+      Where should we deliver?
+    </h1>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2 mt-7">Society</label>
+    <select class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3.5 text-[14px] outline-none mb-5">
+      <option>Pristine Pune Magarpatta</option>
+      <option>Cosmos · Magarpatta</option>
+      <option>Aristo · Magarpatta</option>
+      <option>Daffodils · Magarpatta</option>
+      <option>Nirvana · Magarpatta</option>
+    </select>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Building</label>
+    <select class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3.5 text-[14px] outline-none mb-5">
+      <option>Lily · Tower 3</option>
+      <option>Rose · Tower 5</option>
+      <option>Tulip · Tower 7</option>
+    </select>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Flat number</label>
+    <input maxlength="4" placeholder="305" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3.5 text-[15px] outline-none mb-3 focus:border-forest">
+    <p class="text-[11.5px] text-forest mb-9">✓ Floor 3, unit 05 · valid.</p>
+
+    <button onclick="navigate('home')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight hover:bg-forest-dark transition-colors">Finish signup</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 7. HOME (/home) -->
+<!-- ============================================ -->
+<div id="home" class="screen hero-grad" data-label="/home">
+  <!-- mobile navbar -->
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30 -mt-px">
+    <button onclick="navigate('landing')" class="flex items-center gap-2">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[14px] tracking-tight">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+    </button>
+    <div class="flex items-center gap-2">
+      <button onclick="openCart()" class="relative p-2 rounded-full bg-paper border border-ink/8">
+        <span class="text-[14px]">🛒</span>
+        <span id="cartBadge" class="absolute -top-1 -right-1 bg-saffron text-paper text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-medium hidden">0</span>
+      </button>
+      <button onclick="navigate('account')" class="p-2 rounded-full bg-paper border border-ink/8 text-[14px]">☰</button>
+    </div>
+  </div>
+
+  <div class="px-5 pt-4 pb-6">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-5">
+      <span class="w-1.5 h-1.5 rounded-full bg-saffron"></span>
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft">Magarpatta City · Pune</span>
+    </div>
+
+    <h1 class="font-serif text-[36px] leading-[1.05] tracking-tight mb-4">
+      Daily delights,<br>
+      <span class="italic">delivered within</span><br>
+      your township.
+    </h1>
+    <p class="text-[13px] leading-[1.6] text-ink-soft mb-6">Food, groceries, medicines, fresh meat — sourced only from within Magarpatta City. <b class="text-ink">16 societies. 180+ buildings. Zero borders crossed.</b></p>
+
+    <div class="flex flex-col gap-2.5 mb-9">
+      <button onclick="navigate('menu')" class="bg-forest text-cream py-3 rounded-full text-[14px] font-medium tracking-tight">Browse the menu</button>
+      <button onclick="navigate('restaurants')" class="border border-ink/14 text-ink py-3 rounded-full text-[14px] font-medium tracking-tight">All restaurants & shops</button>
+    </div>
+
+    <!-- How It Works -->
+    <div class="mb-8">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">How it works</div>
+      <h2 class="font-serif text-[26px] leading-[1.1] tracking-tight mb-5">Three steps. <span class="italic">Nothing more.</span></h2>
+
+      <div class="space-y-3">
+        <div class="bg-paper rounded-2xl p-4 border border-ink/6">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-1.5">Step 1</div>
+          <h3 class="font-serif text-[18px] mb-2">Pick your tower</h3>
+          <p class="text-[12px] leading-[1.55] text-ink-soft">Select from our curated list of 180+ Magarpatta City towers. If you're outside the gates, we'll respectfully ask you to wait — we're not a generalist, we're your neighbour.</p>
+        </div>
+        <div class="bg-paper rounded-2xl p-4 border border-ink/6">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-1.5">Step 2</div>
+          <h3 class="font-serif text-[18px] mb-2">Browse hyper-local</h3>
+          <p class="text-[12px] leading-[1.55] text-ink-soft">Only products genuinely stocked at Destination Centre, Seasons Mall or Kalika Sweets right now. Live inventory, not a stale catalogue.</p>
+        </div>
+        <div class="bg-paper rounded-2xl p-4 border border-ink/6">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-1.5">Step 3</div>
+          <h3 class="font-serif text-[18px] mb-2">Delivered in 25 min</h3>
+          <p class="text-[12px] leading-[1.55] text-ink-soft">One of our four riders — your actual neighbour — picks up, brings it up the lift, hands it over. OTP + photo proof. Done.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="mb-8">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">Browse by category</div>
+      <h2 class="font-serif text-[24px] leading-[1.1] tracking-tight mb-4">What's <span class="italic">on tonight?</span></h2>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="navigate('menu')" class="bg-paper rounded-2xl p-4 border border-ink/6 text-left">
+          <div class="text-[28px] mb-2">🍽</div>
+          <div class="font-serif text-[16px]">Hot food</div>
+          <div class="text-[11px] text-ink-soft">42 items</div>
+        </button>
+        <button onclick="navigate('menu')" class="bg-paper rounded-2xl p-4 border border-ink/6 text-left">
+          <div class="text-[28px] mb-2">🥦</div>
+          <div class="font-serif text-[16px]">Groceries</div>
+          <div class="text-[11px] text-ink-soft">98 items</div>
+        </button>
+        <button onclick="navigate('menu')" class="bg-paper rounded-2xl p-4 border border-ink/6 text-left">
+          <div class="text-[28px] mb-2">🥩</div>
+          <div class="font-serif text-[16px]">Fresh meat</div>
+          <div class="text-[11px] text-ink-soft">14 cuts</div>
+        </button>
+        <button onclick="navigate('menu')" class="bg-paper rounded-2xl p-4 border border-ink/6 text-left">
+          <div class="text-[28px] mb-2">💊</div>
+          <div class="font-serif text-[16px]">Medicines</div>
+          <div class="text-[11px] text-ink-soft">on demand</div>
+        </button>
+        <button onclick="navigate('menu')" class="bg-paper rounded-2xl p-4 border border-ink/6 text-left">
+          <div class="text-[28px] mb-2">🍰</div>
+          <div class="font-serif text-[16px]">Sweets</div>
+          <div class="text-[11px] text-ink-soft">22 items</div>
+        </button>
+        <button onclick="navigate('menu')" class="bg-paper rounded-2xl p-4 border border-ink/6 text-left">
+          <div class="text-[28px] mb-2">☕</div>
+          <div class="font-serif text-[16px]">Café</div>
+          <div class="text-[11px] text-ink-soft">31 items</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Why Magarpatta -->
+    <div class="bg-forest text-cream rounded-3xl p-6 mb-6">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron-soft mb-2">Why Magarpatta Go</div>
+      <h2 class="font-serif text-[24px] leading-[1.1] mb-4">Made by people who <span class="italic">live here.</span></h2>
+      <ul class="space-y-2.5 text-[12.5px] leading-[1.55] text-cream/85">
+        <li>· Geofenced strictly to Magarpatta City. We won't deliver outside.</li>
+        <li>· Riders are trained, vetted, and known by name at the front gate.</li>
+        <li>· OTP + photo proof at every drop. No "left at door" guesswork.</li>
+        <li>· Cash, UPI, card. Pay how you want.</li>
+      </ul>
+    </div>
+
+    <div class="hairline mb-4"></div>
+    <div class="text-center text-[11px] text-ink-soft">
+      Magarpatta <span class="font-serif italic">Go</span> · © 2026 · Made in Magarpatta City
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 8. MENU (/menu) -->
+<!-- ============================================ -->
+<div id="menu" class="screen" data-label="/menu">
+  <!-- navbar -->
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="goBack()" class="flex items-center gap-2 text-[12.5px]"><span>←</span><span>Menu</span></button>
+    <button onclick="openCart()" class="relative p-2 rounded-full bg-paper border border-ink/8">
+      <span class="text-[14px]">🛒</span>
+      <span id="cartBadge2" class="absolute -top-1 -right-1 bg-saffron text-paper text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-medium hidden">0</span>
+    </button>
+  </div>
+
+  <div class="px-5 pt-1 pb-6">
+    <!-- search + filter -->
+    <div class="flex items-center bg-paper border border-ink/14 rounded-full px-4 py-2.5 mb-4">
+      <span class="text-[14px] mr-2">⌕</span>
+      <input placeholder="Search across all shops" class="flex-1 bg-transparent outline-none text-[13px]">
+    </div>
+
+    <!-- category chips -->
+    <div class="flex gap-2 overflow-x-auto pb-3 -mx-5 px-5 mb-3" style="scrollbar-width:none">
+      <button class="shrink-0 px-4 py-2 rounded-full bg-forest text-cream text-[12px] font-medium">All</button>
+      <button class="shrink-0 px-4 py-2 rounded-full bg-paper border border-ink/14 text-[12px]">Hot food</button>
+      <button class="shrink-0 px-4 py-2 rounded-full bg-paper border border-ink/14 text-[12px]">Groceries</button>
+      <button class="shrink-0 px-4 py-2 rounded-full bg-paper border border-ink/14 text-[12px]">Sweets</button>
+      <button class="shrink-0 px-4 py-2 rounded-full bg-paper border border-ink/14 text-[12px]">Fresh meat</button>
+      <button class="shrink-0 px-4 py-2 rounded-full bg-paper border border-ink/14 text-[12px]">Medicines</button>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <label class="flex items-center gap-2 text-[12px] text-ink-soft">
+        <input type="checkbox" class="accent-forest"> Veg only
+      </label>
+      <span class="text-[11px] text-ink-soft">240 items</span>
+    </div>
+
+    <!-- product cards -->
+    <div class="space-y-3">
+      <div class="bg-paper rounded-2xl p-4 border border-ink/6 flex gap-3">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-saffron/30 to-saffron-soft/40 shrink-0 flex items-center justify-center text-[28px]">🥘</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1"><span class="veg-dot veg"></span><span class="text-[10px] uppercase tracking-[0.12em] text-ink-soft">Kalika Sweets · 0.8 km</span></div>
+          <h3 class="font-serif text-[17px] leading-tight mb-0.5 truncate">Paneer butter masala</h3>
+          <p class="text-[11px] text-ink-soft mb-2 truncate">Cottage cheese, tomato cream · 350g</p>
+          <div class="flex items-end justify-between">
+            <div><span class="font-serif text-[16px]">₹240</span> <span class="text-[11px] text-ink-soft line-through ml-1">₹260</span></div>
+            <button onclick="addToCart('paneer','Paneer butter masala',240)" class="bg-forest text-cream px-4 py-1.5 rounded-full text-[12px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl p-4 border border-ink/6 flex gap-3">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-terracotta/20 to-saffron-soft/40 shrink-0 flex items-center justify-center text-[28px]">🍞</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1"><span class="veg-dot veg"></span><span class="text-[10px] uppercase tracking-[0.12em] text-ink-soft">Baker's Basket · Seasons</span></div>
+          <h3 class="font-serif text-[17px] leading-tight mb-0.5 truncate">Sourdough loaf</h3>
+          <p class="text-[11px] text-ink-soft mb-2 truncate">Day-baked, slow-fermented · 480g</p>
+          <div class="flex items-end justify-between">
+            <span class="font-serif text-[16px]">₹185</span>
+            <button onclick="addToCart('sourdough','Sourdough loaf',185)" class="bg-forest text-cream px-4 py-1.5 rounded-full text-[12px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl p-4 border border-ink/6 flex gap-3">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-forest/20 to-moss/30 shrink-0 flex items-center justify-center text-[28px]">🥦</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1"><span class="veg-dot veg"></span><span class="text-[10px] uppercase tracking-[0.12em] text-ink-soft">Destination Centre</span></div>
+          <h3 class="font-serif text-[17px] leading-tight mb-0.5 truncate">Broccoli</h3>
+          <p class="text-[11px] text-ink-soft mb-2 truncate">Fresh, washed · 500g · sells at MRP</p>
+          <div class="flex items-end justify-between">
+            <span class="font-serif text-[16px]">₹110</span>
+            <button onclick="addToCart('broccoli','Broccoli',110)" class="bg-forest text-cream px-4 py-1.5 rounded-full text-[12px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl p-4 border border-ink/6 flex gap-3">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-terracotta/30 to-burgundy/30 shrink-0 flex items-center justify-center text-[28px]">🍗</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1"><span class="veg-dot nonveg"></span><span class="text-[10px] uppercase tracking-[0.12em] text-ink-soft">Shraddha Meats</span></div>
+          <h3 class="font-serif text-[17px] leading-tight mb-0.5 truncate">Chicken curry-cut</h3>
+          <p class="text-[11px] text-ink-soft mb-2 truncate">Bone-in, fresh · 1 kg</p>
+          <div class="flex items-end justify-between">
+            <div><span class="font-serif text-[16px]">₹290</span> <span class="text-[11px] text-terracotta ml-1 font-medium">SALE</span></div>
+            <button onclick="addToCart('chicken','Chicken curry-cut',290)" class="bg-forest text-cream px-4 py-1.5 rounded-full text-[12px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl p-4 border border-ink/6 flex gap-3">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-gold/30 to-saffron/30 shrink-0 flex items-center justify-center text-[28px]">🍰</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1"><span class="veg-dot veg"></span><span class="text-[10px] uppercase tracking-[0.12em] text-ink-soft">Kalika Sweets</span></div>
+          <h3 class="font-serif text-[17px] leading-tight mb-0.5 truncate">Kaju katli</h3>
+          <p class="text-[11px] text-ink-soft mb-2 truncate">Cashew, ghee · 250g · sells at MRP</p>
+          <div class="flex items-end justify-between">
+            <span class="font-serif text-[16px]">₹420</span>
+            <button onclick="addToCart('kaju','Kaju katli',420)" class="bg-forest text-cream px-4 py-1.5 rounded-full text-[12px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl p-4 border border-ink/6 flex gap-3">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-plum/30 to-burgundy/40 shrink-0 flex items-center justify-center text-[28px]">💊</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1"><span class="veg-dot veg"></span><span class="text-[10px] uppercase tracking-[0.12em] text-ink-soft">Magarpatta Pharmacy</span></div>
+          <h3 class="font-serif text-[17px] leading-tight mb-0.5 truncate">Crocin Advance</h3>
+          <p class="text-[11px] text-ink-soft mb-2 truncate">Strip of 15 · sells at MRP</p>
+          <div class="flex items-end justify-between">
+            <span class="font-serif text-[16px]">₹52</span>
+            <button onclick="addToCart('crocin','Crocin Advance',52)" class="bg-forest text-cream px-4 py-1.5 rounded-full text-[12px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 9. RESTAURANTS LIST (/restaurants) -->
+<!-- ============================================ -->
+<div id="restaurants" class="screen" data-label="/restaurants">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="goBack()" class="text-[12.5px]">← Back</button>
+    <button onclick="openCart()" class="relative p-2 rounded-full bg-paper border border-ink/8 text-[14px]">🛒</button>
+  </div>
+
+  <div class="px-5 pt-2 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">Restaurants & shops</div>
+    <h1 class="font-serif text-[30px] leading-[1.05] tracking-tight mb-5">Browse all<br><span class="italic">restaurants & shops</span></h1>
+
+    <div class="space-y-3">
+      <button onclick="navigate('restaurant-detail')" class="block w-full text-left bg-paper rounded-2xl overflow-hidden border border-ink/6">
+        <div class="h-32 bg-gradient-to-br from-saffron/40 to-terracotta/30 flex items-center justify-center text-[44px]">🍰</div>
+        <div class="p-4">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Magarpatta Market</div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-serif text-[20px]">Kalika Sweets</h3>
+            <span class="bg-forest text-cream px-2 py-0.5 rounded-md text-[11px] font-medium">4.8 ★</span>
+          </div>
+          <div class="flex gap-1.5 mb-2"><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Sweets</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">North Indian</span></div>
+          <p class="text-[12px] text-ink-soft">25 min · ₹400 for two</p>
+        </div>
+      </button>
+
+      <button onclick="navigate('restaurant-detail')" class="block w-full text-left bg-paper rounded-2xl overflow-hidden border border-ink/6">
+        <div class="h-32 bg-gradient-to-br from-gold/30 to-saffron-soft/40 flex items-center justify-center text-[44px]">🥐</div>
+        <div class="p-4">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Seasons Mall</div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-serif text-[20px]">Baker's Basket</h3>
+            <span class="bg-forest text-cream px-2 py-0.5 rounded-md text-[11px] font-medium">4.6 ★</span>
+          </div>
+          <div class="flex gap-1.5 mb-2"><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Bakery</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Café</span></div>
+          <p class="text-[12px] text-ink-soft">22 min · ₹350 for two</p>
+        </div>
+      </button>
+
+      <button onclick="navigate('restaurant-detail')" class="block w-full text-left bg-paper rounded-2xl overflow-hidden border border-ink/6">
+        <div class="h-32 bg-gradient-to-br from-forest/30 to-moss/30 flex items-center justify-center text-[44px]">🛒</div>
+        <div class="p-4">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Magarpatta City</div>
+          <h3 class="font-serif text-[20px] mb-1">Destination Centre</h3>
+          <div class="flex gap-1.5 mb-2"><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Grocery</span></div>
+          <p class="text-[12px] text-ink-soft">25 min · sells at MRP</p>
+        </div>
+      </button>
+
+      <button onclick="navigate('restaurant-detail')" class="block w-full text-left bg-paper rounded-2xl overflow-hidden border border-ink/6">
+        <div class="h-32 bg-gradient-to-br from-terracotta/30 to-burgundy/40 flex items-center justify-center text-[44px]">🍖</div>
+        <div class="p-4">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Magarpatta Market</div>
+          <h3 class="font-serif text-[20px] mb-1">Shraddha Meats</h3>
+          <div class="flex gap-1.5 mb-2"><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Fresh meat</span></div>
+          <p class="text-[12px] text-ink-soft">25 min · cuts to order</p>
+        </div>
+      </button>
+
+      <button onclick="navigate('restaurant-detail')" class="block w-full text-left bg-paper rounded-2xl overflow-hidden border border-ink/6">
+        <div class="h-32 bg-gradient-to-br from-forest/40 to-teal/40 flex items-center justify-center text-[44px]">☕</div>
+        <div class="p-4">
+          <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Seasons Mall</div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-serif text-[20px]">Starbucks · Seasons</h3>
+            <span class="bg-forest text-cream px-2 py-0.5 rounded-md text-[11px] font-medium">4.7 ★</span>
+          </div>
+          <div class="flex gap-1.5 mb-2"><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Café</span></div>
+          <p class="text-[12px] text-ink-soft">20 min · ₹600 for two</p>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 10. RESTAURANT DETAIL (/restaurants/[slug]) -->
+<!-- ============================================ -->
+<div id="restaurant-detail" class="screen" data-label="/restaurants/kalika-sweets">
+  <div class="relative">
+    <div class="h-44 bg-gradient-to-br from-saffron/50 to-terracotta/30 flex items-center justify-center text-[64px]">🍰</div>
+    <button onclick="navigate('restaurants')" class="absolute top-3 left-3 w-9 h-9 rounded-full bg-paper/95 flex items-center justify-center text-[14px] backdrop-blur">←</button>
+    <button onclick="openCart()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-paper/95 flex items-center justify-center text-[14px] backdrop-blur">🛒</button>
+  </div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Magarpatta Market</div>
+    <div class="flex items-start justify-between mb-2">
+      <h1 class="font-serif text-[32px] leading-[1.05] tracking-tight">Kalika Sweets</h1>
+      <span class="bg-forest text-cream px-2.5 py-1 rounded-md text-[12px] font-medium">4.8 ★</span>
+    </div>
+    <div class="flex gap-1.5 mb-3"><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">Sweets</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-cream-soft">North Indian</span></div>
+    <p class="text-[12.5px] leading-[1.5] text-ink-soft mb-2">Family-run since 1992. Famous for kaju katli, gulab jamun and home-style North Indian thalis. Open 8 am – 10 pm.</p>
+    <p class="text-[11.5px] text-ink-soft mb-6">25 min · ₹400 for two · 0.8 km from your tower</p>
+
+    <!-- category sticky -->
+    <div class="flex gap-2 overflow-x-auto pb-3 -mx-5 px-5 mb-5 sticky top-[44px] bg-cream/95 backdrop-blur z-20" style="scrollbar-width:none">
+      <button class="shrink-0 px-3.5 py-1.5 rounded-full bg-forest text-cream text-[11.5px] font-medium">Sweets (12)</button>
+      <button class="shrink-0 px-3.5 py-1.5 rounded-full bg-paper border border-ink/14 text-[11.5px]">Mains (8)</button>
+      <button class="shrink-0 px-3.5 py-1.5 rounded-full bg-paper border border-ink/14 text-[11.5px]">Bread (4)</button>
+      <button class="shrink-0 px-3.5 py-1.5 rounded-full bg-paper border border-ink/14 text-[11.5px]">Sides (6)</button>
+    </div>
+
+    <h2 class="font-serif text-[22px] mb-3">Sweets <span class="text-ink-soft text-[14px] font-sans">(12)</span></h2>
+
+    <div class="space-y-2.5">
+      <div class="bg-paper rounded-2xl p-3.5 border border-ink/6 flex gap-3">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-gold/30 to-saffron/30 flex items-center justify-center text-[24px] shrink-0">🍰</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5"><span class="veg-dot veg"></span></div>
+          <h3 class="font-serif text-[16px] truncate">Kaju katli</h3>
+          <p class="text-[11px] text-ink-soft truncate">Cashew, ghee · 250g</p>
+          <div class="flex items-end justify-between mt-1">
+            <span class="font-serif text-[15px]">₹420</span>
+            <button onclick="addToCart('kaju','Kaju katli',420)" class="bg-forest text-cream px-3.5 py-1 rounded-full text-[11px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-paper rounded-2xl p-3.5 border border-ink/6 flex gap-3">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-terracotta/30 to-saffron/30 flex items-center justify-center text-[24px] shrink-0">🍮</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5"><span class="veg-dot veg"></span></div>
+          <h3 class="font-serif text-[16px] truncate">Gulab jamun</h3>
+          <p class="text-[11px] text-ink-soft truncate">Soaked in sugar syrup · 6 pieces</p>
+          <div class="flex items-end justify-between mt-1">
+            <span class="font-serif text-[15px]">₹180</span>
+            <button onclick="addToCart('jamun','Gulab jamun',180)" class="bg-forest text-cream px-3.5 py-1 rounded-full text-[11px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-paper rounded-2xl p-3.5 border border-ink/6 flex gap-3">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-saffron-soft/40 to-gold/30 flex items-center justify-center text-[24px] shrink-0">🥮</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5"><span class="veg-dot veg"></span></div>
+          <h3 class="font-serif text-[16px] truncate">Mysore pak</h3>
+          <p class="text-[11px] text-ink-soft truncate">Slow-cooked in ghee · 200g</p>
+          <div class="flex items-end justify-between mt-1">
+            <span class="font-serif text-[15px]">₹260</span>
+            <button onclick="addToCart('mysore','Mysore pak',260)" class="bg-forest text-cream px-3.5 py-1 rounded-full text-[11px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="font-serif text-[22px] mt-7 mb-3">Mains <span class="text-ink-soft text-[14px] font-sans">(8)</span></h2>
+    <div class="space-y-2.5">
+      <div class="bg-paper rounded-2xl p-3.5 border border-ink/6 flex gap-3">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-saffron/30 to-saffron-soft/40 flex items-center justify-center text-[24px] shrink-0">🥘</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5"><span class="veg-dot veg"></span></div>
+          <h3 class="font-serif text-[16px] truncate">Paneer butter masala</h3>
+          <p class="text-[11px] text-ink-soft truncate">Cottage cheese, tomato cream · 350g</p>
+          <div class="flex items-end justify-between mt-1">
+            <div><span class="font-serif text-[15px]">₹240</span> <span class="text-[10.5px] text-ink-soft line-through ml-1">₹260</span></div>
+            <button onclick="addToCart('paneer','Paneer butter masala',240)" class="bg-forest text-cream px-3.5 py-1 rounded-full text-[11px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-paper rounded-2xl p-3.5 border border-ink/6 flex gap-3">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-forest/20 to-moss/20 flex items-center justify-center text-[24px] shrink-0">🍛</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5"><span class="veg-dot veg"></span></div>
+          <h3 class="font-serif text-[16px] truncate">Dal makhani</h3>
+          <p class="text-[11px] text-ink-soft truncate">Slow-simmered black lentils · 350g</p>
+          <div class="flex items-end justify-between mt-1">
+            <span class="font-serif text-[15px]">₹220</span>
+            <button onclick="addToCart('dal','Dal makhani',220)" class="bg-forest text-cream px-3.5 py-1 rounded-full text-[11px] font-medium">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 11. CHECKOUT (/checkout) -->
+<!-- ============================================ -->
+<div id="checkout" class="screen" data-label="/checkout">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="closeCart(); goBack()" class="text-[12.5px]">← Back</button>
+    <span class="text-[12px] font-medium">Checkout</span>
+    <span class="w-9"></span>
+  </div>
+
+  <div class="px-5 pt-3 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">Almost there</div>
+    <h1 class="font-serif text-[28px] leading-[1.1] tracking-tight mb-6">One last <span class="italic">look.</span></h1>
+
+    <!-- address -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron">Deliver to</div>
+        <button onclick="navigate('addresses')" class="text-[11px] text-forest underline">Change</button>
+      </div>
+      <div class="font-serif text-[16px] mb-0.5">Flat 305, Lily · Tower 3</div>
+      <div class="text-[12px] text-ink-soft">Pristine Pune Magarpatta · Pune</div>
+    </div>
+
+    <!-- order items -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Order summary</div>
+      <div id="checkoutItems" class="space-y-2 text-[13px]">
+        <div class="flex justify-between"><span class="text-ink-soft">Tap items in cart to populate</span><span></span></div>
+      </div>
+      <div class="hairline my-3"></div>
+      <div class="space-y-1.5 text-[12.5px]">
+        <div class="flex justify-between text-ink-soft"><span>Subtotal</span><span id="checkoutSubtotal">₹0</span></div>
+        <div class="flex justify-between text-ink-soft"><span>Convenience fee</span><span>₹4</span></div>
+        <div class="flex justify-between text-ink-soft"><span>Delivery fee</span><span>₹25</span></div>
+      </div>
+      <div class="hairline my-3"></div>
+      <div class="flex items-end justify-between">
+        <span class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft">Total</span>
+        <span class="font-serif text-[24px] text-forest" id="checkoutTotal">₹29</span>
+      </div>
+    </div>
+
+    <!-- payment -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Payment method</div>
+      <label class="flex items-center gap-3 py-2 cursor-pointer">
+        <input type="radio" name="pay" checked class="accent-forest">
+        <span class="text-[13.5px]">Cash on delivery</span>
+        <span class="ml-auto text-[10.5px] text-ink-soft">eligible up to ₹2,000</span>
+      </label>
+      <div class="hairline"></div>
+      <label class="flex items-center gap-3 py-2 cursor-pointer">
+        <input type="radio" name="pay" class="accent-forest">
+        <span class="text-[13.5px]">UPI · GPay / PhonePe</span>
+      </label>
+      <div class="hairline"></div>
+      <label class="flex items-center gap-3 py-2 cursor-pointer">
+        <input type="radio" name="pay" class="accent-forest">
+        <span class="text-[13.5px]">Card · Razorpay</span>
+      </label>
+    </div>
+
+    <!-- notes -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-5">
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-2">Note for rider (optional)</label>
+      <input placeholder="e.g. Ring the bell once, dog on the door." class="w-full bg-cream rounded-xl px-3 py-2.5 text-[13px] outline-none">
+    </div>
+
+    <button onclick="placeOrder()" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight hover:bg-forest-dark transition-colors">Place order · <span id="placeOrderTotal">₹29</span></button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 12. ORDERS LIST (/orders) -->
+<!-- ============================================ -->
+<div id="orders" class="screen" data-label="/orders">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="navigate('home')" class="text-[12.5px]">← Home</button>
+    <button onclick="openCart()" class="relative p-2 rounded-full bg-paper border border-ink/8 text-[14px]">🛒</button>
+  </div>
+
+  <div class="px-5 pt-2 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">Your orders</div>
+    <h1 class="font-serif text-[30px] leading-[1.05] tracking-tight mb-6">Every drop-off,<br><span class="italic">on record.</span></h1>
+
+    <div class="space-y-3" id="ordersList">
+      <button onclick="navigate('order-detail')" class="block w-full text-left bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status placed" id="latestOrderStatus">PLACED</span>
+          <span class="text-[10.5px] text-ink-soft">#A4F23B</span>
+        </div>
+        <h3 class="font-serif text-[17px] mb-1" id="latestOrderItems">Paneer butter masala · Sourdough loaf</h3>
+        <p class="text-[11.5px] text-ink-soft mb-2">Flat 305, Lily · Tower 3 · Pristine Pune</p>
+        <div class="flex items-end justify-between">
+          <span class="text-[11px] text-ink-soft">Just now · IST</span>
+          <span class="font-serif text-[16px]">₹<span id="latestOrderTotal">425</span></span>
+        </div>
+        <div class="hairline my-3"></div>
+        <div class="flex items-center gap-3 text-[11.5px]">
+          <span class="text-forest">View details →</span>
+          <span class="text-ink-soft">·</span>
+          <button onclick="event.stopPropagation(); navigate('menu')" class="text-ink-soft hover:text-ink">Reorder</button>
+        </div>
+      </button>
+
+      <button onclick="navigate('order-detail')" class="block w-full text-left bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status delivered">DELIVERED</span>
+          <span class="text-[10.5px] text-ink-soft">#B91C7E</span>
+        </div>
+        <h3 class="font-serif text-[17px] mb-1">Kaju katli · Gulab jamun · +1 more</h3>
+        <p class="text-[11.5px] text-ink-soft mb-2">Flat 305, Lily · Tower 3 · Pristine Pune</p>
+        <div class="flex items-end justify-between">
+          <span class="text-[11px] text-ink-soft">28 Apr · 9:14 PM IST</span>
+          <span class="font-serif text-[16px]">₹860</span>
+        </div>
+        <div class="hairline my-3"></div>
+        <div class="flex items-center gap-3 text-[11.5px]">
+          <span class="text-forest">View details →</span>
+          <span class="text-ink-soft">·</span>
+          <button onclick="event.stopPropagation(); navigate('menu')" class="text-ink-soft hover:text-ink">Reorder</button>
+        </div>
+      </button>
+
+      <button onclick="navigate('order-detail')" class="block w-full text-left bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status delivered">DELIVERED</span>
+          <span class="text-[10.5px] text-ink-soft">#7D33E1</span>
+        </div>
+        <h3 class="font-serif text-[17px] mb-1">Broccoli · Crocin Advance</h3>
+        <p class="text-[11.5px] text-ink-soft mb-2">Flat 305, Lily · Tower 3 · Pristine Pune</p>
+        <div class="flex items-end justify-between">
+          <span class="text-[11px] text-ink-soft">26 Apr · 6:42 PM IST</span>
+          <span class="font-serif text-[16px]">₹187</span>
+        </div>
+        <div class="hairline my-3"></div>
+        <div class="flex items-center gap-3 text-[11.5px]">
+          <span class="text-forest">View details →</span>
+          <span class="text-ink-soft">·</span>
+          <button onclick="event.stopPropagation(); navigate('menu')" class="text-ink-soft hover:text-ink">Reorder</button>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 13. ORDER DETAIL / TRACKING (/orders/[id]) -->
+<!-- ============================================ -->
+<div id="order-detail" class="screen" data-label="/orders/A4F23B">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="navigate('orders')" class="text-[12.5px]">← All orders</button>
+    <span class="text-[10.5px] text-ink-soft">#A4F23B</span>
+  </div>
+
+  <div class="px-5 pt-2 pb-6">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron" id="trackingDot"></span>
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-saffron" id="trackingLabel">Order placed</span>
+    </div>
+    <h1 class="font-serif text-[28px] leading-[1.05] tracking-tight mb-1" id="trackingHeading">We've got it. <span class="italic">Hold tight.</span></h1>
+    <p class="text-[12.5px] text-ink-soft mb-6" id="trackingSubhead">Sending the order to Kalika Sweets now.</p>
+
+    <!-- timeline -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-5 mb-4">
+      <div class="space-y-4">
+        <div class="flex gap-3" id="step-placed">
+          <div class="flex flex-col items-center"><span class="w-7 h-7 rounded-full bg-forest text-cream flex items-center justify-center text-[12px]">✓</span><span class="flex-1 w-0.5 bg-forest mt-1.5"></span></div>
+          <div class="pb-2"><div class="text-[13px] font-medium">Order placed</div><div class="text-[11px] text-ink-soft">Just now · IST</div></div>
+        </div>
+        <div class="flex gap-3" id="step-confirmed">
+          <div class="flex flex-col items-center"><span class="w-7 h-7 rounded-full bg-cream-soft text-ink-soft flex items-center justify-center text-[12px]">·</span><span class="flex-1 w-0.5 bg-cream-soft mt-1.5"></span></div>
+          <div class="pb-2"><div class="text-[13px] font-medium">Vendor accepted</div><div class="text-[11px] text-ink-soft">Waiting…</div></div>
+        </div>
+        <div class="flex gap-3" id="step-preparing">
+          <div class="flex flex-col items-center"><span class="w-7 h-7 rounded-full bg-cream-soft text-ink-soft flex items-center justify-center text-[12px]">·</span><span class="flex-1 w-0.5 bg-cream-soft mt-1.5"></span></div>
+          <div class="pb-2"><div class="text-[13px] font-medium">Preparing</div><div class="text-[11px] text-ink-soft">—</div></div>
+        </div>
+        <div class="flex gap-3" id="step-out">
+          <div class="flex flex-col items-center"><span class="w-7 h-7 rounded-full bg-cream-soft text-ink-soft flex items-center justify-center text-[12px]">·</span><span class="flex-1 w-0.5 bg-cream-soft mt-1.5"></span></div>
+          <div class="pb-2"><div class="text-[13px] font-medium">Out for delivery</div><div class="text-[11px] text-ink-soft">—</div></div>
+        </div>
+        <div class="flex gap-3" id="step-delivered">
+          <div class="flex flex-col items-center"><span class="w-7 h-7 rounded-full bg-cream-soft text-ink-soft flex items-center justify-center text-[12px]">·</span></div>
+          <div><div class="text-[13px] font-medium">Delivered</div><div class="text-[11px] text-ink-soft">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- delivery OTP card (visible when tracking moves to OUT_FOR_DELIVERY) -->
+    <div id="otpCard" class="bg-saffron/10 border border-saffron/30 rounded-2xl p-4 mb-4 hidden">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-1">Delivery code</div>
+      <div class="font-serif text-[36px] tracking-[0.4em] text-forest mb-1">4 7 2 9</div>
+      <p class="text-[11.5px] text-ink-soft">Show this to your rider on handover. They'll punch it in.</p>
+    </div>
+
+    <!-- items -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Items</div>
+      <div class="space-y-3" id="orderItemsDetail">
+        <div class="flex gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-saffron/30 to-saffron-soft/40 flex items-center justify-center text-[18px]">🥘</div>
+          <div class="flex-1">
+            <div class="text-[13px] font-medium">Paneer butter masala</div>
+            <div class="text-[11px] text-ink-soft">Kalika Sweets · 350g · ₹240</div>
+          </div>
+          <span class="text-[12px] text-ink-soft">×1</span>
+        </div>
+        <div class="flex gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-terracotta/20 to-saffron-soft/40 flex items-center justify-center text-[18px]">🍞</div>
+          <div class="flex-1">
+            <div class="text-[13px] font-medium">Sourdough loaf</div>
+            <div class="text-[11px] text-ink-soft">Baker's Basket · 480g · ₹185</div>
+          </div>
+          <span class="text-[12px] text-ink-soft">×1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- summary -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="space-y-1.5 text-[12.5px]">
+        <div class="flex justify-between text-ink-soft"><span>Subtotal</span><span>₹425</span></div>
+        <div class="flex justify-between text-ink-soft"><span>Convenience fee</span><span>₹4</span></div>
+        <div class="flex justify-between text-ink-soft"><span>Delivery fee</span><span>₹25</span></div>
+        <div class="hairline my-2"></div>
+        <div class="flex justify-between font-medium"><span>Total · COD</span><span class="font-serif text-[18px] text-forest">₹454</span></div>
+      </div>
+    </div>
+
+    <!-- address -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-5">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-2">Delivery address</div>
+      <div class="text-[13px] font-medium">Flat 305, Lily · Tower 3</div>
+      <div class="text-[11.5px] text-ink-soft">Pristine Pune Magarpatta · Pune</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 14. ACCOUNT / ADDRESSES (/account/addresses) -->
+<!-- ============================================ -->
+<div id="account" class="screen" data-label="/account">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="navigate('home')" class="text-[12.5px]">← Home</button>
+    <button onclick="navigate('signin')" class="text-[12px] text-terracotta">Sign out</button>
+  </div>
+
+  <div class="px-5 pt-2 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">Account</div>
+    <h1 class="font-serif text-[30px] leading-[1.05] tracking-tight mb-2">Hello, <span class="italic text-saffron-soft">Priya.</span></h1>
+    <p class="text-[12px] text-ink-soft mb-6">+91 98765 43210 · Lily · Tower 3</p>
+
+    <div class="space-y-1.5 mb-7">
+      <button onclick="navigate('orders')" class="w-full flex items-center justify-between p-4 bg-paper rounded-2xl border border-ink/6">
+        <span class="text-[14px]">My orders</span><span class="text-[14px]">→</span>
+      </button>
+      <button onclick="navigate('addresses')" class="w-full flex items-center justify-between p-4 bg-paper rounded-2xl border border-ink/6">
+        <span class="text-[14px]">Saved addresses</span><span class="text-[14px]">→</span>
+      </button>
+      <button onclick="navigate('menu')" class="w-full flex items-center justify-between p-4 bg-paper rounded-2xl border border-ink/6">
+        <span class="text-[14px]">Browse menu</span><span class="text-[14px]">→</span>
+      </button>
+    </div>
+
+    <div class="hairline mb-5"></div>
+    <div class="text-[11.5px] text-ink-soft text-center">
+      Magarpatta <span class="font-serif italic">Go</span> · v0.9 demo build
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 15. SAVED ADDRESSES -->
+<!-- ============================================ -->
+<div id="addresses" class="screen" data-label="/account/addresses">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between sticky top-[44px] bg-cream/95 backdrop-blur z-30">
+    <button onclick="navigate('account')" class="text-[12.5px]">← Account</button>
+  </div>
+
+  <div class="px-5 pt-2 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-ink-soft mb-2">Your addresses</div>
+    <h1 class="font-serif text-[28px] leading-[1.05] tracking-tight mb-6">Saved <span class="italic">delivery spots</span></h1>
+
+    <div class="space-y-2.5 mb-5">
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10.5px] uppercase tracking-[0.14em] text-forest">Home · default</span>
+          <span class="text-[12px]">✓</span>
+        </div>
+        <div class="font-serif text-[16px] mb-0.5">Flat 305, Lily · Tower 3</div>
+        <div class="text-[11.5px] text-ink-soft mb-2">Pristine Pune Magarpatta · Pune</div>
+        <div class="flex gap-3 text-[11.5px] pt-1">
+          <button class="text-forest underline">Edit</button>
+          <button class="text-ink-soft">Delete</button>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Office</div>
+        <div class="font-serif text-[16px] mb-0.5">Cybercity, Tower 4 · Floor 8</div>
+        <div class="text-[11.5px] text-ink-soft mb-2">Magarpatta · Pune</div>
+        <div class="flex gap-3 text-[11.5px] pt-1">
+          <button class="text-forest underline">Set as default</button>
+          <button class="text-forest underline">Edit</button>
+          <button class="text-ink-soft">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="w-full border border-dashed border-ink/24 py-3.5 rounded-2xl text-[13px] text-ink-soft hover:bg-paper">+ Add new address</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- CART DRAWER (overlay) -->
+<!-- ============================================ -->
+<div class="drawer-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="drawer" id="cartDrawer">
+  <div class="px-5 pt-5 pb-6">
+    <div class="flex justify-between items-start mb-5">
+      <div>
+        <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-1" id="cartSubtitle">Your cart</div>
+        <h2 class="font-serif text-[24px] leading-tight" id="cartHeading">Nothing here yet.</h2>
+      </div>
+      <button onclick="closeCart()" class="w-8 h-8 rounded-full bg-cream-soft flex items-center justify-center text-[16px]">×</button>
+    </div>
+
+    <div id="cartEmpty" class="text-center py-10">
+      <div class="text-[40px] mb-3 opacity-30">🛒</div>
+      <p class="text-[13px] text-ink-soft mb-5">Pick something from the menu and it lands here.</p>
+      <button onclick="closeCart(); navigate('menu')" class="text-forest text-[13px] underline">Back to menu →</button>
+    </div>
+
+    <div id="cartFilled" class="hidden">
+      <div id="cartItems" class="space-y-3 mb-4"></div>
+      <div class="hairline mb-3"></div>
+      <div class="space-y-1.5 text-[12.5px] mb-3">
+        <div class="flex justify-between text-ink-soft"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+        <div class="flex justify-between text-ink-soft"><span>Convenience fee</span><span>₹4</span></div>
+        <div class="flex justify-between text-ink-soft"><span>Delivery fee</span><span>₹25</span></div>
+      </div>
+      <div class="flex items-end justify-between mb-4">
+        <span class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft">Total</span>
+        <span class="font-serif text-[26px] text-forest" id="cartTotal">₹29</span>
+      </div>
+      <button onclick="closeCart(); navigate('checkout')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight">Checkout · <span id="cartTotalBtn">₹29</span></button>
+      <p class="text-[10.5px] text-center text-ink-soft mt-3">Cash on delivery · UPI & card via Razorpay.</p>
+    </div>
+  </div>
+</div>
+
+<div class="home-indicator"></div>
+</div>
+</div>
+
+<script>
+  // ===== Navigation history =====
+  const screens = document.querySelectorAll('.screen');
+  let history = ['landing'];
+
+  function updateHud() {}
+
+  function navigate(id, reset) {
+    if (reset) history = [];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('active');
+    el.scrollTop = 0;
+    if (history[history.length-1] !== id) history.push(id);
+    closeCart();
+    updateHud();
+  }
+  function goBack() {
+    if (history.length > 1) {
+      history.pop();
+      const prev = history[history.length-1];
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(prev).classList.add('active');
+      updateHud();
+    }
+  }
+
+  // ===== Sign in form validation =====
+  function signinValidate() {
+    const v = document.getElementById('signinPhone').value.replace(/\D/g,'');
+    const valid = v.length === 10;
+    const btn = document.getElementById('signinSendBtn');
+    btn.style.opacity = valid ? '1' : '0.5';
+    btn.disabled = !valid;
+    document.getElementById('signinTick').style.opacity = valid ? '1' : '0';
+    if (valid) document.getElementById('signinPhoneDisplay').textContent = v.slice(0,5)+' '+v.slice(5);
+  }
+
+  // ===== OTP autofill animation =====
+  function startOtpAnimation(prefix) {
+    const code = ['1','2','3','4','5','6'];
+    code.forEach((d,i) => {
+      const el = document.getElementById(prefix+'-otp-'+(i+1));
+      if (el) el.textContent = '';
+    });
+    code.forEach((d,i) => {
+      setTimeout(() => {
+        const el = document.getElementById(prefix+'-otp-'+(i+1));
+        if (el) {
+          el.textContent = d;
+          el.style.borderColor = '#0d4a2e';
+        }
+      }, 280 + i*180);
+    });
+    if (prefix === 'signin') {
+      setTimeout(() => navigate('home'), 280 + 6*180 + 500);
+    }
+  }
+
+  // ===== Cart =====
+  let cart = []; // [{id,name,qty,price}]
+
+  function addToCart(id, name, price) {
+    const ex = cart.find(i => i.id === id);
+    if (ex) ex.qty++; else cart.push({id, name, qty: 1, price});
+    flashAddToast(name);
+    renderCart();
+  }
+  function removeCartItem(id) {
+    cart = cart.filter(i => i.id !== id);
+    renderCart();
+  }
+  function decCart(id) {
+    const it = cart.find(i => i.id === id);
+    if (!it) return;
+    it.qty--;
+    if (it.qty <= 0) cart = cart.filter(i => i.id !== id);
+    renderCart();
+  }
+  function incCart(id) {
+    const it = cart.find(i => i.id === id);
+    if (it) it.qty++;
+    renderCart();
+  }
+  function cartSub() { return cart.reduce((s,i) => s + i.price * i.qty, 0); }
+  function cartTotal() { return cart.length ? cartSub() + 4 + 25 : 0; }
+
+  function renderCart() {
+    const count = cart.reduce((s,i) => s+i.qty, 0);
+    document.querySelectorAll('#cartBadge, #cartBadge2').forEach(b => {
+      if (count > 0) { b.classList.remove('hidden'); b.textContent = count; }
+      else b.classList.add('hidden');
+    });
+    const empty = document.getElementById('cartEmpty');
+    const filled = document.getElementById('cartFilled');
+    const heading = document.getElementById('cartHeading');
+    const sub = document.getElementById('cartSubtitle');
+    if (count === 0) {
+      empty.classList.remove('hidden'); filled.classList.add('hidden');
+      heading.textContent = 'Nothing here yet.'; sub.textContent = 'Your cart';
+      return;
+    }
+    empty.classList.add('hidden'); filled.classList.remove('hidden');
+    heading.textContent = count + ' things lined up'; sub.textContent = 'From Magarpatta Market';
+
+    const itemsHtml = cart.map(i => `
+      <div class="flex gap-3 items-start">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-saffron/20 to-saffron-soft/30 flex items-center justify-center text-[18px] shrink-0">🍽</div>
+        <div class="flex-1 min-w-0">
+          <div class="font-serif text-[15px] truncate">${i.name}</div>
+          <div class="text-[11px] text-ink-soft">₹${i.price} each</div>
+          <div class="flex items-center gap-2 mt-1.5">
+            <button onclick="decCart('${i.id}')" class="w-6 h-6 rounded-full border border-ink/20 text-[12px]">−</button>
+            <span class="text-[12.5px] w-6 text-center">${i.qty}</span>
+            <button onclick="incCart('${i.id}')" class="w-6 h-6 rounded-full border border-ink/20 text-[12px]">+</button>
+            <button onclick="removeCartItem('${i.id}')" class="ml-2 text-[10.5px] text-ink-soft underline">remove</button>
+          </div>
+        </div>
+        <div class="font-serif text-[15px]">₹${i.price * i.qty}</div>
+      </div>
+    `).join('');
+    document.getElementById('cartItems').innerHTML = itemsHtml;
+    document.getElementById('cartSubtotal').textContent = '₹'+cartSub();
+    document.getElementById('cartTotal').textContent = '₹'+cartTotal();
+    document.getElementById('cartTotalBtn').textContent = '₹'+cartTotal();
+
+    // checkout summary
+    const ck = document.getElementById('checkoutItems');
+    if (ck) {
+      ck.innerHTML = cart.map(i => `
+        <div class="flex justify-between"><span>${i.name} <span class="text-ink-soft">× ${i.qty}</span></span><span>₹${i.price*i.qty}</span></div>
+      `).join('') || '<div class="text-ink-soft">Your cart is empty.</div>';
+      document.getElementById('checkoutSubtotal').textContent = '₹'+cartSub();
+      document.getElementById('checkoutTotal').textContent = '₹'+cartTotal();
+      document.getElementById('placeOrderTotal').textContent = '₹'+cartTotal();
+    }
+  }
+  function openCart() {
+    renderCart();
+    document.getElementById('cartOverlay').classList.add('active');
+    document.getElementById('cartDrawer').classList.add('active');
+  }
+  function closeCart() {
+    document.getElementById('cartOverlay').classList.remove('active');
+    document.getElementById('cartDrawer').classList.remove('active');
+  }
+
+  // ===== Toast =====
+  function flashAddToast(name) {
+    const t = document.createElement('div');
+    t.className = 'absolute left-1/2 -translate-x-1/2 bg-forest text-cream px-4 py-2 rounded-full text-[12px] z-[2000] transition-opacity';
+    t.style.bottom = '36px';
+    t.style.boxShadow = '0 8px 20px rgba(0,0,0,0.18)';
+    t.textContent = '+ '+name+' added';
+    document.querySelector('.phone-frame').appendChild(t);
+    setTimeout(() => t.style.opacity = '0', 1300);
+    setTimeout(() => t.remove(), 1700);
+  }
+
+  // ===== Place order — animated tracking progression =====
+  let trackingTimer = null;
+  function placeOrder() {
+    if (cart.length === 0) {
+      // demo: auto-add a couple items so flow works
+      addToCart('paneer','Paneer butter masala', 240);
+      addToCart('sourdough','Sourdough loaf', 185);
+    }
+    // freeze items into "latest order"
+    const items = cart.map(i => i.name + (i.qty>1?' × '+i.qty:'')).join(' · ');
+    document.getElementById('latestOrderItems').textContent = items;
+    document.getElementById('latestOrderTotal').textContent = cartSub();
+
+    // reset tracking UI
+    setTrackingState('placed');
+    // navigate
+    navigate('order-detail');
+
+    // progress states automatically
+    if (trackingTimer) clearTimeout(trackingTimer);
+    setTimeout(() => setTrackingState('confirmed'), 2200);
+    setTimeout(() => setTrackingState('preparing'), 4800);
+    setTimeout(() => setTrackingState('out'), 7800);
+    setTimeout(() => setTrackingState('delivered'), 11000);
+  }
+
+  function setTrackingState(state) {
+    const order = ['placed','confirmed','preparing','out','delivered'];
+    const idx = order.indexOf(state);
+    order.forEach((s, i) => {
+      const el = document.getElementById('step-'+s);
+      if (!el) return;
+      const dot = el.querySelector('.flex-col span:first-child');
+      const line = el.querySelector('.flex-col span:nth-child(2)');
+      if (i <= idx) {
+        dot.className = 'w-7 h-7 rounded-full bg-forest text-cream flex items-center justify-center text-[12px]';
+        dot.textContent = i < idx ? '✓' : (i === idx && state === 'delivered' ? '✓' : '●');
+        if (line) line.className = 'flex-1 w-0.5 bg-forest mt-1.5';
+        const sub = el.querySelector('div:last-child div:last-child');
+        if (sub && sub.textContent === 'Waiting…' || sub?.textContent === '—') sub.textContent = 'Just now · IST';
+      }
+    });
+    const headings = {
+      placed:    { eyebrow:'Order placed', heading:'We\'ve got it. <span class="italic">Hold tight.</span>', sub:'Sending the order to Kalika Sweets now.' },
+      confirmed: { eyebrow:'Vendor accepted', heading:'Kalika Sweets <span class="italic">said yes.</span>', sub:'They\'re heading to the kitchen.' },
+      preparing: { eyebrow:'In the kitchen', heading:'Hot pans, fresh <span class="italic">spice.</span>', sub:'Estimated ready: 2 min. Rider on the way to pick up.' },
+      out:       { eyebrow:'Out for delivery', heading:'Rider Amit is on <span class="italic">the way.</span>', sub:'8 min to your tower. Have your code ready.' },
+      delivered: { eyebrow:'Delivered ✓', heading:'Enjoy, <span class="italic text-saffron-soft">neighbour.</span>', sub:'Tap to leave a rating for your rider and the shop.' },
+    };
+    const h = headings[state];
+    document.getElementById('trackingLabel').textContent = h.eyebrow;
+    document.getElementById('trackingHeading').innerHTML = h.heading;
+    document.getElementById('trackingSubhead').textContent = h.sub;
+    const dot = document.getElementById('trackingDot');
+    dot.className = 'relative inline-flex h-2 w-2 rounded-full ' + (state === 'delivered' ? 'bg-forest' : 'bg-saffron pulse-ring text-saffron');
+
+    // status pill on orders list
+    const pill = document.getElementById('latestOrderStatus');
+    pill.className = 'status ' + state;
+    pill.textContent = state.toUpperCase().replace('OUT','OUT FOR DELIVERY');
+
+    // OTP card show/hide
+    const otp = document.getElementById('otpCard');
+    if (otp) otp.classList.toggle('hidden', !(state === 'out' || state === 'preparing'));
+  }
+
+  updateHud();
+</script>
+
+</body>
+</html>

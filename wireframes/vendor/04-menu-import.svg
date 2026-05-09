@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 852" width="393" height="852" font-family="Inter, system-ui, sans-serif">
+  <defs><clipPath id="phone"><rect x="0" y="0" width="393" height="852" rx="56"/></clipPath></defs>
+  <g clip-path="url(#phone)">
+    <rect width="393" height="852" fill="#fffdf7"/>
+
+    <!-- Status bar -->
+    <text x="32" y="30" font-size="15" font-weight="600" fill="#14110c">9:41</text>
+    <rect x="135" y="11" width="123" height="35" rx="20" fill="#14110c"/>
+
+    <!-- Header -->
+    <g transform="translate(24,72)">
+      <text font-size="11" letter-spacing="1.6" fill="#e68a17">MENU IMPORT</text>
+      <text font-size="26" font-weight="700" fill="#14110c" y="36">Skip the typing —</text>
+      <text font-size="26" font-weight="700" font-style="italic" fill="#0d4a2e" y="68">snap, scan, done.</text>
+    </g>
+
+    <!-- Tabs -->
+    <g transform="translate(24,180)">
+      <rect width="118" height="36" rx="18" fill="#0d4a2e"/>
+      <text x="34" y="23" font-size="12">📷</text>
+      <text x="56" y="23" font-size="12" font-weight="600" fill="#f7efe1">From photo</text>
+      <g transform="translate(126,0)">
+        <rect width="116" height="36" rx="18" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.12"/>
+        <text x="58" y="23" text-anchor="middle" font-size="12" fill="#14110c">From QR code</text>
+      </g>
+      <g transform="translate(250,0)">
+        <rect width="96" height="36" rx="18" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.12"/>
+        <text x="48" y="23" text-anchor="middle" font-size="12" fill="#14110c">Paste text</text>
+      </g>
+    </g>
+
+    <!-- Drop zone -->
+    <g transform="translate(24,240)">
+      <rect width="345" height="148" rx="20" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.18" stroke-dasharray="6 5"/>
+      <text x="172" y="40" text-anchor="middle" font-size="34">📋</text>
+      <text x="172" y="76" text-anchor="middle" font-size="15" font-weight="700" fill="#14110c">Photograph your printed menu</text>
+      <text x="172" y="96" text-anchor="middle" font-size="11.5" fill="#3a3530">Steady, good light, one column at a time.</text>
+      <g transform="translate(118,108)">
+        <rect width="108" height="32" rx="16" fill="#0d4a2e"/>
+        <text x="54" y="21" text-anchor="middle" font-size="12" font-weight="600" fill="#f7efe1">Choose photo(s)</text>
+      </g>
+    </g>
+
+    <!-- Progress -->
+    <text x="24" y="408" font-size="12" fill="#0d4a2e">Image 2/3: 78% · OCR runs in your browser, no upload.</text>
+
+    <!-- Review table -->
+    <g transform="translate(24,432)">
+      <rect width="345" height="316" rx="20" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.08"/>
+
+      <text x="20" y="28" font-size="13" font-weight="700" fill="#14110c">Review 6 parsed items</text>
+      <g transform="translate(180,12)">
+        <rect width="148" height="28" rx="12" fill="#f7efe1"/>
+        <text x="14" y="19" font-size="10" letter-spacing="1.2" fill="#3a3530">CATEGORY</text>
+        <text x="80" y="19" font-size="11" font-weight="600" fill="#14110c">Bakery ▾</text>
+      </g>
+
+      <line x1="20" y1="48" x2="325" y2="48" stroke="#14110c" stroke-opacity="0.05"/>
+
+      <!-- Header row -->
+      <g transform="translate(20,60)" font-size="9.5" letter-spacing="1.1" fill="#3a3530">
+        <text x="0" y="0">KEEP</text>
+        <text x="40" y="0">NAME</text>
+        <text x="194" y="0">PRICE</text>
+        <text x="240" y="0">UNIT</text>
+        <text x="288" y="0">VEG</text>
+      </g>
+
+      <!-- Real-feeling parsed items for a new bakery/café vendor -->
+      <g transform="translate(20,76)" font-size="11.5">
+        <rect x="-2" y="0" width="14" height="14" rx="3" fill="#0d4a2e"/>
+        <path d="M2 7 L5 10 L11 4" stroke="#f7efe1" stroke-width="1.6" fill="none"/>
+        <text x="36" y="11" fill="#14110c">Masala Chai</text>
+        <text x="194" y="11" font-weight="600" fill="#14110c">25</text>
+        <text x="240" y="11" fill="#14110c">cup</text>
+        <rect x="290" y="2" width="12" height="12" rx="2" fill="#0d4a2e"/>
+      </g>
+
+      <g transform="translate(20,98)" font-size="11.5">
+        <rect x="-2" y="0" width="14" height="14" rx="3" fill="#0d4a2e"/>
+        <path d="M2 7 L5 10 L11 4" stroke="#f7efe1" stroke-width="1.6" fill="none"/>
+        <text x="36" y="11" fill="#14110c">Bun Maska</text>
+        <text x="194" y="11" font-weight="600" fill="#14110c">60</text>
+        <text x="240" y="11" fill="#14110c">1 pc</text>
+        <rect x="290" y="2" width="12" height="12" rx="2" fill="#0d4a2e"/>
+      </g>
+
+      <g transform="translate(20,120)" font-size="11.5">
+        <rect x="-2" y="0" width="14" height="14" rx="3" fill="#0d4a2e"/>
+        <path d="M2 7 L5 10 L11 4" stroke="#f7efe1" stroke-width="1.6" fill="none"/>
+        <text x="36" y="11" fill="#14110c">Aloo Paratha</text>
+        <text x="194" y="11" font-weight="600" fill="#14110c">90</text>
+        <text x="240" y="11" fill="#14110c">2 pcs</text>
+        <rect x="290" y="2" width="12" height="12" rx="2" fill="#0d4a2e"/>
+      </g>
+
+      <g transform="translate(20,142)" font-size="11.5">
+        <rect x="-2" y="0" width="14" height="14" rx="3" fill="#0d4a2e"/>
+        <path d="M2 7 L5 10 L11 4" stroke="#f7efe1" stroke-width="1.6" fill="none"/>
+        <text x="36" y="11" fill="#14110c">Veg Sandwich</text>
+        <text x="194" y="11" font-weight="600" fill="#14110c">80</text>
+        <text x="240" y="11" fill="#14110c">half</text>
+        <rect x="290" y="2" width="12" height="12" rx="2" fill="#0d4a2e"/>
+      </g>
+
+      <g transform="translate(20,164)" font-size="11.5">
+        <rect x="-2" y="0" width="14" height="14" rx="3" fill="#0d4a2e"/>
+        <path d="M2 7 L5 10 L11 4" stroke="#f7efe1" stroke-width="1.6" fill="none"/>
+        <text x="36" y="11" fill="#14110c">Filter Coffee</text>
+        <text x="194" y="11" font-weight="600" fill="#14110c">40</text>
+        <text x="240" y="11" fill="#14110c">cup</text>
+        <rect x="290" y="2" width="12" height="12" rx="2" fill="#0d4a2e"/>
+      </g>
+
+      <g transform="translate(20,186)" font-size="11.5" opacity="0.45">
+        <rect x="-2" y="0" width="14" height="14" rx="3" fill="none" stroke="#3a3530" stroke-width="1.4"/>
+        <text x="36" y="11" fill="#14110c" text-decoration="line-through">Mango Lassi 250ml</text>
+        <text x="194" y="11" fill="#14110c">80</text>
+        <text x="240" y="11" fill="#14110c">250 ml</text>
+        <rect x="290" y="2" width="12" height="12" rx="2" fill="#0d4a2e"/>
+      </g>
+
+      <line x1="20" y1="220" x2="325" y2="220" stroke="#14110c" stroke-opacity="0.06"/>
+      <text x="20" y="240" font-size="10.5" fill="#3a3530">Items go through Magarpatta Go review before going live.</text>
+
+      <g transform="translate(20,258)">
+        <rect width="190" height="40" rx="14" fill="#0d4a2e"/>
+        <text x="95" y="25" text-anchor="middle" font-size="13" font-weight="600" fill="#f7efe1">Submit 5 for review</text>
+      </g>
+      <g transform="translate(218,258)">
+        <rect width="98" height="40" rx="14" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.18"/>
+        <text x="49" y="25" text-anchor="middle" font-size="12" fill="#3a3530">Clear</text>
+      </g>
+    </g>
+
+    <rect x="124" y="826" width="145" height="5" rx="2.5" fill="#14110c"/>
+  </g>
+</svg>

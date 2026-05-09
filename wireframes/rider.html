@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magarpatta Go — Rider Mobile Wireframe</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: {
+      ink: '#14110c', 'ink-soft': '#3a3530',
+      paper: '#fffdf7', cream: '#f7efe1', 'cream-soft': '#eee3ce', bone: '#e1d4bc',
+      forest: '#0d4a2e', 'forest-dark': '#06311c', moss: '#2d6b48', sage: '#5a7a63',
+      saffron: '#e68a17', 'saffron-soft': '#f4b564', gold: '#c79321',
+      terracotta: '#c64f2e', 'terracotta-dark': '#962f15',
+    },
+    fontFamily: { sans: ['Inter','sans-serif'], serif: ['Instrument Serif','serif'] },
+  }}}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100vh; overflow: hidden; }
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e1d4bc 0%, #f7efe1 100%); color: #14110c; padding: 12px; }
+  .phone-shell { height: min(862px, calc(100vh - 24px)); width: calc(min(862px, calc(100vh - 24px)) * 408 / 862); background: #14110c; border-radius: 54px; padding: 9px; box-shadow: 0 30px 80px rgba(20,17,12,0.25), 0 0 0 1px rgba(20,17,12,0.6); position: relative; flex-shrink: 0; }
+  .phone-frame { width: 100%; height: 100%; background: #f7efe1; border-radius: 46px; overflow: hidden; position: relative; contain: paint; isolation: isolate; }
+  .status-bar { position: absolute; top:0; left:0; right:0; height: 44px; padding: 14px 28px 0; display:flex; align-items: flex-start; justify-content: space-between; font-size: 14px; font-weight: 600; color: #14110c; z-index: 200; pointer-events: none; }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 110px; height: 28px; background: #14110c; border-radius: 20px; z-index: 201; }
+  .screen { position: absolute; inset: 0; padding-top: 44px; padding-bottom: 12px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: #f7efe1; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+  .screen.active { opacity: 1; pointer-events: auto; z-index: 10; }
+  .screen::-webkit-scrollbar { width: 0; }
+  .pulse-ring { position: relative; display: inline-block; }
+  .pulse-ring::after { content:''; position:absolute; inset:0; border-radius: 9999px; background: currentColor; animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+  @keyframes pulse-ring { 0% { transform: scale(0.9); opacity: 0.9; } 80%, 100% { transform: scale(2.4); opacity: 0; } }
+  .home-indicator { position: absolute; bottom: 6px; left:50%; transform: translateX(-50%); width: 110px; height: 4px; background: rgba(20,17,12,0.85); border-radius: 999px; z-index: 90; pointer-events: none; }
+  .nav-shell { position: fixed; top: 32px; left: 32px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+  .nav-pill { background: #14110c; color: #f7efe1; padding: 10px 18px; border-radius: 999px; font-size: 12px; display: flex; gap: 10px; align-items: center; }
+  .nav-pill button { background: rgba(247,239,225,0.14); padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: background 0.15s; font-size: 12px; }
+  .nav-pill button:hover { background: rgba(247,239,225,0.28); }
+  .nav-info { background: #fffdf7; padding: 10px 16px; border-radius: 14px; font-size: 11.5px; color: #14110c; box-shadow: 0 4px 12px rgba(20,17,12,0.08); max-width: 230px; line-height: 1.5; }
+  .nav-info b { font-weight: 600; }
+  .legend { position: fixed; bottom: 32px; left: 32px; background: #fffdf7; padding: 12px 16px; border-radius: 14px; font-size: 11px; color: #3a3530; max-width: 220px; line-height: 1.6; box-shadow: 0 4px 12px rgba(20,17,12,0.08); z-index: 1000; }
+  .legend h4 { font-weight: 600; color: #14110c; margin-bottom: 4px; font-size: 11px; }
+  .legend kbd { background: #f7efe1; padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 10px; }
+  .hairline { background: linear-gradient(90deg, transparent, rgba(20,17,12,0.16), transparent); height: 1px; width: 100%; }
+  /* Status pills */
+  .status { padding: 3px 9px; border-radius: 999px; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; }
+  .status.placed { background: rgba(229,144,36,0.16); color: #c79321; }
+  .status.accepted { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.preparing { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.picked { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.out { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.delivered { background: rgba(20,17,12,0.08); color: #3a3530; }
+  .status.walkin { background: rgba(198,79,46,0.14); color: #c64f2e; }
+</style>
+</head>
+<body class="flex items-center justify-center">
+
+<div class="phone-shell">
+<div class="phone-frame">
+<div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+<div class="notch"></div>
+
+<!-- ============================================ -->
+<!-- 1. RIDER SIGN IN (/rider/signin) -->
+<!-- ============================================ -->
+<div id="signin" class="screen active" data-label="/rider/signin">
+  <div class="px-6 pt-6">
+    <div class="flex items-center gap-2 mb-10">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[14px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="ml-1 text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Rider</span>
+    </div>
+
+    <h1 class="font-serif text-[42px] leading-[1.05] tracking-tight mb-3">
+      Clock in, <span class="italic text-forest">neighbour.</span>
+    </h1>
+    <p class="text-[13px] leading-[1.55] text-ink-soft mb-9">Enter your rider phone. We'll send a 6-digit OTP. New here? <button onclick="navigate('register')" class="text-forest underline underline-offset-2">Apply to ride.</button></p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Rider phone</label>
+    <div class="flex items-center bg-paper border border-ink/14 rounded-2xl overflow-hidden mb-6">
+      <span class="pl-4 pr-3 py-3.5 text-[15px] text-ink-soft border-r border-ink/10">+91</span>
+      <input id="signinPhone" inputmode="numeric" maxlength="10" placeholder="9000000111" class="flex-1 py-3.5 pr-4 bg-transparent outline-none text-[15px] tracking-wide" oninput="signinValidate()">
+    </div>
+
+    <button id="signinSendBtn" onclick="navigate('signin-otp'); startOtpAnimation('signin')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight opacity-50">Start shift</button>
+
+    <details class="mt-8 bg-paper rounded-2xl border border-ink/8 overflow-hidden">
+      <summary class="px-4 py-3 text-[12px] cursor-pointer text-ink-soft">Demo roster · tap to prefill · OTP is <b class="text-ink">123456</b></summary>
+      <div class="px-4 pb-3">
+        <button onclick="prefillRider('9000000111')" class="block w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000111 · Amit Patil</button>
+        <button onclick="prefillRider('9000000112')" class="block w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000112 · Karthik Reddy</button>
+        <button onclick="prefillRider('9000000113')" class="block w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000113 · Sandeep Kale</button>
+        <button onclick="prefillRider('9000000114')" class="block w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000114 · Priya Mhatre</button>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. SIGN IN OTP -->
+<!-- ============================================ -->
+<div id="signin-otp" class="screen" data-label="/rider/signin · verify">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signin')" class="text-[12px] text-ink-soft mb-9">← Change number</button>
+
+    <div class="flex items-center gap-2 mb-6">
+      <span class="text-[14px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="ml-1 text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Rider</span>
+    </div>
+
+    <h1 class="font-serif text-[36px] leading-[1.05] tracking-tight mb-3">
+      One <span class="italic">6-digit</span> code.
+    </h1>
+    <p class="text-[12.5px] text-ink-soft mb-1">Sent to <b class="text-ink">+91 <span id="signinPhoneDisplay">9000000111</span></b></p>
+    <p class="text-[11.5px] text-saffron mb-8">Demo mode — use code <b>123456</b></p>
+
+    <div class="grid grid-cols-6 gap-2.5 mb-8">
+      <div id="signin-otp-1" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-2" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-3" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-4" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-5" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-6" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+    </div>
+    <p class="text-center text-[12px] text-ink-soft">Resend code in <b>30s</b></p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3. REGISTER -->
+<!-- ============================================ -->
+<div id="register" class="screen" data-label="/rider/register">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signin')" class="text-[12px] text-ink-soft mb-7">← Back to sign in</button>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-5">
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-forest font-medium">Rider application</span>
+    </div>
+    <h1 class="font-serif text-[34px] leading-[1.05] tracking-tight mb-3">
+      Put yourself on the <span class="italic text-forest">roster.</span>
+    </h1>
+    <p class="text-[12.5px] leading-[1.55] text-ink-soft mb-8">Ops verifies DL + RC in person before first shift. Expect a 15-minute call within 24 hours of applying.</p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Full name</label>
+    <input placeholder="e.g. Amit Patil" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Phone</label>
+    <div class="flex items-center bg-paper border border-ink/14 rounded-2xl overflow-hidden mb-4">
+      <span class="pl-4 pr-3 py-3 text-[14px] text-ink-soft border-r border-ink/10">+91</span>
+      <input inputmode="numeric" maxlength="10" placeholder="10-digit number" class="flex-1 py-3 pr-4 bg-transparent outline-none text-[14px]">
+    </div>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Email <span class="opacity-50 normal-case tracking-normal">(optional)</span></label>
+    <input type="email" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Aadhaar (12-digit)</label>
+    <input inputmode="numeric" maxlength="12" placeholder="Only last 4 visible to admin" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Driving licence</label>
+    <input placeholder="MH12 2019 0021" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none uppercase">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Vehicle type</label>
+    <select class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+      <option>Motorcycle</option>
+      <option>Scooter</option>
+      <option>Bicycle</option>
+    </select>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Vehicle number</label>
+    <input placeholder="MH12 AB 1234" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-7 text-[14px] outline-none uppercase">
+
+    <p class="text-[11px] leading-[1.5] text-ink-soft mb-5">By submitting, you agree to let <b class="text-ink">Magarpatta Go</b> verify your DL and vehicle RC. We never share Aadhaar with anyone outside our ops team.</p>
+
+    <button onclick="navigate('register-otp'); startOtpAnimation('reg')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Send OTP to verify phone</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4. REGISTER OTP -->
+<!-- ============================================ -->
+<div id="register-otp" class="screen" data-label="/rider/register · verify">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('register')" class="text-[12px] text-ink-soft mb-9">← Edit details</button>
+
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Verify phone</div>
+    <h1 class="font-serif text-[32px] leading-[1.1] mb-3">One <span class="italic">6-digit</span> code.</h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-2">We'll text a 6-digit code to <b class="text-ink">+91 9000000111</b>. That phone becomes your signin identity.</p>
+    <p class="text-[11.5px] text-saffron mb-7">Demo mode — use code <b>123456</b></p>
+
+    <div class="grid grid-cols-6 gap-2 mb-7">
+      <div id="reg-otp-1" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-2" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-3" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-4" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-5" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-6" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+    </div>
+
+    <button onclick="navigate('register-success')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Verify & submit</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 5. REGISTER SUCCESS -->
+<!-- ============================================ -->
+<div id="register-success" class="screen" data-label="/rider/register · success">
+  <div class="px-6 pt-16 text-center">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-forest text-cream text-[28px] mb-7">✓</div>
+    <h1 class="font-serif text-[34px] leading-[1.05] mb-4">Application in, <span class="italic text-forest">neighbour.</span></h1>
+    <p class="text-[13px] leading-[1.6] text-ink-soft mb-9 px-2">Ops will call you on <b class="text-ink">+91 9000000111</b> within a day to verify your documents. Once you're approved you can sign in with your phone number.</p>
+    <button onclick="navigate('signin')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Back to sign in</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 6. DASHBOARD (/rider) -->
+<!-- ============================================ -->
+<div id="dashboard" class="screen" data-label="/rider">
+  <!-- header -->
+  <div class="px-4 pt-2 pb-3 flex items-center justify-between bg-paper sticky top-[44px] z-30 border-b border-ink/8">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Rider</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="navigate('feedback')" class="text-[11.5px] text-ink-soft underline">Feedback</button>
+      <span class="text-[10px] uppercase tracking-[0.14em] text-saffron px-2 py-0.5 rounded-full bg-saffron/12">On shift · Amit</span>
+      <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+    </div>
+  </div>
+
+  <div class="px-5 pt-5 pb-6">
+    <!-- Earnings strip -->
+    <div class="bg-gradient-to-br from-forest to-moss text-cream rounded-3xl p-5 mb-5">
+      <div class="flex items-start justify-between mb-2">
+        <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron-soft">Today</div>
+        <div class="text-[10px] uppercase tracking-[0.14em] text-cream/60">Auto-refresh · 5s</div>
+      </div>
+      <div class="font-serif text-[32px] leading-tight">₹<span id="earningsValue">540</span></div>
+      <div class="text-[12px] text-cream/80 mt-1"><span id="dropsValue">9</span> drops · ₹60 per delivery</div>
+    </div>
+
+    <!-- Active deliveries -->
+    <div class="flex items-center gap-2 mb-3">
+      <h2 class="font-serif text-[20px]">Your active deliveries</h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-saffron/15 text-saffron-soft font-medium" id="activeBadge">1 waiting</span>
+    </div>
+    <div class="space-y-2.5 mb-7" id="activeList">
+      <button onclick="navigate('order-detail')" class="block w-full text-left bg-paper rounded-2xl border-2 border-forest/30 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status accepted">ACCEPTED</span>
+          <span class="text-[10px] text-ink-soft">· #5DC11F</span>
+        </div>
+        <div class="text-[13px] font-medium">Kalika Sweets → Lily · Tower 3, flat 305</div>
+        <div class="text-[11px] text-ink-soft">Paneer butter masala × 1, Sourdough loaf</div>
+        <div class="flex items-end justify-between mt-2">
+          <span class="text-[10.5px] text-ink-soft">Pristine Pune · placed 21:14 IST</span>
+          <div class="text-right">
+            <div class="font-serif text-[16px]">₹425</div>
+            <div class="text-[9.5px] uppercase tracking-[0.12em] text-ink-soft">order value</div>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Walk in + buy -->
+    <div class="flex items-center gap-2 mb-2">
+      <h2 class="font-serif text-[20px]">Walk in + buy</h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-terracotta/15 text-terracotta font-medium" id="availableBadge">2 waiting</span>
+    </div>
+    <p class="text-[11.5px] leading-[1.55] text-ink-soft mb-3">The shop hasn't been pinged — you're the personal shopper here. Walk in, place the order at the counter, pay from your Magarpatta Go float, bring it back to the customer's door.</p>
+
+    <div class="space-y-2.5 mb-7" id="availableList">
+      <div class="bg-paper rounded-2xl border-2 border-terracotta/30 p-4" data-avail="1">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status walkin">Walk-in · concierge</span>
+          <span class="text-[10px] text-ink-soft">· #2A7BC9</span>
+        </div>
+        <div class="text-[13px] font-medium">Destination Centre → Cosmos C-7, flat 1102</div>
+        <div class="text-[11px] text-ink-soft mb-2">Broccoli, Crocin Advance, 2L milk</div>
+        <div class="flex items-end justify-between mb-3">
+          <span class="text-[10.5px] text-ink-soft">Cosmos · placed 21:09 IST</span>
+          <div class="text-right">
+            <div class="font-serif text-[16px]">₹187</div>
+            <div class="text-[9.5px] uppercase tracking-[0.12em] text-ink-soft">order value</div>
+          </div>
+        </div>
+        <button onclick="pickUp(1)" class="w-full bg-terracotta text-paper py-2.5 rounded-full text-[12.5px] font-medium">Pick this up →</button>
+      </div>
+      <div class="bg-paper rounded-2xl border-2 border-terracotta/30 p-4" data-avail="2">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status walkin">Walk-in · concierge</span>
+          <span class="text-[10px] text-ink-soft">· #4E10AC</span>
+        </div>
+        <div class="text-[13px] font-medium">Magarpatta Pharmacy → Daffodils 4, flat 502</div>
+        <div class="text-[11px] text-ink-soft mb-2">Cetirizine 10mg × 2 strips, ORS sachets × 5</div>
+        <div class="flex items-end justify-between mb-3">
+          <span class="text-[10.5px] text-ink-soft">Daffodils · placed 20:54 IST</span>
+          <div class="text-right">
+            <div class="font-serif text-[16px]">₹118</div>
+            <div class="text-[9.5px] uppercase tracking-[0.12em] text-ink-soft">order value</div>
+          </div>
+        </div>
+        <button onclick="pickUp(2)" class="w-full bg-terracotta text-paper py-2.5 rounded-full text-[12.5px] font-medium">Pick this up →</button>
+      </div>
+    </div>
+
+    <!-- Recent drops -->
+    <h2 class="font-serif text-[20px] mb-3">Recent drops</h2>
+    <div class="bg-paper rounded-2xl border border-ink/6 divide-y divide-ink/6">
+      <div class="p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[12.5px]">Kalika Sweets → Lily 3</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr 19:14 IST</div>
+        </div>
+        <span class="font-serif text-[14px] text-forest">₹60</span>
+      </div>
+      <div class="p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[12.5px]">Baker's Basket → Rose 5</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr 18:42 IST</div>
+        </div>
+        <span class="font-serif text-[14px] text-forest">₹60</span>
+      </div>
+      <div class="p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[12.5px]">Destination Centre → Tulip 7</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr 17:18 IST</div>
+        </div>
+        <span class="font-serif text-[14px] text-forest">₹60</span>
+      </div>
+      <div class="p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[12.5px]">Shraddha Meats → Aristo 2</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr 16:05 IST</div>
+        </div>
+        <span class="font-serif text-[14px] text-forest">₹60</span>
+      </div>
+      <div class="p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[12.5px]">Kalika Sweets → Nirvana 1</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr 14:38 IST</div>
+        </div>
+        <span class="font-serif text-[14px] text-forest">₹60</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 7. ORDER DETAIL — stateful (PLACED → PICKED → DELIVERED) -->
+<!-- ============================================ -->
+<div id="order-detail" class="screen" data-label="/rider/orders/5DC11F">
+  <div class="px-4 pt-2 pb-3 flex items-center justify-between bg-paper sticky top-[44px] z-30 border-b border-ink/8">
+    <button onclick="navigate('dashboard')" class="text-[12.5px]">← Dashboard</button>
+    <span class="text-[10px] uppercase tracking-[0.14em] text-saffron font-medium" id="orderStatusPill">#5DC11F · ACCEPTED</span>
+  </div>
+
+  <div class="px-5 pt-5 pb-6">
+    <!-- Pickup -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-terracotta mb-1">Pickup from</div>
+      <h2 class="font-serif text-[24px] leading-tight">Kalika Sweets</h2>
+      <p class="text-[12.5px] text-ink-soft mt-1">Magarpatta Market</p>
+      <p class="text-[11.5px] text-ink-soft mt-2">📍 Shop 14, Magarpatta Market · Pune</p>
+    </div>
+
+    <!-- Drop -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-forest mb-1">Drop at</div>
+      <h2 class="font-serif text-[24px] leading-tight">Flat 305, Lily · Tower 3</h2>
+      <p class="text-[12.5px] text-ink-soft mt-1">Pristine Pune Magarpatta · Magarpatta City</p>
+      <div class="bg-cream-soft/50 border-l-2 border-saffron px-3 py-2 mt-3 rounded-r-md">
+        <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-0.5">Customer note</div>
+        <p class="text-[12px] italic">"Ring the bell once. Dog at the door — friendly."</p>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-3">2 items</div>
+      <div class="space-y-2 text-[12.5px]">
+        <div class="flex justify-between"><span>Paneer butter masala · 350g</span><span class="text-ink-soft">× 1</span></div>
+        <div class="flex justify-between"><span>Sourdough loaf · 480g</span><span class="text-ink-soft">× 1</span></div>
+      </div>
+      <div class="hairline my-3"></div>
+      <div class="flex items-end justify-between">
+        <div>
+          <div class="font-serif text-[18px]">₹425</div>
+          <div class="text-[10.5px] text-ink-soft mt-0.5">Order value</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[11.5px]">Cash on delivery</div>
+          <div class="text-[10.5px] text-ink-soft">— collect from customer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action area -->
+    <div id="actionArea">
+      <!-- Initial: ACCEPTED state, show "I've picked up" -->
+      <button onclick="setOrderState('picked')" id="pickupBtn" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight">I've picked up the order</button>
+
+      <!-- Hidden: PICKED — OTP delivery -->
+      <div id="otpArea" class="hidden">
+        <div class="bg-saffron/10 border border-saffron/30 rounded-2xl p-4 mb-3">
+          <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1">Delivery OTP</div>
+          <h3 class="font-serif text-[18px] leading-tight mb-2">Ask the customer for their 4-digit code.</h3>
+          <p class="text-[11.5px] text-ink-soft mb-4">They'll see it on their order page. No code = no handover.</p>
+          <input id="deliveryCode" inputmode="numeric" maxlength="4" placeholder="• • • •" class="w-full bg-paper border border-ink/16 rounded-2xl px-4 py-3 text-center font-mono text-[28px] tracking-[0.4em] mb-3 outline-none focus:border-forest" oninput="checkDeliveryCode()">
+          <button id="deliverBtn" onclick="setOrderState('delivered')" disabled class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight opacity-50">Mark delivered</button>
+          <p class="text-[10.5px] text-saffron mt-2 text-center">Demo: customer's code is <b>4729</b></p>
+        </div>
+      </div>
+
+      <!-- Hidden: DELIVERED -->
+      <div id="deliveredArea" class="hidden">
+        <div class="bg-forest text-cream rounded-3xl p-5 text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-cream/15 mb-3 text-[20px]">✓</div>
+          <h3 class="font-serif text-[22px] mb-2">Delivered</h3>
+          <p class="text-[12.5px] text-cream/80 mb-1">Just now · IST</p>
+          <p class="text-[12.5px] text-cream/80 mb-4">Nice drop. <b class="text-saffron-soft">+₹60</b> added to today's earnings.</p>
+          <button onclick="navigate('dashboard'); resetOrder()" class="w-full bg-cream text-forest py-3 rounded-full text-[13px] font-medium">Next order →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 8. ORDER DETAIL — UNAUTHORIZED -->
+<!-- ============================================ -->
+<div id="order-unauthorized" class="screen" data-label="/rider/orders/X · taken">
+  <div class="px-4 pt-2 pb-3 flex items-center justify-between bg-paper">
+    <button onclick="navigate('dashboard')" class="text-[12.5px]">← Dashboard</button>
+  </div>
+  <div class="px-6 pt-12 text-center">
+    <div class="text-[40px] mb-4 opacity-40">🏍</div>
+    <h2 class="font-serif text-[28px] mb-3">Another rider is on this one.</h2>
+    <p class="text-[12.5px] text-ink-soft mb-9">Head back and grab the next available order.</p>
+    <button onclick="navigate('dashboard')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Back to dashboard</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 9. FEEDBACK -->
+<!-- ============================================ -->
+<div id="feedback" class="screen" data-label="/rider/feedback">
+  <div class="px-4 pt-2 pb-3 flex items-center justify-between bg-paper sticky top-[44px] z-30 border-b border-ink/8">
+    <button onclick="navigate('dashboard')" class="text-[12.5px]">← Dashboard</button>
+    <div class="flex items-center gap-2">
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Rider</span>
+    </div>
+  </div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Your delivery rating</div>
+    <h1 class="font-serif text-[26px] leading-[1.1] mb-5">Neighbours <span class="italic text-forest">rate you, Amit.</span></h1>
+
+    <div class="bg-gradient-to-br from-forest/8 to-moss/4 rounded-2xl border border-ink/6 p-5 mb-4">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Avg delivery rating</div>
+      <div class="flex items-end gap-2">
+        <span class="font-serif text-[54px] text-forest leading-none">4.9</span>
+        <span class="text-[18px] text-saffron">★</span>
+      </div>
+      <div class="text-[11px] text-ink-soft mt-2">Across 142 ratings</div>
+    </div>
+
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-5">
+      <div class="space-y-2 text-[11.5px]">
+        <div class="flex items-center gap-2"><span class="w-7">5 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:88%"></div></div><span class="w-8 text-right">125</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">4 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:9%"></div></div><span class="w-8 text-right">13</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">3 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:2%"></div></div><span class="w-8 text-right">3</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">2 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:1%"></div></div><span class="w-8 text-right">1</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">1 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:0%"></div></div><span class="w-8 text-right">0</span></div>
+      </div>
+    </div>
+
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-3">Recent ratings</div>
+    <div class="space-y-3 divide-y divide-ink/6">
+      <div class="pt-0">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★★</span> · #5DC11F</div>
+          <span class="text-[10.5px] text-ink-soft">28 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft mb-1.5">Kalika Sweets → Lily · Pristine Pune</div>
+        <p class="text-[12px] italic leading-[1.5]">"Quick handover. Polite. Lift was working — bonus."</p>
+      </div>
+      <div class="pt-3">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★★</span> · #B91C7E</div>
+          <span class="text-[10.5px] text-ink-soft">28 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft">Baker's Basket → Rose · Cosmos</div>
+      </div>
+      <div class="pt-3">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★</span><span class="text-ink/30">★</span> · #4E10AC</div>
+          <span class="text-[10.5px] text-ink-soft">27 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft mb-1.5">Magarpatta Pharmacy → Daffodils</div>
+        <p class="text-[12px] italic leading-[1.5]">"Took a bit to find the gate. Otherwise great."</p>
+      </div>
+      <div class="pt-3">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★★</span> · #7D33E1</div>
+          <span class="text-[10.5px] text-ink-soft">26 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft">Destination Centre → Tulip 7</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="home-indicator"></div>
+</div>
+</div>
+
+<script>
+  const screens = document.querySelectorAll('.screen');
+  let history = ['signin'];
+  let earnings = 540;
+  let drops = 9;
+
+  function updateHud() {}
+  function navigate(id, reset) {
+    if (reset) history = [];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('active');
+    el.scrollTop = 0;
+    if (history[history.length-1] !== id) history.push(id);
+    updateHud();
+  }
+  function goBack() {
+    if (history.length > 1) {
+      history.pop();
+      const prev = history[history.length-1];
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(prev).classList.add('active');
+      updateHud();
+    }
+  }
+
+  function signinValidate() {
+    const v = document.getElementById('signinPhone').value.replace(/\D/g,'');
+    const valid = v.length === 10;
+    document.getElementById('signinSendBtn').style.opacity = valid ? '1' : '0.5';
+    document.getElementById('signinSendBtn').disabled = !valid;
+    if (valid) document.getElementById('signinPhoneDisplay').textContent = v;
+  }
+  function prefillRider(phone) {
+    document.getElementById('signinPhone').value = phone;
+    signinValidate();
+  }
+
+  function startOtpAnimation(prefix) {
+    const code = ['1','2','3','4','5','6'];
+    code.forEach((d,i) => {
+      const el = document.getElementById(prefix+'-otp-'+(i+1));
+      if (el) el.textContent = '';
+    });
+    code.forEach((d,i) => {
+      setTimeout(() => {
+        const el = document.getElementById(prefix+'-otp-'+(i+1));
+        if (el) { el.textContent = d; el.style.borderColor = '#0d4a2e'; }
+      }, 280 + i*180);
+    });
+    if (prefix === 'signin') {
+      setTimeout(() => navigate('dashboard'), 280 + 6*180 + 500);
+    }
+  }
+
+  // Available → claim flow
+  function pickUp(id) {
+    const card = document.querySelector(`#availableList [data-avail="${id}"]`);
+    if (!card) return;
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.96)';
+    setTimeout(() => {
+      // remove from available
+      card.remove();
+      const remaining = document.querySelectorAll('#availableList > [data-avail]').length;
+      const badge = document.getElementById('availableBadge');
+      badge.textContent = remaining + (remaining === 1 ? ' waiting' : ' waiting');
+      if (remaining === 0) badge.textContent = 'all caught up';
+
+      // add to active
+      const active = document.getElementById('activeList');
+      const data = id === 1
+        ? { vendor: 'Destination Centre', drop: 'Cosmos C-7, flat 1102', items: 'Broccoli, Crocin Advance, 2L milk', soc: 'Cosmos', amt: 187, time: '21:09', oid: '2A7BC9' }
+        : { vendor: 'Magarpatta Pharmacy', drop: 'Daffodils 4, flat 502', items: 'Cetirizine 10mg × 2, ORS sachets × 5', soc: 'Daffodils', amt: 118, time: '20:54', oid: '4E10AC' };
+      const div = document.createElement('button');
+      div.onclick = () => navigate('order-detail');
+      div.className = 'block w-full text-left bg-paper rounded-2xl border-2 border-forest/30 p-4';
+      div.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <span class="status accepted">ACCEPTED</span>
+          <span class="text-[10px] text-ink-soft">· #${data.oid}</span>
+        </div>
+        <div class="text-[13px] font-medium">${data.vendor} → ${data.drop}</div>
+        <div class="text-[11px] text-ink-soft">${data.items}</div>
+        <div class="flex items-end justify-between mt-2">
+          <span class="text-[10.5px] text-ink-soft">${data.soc} · placed ${data.time} IST</span>
+          <div class="text-right"><div class="font-serif text-[16px]">₹${data.amt}</div><div class="text-[9.5px] uppercase tracking-[0.12em] text-ink-soft">order value</div></div>
+        </div>`;
+      active.appendChild(div);
+      const activeCount = active.children.length;
+      document.getElementById('activeBadge').textContent = activeCount + ' waiting';
+      flashToast('Claimed ✓ Walk to ' + data.vendor);
+    }, 300);
+  }
+
+  // Order state machine
+  function setOrderState(state) {
+    const pickupBtn = document.getElementById('pickupBtn');
+    const otpArea = document.getElementById('otpArea');
+    const deliveredArea = document.getElementById('deliveredArea');
+    const pill = document.getElementById('orderStatusPill');
+
+    if (state === 'picked') {
+      pickupBtn.classList.add('hidden');
+      otpArea.classList.remove('hidden');
+      deliveredArea.classList.add('hidden');
+      pill.textContent = '#5DC11F · PICKED UP';
+    } else if (state === 'delivered') {
+      const code = document.getElementById('deliveryCode').value;
+      if (code !== '4729') { flashToast('Wrong OTP'); return; }
+      pickupBtn.classList.add('hidden');
+      otpArea.classList.add('hidden');
+      deliveredArea.classList.remove('hidden');
+      pill.textContent = '#5DC11F · DELIVERED';
+      // bump earnings
+      earnings += 60;
+      drops += 1;
+      document.getElementById('earningsValue').textContent = earnings;
+      document.getElementById('dropsValue').textContent = drops;
+    }
+  }
+  function checkDeliveryCode() {
+    const v = document.getElementById('deliveryCode').value;
+    const btn = document.getElementById('deliverBtn');
+    if (v.length === 4) { btn.disabled = false; btn.style.opacity = '1'; }
+    else { btn.disabled = true; btn.style.opacity = '0.5'; }
+  }
+  function resetOrder() {
+    setTimeout(() => {
+      document.getElementById('pickupBtn').classList.remove('hidden');
+      document.getElementById('otpArea').classList.add('hidden');
+      document.getElementById('deliveredArea').classList.add('hidden');
+      document.getElementById('deliveryCode').value = '';
+      document.getElementById('orderStatusPill').textContent = '#5DC11F · ACCEPTED';
+    }, 600);
+  }
+
+  function flashToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'absolute left-1/2 -translate-x-1/2 bg-forest text-cream px-4 py-2 rounded-full text-[12px] z-[2000] transition-opacity';
+    t.style.bottom = '36px';
+    t.style.boxShadow = '0 8px 20px rgba(0,0,0,0.18)';
+    t.textContent = msg;
+    document.querySelector('.phone-frame').appendChild(t);
+    setTimeout(() => t.style.opacity = '0', 1300);
+    setTimeout(() => t.remove(), 1700);
+  }
+
+  updateHud();
+</script>
+
+</body>
+</html>

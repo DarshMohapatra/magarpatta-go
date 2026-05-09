@@ -2,7 +2,61 @@
 
 > Demo credentials. Rotate before real launch. This file is committed intentionally for the Phase‑1/Phase‑2 demo — treat it like a README, not a secrets vault.
 
-## Live URLs
+## Two live instances
+
+The codebase is **multi-instance**: one repo, many deployments, each with its own database. Each instance is configured at build time by the `SITE_SLUG` env var and serves a single locality. Onboarding details: `docs/ONBOARDING_NEW_SITE.md`.
+
+| Instance | URL | DB host | `SITE_SLUG` |
+| --- | --- | --- | --- |
+| **Magarpatta City** (production) | https://web-eta-ebon-80.vercel.app | Neon · `ep-sparkling-unit-a15ht5fc` | `magarpatta` (default) |
+| **Amanora Park Town** | https://amanora-go.vercel.app | Neon · `ep-silent-surf-aot5k4aa` | `amanora` |
+
+Each instance has its own admin, vendors, riders, curator, customers — they share zero data. The same human can have admin credentials on both.
+
+---
+
+## Super Admin · cross-instance supervisor
+
+Sits **above** the per-instance admins. One human, one login, sees a live aggregate of every site and can drill into each one. Read-only by design — every write still goes through the instance's own admin console.
+
+| Field | Value |
+| --- | --- |
+| URL | https://super-admin-go.vercel.app |
+| Sign-in | https://super-admin-go.vercel.app/super-admin/signin |
+| Phone | `9999999000` |
+| Password | `superadmin@2026` |
+| Vercel project | `super-admin-go` (separate from `web` and `amanora-go`) |
+
+### How it works
+
+The super-admin host is a dedicated Vercel deployment of the same repo with `SUPER_ADMIN_HOST=true` set. Its middleware redirects every path except `/super-admin/*` to the signin page, so even though it ships with the full app code, no customer/vendor/rider routes are reachable here.
+
+Each instance exposes `GET /api/super-admin/snapshot` (gated by a shared bearer secret). The super-admin host polls every instance listed in `SUPER_ADMIN_INSTANCES` and renders the combined dashboard at `/super-admin`.
+
+| Env var | Where it lives | Purpose |
+| --- | --- | --- |
+| `SUPER_ADMIN_HOST=true` | super-admin-go only | Activates the lockdown middleware |
+| `SUPER_ADMIN_PHONE` | super-admin-go only | Login phone (`9999999000`) |
+| `SUPER_ADMIN_PASSWORD_HASH` | super-admin-go only | sha256 hex of the password |
+| `SUPER_ADMIN_INSTANCES` | super-admin-go only | `magarpatta=...,amanora=...` |
+| `SUPER_ADMIN_SHARED_SECRET` | **all three projects** | Same value on each — bearer token for the snapshot poll |
+
+### Rotating the password
+
+```powershell
+# 1. Pick a new password and compute its sha256
+node -e "console.log(require('crypto').createHash('sha256').update('NEW_PASSWORD').digest('hex'))"
+
+# 2. Update SUPER_ADMIN_PASSWORD_HASH on the super-admin-go project (Vercel dashboard or CLI)
+# 3. Redeploy super-admin-go for the new hash to take effect
+# 4. Update this file
+```
+
+Rotating `SUPER_ADMIN_SHARED_SECRET` requires updating it on **all three** projects (super-admin-go, web, amanora-go) and redeploying each — or the snapshot calls will start returning 401.
+
+---
+
+## Magarpatta City — URLs
 
 | Role | URL |
 | --- | --- |
@@ -18,6 +72,37 @@
 | Rider sign in | https://web-eta-ebon-80.vercel.app/rider/signin |
 | Admin landing | https://web-eta-ebon-80.vercel.app/partner/admin |
 | Admin sign in | https://web-eta-ebon-80.vercel.app/admin/signin |
+| Admin activity feed | https://web-eta-ebon-80.vercel.app/admin/activity |
+| Curator sign in | https://web-eta-ebon-80.vercel.app/curator/signin |
+| Curator queue | https://web-eta-ebon-80.vercel.app/curator |
+| Curator history | https://web-eta-ebon-80.vercel.app/curator/history |
+| Helpdesk sign in | https://web-eta-ebon-80.vercel.app/helpdesk/signin |
+| Helpdesk queue (open) | https://web-eta-ebon-80.vercel.app/helpdesk |
+| Helpdesk resolved | https://web-eta-ebon-80.vercel.app/helpdesk/resolved |
+| Customer support tickets | https://web-eta-ebon-80.vercel.app/support |
+| Customer file new ticket | https://web-eta-ebon-80.vercel.app/support/new |
+| Admin support oversight (read-only) | https://web-eta-ebon-80.vercel.app/admin/support |
+
+## Amanora Park Town — URLs
+
+| Role | URL |
+| --- | --- |
+| Customer app | https://amanora-go.vercel.app |
+| Customer sign in | https://amanora-go.vercel.app/signin |
+| Customer sign up | https://amanora-go.vercel.app/signup |
+| Partner hub | https://amanora-go.vercel.app/partner |
+| Vendor sign in | https://amanora-go.vercel.app/vendor/signin |
+| Vendor register | https://amanora-go.vercel.app/vendor/register |
+| Rider sign in | https://amanora-go.vercel.app/rider/signin |
+| Rider register | https://amanora-go.vercel.app/rider/register |
+| Admin sign in | https://amanora-go.vercel.app/admin/signin |
+| Admin activity feed | https://amanora-go.vercel.app/admin/activity |
+| Curator sign in | https://amanora-go.vercel.app/curator/signin |
+| Curator queue | https://amanora-go.vercel.app/curator |
+| Helpdesk sign in | https://amanora-go.vercel.app/helpdesk/signin |
+| Helpdesk queue | https://amanora-go.vercel.app/helpdesk |
+| Customer support tickets | https://amanora-go.vercel.app/support |
+| Admin support oversight (read-only) | https://amanora-go.vercel.app/admin/support |
 
 ### Local dev
 
@@ -29,38 +114,39 @@ Then http://localhost:3000 for the customer site; same `/vendor`, `/rider`, `/ad
 
 ---
 
-## Auth · two systems running side by side
+## Auth · one unified system (DEMO_MODE on)
 
-| Role | System | Notes |
-| --- | --- | --- |
-| Customer | **Firebase phone auth** | Original flow restored. Test phone `8328945939` returns OTP `123456` (configured in Firebase console). All other phones get a real SMS via Firebase. |
-| Vendor / Rider / Admin | **Server-owned OTP (Fast2SMS)** | Demo seeded phones (listed below) accept OTP `123456` without SMS. Any other phone receives a real SMS via Fast2SMS. |
+Every signin and signup — customer, vendor, rider, admin, curator — flows through the server-owned OTP system in `apps/web/lib/otp.ts`. Firebase phone auth is no longer in any user-facing path (`/api/auth/firebase-session` and `lib/firebase-phone.ts` are unused; safe to delete before launch).
 
-### Server OTP details (vendor / rider / admin)
+> **DEMO_MODE flag** — `apps/web/lib/otp.ts` ships with `const DEMO_MODE = true`. While true, **every phone on every flow accepts the static OTP `123456`** and Fast2SMS is bypassed entirely. Flip to `false` before genuine launch; the seeded demo phones below keep `123456` even after the flag flips (via the explicit `DEMO_PHONES` allow-list).
+
+### Server OTP details
 
 | Aspect | Value |
 | --- | --- |
-| Purpose codes | `VENDOR_SIGNIN` · `VENDOR_REGISTER` · `RIDER_SIGNIN` · `RIDER_REGISTER` · `ADMIN_SIGNIN` |
+| Purpose codes | `CUSTOMER_SIGNIN` · `VENDOR_SIGNIN` · `VENDOR_REGISTER` · `RIDER_SIGNIN` · `RIDER_REGISTER` · `ADMIN_SIGNIN` · `CURATOR_SIGNIN` · `HELPDESK_SIGNIN` |
 | OTP length | 6 digits |
 | Expiry | 5 minutes from send |
 | Resend cooldown | 30 seconds per `(phone, purpose)` |
 | Max wrong attempts | 5 — then the code is invalidated and you must resend |
 | Single-use | Consumed on successful verify; `consumedAt` stamped |
-| SMS provider | Fast2SMS — `route=otp` |
-| Demo OTP | **`123456`** — accepted only for the seeded demo phones below |
+| SMS provider | Fast2SMS — `route=otp` (only used when `DEMO_MODE=false`) |
+| Demo OTP | **`123456`** — accepted on every phone while `DEMO_MODE=true` |
 | Storage | sha256 hash only; plaintext never persisted |
 
 ### API surface
 
 | Endpoint | Purpose |
 | --- | --- |
-| `POST /api/auth/otp/send` | Vendor / rider / admin · body `{ phone, purpose }` |
+| `POST /api/auth/otp/send` | Send OTP for any role · body `{ phone, purpose }` |
+| `POST /api/auth/otp/signin` | Customer verify → sets `mg_session` (upserts the User row — signin = signup) |
 | `POST /api/vendor/session` | Vendor verify → sets `mg_vendor_session` |
 | `POST /api/rider/session` | Rider verify → sets `mg_rider_session` (approved only) |
 | `POST /api/admin/session` | Admin verify → sets `mg_admin_session` |
+| `POST /api/curator/session` | Curator verify → sets `mg_curator_session` |
+| `POST /api/helpdesk/session` | Helpdesk verify → sets `mg_helpdesk_session` |
 | `POST /api/vendor/register` | Creates PENDING vendor after OTP verify |
 | `POST /api/rider/register` | Creates PENDING rider after OTP verify |
-| `POST /api/auth/firebase-session` | Customer · exchanges Firebase ID token for `mg_session` cookie |
 
 ---
 
@@ -257,15 +343,61 @@ Signin at `/rider/signin`. OTP `123456` on demo phones, no SMS.
 | --- | --- | --- | --- |
 | Magarpatta Ops | 9999999999 | `123456` | SUPER_ADMIN |
 
+The admin overview gets a new **Activity** tab (`/admin/activity`) — a cross-portal feed of every meaningful action by vendors, riders, curators, and admins. Filter by role or by free-text actor name.
+
+---
+
+## Curator login
+
+The curator sits between the vendor and the admin in the bulk menu-import flow. The vendor uploads a printed-menu photo → Tesseract OCRs it → vendor reviews → submits as a `MenuImportJob` (status `PENDING_CURATOR`) → curator opens the job, sees the original photo side-by-side with the parsed items, fixes anything OCR got wrong, then forwards to admin (each item becomes a `PRODUCT/CREATE` PendingChange in the existing admin queue).
+
+| Name | Phone | OTP |
+| --- | --- | --- |
+| Magarpatta Curator | 7000000001 | `123456` |
+
+The curator portal lives at `/curator`. Sign in once and the row auto-provisions in the `Curator` table (demo bootstrap — remove before launch).
+
+Curator can:
+- Edit any field on any parsed row (name, MRP, price, unit, veg flag, MRP-locked flag)
+- Add missing items the OCR dropped
+- Delete OCR noise rows
+- Reject the whole job with a note (vendor sees the reason)
+
+Single-item vendor edits (Add item / Edit item from the menu page) **do not** route through the curator — they continue going straight to `PendingChange` for admin review. Only bulk imports (photo / QR / paste) go through the curator queue.
+
+---
+
+## Helpdesk login
+
+The helpdesk sits between the customer and the admin for support-ticket triage. A customer files a complaint at `/support` (any of: wrong item, missing item, quality, late delivery, rider behaviour, payment, refund, account, other). The ticket lands in the helpdesk queue at `/helpdesk` for the staff agent to acknowledge, ask follow-ups, and resolve. Admin oversees the queue read-only at `/admin/support` — admin cannot reply or change status.
+
+| Name | Phone | OTP |
+| --- | --- | --- |
+| Magarpatta City Helpdesk | 7000000003 | `123456` |
+| Amanora Helpdesk | 7000000004 | `123456` |
+
+The helpdesk portal lives at `/helpdesk`. Sign in once and the row auto-provisions in the `SupportAgent` table (demo bootstrap — remove before launch). The portal has two tabs: **Queue** (open / in-review / awaiting-customer) and **Resolved**.
+
+Helpdesk can:
+- Reply to any ticket — auto-flips status to AWAITING_CUSTOMER and auto-claims the ticket
+- "Reply & resolve" — sends the reply and stamps `resolvedAt` in one shot
+- Change status (Open · In review · Awaiting customer · Resolved · Closed)
+- Change priority (Low · Normal · High · Urgent)
+- Re-categorise (the customer's chosen category may not match what the issue actually is)
+
+Customer behaviour — adding a reply on a RESOLVED ticket re-opens it to IN_REVIEW. CLOSED is final; further replies are blocked on both sides.
+
+Ticket lifecycle: `OPEN` (just filed) → `IN_REVIEW` (helpdesk touched) → `AWAITING_CUSTOMER` (helpdesk asked something) → `RESOLVED` (helpdesk closed the loop) → `CLOSED` (final).
+
+Activity log: ticket events are recorded with `actorRole = HELPDESK` (or `CUSTOMER` for the file/reply events) — visible in the admin activity feed.
+
 ---
 
 ## Customer
 
-Use any Indian 10-digit mobile at `/signin` or `/signup`. Firebase texts a real 6-digit code (5-min expiry).
+Use any Indian 10-digit mobile at `/signin` or `/signup`. While `DEMO_MODE=true`, every phone accepts OTP `123456` (no SMS sent). Once flipped off, real OTPs are sent via Fast2SMS.
 
-**Test phone shortcut**: `8328945939` always receives OTP `123456` (configured in Firebase Auth console). Use this for demos so no real SMS is sent.
-
-`/signup` is a 3-step flow: name + phone → Firebase OTP verify → society + building + flat.
+`/signup` is a 3-step flow: name + phone → OTP verify → society + building + flat. The signup verify upserts the `User` row, so a "new" phone signs in cleanly the first time without a separate flow.
 
 ---
 
@@ -299,7 +431,66 @@ A cart can mix multiple vendors *within* one hub. Crossing hubs is blocked by th
 
 ---
 
+## Amanora Park Town — demo accounts
+
+Different phone ranges from Magarpatta so a single human can sign in to either instance without browser-cookie / session collisions. OTP is `123456` on every Amanora demo phone while `DEMO_MODE=true`.
+
+### Vendors (`/vendor/signin` on https://amanora-go.vercel.app)
+
+| Shop | Phone | Password | Hub | Mode | Type |
+| --- | --- | --- | --- | --- | --- |
+| Theobroma Patisserie | 9100000001 | `theo123` | Amanora Mall | **Self-delivery** ₹25 | bakery |
+| Trattoria Italiano | 9100000002 | `trat123` | Amanora Town Centre | Concierge / rider | restaurant |
+| Cafe Bloom | 9100000003 | `bloom123` | Amanora Mall | **Self-delivery** ₹30 | cafe |
+| MedPlus · Amanora | 9100000004 | `med123` | Amanora Mall | Concierge / rider | pharmacy |
+| Star Bazaar · Amanora | 9100000005 | `star123` | Amanora Town Centre | Concierge / rider | grocery |
+| Fresh Cuts Meat Co. | 9100000007 | `cuts123` | Amanora Main Road | Concierge / rider | meat |
+| The Burger Co. (PENDING) | 9100000006 | `burger123` | Amanora Main Road | — | restaurant |
+| Paan Republic | — | — | Amanora Town Centre | Concierge only · off platform | sweets |
+
+Total: 6 approved + 1 pending + 1 concierge-only = 8 vendors. ~31 products across the bunch, image-tagged from `/products/*` so they render with thumbnails.
+
+### Riders (`/rider/signin` on https://amanora-go.vercel.app)
+
+OTP `123456`, no password. Range `8888889001`..`05`.
+
+| Name | Phone | Vehicle | Plate | Per drop |
+| --- | --- | --- | --- | --- |
+| Suraj P. | 8888889001 | Motorcycle | MH14 SP 7711 | ₹30 |
+| Aarti V. | 8888889002 | Scooter | MH14 AV 4422 | ₹30 |
+| Rahul N. | 8888889003 | Motorcycle | MH14 RN 9001 | ₹30 |
+| Pooja M. | 8888889004 | Bicycle | — | ₹30 |
+| Sandeep K. (PENDING) | 8888889005 | Scooter | MH14 SK 0808 | (after admin approval) |
+
+### Admin (`/admin/signin`)
+
+| Name | Phone | Password | Role |
+| --- | --- | --- | --- |
+| Amanora Ops | 9999999888 | `admin123` | SUPER_ADMIN |
+
+### Curator (`/curator/signin`)
+
+| Name | Phone | OTP |
+| --- | --- | --- |
+| Amanora Curator | 7000000002 | `123456` |
+
+### Customer addresses to test with
+
+The Amanora directory has 11 clusters, ~60 towers. Useful pickers for signup / address-add:
+
+| Society | Building | Flat |
+| --- | --- | --- |
+| Aspire Towers | Tower 1 | 101 |
+| Gateway Towers | Tower T-99 | 1804 |
+| Future Towers | Tower 51 | 1203 |
+| Trendy Towers | Tower T-31 | 805 |
+| Gardenia Society | Block A | 201 |
+
+---
+
 ## Re-seeding
+
+### Magarpatta
 
 ```powershell
 cd C:\projects\magarpatta-delivery\apps\web
@@ -308,9 +499,20 @@ npx prisma db push                       # one-time, if schema changed
 npx -y dotenv-cli -e .env -- npx tsx prisma/seed-dashboards.ts
 ```
 
-Seeds are idempotent — safe to run any number of times. They upsert vendors by slug, admins by phone, and riders by phone.
+### Amanora
 
-For wiring product images use `prisma/seed-local-images.ts` (existing items) or `prisma/seed-images-new.ts` (Baker's Basket + Gulab Paan Corner items added in Phase 2).
+```powershell
+cd C:\projects\magarpatta-delivery\apps\web
+$env:DATABASE_URL = "<paste Amanora Neon connection string>"
+npx prisma db push                       # one-time, if schema changed
+npx tsx prisma/seed-amanora.ts
+```
+
+Seeds are idempotent — safe to run any number of times. They upsert vendors by slug, admins by phone, riders by phone, and curators by phone.
+
+For wiring product images use `prisma/seed-local-images.ts` (existing items) or `prisma/seed-images-new.ts` (Baker's Basket + Gulab Paan Corner items added in Phase 2). Amanora's `seed-amanora.ts` already wires `imageUrl` to local `/products/*` paths inline, so no separate image script is needed.
+
+> **Build-time schema sync.** `apps/web/package.json` currently runs `prisma db push --accept-data-loss --skip-generate` as part of the build script so every Vercel deploy syncs the schema automatically. This is fine for the demo phase but unsafe once real customer data starts flowing — switch back to plain `prisma generate && next build` and use `prisma migrate deploy` before launch.
 
 ## Legal / compliance notes
 

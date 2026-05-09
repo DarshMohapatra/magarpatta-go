@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magarpatta Go — Vendor Mobile Wireframe</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: {
+      ink: '#14110c', 'ink-soft': '#3a3530',
+      paper: '#fffdf7', cream: '#f7efe1', 'cream-soft': '#eee3ce', bone: '#e1d4bc',
+      forest: '#0d4a2e', 'forest-dark': '#06311c', moss: '#2d6b48', sage: '#5a7a63',
+      saffron: '#e68a17', 'saffron-soft': '#f4b564', gold: '#c79321',
+      terracotta: '#c64f2e', 'terracotta-dark': '#962f15',
+    },
+    fontFamily: { sans: ['Inter','sans-serif'], serif: ['Instrument Serif','serif'] },
+  }}}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100vh; overflow: hidden; }
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e1d4bc 0%, #f7efe1 100%); color: #14110c; padding: 12px; }
+  .phone-shell { height: min(862px, calc(100vh - 24px)); width: calc(min(862px, calc(100vh - 24px)) * 408 / 862); background: #14110c; border-radius: 54px; padding: 9px; box-shadow: 0 30px 80px rgba(20,17,12,0.25), 0 0 0 1px rgba(20,17,12,0.6); position: relative; flex-shrink: 0; }
+  .phone-frame { width: 100%; height: 100%; background: #f7efe1; border-radius: 46px; overflow: hidden; position: relative; contain: paint; isolation: isolate; }
+  .status-bar { position: absolute; top:0; left:0; right:0; height: 44px; padding: 14px 28px 0; display:flex; align-items: flex-start; justify-content: space-between; font-size: 14px; font-weight: 600; color: #14110c; z-index: 200; pointer-events: none; }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 110px; height: 28px; background: #14110c; border-radius: 20px; z-index: 201; }
+  .screen { position: absolute; inset: 0; padding-top: 44px; padding-bottom: 12px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: #f7efe1; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+  .screen.active { opacity: 1; pointer-events: auto; z-index: 10; }
+  .screen::-webkit-scrollbar { width: 0; }
+  .pulse-ring { position: relative; display: inline-block; }
+  .pulse-ring::after { content:''; position:absolute; inset:0; border-radius: 9999px; background: currentColor; animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+  @keyframes pulse-ring { 0% { transform: scale(0.9); opacity: 0.9; } 80%, 100% { transform: scale(2.4); opacity: 0; } }
+  .home-indicator { position: absolute; bottom: 6px; left:50%; transform: translateX(-50%); width: 110px; height: 4px; background: rgba(20,17,12,0.85); border-radius: 999px; z-index: 90; pointer-events: none; }
+  .nav-shell { position: fixed; top: 32px; left: 32px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+  .nav-pill { background: #14110c; color: #f7efe1; padding: 10px 18px; border-radius: 999px; font-size: 12px; display: flex; gap: 10px; align-items: center; }
+  .nav-pill button { background: rgba(247,239,225,0.14); padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: background 0.15s; font-size: 12px; }
+  .nav-pill button:hover { background: rgba(247,239,225,0.28); }
+  .nav-info { background: #fffdf7; padding: 10px 16px; border-radius: 14px; font-size: 11.5px; color: #14110c; box-shadow: 0 4px 12px rgba(20,17,12,0.08); max-width: 230px; line-height: 1.5; }
+  .nav-info b { font-weight: 600; }
+  .legend { position: fixed; bottom: 32px; left: 32px; background: #fffdf7; padding: 12px 16px; border-radius: 14px; font-size: 11px; color: #3a3530; max-width: 220px; line-height: 1.6; box-shadow: 0 4px 12px rgba(20,17,12,0.08); z-index: 1000; }
+  .legend h4 { font-weight: 600; color: #14110c; margin-bottom: 4px; font-size: 11px; }
+  .legend kbd { background: #f7efe1; padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 10px; }
+  .hairline { background: linear-gradient(90deg, transparent, rgba(20,17,12,0.16), transparent); height: 1px; width: 100%; }
+  .step-dot { width: 22px; height: 22px; border-radius: 999px; background: #eee3ce; color: #3a3530; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .step-dot.active { background: #0d4a2e; color: #f7efe1; }
+  .step-dot.done { background: #0d4a2e; color: #f7efe1; }
+  .step-line { flex: 1; height: 1px; background: #eee3ce; margin: 0 6px; }
+  .step-line.done { background: #0d4a2e; }
+  /* Vendor shell tabs */
+  .v-shell { position: sticky; top: 44px; background: #fffdf7; border-bottom: 1px solid rgba(20,17,12,0.08); z-index: 30; }
+  .v-shell::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 28px; background: linear-gradient(90deg, transparent, #fffdf7); pointer-events: none; }
+  .v-tabs { display: flex; gap: 0; overflow-x: auto; padding: 0 12px; scrollbar-width: none; scroll-behavior: smooth; }
+  .v-tabs::-webkit-scrollbar { display: none; }
+  .v-tab { padding: 10px 9px; font-size: 12px; color: rgba(20,17,12,0.55); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; flex-shrink: 0; }
+  .v-tab.active { color: #14110c; border-bottom-color: #0d4a2e; font-weight: 500; }
+  .v-tab:hover { color: #14110c; }
+  /* Status pills */
+  .status { padding: 3px 9px; border-radius: 999px; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; }
+  .status.placed { background: rgba(229,144,36,0.16); color: #c79321; }
+  .status.accepted { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.preparing { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.ready { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.out { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.delivered { background: rgba(20,17,12,0.08); color: #3a3530; }
+  .status.live { background: rgba(13,74,46,0.12); color: #0d4a2e; }
+  .status.review { background: rgba(229,144,36,0.16); color: #c79321; }
+  .status.rejected { background: rgba(198,79,46,0.14); color: #c64f2e; }
+  /* Drawer */
+  .drawer-overlay { position:absolute; inset:0; background: rgba(20,17,12,0.55); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 220; }
+  .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+  .drawer { position:absolute; bottom: 0; left:0; right:0; background: #f7efe1; border-top-left-radius: 28px; border-top-right-radius: 28px; max-height: calc(100% - 8px); transform: translateY(101%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); overflow-y: auto; overscroll-behavior: contain; z-index: 230; box-shadow: 0 -10px 40px rgba(20,17,12,0.2); }
+  .drawer.active { transform: translateY(0); }
+  .drawer::-webkit-scrollbar { width: 0; }
+  .veg-dot { width: 11px; height: 11px; border: 1.5px solid; border-radius: 2px; display: inline-flex; align-items:center; justify-content:center; }
+  .veg-dot::after { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+  .veg-dot.veg { border-color: #0d4a2e; } .veg-dot.veg::after { background: #0d4a2e; }
+  .veg-dot.nonveg { border-color: #c64f2e; } .veg-dot.nonveg::after { background: #c64f2e; }
+  /* Toggle */
+  .toggle { position: relative; width: 36px; height: 20px; background: #eee3ce; border-radius: 999px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fffdf7; border-radius: 999px; transition: transform 0.2s; }
+  .toggle.on { background: #0d4a2e; }
+  .toggle.on::after { transform: translateX(16px); }
+</style>
+</head>
+<body class="flex items-center justify-center">
+
+<div class="phone-shell">
+<div class="phone-frame">
+<div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+<div class="notch"></div>
+
+<!-- ============================================ -->
+<!-- 1. VENDOR SIGN IN (/vendor/signin) -->
+<!-- ============================================ -->
+<div id="signin" class="screen active" data-label="/vendor/signin">
+  <div class="px-6 pt-6">
+    <div class="flex items-center gap-2 mb-10">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[14px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="ml-1 text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+
+    <h1 class="font-serif text-[42px] leading-[1.05] tracking-tight mb-3">
+      Open your <span class="italic text-forest">counter.</span>
+    </h1>
+    <p class="text-[13px] leading-[1.55] text-ink-soft mb-9">Sign in with your registered owner phone. We'll send a 6-digit OTP. New shop? <button onclick="navigate('register-1')" class="text-forest underline underline-offset-2">Register here.</button></p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Owner phone</label>
+    <div class="flex items-center bg-paper border border-ink/14 rounded-2xl overflow-hidden mb-6">
+      <span class="pl-4 pr-3 py-3.5 text-[15px] text-ink-soft border-r border-ink/10">+91</span>
+      <input id="signinPhone" inputmode="numeric" maxlength="10" placeholder="9000000001" class="flex-1 py-3.5 pr-4 bg-transparent outline-none text-[15px] tracking-wide" oninput="signinValidate()">
+    </div>
+
+    <button id="signinSendBtn" onclick="navigate('signin-otp'); startOtpAnimation('signin')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight opacity-50">Open counter</button>
+
+    <details class="mt-8 bg-paper rounded-2xl border border-ink/8 overflow-hidden">
+      <summary class="px-4 py-3 text-[12px] cursor-pointer text-ink-soft">Demo vendors · tap to prefill · OTP is <b class="text-ink">123456</b></summary>
+      <div class="px-4 pb-3 space-y-1">
+        <button onclick="prefillVendor('9000000001')" class="w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000001 · Kalika Sweets</button>
+        <button onclick="prefillVendor('9000000002')" class="w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000002 · Baker's Basket</button>
+        <button onclick="prefillVendor('9000000004')" class="w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000004 · Destination Centre</button>
+        <button onclick="prefillVendor('9000000005')" class="w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000005 · Shraddha Meats</button>
+        <button onclick="prefillVendor('9000000006')" class="w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000006 · Magarpatta Pharmacy</button>
+        <button onclick="prefillVendor('9000000007')" class="w-full text-left text-[12px] py-1.5 border-t border-ink/6">9000000007 · Starbucks · Seasons</button>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. SIGN IN OTP -->
+<!-- ============================================ -->
+<div id="signin-otp" class="screen" data-label="/vendor/signin · verify">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signin')" class="text-[12px] text-ink-soft mb-9">← Change number</button>
+
+    <div class="flex items-center gap-2 mb-6">
+      <span class="text-[14px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="ml-1 text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+
+    <h1 class="font-serif text-[36px] leading-[1.05] tracking-tight mb-3">
+      One <span class="italic">6-digit</span> code.
+    </h1>
+    <p class="text-[12.5px] text-ink-soft mb-1">Sent to <b class="text-ink">+91 <span id="signinPhoneDisplay">9000000001</span></b></p>
+    <p class="text-[11.5px] text-saffron mb-8">Demo mode — use code <b>123456</b></p>
+
+    <div class="grid grid-cols-6 gap-2.5 mb-8">
+      <div id="signin-otp-1" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-2" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-3" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-4" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-5" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+      <div id="signin-otp-6" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[28px] flex items-center justify-center"></div>
+    </div>
+
+    <p class="text-center text-[12px] text-ink-soft">Resend code in <b>30s</b></p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3. REGISTER · STEP 1 SHOP -->
+<!-- ============================================ -->
+<div id="register-1" class="screen" data-label="/vendor/register · shop">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('signin')" class="text-[12px] text-ink-soft mb-7">← Back to sign in</button>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-paper border border-ink/8 mb-5">
+      <span class="text-[10.5px] uppercase tracking-[0.18em] text-saffron">Vendor onboarding</span>
+    </div>
+    <h1 class="font-serif text-[34px] leading-[1.05] tracking-tight mb-2">
+      Put your shop on <span class="italic text-forest">Magarpatta Go.</span>
+    </h1>
+
+    <div class="flex items-center mt-9 mb-3">
+      <span class="step-dot active">1</span><span class="step-line"></span>
+      <span class="step-dot">2</span><span class="step-line"></span>
+      <span class="step-dot">3</span><span class="step-line"></span>
+      <span class="step-dot">4</span>
+    </div>
+    <div class="flex justify-between text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-8 px-0.5">
+      <span class="text-forest font-medium">Shop</span><span>KYC</span><span>Payouts</span><span>Verify</span>
+    </div>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Shop name</label>
+    <input placeholder="Your shop's name" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Shop type</label>
+    <select class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+      <option>Restaurant</option><option>Café</option><option>Bakery</option><option>Sweets</option>
+      <option>Grocery</option><option>Fresh meat</option><option>Pharmacy</option>
+    </select>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Hub / location inside Magarpatta City</label>
+    <input placeholder="Seasons Mall / Destination Centre / Magarpatta Market" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Full address</label>
+    <input placeholder="Shop no., floor, landmark" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div>
+        <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Opens at</label>
+        <input type="time" value="08:00" class="w-full bg-paper border border-ink/14 rounded-2xl px-3 py-3 text-[13px] outline-none">
+      </div>
+      <div>
+        <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Closes at</label>
+        <input type="time" value="22:00" class="w-full bg-paper border border-ink/14 rounded-2xl px-3 py-3 text-[13px] outline-none">
+      </div>
+    </div>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Owner name</label>
+    <input class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Owner phone</label>
+    <div class="flex items-center bg-paper border border-ink/14 rounded-2xl overflow-hidden mb-1">
+      <span class="pl-4 pr-3 py-3 text-[14px] text-ink-soft border-r border-ink/10">+91</span>
+      <input inputmode="numeric" maxlength="10" placeholder="10-digit number" class="flex-1 py-3 pr-4 bg-transparent outline-none text-[14px]">
+    </div>
+    <p class="text-[11px] text-ink-soft mb-4">We'll text a 6-digit code here to verify the phone. Signin is OTP-based — no password to set.</p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Owner email <span class="opacity-50 normal-case tracking-normal">(optional)</span></label>
+    <input type="email" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-7 text-[14px] outline-none">
+
+    <button onclick="navigate('register-2')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium tracking-tight">Continue →</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4. REGISTER · STEP 2 KYC -->
+<!-- ============================================ -->
+<div id="register-2" class="screen" data-label="/vendor/register · kyc">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('register-1')" class="text-[12px] text-ink-soft mb-7">← Back</button>
+
+    <div class="flex items-center mb-3">
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot active">2</span><span class="step-line"></span>
+      <span class="step-dot">3</span><span class="step-line"></span>
+      <span class="step-dot">4</span>
+    </div>
+    <div class="flex justify-between text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-7 px-0.5">
+      <span class="text-ink-soft">Shop</span><span class="text-forest font-medium">KYC</span><span>Payouts</span><span>Verify</span>
+    </div>
+
+    <h1 class="font-serif text-[28px] leading-[1.1] mb-2">Documents.</h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-6">Upload numbers are fine for now — we'll verify the documents over WhatsApp before approval.</p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">FSSAI number</label>
+    <input placeholder="14-digit FSSAI licence" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Drug licence <span class="opacity-50 normal-case tracking-normal">(pharmacy only)</span></label>
+    <input class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">GSTIN <span class="opacity-50 normal-case tracking-normal">(optional)</span></label>
+    <input placeholder="15-digit GSTIN" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none uppercase">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">PAN</label>
+    <input placeholder="ABCDE1234F" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-7 text-[14px] outline-none uppercase">
+
+    <div class="flex gap-3">
+      <button onclick="navigate('register-1')" class="flex-1 border border-ink/14 py-3.5 rounded-full text-[14px]">← Back</button>
+      <button onclick="navigate('register-3')" class="flex-1 bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 5. REGISTER · STEP 3 PAYOUTS -->
+<!-- ============================================ -->
+<div id="register-3" class="screen" data-label="/vendor/register · payouts">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('register-2')" class="text-[12px] text-ink-soft mb-7">← Back</button>
+
+    <div class="flex items-center mb-3">
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot active">3</span><span class="step-line"></span>
+      <span class="step-dot">4</span>
+    </div>
+    <div class="flex justify-between text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-7 px-0.5">
+      <span class="text-ink-soft">Shop</span><span class="text-ink-soft">KYC</span><span class="text-forest font-medium">Payouts</span><span>Verify</span>
+    </div>
+
+    <h1 class="font-serif text-[28px] leading-[1.1] mb-2">Where do we <span class="italic">pay you?</span></h1>
+    <p class="text-[12px] text-ink-soft mb-6">Daily payouts land here. Commission is deducted automatically.</p>
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Account holder name</label>
+    <input class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Account number</label>
+    <input inputmode="numeric" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">IFSC</label>
+    <input placeholder="HDFC0001234" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-4 text-[14px] outline-none uppercase">
+
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">UPI ID <span class="opacity-50 normal-case tracking-normal">(optional)</span></label>
+    <input placeholder="shopname@upi" class="w-full bg-paper border border-ink/14 rounded-2xl px-4 py-3 mb-7 text-[14px] outline-none">
+
+    <div class="flex gap-3">
+      <button onclick="navigate('register-2')" class="flex-1 border border-ink/14 py-3.5 rounded-full text-[14px]">← Back</button>
+      <button onclick="navigate('register-4'); startOtpAnimation('reg')" class="flex-1 bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 6. REGISTER · STEP 4 VERIFY -->
+<!-- ============================================ -->
+<div id="register-4" class="screen" data-label="/vendor/register · verify">
+  <div class="px-6 pt-6">
+    <button onclick="navigate('register-3')" class="text-[12px] text-ink-soft mb-7">← Back</button>
+
+    <div class="flex items-center mb-3">
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot done">✓</span><span class="step-line done"></span>
+      <span class="step-dot active">4</span>
+    </div>
+    <div class="flex justify-between text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-7 px-0.5">
+      <span class="text-ink-soft">Shop</span><span class="text-ink-soft">KYC</span><span class="text-ink-soft">Payouts</span><span class="text-forest font-medium">Verify</span>
+    </div>
+
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Verify phone</div>
+    <h1 class="font-serif text-[28px] leading-[1.1] mb-3">One <span class="italic">6-digit</span> code.</h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-2">We'll text a code to <b class="text-ink">+91 9000000001</b>. That phone becomes your signin identity — no password to set.</p>
+    <p class="text-[11.5px] text-saffron mb-7">Demo mode — use code <b>123456</b></p>
+
+    <div class="grid grid-cols-6 gap-2 mb-7">
+      <div id="reg-otp-1" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-2" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-3" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-4" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-5" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+      <div id="reg-otp-6" class="aspect-square bg-paper border border-ink/16 rounded-xl font-serif text-[24px] flex items-center justify-center"></div>
+    </div>
+
+    <div class="flex gap-3">
+      <button onclick="navigate('register-3')" class="flex-1 border border-ink/14 py-3.5 rounded-full text-[14px]">← Back</button>
+      <button onclick="navigate('register-success')" class="flex-1 bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Verify & submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 7. REGISTER · SUCCESS -->
+<!-- ============================================ -->
+<div id="register-success" class="screen" data-label="/vendor/register · success">
+  <div class="px-6 pt-16 text-center">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-forest text-cream text-[28px] mb-7">✓</div>
+    <h1 class="font-serif text-[34px] leading-[1.05] mb-4">Thanks, <span class="italic text-forest">neighbour.</span></h1>
+    <p class="text-[13px] leading-[1.6] text-ink-soft mb-9 px-2">Your application is with the Magarpatta Go team. We usually approve in under 24 hours. You'll get a call on <b class="text-ink">+91 9000000001</b> once your shop goes live. Signin is OTP-based — no password to remember.</p>
+
+    <button onclick="navigate('signin')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Go to sign in</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 8. VENDOR OVERVIEW (/vendor) — pending state -->
+<!-- ============================================ -->
+<div id="overview-pending" class="screen" data-label="/vendor · pending">
+  <!-- shell header -->
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+      <span class="text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-saffron/15 text-saffron-soft font-medium">pending</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell">
+    <div class="v-tabs">
+      <button class="v-tab active" onclick="navigate('overview-pending')">Overview</button>
+      <button class="v-tab" onclick="navigate('orders-pending')">Orders</button>
+      <button class="v-tab" onclick="navigate('menu-pending')">Menu</button>
+      <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+      <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+      <button class="v-tab" onclick="navigate('shop')">Shop</button>
+      <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+    </div>
+  </div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="bg-gradient-to-br from-saffron/15 to-saffron-soft/30 border border-saffron/30 rounded-3xl p-5 mb-4">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Under review</div>
+      <h1 class="font-serif text-[24px] leading-[1.15] mb-3">Your shop is waiting on <span class="italic text-forest">Magarpatta Go</span> review.</h1>
+      <p class="text-[12.5px] leading-[1.55] text-ink-soft mb-4">We usually approve within 24 hours. While you wait, finish filling in your shop details and menu so everything's ready the minute you go live.</p>
+      <div class="flex flex-col gap-2.5">
+        <button onclick="navigate('shop')" class="bg-forest text-cream py-3 rounded-full text-[13px] font-medium">Complete shop details →</button>
+        <button onclick="navigate('menu-pending')" class="border border-forest/30 text-forest py-3 rounded-full text-[13px] font-medium">Add menu items →</button>
+      </div>
+    </div>
+
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">What's next</div>
+      <ul class="space-y-2 text-[12.5px] text-ink-soft">
+        <li>· We'll WhatsApp you to verify FSSAI / GST.</li>
+        <li>· A Magarpatta Go team member visits the shop.</li>
+        <li>· Once approved, your shop goes live and you accept orders.</li>
+      </ul>
+      <div class="mt-3 text-[11.5px]"><button onclick="navigate('overview')" class="text-forest underline">Preview the approved view →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 9. VENDOR OVERVIEW (approved) -->
+<!-- ============================================ -->
+<div id="overview" class="screen" data-label="/vendor · overview">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab active" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Open counter</div>
+    <h1 class="font-serif text-[28px] leading-[1.1] tracking-tight mb-2">Hello, <span class="italic text-forest">Ravi.</span></h1>
+    <p class="text-[12.5px] text-ink-soft mb-5">14 orders delivered today.</p>
+
+    <button onclick="navigate('orders')" class="block w-full text-left bg-forest text-cream rounded-2xl px-4 py-3 mb-5 text-[13px] font-medium">Go to live orders →</button>
+
+    <div class="grid grid-cols-2 gap-2.5 mb-4">
+      <div class="bg-paper rounded-2xl border border-ink/6 p-3.5">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Today's sales</div>
+        <div class="font-serif text-[26px] text-forest leading-none">₹4,820</div>
+        <div class="text-[10.5px] text-ink-soft mt-1.5">14 delivered</div>
+      </div>
+      <div class="bg-paper rounded-2xl border border-ink/6 p-3.5">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Today's payout</div>
+        <div class="font-serif text-[26px] text-forest leading-none">₹4,338</div>
+        <div class="text-[10.5px] text-ink-soft mt-1.5">after 10% commission</div>
+      </div>
+      <div class="bg-paper rounded-2xl border border-saffron/30 p-3.5">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-saffron mb-1.5">New orders</div>
+        <div class="font-serif text-[26px] text-saffron leading-none">3</div>
+        <div class="text-[10.5px] text-ink-soft mt-1.5">waiting to accept</div>
+      </div>
+      <div class="bg-paper rounded-2xl border border-ink/6 p-3.5">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">In kitchen</div>
+        <div class="font-serif text-[26px] text-forest leading-none">2</div>
+        <div class="text-[10.5px] text-ink-soft mt-1.5">accepted / preparing</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+      <button onclick="navigate('menu')" class="bg-paper rounded-2xl border border-ink/6 p-4 text-left">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-saffron mb-1">Menu</div>
+        <div class="text-[12.5px] text-ink mb-3">All items in stock</div>
+        <div class="text-[12px] text-forest">Open menu →</div>
+      </button>
+      <button onclick="navigate('payouts')" class="bg-paper rounded-2xl border border-ink/6 p-4 text-left">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-saffron mb-1">Payouts</div>
+        <div class="text-[12.5px] text-ink mb-3">2,184 orders lifetime · 10%</div>
+        <div class="text-[12px] text-forest">See payout history →</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 10. ORDERS (kanban) -->
+<!-- ============================================ -->
+<div id="orders" class="screen" data-label="/vendor/orders">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab active" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1.5">Live orders</div>
+        <h1 class="font-serif text-[24px] leading-[1.05]">The counter, <span class="italic text-forest">live.</span></h1>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] uppercase tracking-[0.14em] text-ink-soft">Today</div>
+        <div class="font-serif text-[20px] text-forest leading-tight">₹4,820</div>
+        <div class="text-[10px] text-ink-soft">14 · auto-refresh 5s</div>
+      </div>
+    </div>
+
+    <!-- Section: New -->
+    <div class="flex items-center gap-2 mb-2">
+      <h2 class="text-[14px] font-medium">New <span class="text-ink-soft text-[12px]">· tap to accept</span></h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-saffron/15 text-saffron-soft font-medium" id="newCount">2</span>
+    </div>
+    <div class="space-y-2.5 mb-5" id="ordersNew">
+      <div class="bg-paper rounded-2xl border-2 border-saffron/40 p-4" data-order="1">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status placed">PLACED</span>
+          <span class="text-[10px] text-ink-soft">#A4F23B · 21:14 IST · Rider</span>
+        </div>
+        <div class="text-[12.5px] mb-1">→ Lily · Tower 3, flat 305 · Pristine Pune</div>
+        <div class="text-[12px] text-ink-soft mb-3">Paneer butter masala × 1, Sourdough loaf × 1</div>
+        <div class="flex items-end justify-between mb-3">
+          <div><span class="font-serif text-[18px]">₹425</span> <span class="text-[10.5px] text-ink-soft">your share</span></div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="acceptOrder(1)" class="flex-1 bg-forest text-cream py-2.5 rounded-full text-[12.5px] font-medium">Accept</button>
+          <button onclick="rejectOrder(1)" class="flex-1 border border-terracotta/40 text-terracotta py-2.5 rounded-full text-[12.5px] font-medium">Reject</button>
+        </div>
+      </div>
+      <div class="bg-paper rounded-2xl border-2 border-saffron/40 p-4" data-order="2">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status placed">PLACED</span>
+          <span class="text-[10px] text-ink-soft">#7E912D · 21:09 IST · Rider</span>
+        </div>
+        <div class="text-[12.5px] mb-1">→ Cosmos C-7, flat 1102 · Cosmos</div>
+        <div class="text-[12px] text-ink-soft mb-3">Kaju katli × 1, Gulab jamun × 1</div>
+        <div class="flex items-end justify-between mb-3">
+          <div><span class="font-serif text-[18px]">₹600</span> <span class="text-[10.5px] text-ink-soft">your share</span></div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="acceptOrder(2)" class="flex-1 bg-forest text-cream py-2.5 rounded-full text-[12.5px] font-medium">Accept</button>
+          <button onclick="rejectOrder(2)" class="flex-1 border border-terracotta/40 text-terracotta py-2.5 rounded-full text-[12.5px] font-medium">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Preparing -->
+    <div class="flex items-center gap-2 mb-2">
+      <h2 class="text-[14px] font-medium">Preparing <span class="text-ink-soft text-[12px]">· mark ready…</span></h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-cream-soft text-ink-soft font-medium" id="prepCount">1</span>
+    </div>
+    <div class="space-y-2.5 mb-5" id="ordersPrep">
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4" data-order="0">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status preparing">PREPARING</span>
+          <span class="text-[10px] text-ink-soft">#3B11C2 · 21:05 IST</span>
+        </div>
+        <div class="text-[12.5px] mb-1">→ Aristo · Tower 2, flat 808 · Aristo</div>
+        <div class="text-[12px] text-ink-soft mb-3">Dal makhani × 2, Garlic naan × 4</div>
+        <button onclick="markReady(0)" class="w-full bg-saffron text-paper py-2.5 rounded-full text-[12.5px] font-medium">Mark ready (boxed)</button>
+      </div>
+    </div>
+
+    <!-- Section: Ready -->
+    <div class="flex items-center gap-2 mb-2">
+      <h2 class="text-[14px] font-medium">Ready <span class="text-ink-soft text-[12px]">· waiting for pickup</span></h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-cream-soft text-ink-soft font-medium" id="readyCount">0</span>
+    </div>
+    <div class="text-[12px] text-ink-soft mb-5 italic" id="readyEmpty">No orders waiting for pickup.</div>
+    <div class="space-y-2.5 mb-5 hidden" id="ordersReady"></div>
+
+    <!-- Section: Out -->
+    <div class="flex items-center gap-2 mb-2">
+      <h2 class="text-[14px] font-medium">Out for delivery</h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-cream-soft text-ink-soft font-medium">2</span>
+    </div>
+    <div class="space-y-2.5 mb-5">
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4 opacity-90">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status out">OUT FOR DELIVERY</span>
+          <span class="text-[10px] text-ink-soft">#5DC11F · rider Amit</span>
+        </div>
+        <div class="text-[12.5px]">→ Daffodils 4, flat 502</div>
+      </div>
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4 opacity-90">
+        <div class="flex items-center justify-between mb-2">
+          <span class="status out">OUT FOR DELIVERY</span>
+          <span class="text-[10px] text-ink-soft">#2A7BC9 · rider Karthik</span>
+        </div>
+        <div class="text-[12.5px]">→ Nirvana 1, flat 1404</div>
+      </div>
+    </div>
+
+    <!-- Section: Today's history -->
+    <div class="flex items-center gap-2 mb-2">
+      <h2 class="text-[14px] font-medium">Today's history</h2>
+      <span class="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-cream-soft text-ink-soft font-medium">14</span>
+    </div>
+    <div class="space-y-2">
+      <div class="bg-cream-soft/50 rounded-xl px-3.5 py-2.5">
+        <div class="flex items-center justify-between text-[11.5px]">
+          <span><span class="status delivered">DELIVERED</span> #B91C7E · Tulip 7, flat 302</span>
+          <span class="font-serif text-[14px]">₹860</span>
+        </div>
+      </div>
+      <div class="bg-cream-soft/50 rounded-xl px-3.5 py-2.5">
+        <div class="flex items-center justify-between text-[11.5px]">
+          <span><span class="status delivered">DELIVERED</span> #4E10AC · Rose 5, flat 904</span>
+          <span class="font-serif text-[14px]">₹290</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 10b. ORDERS (pending state) -->
+<!-- ============================================ -->
+<div id="orders-pending" class="screen" data-label="/vendor/orders · pending">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+      <span class="text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-saffron/15 text-saffron-soft font-medium">pending</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview-pending')">Overview</button>
+    <button class="v-tab active" onclick="navigate('orders-pending')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu-pending')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="bg-gradient-to-br from-saffron/15 to-saffron-soft/30 border border-saffron/30 rounded-3xl p-5">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Orders go live after approval</div>
+      <h1 class="font-serif text-[22px] leading-[1.15] mb-3">Once <span class="italic text-forest">Magarpatta Go</span> approves your shop, incoming orders will appear here in real time.</h1>
+      <button onclick="navigate('overview')" class="text-[12px] text-forest underline">Preview the live view →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 11. MENU (/vendor/menu) -->
+<!-- ============================================ -->
+<div id="menu" class="screen" data-label="/vendor/menu">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab active" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1.5">Menu</div>
+    <h1 class="font-serif text-[24px] leading-[1.1] tracking-tight mb-2">42 items on the <span class="italic text-forest">counter.</span></h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-3">Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically. Add / edit / remove goes through Magarpatta Go review. Stock toggle is instant.</p>
+    <div class="inline-flex items-center px-3 py-1 rounded-full bg-saffron/15 text-saffron-soft text-[10.5px] font-medium uppercase tracking-[0.14em] mb-4">2 edits awaiting review</div>
+
+    <div class="flex gap-2 mb-5">
+      <button onclick="navigate('menu-import')" class="flex-1 border border-ink/14 py-2.5 rounded-full text-[12px] text-ink">Import from photo / QR</button>
+      <button onclick="openMenuDrawer()" class="flex-1 bg-forest text-cream py-2.5 rounded-full text-[12px] font-medium">+ Add item</button>
+    </div>
+
+    <h2 class="font-serif text-[18px] mb-2">Sweets</h2>
+    <div class="bg-paper rounded-2xl border border-ink/6 divide-y divide-ink/6 mb-5">
+      <div class="p-3.5 flex items-center gap-3">
+        <span class="veg-dot veg shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium truncate">Kaju katli</div>
+          <div class="text-[10.5px] text-ink-soft truncate">250g · sells at MRP · Cashew, ghee</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="font-serif text-[14px]">₹420</div>
+          <button onclick="event.stopPropagation();" class="text-[10.5px] text-forest mr-2">Edit</button>
+          <button class="text-[10.5px] text-terracotta">Remove</button>
+        </div>
+      </div>
+      <div class="p-3.5 flex items-center gap-3">
+        <span class="veg-dot veg shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium truncate">Gulab jamun</div>
+          <div class="text-[10.5px] text-ink-soft truncate">6 pieces · +₹1 markup · Soaked in sugar syrup</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="font-serif text-[14px]">₹180</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] text-forest">In stock</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3.5 flex items-center gap-3">
+        <span class="veg-dot veg shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium truncate">Mysore pak</div>
+          <div class="text-[10.5px] text-ink-soft truncate">200g · sells at MRP · Slow-cooked in ghee</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="font-serif text-[14px]">₹260</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] text-ink-soft">Out</span>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="font-serif text-[18px] mb-2">Mains</h2>
+    <div class="bg-paper rounded-2xl border border-ink/6 divide-y divide-ink/6">
+      <div class="p-3.5 flex items-center gap-3">
+        <span class="veg-dot veg shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium truncate">Paneer butter masala</div>
+          <div class="text-[10.5px] text-ink-soft truncate">350g · +₹1 markup · Cottage cheese, tomato cream</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="font-serif text-[14px]">₹240</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] text-forest">In stock</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3.5 flex items-center gap-3">
+        <span class="veg-dot veg shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium truncate">Dal makhani</div>
+          <div class="text-[10.5px] text-ink-soft truncate">350g · +₹1 markup · Slow-simmered black lentils</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="font-serif text-[14px]">₹220</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] text-forest">In stock</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11b. MENU (pending) -->
+<div id="menu-pending" class="screen" data-label="/vendor/menu · pending">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+      <span class="text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-saffron/15 text-saffron-soft font-medium">pending</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview-pending')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders-pending')">Orders</button>
+    <button class="v-tab active" onclick="navigate('menu-pending')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+  <div class="px-5 pt-5 pb-6">
+    <div class="bg-gradient-to-br from-saffron/15 to-saffron-soft/30 border border-saffron/30 rounded-3xl p-5">
+      <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-2">Menu editing unlocks after approval</div>
+      <p class="text-[12.5px] leading-[1.55] text-ink-soft mb-2">You can prepare your menu once your shop is approved by <b class="text-ink">Magarpatta Go</b>.</p>
+      <button onclick="navigate('menu')" class="text-[12px] text-forest underline mt-2">Preview the menu editor →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 12. CAMPAIGNS -->
+<!-- ============================================ -->
+<div id="campaigns" class="screen" data-label="/vendor/campaigns">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab active" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1.5">Campaigns</div>
+        <h1 class="font-serif text-[24px] leading-[1.1]">Tell the <span class="italic text-forest">neighbourhood.</span></h1>
+      </div>
+      <button class="bg-forest text-cream px-3.5 py-2 rounded-full text-[11.5px] font-medium shrink-0">+ New</button>
+    </div>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-5">Flash sales, festival specials, late-night deals, BOGO, weekend offers, tiffin starts. Each goes through a quick admin review before showing up on the customer feed.</p>
+
+    <div class="space-y-3">
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.14em] text-saffron">Flash sale</div>
+            <h3 class="font-serif text-[18px] mt-0.5">Diwali sweet box · 15% off</h3>
+          </div>
+          <span class="status live">Live</span>
+        </div>
+        <p class="text-[12px] leading-[1.5] text-ink-soft mb-2">All sweet boxes 250g+, 15% off till Diwali. Pre-orders welcome.</p>
+        <div class="text-[11px] text-ink-soft mb-3">28 Apr → 02 Nov · 15% off · 8 items linked</div>
+        <div class="flex gap-2">
+          <button class="flex-1 border border-ink/14 py-2 rounded-full text-[11.5px]">Edit</button>
+          <button class="flex-1 border border-terracotta/30 text-terracotta py-2 rounded-full text-[11.5px]">Remove</button>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.14em] text-saffron">Late night</div>
+            <h3 class="font-serif text-[18px] mt-0.5">After-10 dinner · ₹50 off</h3>
+          </div>
+          <span class="status review">Awaiting review</span>
+        </div>
+        <p class="text-[12px] leading-[1.5] text-ink-soft mb-2">Flat ₹50 off any main after 10 PM IST. Late-night neighbours welcome.</p>
+        <div class="text-[11px] text-ink-soft mb-3">28 Apr → 31 May · ₹50 flat off · whole menu</div>
+        <div class="flex gap-2">
+          <button class="flex-1 border border-ink/14 py-2 rounded-full text-[11.5px]">Edit</button>
+          <button class="flex-1 border border-terracotta/30 text-terracotta py-2 rounded-full text-[11.5px]">Remove</button>
+        </div>
+      </div>
+
+      <div class="bg-paper rounded-2xl border border-ink/6 p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.14em] text-saffron">Festival</div>
+            <h3 class="font-serif text-[18px] mt-0.5">Holi gulal thali</h3>
+          </div>
+          <span class="status delivered">Expired</span>
+        </div>
+        <p class="text-[12px] leading-[1.5] text-ink-soft mb-2">Special 4-course Holi thali. Available 14–17 Mar.</p>
+        <div class="text-[11px] text-ink-soft mb-3">14 Mar → 17 Mar · 1 item linked</div>
+        <div class="flex gap-2"><button class="flex-1 border border-ink/14 py-2 rounded-full text-[11.5px]">Edit</button><button class="flex-1 border border-terracotta/30 text-terracotta py-2 rounded-full text-[11.5px]">Remove</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 13. FEEDBACK -->
+<!-- ============================================ -->
+<div id="feedback" class="screen" data-label="/vendor/feedback">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab active" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1.5">Customer feedback</div>
+    <h1 class="font-serif text-[24px] leading-[1.1] mb-2">What neighbours <span class="italic text-forest">said.</span></h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-5">Food rating only — delivery goes to the rider (or to you, if you self-deliver).</p>
+
+    <div class="bg-gradient-to-br from-forest/8 to-moss/4 rounded-2xl border border-ink/6 p-5 mb-4">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-2">Avg food rating</div>
+      <div class="flex items-end gap-2">
+        <span class="font-serif text-[54px] text-forest leading-none">4.7</span>
+        <span class="text-[18px] text-saffron">★</span>
+      </div>
+      <div class="text-[11px] text-ink-soft mt-2">Across 218 ratings</div>
+    </div>
+
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-5">
+      <div class="space-y-2 text-[11.5px]">
+        <div class="flex items-center gap-2"><span class="w-7">5 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:78%"></div></div><span class="w-8 text-right">170</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">4 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:14%"></div></div><span class="w-8 text-right">31</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">3 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:6%"></div></div><span class="w-8 text-right">12</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">2 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:1%"></div></div><span class="w-8 text-right">3</span></div>
+        <div class="flex items-center gap-2"><span class="w-7">1 ★</span><div class="flex-1 h-1.5 bg-ink/8 rounded-full overflow-hidden"><div class="h-full bg-forest" style="width:1%"></div></div><span class="w-8 text-right">2</span></div>
+      </div>
+    </div>
+
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-3">Recent ratings</div>
+    <div class="space-y-3 divide-y divide-ink/6">
+      <div class="pt-0">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★★</span> · order #A4F23B</div>
+          <span class="text-[10.5px] text-ink-soft">28 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft mb-1.5">Paneer butter masala × 1, Sourdough loaf</div>
+        <p class="text-[12px] italic leading-[1.5]">"Hottest paneer I've had on a delivery. Sourdough crust was perfect."</p>
+      </div>
+      <div class="pt-3">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★</span><span class="text-ink/30">★</span> · order #B91C7E</div>
+          <span class="text-[10.5px] text-ink-soft">27 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft">Kaju katli × 1, Gulab jamun, Mysore pak</div>
+      </div>
+      <div class="pt-3">
+        <div class="flex items-start justify-between mb-1">
+          <div class="text-[12.5px]"><span class="text-saffron">★★★★★</span> · order #4E10AC</div>
+          <span class="text-[10.5px] text-ink-soft">26 Apr</span>
+        </div>
+        <div class="text-[11.5px] text-ink-soft mb-1.5">Dal makhani × 2, Garlic naan × 4</div>
+        <p class="text-[12px] italic leading-[1.5]">"Tastes like ghar-ka-khaana. Will order weekly."</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 14. SHOP -->
+<!-- ============================================ -->
+<div id="shop" class="screen" data-label="/vendor/shop">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab active" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="flex items-start justify-between mb-1">
+      <div>
+        <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1">Shop details</div>
+        <h1 class="font-serif text-[24px] leading-[1.1]">Kalika Sweets</h1>
+        <div class="text-[11px] text-ink-soft mt-1">Slug <code class="text-ink">kalika-sweets</code> · Commission 10%</div>
+      </div>
+      <button class="border border-terracotta/30 text-terracotta px-3 py-1.5 rounded-full text-[11px] font-medium shrink-0">Pause shop</button>
+    </div>
+
+    <div class="bg-saffron/10 border border-saffron/30 rounded-2xl p-3 mt-5 mb-5">
+      <p class="text-[11.5px] text-ink-soft">You have an edit waiting on Magarpatta Go review. Until it's approved, customers continue to see your last approved details.</p>
+    </div>
+    <p class="text-[11.5px] text-ink-soft mb-5">Saving changes here submits them to Magarpatta Go for review. Pause / Go-live is instant — that's an operational setting.</p>
+
+    <!-- Storefront -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Storefront</div>
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Description</label>
+      <textarea rows="3" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">Family-run since 1992. Famous for kaju katli, gulab jamun and home-style North Indian thalis.</textarea>
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Hub / location</label>
+      <input value="Magarpatta Market" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Full address</label>
+      <input value="Shop 14, Magarpatta Market, Magarpatta City, Pune" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Vendor type</label><select class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none"><option>Sweets</option><option>Restaurant</option></select></div>
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Prep ETA</label><input type="number" value="20" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Cost for two</label><input type="number" value="400" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Opens at</label><input type="time" value="08:00" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none"></div>
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Closes at</label><input type="time" value="22:00" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none"></div>
+      </div>
+    </div>
+
+    <!-- Owner & KYC -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Owner & KYC</div>
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Owner name</label>
+      <input value="Ravi Joshi" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Owner email</label>
+      <input type="email" value="ravi@kalika.in" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Phone <span class="opacity-60 normal-case tracking-normal">— locked, used as login</span></label>
+      <input value="+91 9000000001" disabled class="w-full bg-cream/60 rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none opacity-60">
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">PAN</label><input value="ABCDE1234F" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none uppercase"></div>
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">GSTIN</label><input value="27ABCDE1234F1Z5" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none uppercase"></div>
+      </div>
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">FSSAI number</label>
+      <input value="11521004000123" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none">
+    </div>
+
+    <!-- Fulfilment -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-3">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Fulfilment</div>
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-1 accent-forest">
+        <div>
+          <div class="text-[12.5px] font-medium">I deliver my own orders</div>
+          <p class="text-[11px] text-ink-soft mt-0.5">If on, your staff picks up + delivers within Magarpatta City. No platform rider is involved and customers see you on the tracker directly. If off, a Magarpatta Go rider collects from your counter.</p>
+        </div>
+      </label>
+    </div>
+
+    <!-- Payout details -->
+    <div class="bg-paper rounded-2xl border border-ink/6 p-4 mb-5">
+      <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-3">Payout details</div>
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Account holder</label>
+      <input value="Ravi Joshi" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">
+      <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Account number</label>
+      <input value="500100123456" class="w-full bg-cream rounded-xl px-3 py-2 mb-3 text-[12.5px] outline-none">
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">IFSC</label><input value="HDFC0001234" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none uppercase"></div>
+        <div><label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">UPI</label><input value="kalika@upi" class="w-full bg-cream rounded-xl px-3 py-2 text-[12.5px] outline-none"></div>
+      </div>
+    </div>
+
+    <button onclick="flashToast('Submitted for review ✓')" class="w-full bg-forest text-cream py-3.5 rounded-full text-[14px] font-medium">Save changes</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 15. PAYOUTS -->
+<!-- ============================================ -->
+<div id="payouts" class="screen" data-label="/vendor/payouts">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab active" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1.5">Payouts · last 14 days</div>
+    <h1 class="font-serif text-[24px] leading-[1.1] mb-2">Earnings, <span class="italic text-forest">settled.</span></h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-5">Commission · 10% · deducted on delivered orders only. Payouts land in your bank nightly.</p>
+
+    <div class="grid grid-cols-3 gap-2 mb-5">
+      <div class="bg-paper rounded-2xl border border-ink/6 p-3">
+        <div class="text-[9.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Gross sales</div>
+        <div class="font-serif text-[18px]">₹62,140</div>
+      </div>
+      <div class="bg-paper rounded-2xl border border-ink/6 p-3">
+        <div class="text-[9.5px] uppercase tracking-[0.14em] text-ink-soft mb-1">Commission</div>
+        <div class="font-serif text-[18px]">₹6,214</div>
+        <div class="text-[9.5px] text-ink-soft mt-0.5">10% of gross</div>
+      </div>
+      <div class="bg-gradient-to-br from-forest to-moss text-cream rounded-2xl p-3">
+        <div class="text-[9.5px] uppercase tracking-[0.14em] text-saffron-soft mb-1">Net payout</div>
+        <div class="font-serif text-[18px]">₹55,926</div>
+      </div>
+    </div>
+
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-3">By day</div>
+    <div class="bg-paper rounded-2xl border border-ink/6 divide-y divide-ink/6 mb-5">
+      <div class="p-3.5">
+        <div class="flex items-center justify-between mb-1.5"><span class="text-[12.5px]">Mon 28 Apr</span><div class="text-right"><div class="font-serif text-[14px] text-forest">₹4,338</div><div class="text-[10px] text-ink-soft">14 orders</div></div></div>
+        <div class="h-1 bg-cream-soft rounded-full overflow-hidden"><div class="h-full bg-forest" style="width: 92%"></div></div>
+      </div>
+      <div class="p-3.5">
+        <div class="flex items-center justify-between mb-1.5"><span class="text-[12.5px]">Sun 27 Apr</span><div class="text-right"><div class="font-serif text-[14px] text-forest">₹4,706</div><div class="text-[10px] text-ink-soft">16 orders</div></div></div>
+        <div class="h-1 bg-cream-soft rounded-full overflow-hidden"><div class="h-full bg-forest" style="width: 100%"></div></div>
+      </div>
+      <div class="p-3.5">
+        <div class="flex items-center justify-between mb-1.5"><span class="text-[12.5px]">Sat 26 Apr</span><div class="text-right"><div class="font-serif text-[14px] text-forest">₹3,924</div><div class="text-[10px] text-ink-soft">13 orders</div></div></div>
+        <div class="h-1 bg-cream-soft rounded-full overflow-hidden"><div class="h-full bg-forest" style="width: 83%"></div></div>
+      </div>
+      <div class="p-3.5">
+        <div class="flex items-center justify-between mb-1.5"><span class="text-[12.5px]">Fri 25 Apr</span><div class="text-right"><div class="font-serif text-[14px] text-forest">₹4,118</div><div class="text-[10px] text-ink-soft">14 orders</div></div></div>
+        <div class="h-1 bg-cream-soft rounded-full overflow-hidden"><div class="h-full bg-forest" style="width: 87%"></div></div>
+      </div>
+      <div class="p-3.5">
+        <div class="flex items-center justify-between mb-1.5"><span class="text-[12.5px]">Thu 24 Apr</span><div class="text-right"><div class="font-serif text-[14px] text-forest">₹3,612</div><div class="text-[10px] text-ink-soft">12 orders</div></div></div>
+        <div class="h-1 bg-cream-soft rounded-full overflow-hidden"><div class="h-full bg-forest" style="width: 76%"></div></div>
+      </div>
+    </div>
+
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-3">Recent delivered orders</div>
+    <div class="bg-paper rounded-2xl border border-ink/6 divide-y divide-ink/6">
+      <div class="p-3 flex items-start justify-between">
+        <div>
+          <div class="text-[12px]">#A4F23B · Paneer butter masala × 1, Sourdough loaf</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr · 21:14 IST</div>
+        </div>
+        <div class="font-serif text-[14px] text-forest">₹425</div>
+      </div>
+      <div class="p-3 flex items-start justify-between">
+        <div>
+          <div class="text-[12px]">#B91C7E · Kaju katli, Gulab jamun, Mysore pak</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr · 19:14 IST</div>
+        </div>
+        <div class="font-serif text-[14px] text-forest">₹860</div>
+      </div>
+      <div class="p-3 flex items-start justify-between">
+        <div>
+          <div class="text-[12px]">#7D33E1 · Dal makhani × 2, Garlic naan × 4</div>
+          <div class="text-[10.5px] text-ink-soft">28 Apr · 13:42 IST</div>
+        </div>
+        <div class="font-serif text-[14px] text-forest">₹680</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 16. MENU IMPORT -->
+<!-- ============================================ -->
+<div id="menu-import" class="screen" data-label="/vendor/menu/import">
+  <div class="px-4 pt-2 pb-2.5 flex items-center justify-between bg-paper">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-saffron pulse-ring text-saffron"></span>
+      <span class="text-[13px]">Magarpatta <span class="font-serif italic text-forest">Go</span></span>
+      <span class="text-[9px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta font-medium">Vendor</span>
+    </div>
+    <button onclick="navigate('signin')" class="text-[11px] text-terracotta">Sign out</button>
+  </div>
+  <div class="v-shell"><div class="v-tabs">
+    <button class="v-tab" onclick="navigate('overview')">Overview</button>
+    <button class="v-tab" onclick="navigate('orders')">Orders</button>
+    <button class="v-tab active" onclick="navigate('menu')">Menu</button>
+    <button class="v-tab" onclick="navigate('campaigns')">Campaigns</button>
+    <button class="v-tab" onclick="navigate('feedback')">Feedback</button>
+    <button class="v-tab" onclick="navigate('shop')">Shop</button>
+    <button class="v-tab" onclick="navigate('payouts')">Payouts</button>
+  </div></div>
+
+  <div class="px-5 pt-5 pb-6">
+    <button onclick="navigate('menu')" class="text-[11.5px] text-ink-soft mb-3">← Back to menu</button>
+    <div class="text-[10.5px] uppercase tracking-[0.18em] text-saffron mb-1.5">Menu import</div>
+    <h1 class="font-serif text-[22px] leading-[1.15] mb-3">Send your menu to a <span class="italic text-forest">human curator.</span></h1>
+    <p class="text-[12px] leading-[1.55] text-ink-soft mb-5">Snap a photo of your printed menu (or scan a QR / paste text). Our curator authenticates each item against your photo, fixes anything our OCR missed, then forwards to admin. You don't edit anything yourself.</p>
+
+    <div class="flex bg-paper border border-ink/14 rounded-full p-1 mb-4">
+      <button class="flex-1 py-2 rounded-full bg-forest text-cream text-[12px] font-medium">From photo</button>
+      <button class="flex-1 py-2 text-[12px] text-ink-soft">QR code</button>
+      <button class="flex-1 py-2 text-[12px] text-ink-soft">Paste text</button>
+    </div>
+
+    <div class="border-2 border-dashed border-ink/16 rounded-2xl p-6 text-center bg-paper/40">
+      <div class="text-[36px] mb-3 opacity-40">📷</div>
+      <h3 class="font-serif text-[18px] mb-2">Photograph your printed menu</h3>
+      <p class="text-[11.5px] text-ink-soft mb-4">Hold steady, good light. You can upload several photos — we'll send them all to the curator together.</p>
+      <button class="bg-ink text-cream px-4 py-2.5 rounded-full text-[12px] font-medium">Choose photo(s)</button>
+      <p class="text-[10.5px] text-ink-soft mt-3">OCR runs in your browser — no upload to a server.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ADD-ITEM DRAWER -->
+<!-- ============================================ -->
+<div class="drawer-overlay" id="menuOverlay" onclick="closeMenuDrawer()"></div>
+<div class="drawer" id="menuDrawer">
+  <div class="px-5 pt-5 pb-6">
+    <div class="flex justify-between items-start mb-5">
+      <div>
+        <div class="text-[10.5px] uppercase tracking-[0.14em] text-saffron mb-1">Add item</div>
+        <h2 class="font-serif text-[24px] leading-tight">New item</h2>
+      </div>
+      <button onclick="closeMenuDrawer()" class="w-8 h-8 rounded-full bg-cream-soft flex items-center justify-center text-[16px]">×</button>
+    </div>
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Name</label>
+    <input class="w-full bg-paper border border-ink/14 rounded-xl px-3 py-2.5 mb-3 text-[13px] outline-none">
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <div>
+        <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Category</label>
+        <select class="w-full bg-paper border border-ink/14 rounded-xl px-3 py-2.5 text-[13px] outline-none"><option>Sweets</option><option>Mains</option><option>Bread</option><option>Sides</option></select>
+      </div>
+      <div>
+        <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Unit</label>
+        <input placeholder="500g" class="w-full bg-paper border border-ink/14 rounded-xl px-3 py-2.5 text-[13px] outline-none">
+      </div>
+    </div>
+    <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Description</label>
+    <textarea rows="2" class="w-full bg-paper border border-ink/14 rounded-xl px-3 py-2.5 mb-3 text-[13px] outline-none"></textarea>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <div>
+        <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">MRP (₹)</label>
+        <input type="number" class="w-full bg-paper border border-ink/14 rounded-xl px-3 py-2.5 text-[13px] outline-none">
+      </div>
+      <div>
+        <label class="block text-[10.5px] uppercase tracking-[0.14em] text-ink-soft mb-1.5">Price (₹)</label>
+        <input type="number" class="w-full bg-paper border border-ink/14 rounded-xl px-3 py-2.5 text-[13px] outline-none">
+      </div>
+    </div>
+    <label class="flex items-center gap-2 mb-2 text-[12px]"><input type="checkbox" class="accent-forest"> Sells at printed MRP</label>
+    <label class="flex items-center gap-2 mb-5 text-[12px]"><input type="checkbox" class="accent-forest" checked> Vegetarian</label>
+
+    <div class="flex gap-2">
+      <button onclick="closeMenuDrawer()" class="flex-1 border border-ink/14 py-3 rounded-full text-[13px]">Cancel</button>
+      <button onclick="closeMenuDrawer(); flashToast('Submitted for review ✓')" class="flex-1 bg-forest text-cream py-3 rounded-full text-[13px] font-medium">Add to menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="home-indicator"></div>
+</div>
+</div>
+
+<script>
+  const screens = document.querySelectorAll('.screen');
+  let history = ['signin'];
+
+  function updateHud() {}
+  function navigate(id, reset) {
+    if (reset) history = [];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('active');
+    el.scrollTop = 0;
+    if (history[history.length-1] !== id) history.push(id);
+    closeMenuDrawer();
+    updateHud();
+  }
+  function goBack() {
+    if (history.length > 1) {
+      history.pop();
+      const prev = history[history.length-1];
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(prev).classList.add('active');
+      updateHud();
+    }
+  }
+
+  function signinValidate() {
+    const v = document.getElementById('signinPhone').value.replace(/\D/g,'');
+    const valid = v.length === 10;
+    document.getElementById('signinSendBtn').style.opacity = valid ? '1' : '0.5';
+    document.getElementById('signinSendBtn').disabled = !valid;
+    if (valid) document.getElementById('signinPhoneDisplay').textContent = v;
+  }
+  function prefillVendor(phone) {
+    document.getElementById('signinPhone').value = phone;
+    signinValidate();
+  }
+
+  function startOtpAnimation(prefix) {
+    const code = ['1','2','3','4','5','6'];
+    code.forEach((d,i) => {
+      const el = document.getElementById(prefix+'-otp-'+(i+1));
+      if (el) el.textContent = '';
+    });
+    code.forEach((d,i) => {
+      setTimeout(() => {
+        const el = document.getElementById(prefix+'-otp-'+(i+1));
+        if (el) { el.textContent = d; el.style.borderColor = '#0d4a2e'; }
+      }, 280 + i*180);
+    });
+    if (prefix === 'signin') {
+      setTimeout(() => navigate('overview'), 280 + 6*180 + 500);
+    }
+  }
+
+  // Order kanban transitions
+  function acceptOrder(id) {
+    const card = document.querySelector(`#ordersNew [data-order="${id}"]`);
+    if (!card) return;
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-20px)';
+    setTimeout(() => {
+      card.remove();
+      const newCount = document.querySelectorAll('#ordersNew > [data-order]').length;
+      document.getElementById('newCount').textContent = newCount;
+      // add to prep
+      const prepClone = document.createElement('div');
+      prepClone.className = 'bg-paper rounded-2xl border border-ink/6 p-4';
+      prepClone.dataset.order = id;
+      prepClone.innerHTML = card.innerHTML.replace(/PLACED/g, 'ACCEPTED').replace('placed', 'accepted');
+      const buttons = prepClone.querySelector('.flex.gap-2');
+      if (buttons) buttons.outerHTML = `<button onclick="markReady(${id})" class="w-full bg-saffron text-paper py-2.5 rounded-full text-[12.5px] font-medium">Mark ready (boxed)</button>`;
+      const yourShare = prepClone.querySelector('.flex.items-end');
+      if (yourShare) yourShare.remove();
+      document.getElementById('ordersPrep').appendChild(prepClone);
+      const prepCount = document.querySelectorAll('#ordersPrep > [data-order]').length;
+      document.getElementById('prepCount').textContent = prepCount;
+      flashToast('Order accepted ✓');
+    }, 300);
+  }
+  function rejectOrder(id) {
+    const card = document.querySelector(`#ordersNew [data-order="${id}"]`);
+    if (!card) return;
+    card.style.transition = 'opacity 0.3s';
+    card.style.opacity = '0';
+    setTimeout(() => {
+      card.remove();
+      const newCount = document.querySelectorAll('#ordersNew > [data-order]').length;
+      document.getElementById('newCount').textContent = newCount;
+      flashToast('Order rejected');
+    }, 300);
+  }
+  function markReady(id) {
+    const card = document.querySelector(`#ordersPrep [data-order="${id}"]`);
+    if (!card) return;
+    card.style.transition = 'opacity 0.3s';
+    card.style.opacity = '0';
+    setTimeout(() => {
+      card.remove();
+      const prepCount = document.querySelectorAll('#ordersPrep > [data-order]').length;
+      document.getElementById('prepCount').textContent = prepCount;
+      const empty = document.getElementById('readyEmpty');
+      empty.classList.add('hidden');
+      const ready = document.getElementById('ordersReady');
+      ready.classList.remove('hidden');
+      const div = document.createElement('div');
+      div.className = 'bg-paper rounded-2xl border border-ink/6 p-4';
+      div.innerHTML = `<div class="flex items-center justify-between mb-2"><span class="status ready">READY</span><span class="text-[10px] text-ink-soft">#A4F23B · waiting for rider</span></div><div class="text-[12.5px]">Boxed and ready. Rider will pick up shortly.</div>`;
+      ready.appendChild(div);
+      const readyCount = ready.children.length;
+      document.getElementById('readyCount').textContent = readyCount;
+      flashToast('Marked ready ✓');
+    }, 300);
+  }
+
+  function openMenuDrawer() {
+    document.getElementById('menuOverlay').classList.add('active');
+    document.getElementById('menuDrawer').classList.add('active');
+  }
+  function closeMenuDrawer() {
+    document.getElementById('menuOverlay').classList.remove('active');
+    document.getElementById('menuDrawer').classList.remove('active');
+  }
+
+  function flashToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'absolute left-1/2 -translate-x-1/2 bg-forest text-cream px-4 py-2 rounded-full text-[12px] z-[2000] transition-opacity';
+    t.style.bottom = '36px';
+    t.style.boxShadow = '0 8px 20px rgba(0,0,0,0.18)';
+    t.textContent = msg;
+    document.querySelector('.phone-frame').appendChild(t);
+    setTimeout(() => t.style.opacity = '0', 1300);
+    setTimeout(() => t.remove(), 1700);
+  }
+
+  // Wheel-to-horizontal on tab strips so desktop users can scroll tabs
+  document.querySelectorAll('.v-tabs').forEach(tabs => {
+    tabs.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        tabs.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+  });
+  // Scroll the active tab into view whenever screens change
+  const _navOrig = navigate;
+  navigate = function(id, reset) {
+    _navOrig(id, reset);
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.screen.active .v-tab.active');
+      if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+    });
+  };
+
+  updateHud();
+</script>
+
+</body>
+</html>

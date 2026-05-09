@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 852" width="393" height="852" font-family="Inter, system-ui, sans-serif">
+  <defs><clipPath id="phone"><rect x="0" y="0" width="393" height="852" rx="56"/></clipPath></defs>
+  <g clip-path="url(#phone)">
+    <rect width="393" height="852" fill="#fffdf7"/>
+
+    <!-- Status bar / island -->
+    <text x="32" y="30" font-size="15" font-weight="600" fill="#14110c">9:41</text>
+    <rect x="135" y="11" width="123" height="35" rx="20" fill="#14110c"/>
+
+    <!-- Brand -->
+    <g transform="translate(32,84)">
+      <circle cx="20" cy="20" r="20" fill="#0d4a2e"/>
+      <text x="20" y="27" text-anchor="middle" font-size="18" font-weight="700" fill="#f7efe1" font-style="italic">M</text>
+      <text x="50" y="18" font-size="11" letter-spacing="1.6" fill="#e68a17">VENDOR</text>
+      <text x="50" y="34" font-size="13" font-weight="700" fill="#14110c">Magarpatta Go</text>
+    </g>
+
+    <!-- Header -->
+    <g transform="translate(32,170)">
+      <text font-size="32" font-weight="700" fill="#14110c">Run your shop</text>
+      <text font-size="32" font-weight="700" font-style="italic" fill="#0d4a2e" y="36">from your phone.</text>
+    </g>
+
+    <text x="32" y="266" font-size="13.5" fill="#3a3530">Sign in with the phone you registered. We&apos;ll text a 6-digit code — that&apos;s it.</text>
+
+    <!-- Phone field -->
+    <g transform="translate(32,316)">
+      <rect width="329" height="76" rx="20" fill="#fffdf7" stroke="#0d4a2e" stroke-width="1.6"/>
+      <text x="20" y="26" font-size="11" letter-spacing="1.6" fill="#3a3530">SHOP OWNER&apos;S MOBILE</text>
+      <text x="20" y="58" font-size="20" fill="#3a3530">+91</text>
+      <text x="60" y="58" font-size="20" font-weight="600" fill="#14110c">90000 00001</text>
+      <circle cx="306" cy="48" r="12" fill="#0d4a2e"/>
+      <path d="M301 48 L305 52 L313 44" stroke="#f7efe1" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- CTA -->
+    <g transform="translate(32,420)">
+      <rect width="329" height="56" rx="20" fill="#0d4a2e"/>
+      <text x="164.5" y="35" text-anchor="middle" font-size="15" font-weight="600" fill="#f7efe1">Send OTP   →</text>
+    </g>
+
+    <text x="196.5" y="510" text-anchor="middle" font-size="12.5" fill="#3a3530">New shop? <tspan font-weight="600" fill="#0d4a2e">Apply to onboard</tspan></text>
+
+    <!-- Why card -->
+    <g transform="translate(24,640)">
+      <rect width="345" height="120" rx="20" fill="#f7efe1"/>
+      <text x="20" y="32" font-size="11" letter-spacing="1.6" fill="#e68a17">WHY MAGARPATTA GO</text>
+      <text x="20" y="58" font-size="13" fill="#14110c">· Hyper-local: orders only from inside Magarpatta City.</text>
+      <text x="20" y="80" font-size="13" fill="#14110c">· You set MRP — we add a clear ₹1 hyper-local fee.</text>
+      <text x="20" y="102" font-size="13" fill="#14110c">· Daily payouts to your bank, no commission games.</text>
+    </g>
+
+    <rect x="124" y="826" width="145" height="5" rx="2.5" fill="#14110c"/>
+  </g>
+</svg>

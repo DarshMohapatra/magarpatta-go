@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 852" width="393" height="852" font-family="Inter, system-ui, sans-serif">
+  <defs><clipPath id="phone"><rect x="0" y="0" width="393" height="852" rx="56"/></clipPath></defs>
+  <g clip-path="url(#phone)">
+    <rect width="393" height="852" fill="#fffdf7"/>
+
+    <!-- Status bar / island -->
+    <text x="32" y="30" font-size="15" font-weight="600" fill="#14110c">9:41</text>
+    <rect x="135" y="11" width="123" height="35" rx="20" fill="#14110c"/>
+
+    <!-- Header -->
+    <g transform="translate(24,72)">
+      <text font-size="11" letter-spacing="1.6" fill="#e68a17">YOUR SHOP</text>
+      <text font-size="14" font-weight="600" fill="#14110c" y="20">Kalika Sweets · Magarpatta Market</text>
+      <g transform="translate(280,0)">
+        <rect width="68" height="28" rx="14" fill="#0d4a2e"/>
+        <circle cx="14" cy="14" r="5" fill="#f7efe1"/>
+        <text x="34" y="18" font-size="11" font-weight="700" fill="#f7efe1">OPEN</text>
+      </g>
+    </g>
+
+    <!-- Greeting -->
+    <g transform="translate(24,128)">
+      <text font-size="28" font-weight="700" fill="#14110c">Good morning,</text>
+      <text font-size="28" font-weight="700" font-style="italic" fill="#0d4a2e" y="34">Suresh.</text>
+    </g>
+
+    <!-- Big stats -->
+    <g transform="translate(24,212)">
+      <rect width="166" height="100" rx="18" fill="#0d4a2e"/>
+      <text x="20" y="28" font-size="11" letter-spacing="1.6" fill="#f4b564">PENDING NOW</text>
+      <text x="20" y="68" font-size="40" font-weight="700" fill="#f7efe1">2</text>
+      <text x="20" y="86" font-size="11.5" fill="#eee3ce">tap to accept / reject</text>
+
+      <g transform="translate(178,0)">
+        <rect width="166" height="100" rx="18" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.08"/>
+        <text x="20" y="28" font-size="11" letter-spacing="1.6" fill="#3a3530">TODAY&apos;S GMV</text>
+        <text x="20" y="68" font-size="32" font-weight="700" fill="#14110c">₹4,820</text>
+        <text x="20" y="86" font-size="11.5" fill="#3a3530">22 delivered · 4 active</text>
+      </g>
+    </g>
+
+    <!-- Active orders -->
+    <text x="24" y="346" font-size="11" letter-spacing="1.6" fill="#3a3530">ACTIVE ORDERS</text>
+
+    <g transform="translate(24,366)">
+      <rect width="345" height="118" rx="18" fill="#fffdf7" stroke="#e68a17" stroke-width="1.5"/>
+      <g transform="translate(20,18)">
+        <rect width="50" height="22" rx="11" fill="#e68a17"/>
+        <text x="25" y="15" text-anchor="middle" font-size="11" font-weight="700" fill="#14110c">NEW</text>
+      </g>
+      <text x="80" y="34" font-size="13" font-weight="700" fill="#14110c">#MG-22184 · ₹243</text>
+      <text x="20" y="62" font-size="11.5" fill="#3a3530">1× Hot Jalebi (200g), 2× Samosa (2 pcs)</text>
+      <text x="20" y="80" font-size="11.5" fill="#3a3530">Daffodils B-1204 · 1.6 km · 12 min</text>
+      <g transform="translate(20,90)">
+        <rect width="148" height="36" rx="14" fill="#0d4a2e"/>
+        <text x="74" y="23" text-anchor="middle" font-size="13" font-weight="600" fill="#f7efe1">Accept · 12 min</text>
+      </g>
+      <g transform="translate(176,90)">
+        <rect width="86" height="36" rx="14" fill="#fffdf7" stroke="#c64f2e" stroke-width="1.4"/>
+        <text x="43" y="23" text-anchor="middle" font-size="12" font-weight="600" fill="#c64f2e">Reject</text>
+      </g>
+    </g>
+
+    <g transform="translate(24,498)">
+      <rect width="345" height="74" rx="18" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.08"/>
+      <g transform="translate(20,18)">
+        <rect width="74" height="22" rx="11" fill="#0d4a2e" opacity="0.12"/>
+        <text x="37" y="15" text-anchor="middle" font-size="11" font-weight="700" fill="#06311c">PREPARING</text>
+      </g>
+      <text x="106" y="34" font-size="12.5" font-weight="700" fill="#14110c">#MG-22183 · ₹201 · Gulab Jamun</text>
+      <text x="20" y="58" font-size="11.5" fill="#3a3530">Aman is 4 min away · mark ready when boxed</text>
+    </g>
+
+    <!-- Quick actions -->
+    <text x="24" y="608" font-size="11" letter-spacing="1.6" fill="#3a3530">QUICK ACTIONS</text>
+
+    <g transform="translate(24,628)">
+      <g><rect width="106" height="100" rx="16" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.08"/><text x="20" y="38" font-size="22">📋</text><text x="20" y="68" font-size="12" font-weight="700" fill="#14110c">Menu</text><text x="20" y="84" font-size="10.5" fill="#3a3530">7 live · 1 awaiting</text></g>
+      <g transform="translate(118,0)"><rect width="106" height="100" rx="16" fill="#fffdf7" stroke="#e68a17" stroke-width="1.4"/><text x="20" y="38" font-size="22">📷</text><text x="20" y="68" font-size="12" font-weight="700" fill="#14110c">Import</text><text x="20" y="84" font-size="10.5" fill="#3a3530">photo / QR</text></g>
+      <g transform="translate(236,0)"><rect width="106" height="100" rx="16" fill="#fffdf7" stroke="#14110c" stroke-opacity="0.08"/><text x="20" y="38" font-size="22">🎯</text><text x="20" y="68" font-size="12" font-weight="700" fill="#14110c">Campaign</text><text x="20" y="84" font-size="10.5" fill="#3a3530">1 live · 1 pending</text></g>
+    </g>
+
+    <!-- Bottom tab bar -->
+    <rect x="0" y="780" width="393" height="72" fill="#fffdf7"/>
+    <line x1="0" y1="780" x2="393" y2="780" stroke="#14110c" stroke-opacity="0.06"/>
+    <g font-size="10" font-weight="600">
+      <g transform="translate(28,792)"><circle cx="14" cy="14" r="3" fill="#0d4a2e"/><text x="14" y="44" text-anchor="middle" fill="#0d4a2e">Today</text></g>
+      <g transform="translate(112,792)"><circle cx="14" cy="14" r="3" fill="#3a3530"/><text x="14" y="44" text-anchor="middle" fill="#3a3530">Orders</text></g>
+      <g transform="translate(196,792)"><circle cx="14" cy="14" r="3" fill="#3a3530"/><text x="14" y="44" text-anchor="middle" fill="#3a3530">Menu</text></g>
+      <g transform="translate(280,792)"><circle cx="14" cy="14" r="3" fill="#3a3530"/><text x="14" y="44" text-anchor="middle" fill="#3a3530">Payouts</text></g>
+      <g transform="translate(352,792)"><circle cx="14" cy="14" r="3" fill="#3a3530"/><text x="14" y="44" text-anchor="middle" fill="#3a3530">⋯</text></g>
+    </g>
+    <rect x="124" y="841" width="145" height="5" rx="2.5" fill="#14110c"/>
+  </g>
+</svg>

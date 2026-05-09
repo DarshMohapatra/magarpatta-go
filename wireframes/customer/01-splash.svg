@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 852" width="393" height="852" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <clipPath id="phone"><rect x="0" y="0" width="393" height="852" rx="56" /></clipPath>
+  </defs>
+  <g clip-path="url(#phone)">
+    <!-- Background -->
+    <rect width="393" height="852" fill="#f7efe1"/>
+
+    <!-- Status bar -->
+    <text x="32" y="30" font-size="15" font-weight="600" fill="#14110c">9:41</text>
+    <g transform="translate(320,18)">
+      <rect x="0" y="6" width="18" height="11" rx="2" fill="none" stroke="#14110c" stroke-width="1.2"/>
+      <rect x="2" y="8" width="11" height="7" fill="#14110c"/>
+      <rect x="20" y="11" width="2" height="3" fill="#14110c"/>
+    </g>
+    <g transform="translate(285,18)">
+      <circle cx="6" cy="14" r="2" fill="#14110c"/>
+      <circle cx="14" cy="11" r="2" fill="#14110c"/>
+      <circle cx="22" cy="8" r="2" fill="#14110c"/>
+    </g>
+
+    <!-- Dynamic island -->
+    <rect x="135" y="11" width="123" height="35" rx="20" fill="#14110c"/>
+
+    <!-- Brand mark -->
+    <g transform="translate(196.5,330)">
+      <circle cx="0" cy="0" r="48" fill="#0d4a2e"/>
+      <text x="0" y="14" text-anchor="middle" font-size="44" font-weight="700" fill="#f7efe1" font-style="italic">M</text>
+    </g>
+
+    <text x="196.5" y="430" text-anchor="middle" font-size="38" font-weight="700" fill="#14110c" font-style="italic">Magarpatta Go</text>
+    <text x="196.5" y="462" text-anchor="middle" font-size="14" fill="#3a3530" letter-spacing="2">YOUR NEIGHBOURHOOD, ON DEMAND</text>
+
+    <!-- Sub message -->
+    <text x="196.5" y="540" text-anchor="middle" font-size="13" fill="#3a3530">Food · Groceries · Medicine · Meat · Essentials</text>
+    <text x="196.5" y="560" text-anchor="middle" font-size="13" fill="#3a3530">Delivered inside Magarpatta City in 15–25 minutes.</text>
+
+    <!-- CTA -->
+    <g transform="translate(32,700)">
+      <rect width="329" height="56" rx="28" fill="#0d4a2e"/>
+      <text x="164.5" y="35" text-anchor="middle" font-size="16" font-weight="600" fill="#f7efe1">Get started</text>
+    </g>
+    <text x="196.5" y="785" text-anchor="middle" font-size="12.5" fill="#3a3530">Already have an account? <tspan font-weight="600" fill="#0d4a2e">Sign in</tspan></text>
+
+    <!-- Home indicator -->
+    <rect x="124" y="826" width="145" height="5" rx="2.5" fill="#14110c"/>
+  </g>
+</svg>
