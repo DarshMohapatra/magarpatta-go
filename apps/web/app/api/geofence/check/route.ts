@@ -1,19 +1,6 @@
 import { NextResponse } from 'next/server';
 import { SOCIETY_NAMES, getBuildings, getBuilding, validateFlat } from '@/lib/societies';
-
-/**
- * Magarpatta City bounding polygon (approximate, for Phase-1 dev).
- * Replace with hand-digitized QGIS polygon once we have MTDCC master plan.
- */
-const MAGARPATTA_POLYGON: Array<[number, number]> = [
-  [73.9245, 18.5180],
-  [73.9340, 18.5195],
-  [73.9390, 18.5160],
-  [73.9395, 18.5095],
-  [73.9340, 18.5045],
-  [73.9260, 18.5055],
-  [73.9225, 18.5110],
-];
+import { siteConfig } from '@/lib/site-config';
 
 function pointInPolygon(lng: number, lat: number, poly: Array<[number, number]>): boolean {
   let inside = false;
@@ -79,7 +66,7 @@ export async function POST(req: Request) {
         }
         return NextResponse.json({
           inside: true,
-          reason: 'Address is within Magarpatta City',
+          reason: `Address is within ${siteConfig.siteName}`,
           society,
           building,
           flat,
@@ -105,12 +92,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const inside = pointInPolygon(lng, lat, MAGARPATTA_POLYGON);
+    const inside = pointInPolygon(lng, lat, siteConfig.geofencePolygon);
     return NextResponse.json({
       inside,
       reason: inside
-        ? 'Coordinates are within Magarpatta geofence'
-        : 'Coordinates are outside Magarpatta City',
+        ? `Coordinates are within ${siteConfig.siteName} geofence`
+        : `Coordinates are outside ${siteConfig.siteName}`,
       lat,
       lng,
     });
