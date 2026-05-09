@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { CAMPAIGN_TYPE_LABELS, CAMPAIGN_TYPES } from '@/lib/campaign-types';
+import { siteConfig } from '@/lib/site-config';
 
 interface Campaign {
   id: string;
@@ -9,8 +10,10 @@ interface Campaign {
   title: string;
   body: string;
   ctaLabel: string | null;
+  appliesToAll: boolean;
   productIds: string[];
   discountPct: number | null;
+  discountFlatInr: number | null;
   startsAt: string;
   endsAt: string;
   active: boolean;
@@ -18,6 +21,14 @@ interface Campaign {
   approvalNote: string | null;
   submittedAt: string;
   pendingRemoval?: boolean;
+}
+
+interface VendorProduct {
+  id: string;
+  name: string;
+  priceInr: number;
+  isRegulated: boolean;
+  category: { name: string };
 }
 
 const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]';
@@ -93,7 +104,7 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
 
       {!isApproved && (
         <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 px-5 py-4 text-[13px]">
-          You can launch campaigns once your shop is approved by Magarpatta Go.
+          You can launch campaigns once your shop is approved by {siteConfig.platformName}.
         </div>
       )}
 
@@ -149,7 +160,7 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
             )}
             {c.pendingRemoval && (
               <div className="mt-3 rounded-xl bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/25 px-3 py-2 text-[12px] text-[color:var(--color-ink)]">
-                Removal awaiting Magarpatta Go review. The campaign stays live until admin approves.
+                Removal awaiting {siteConfig.platformName} review. The campaign stays live until admin approves.
               </div>
             )}
             <div className="mt-4 flex flex-wrap gap-2 text-[12px]">
@@ -176,25 +187,50 @@ function CampaignForm({ editing, onClose, onSaved }: {
   onClose: () => void;
   onSaved: (saved: boolean) => void;
 }) {
-  const initial = useMemo(() => editing
-    ? {
+  const initial = useMemo(() => {
+    if (editing) {
+      const kind: 'pct' | 'flat' = editing.discountFlatInr ? 'flat' : 'pct';
+      return {
         type: editing.type,
         title: editing.title,
         body: editing.body,
         ctaLabel: editing.ctaLabel ?? '',
-        discountPct: editing.discountPct ?? '',
+        discountKind: kind,
+        discountPct: kind === 'pct' ? (editing.discountPct ?? '') : '',
+        discountFlatInr: kind === 'flat' ? (editing.discountFlatInr ?? '') : '',
         startsAt: editing.startsAt.slice(0, 16),
         endsAt: editing.endsAt.slice(0, 16),
         active: editing.active,
-      }
-    : (() => {
-        const r = defaultRange();
-        return { type: 'FLASH_SALE', title: '', body: '', ctaLabel: '', discountPct: '' as number | string, startsAt: r.start, endsAt: r.end, active: true };
-      })(), [editing]);
+        appliesToAll: editing.appliesToAll,
+        productIds: editing.productIds,
+      };
+    }
+    const r = defaultRange();
+    return {
+      type: 'FLASH_SALE',
+      title: '', body: '', ctaLabel: '',
+      discountKind: 'pct' as 'pct' | 'flat',
+      discountPct: '' as number | string,
+      discountFlatInr: '' as number | string,
+      startsAt: r.start, endsAt: r.end, active: true,
+      appliesToAll: true,
+      productIds: [] as string[],
+    };
+  }, [editing]);
 
   const [form, setForm] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [products, setProducts] = useState<VendorProduct[] | null>(null);
+
+  // Lazily load the vendor's products only when "selected items" is chosen.
+  useEffect(() => {
+    if (form.appliesToAll || products !== null) return;
+    fetch('/api/vendor/products', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((j) => { if (j.ok) setProducts(j.products as VendorProduct[]); })
+      .catch(() => setProducts([]));
+  }, [form.appliesToAll, products]);
 
   const SALE_TYPES = new Set(['FLASH_SALE', 'BOGO', 'WEEKEND', 'FESTIVAL', 'EARLY_BIRD', 'LATE_NIGHT']);
   const discountRequired = SALE_TYPES.has(form.type);
@@ -202,8 +238,14 @@ function CampaignForm({ editing, onClose, onSaved }: {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
-    if (discountRequired && (form.discountPct === '' || Number(form.discountPct) <= 0)) {
-      setErr('Set a discount % — for sale-type campaigns this is what actually moves prices on the menu.');
+    const pctVal = form.discountKind === 'pct' && form.discountPct !== '' ? Number(form.discountPct) : 0;
+    const flatVal = form.discountKind === 'flat' && form.discountFlatInr !== '' ? Number(form.discountFlatInr) : 0;
+    if (discountRequired && pctVal <= 0 && flatVal <= 0) {
+      setErr('Set a discount — % off or ₹ off. This is what actually moves prices on the menu.');
+      return;
+    }
+    if (!form.appliesToAll && form.productIds.length === 0) {
+      setErr('Pick at least one item, or switch the offer back to "applies to whole menu".');
       return;
     }
     setBusy(true);
@@ -213,7 +255,10 @@ function CampaignForm({ editing, onClose, onSaved }: {
         title: form.title,
         body: form.body,
         ctaLabel: form.ctaLabel,
-        discountPct: form.discountPct === '' ? undefined : Number(form.discountPct),
+        discountPct: form.discountKind === 'pct' && pctVal > 0 ? pctVal : null,
+        discountFlatInr: form.discountKind === 'flat' && flatVal > 0 ? flatVal : null,
+        appliesToAll: form.appliesToAll,
+        productIds: form.appliesToAll ? [] : form.productIds,
         startsAt: new Date(form.startsAt).toISOString(),
         endsAt: new Date(form.endsAt).toISOString(),
         active: form.active,
@@ -255,24 +300,47 @@ function CampaignForm({ editing, onClose, onSaved }: {
           <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">CTA label (optional)</span>
           <input value={form.ctaLabel} onChange={(e) => setForm({ ...form, ctaLabel: e.target.value })} className={inp} placeholder="Shop the box →" />
         </label>
-        <label className="block">
+        <div className="block">
           <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
-            Discount % {discountRequired ? '· required for sale campaigns' : '· optional'}
+            Discount {discountRequired ? '· required for sale campaigns' : '· optional'}
           </span>
-          <input
-            type="number"
-            min={1}
-            max={90}
-            required={discountRequired}
-            value={form.discountPct}
-            onChange={(e) => setForm({ ...form, discountPct: e.target.value })}
-            placeholder="e.g. 40"
-            className={inp}
-          />
+          <div className="mt-1 inline-flex rounded-xl border border-[color:var(--color-ink)]/12 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, discountKind: 'pct', discountFlatInr: '' })}
+              className={`px-4 py-2 text-[12.5px] ${form.discountKind === 'pct' ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)]'}`}
+            >% off</button>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, discountKind: 'flat', discountPct: '' })}
+              className={`px-4 py-2 text-[12.5px] border-l border-[color:var(--color-ink)]/12 ${form.discountKind === 'flat' ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)]'}`}
+            >₹ off</button>
+          </div>
+          {form.discountKind === 'pct' ? (
+            <input
+              type="number" min={1} max={90}
+              required={discountRequired}
+              value={form.discountPct}
+              onChange={(e) => setForm({ ...form, discountPct: e.target.value })}
+              placeholder="e.g. 40"
+              className={inp + ' mt-2'}
+            />
+          ) : (
+            <input
+              type="number" min={1}
+              required={discountRequired}
+              value={form.discountFlatInr}
+              onChange={(e) => setForm({ ...form, discountFlatInr: e.target.value })}
+              placeholder="e.g. 50"
+              className={inp + ' mt-2'}
+            />
+          )}
           <span className="mt-1 block text-[11px] text-[color:var(--color-ink-soft)]/70">
-            This is what actually changes prices on the customer menu (crossed-out original, new price highlighted). Writing &ldquo;40% off&rdquo; in the title alone won&apos;t move prices — fill this field.
+            {form.discountKind === 'pct'
+              ? 'A percent is taken off each eligible item’s MRP. Regulated MRP goods are skipped.'
+              : 'A flat ₹ amount is taken off each eligible item (price floor: ₹1). Regulated MRP goods are skipped.'}
           </span>
-        </label>
+        </div>
         <label className="block">
           <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Starts</span>
           <input type="datetime-local" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} className={inp} />
@@ -287,6 +355,85 @@ function CampaignForm({ editing, onClose, onSaved }: {
         <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="accent-[color:var(--color-forest)]" />
         Live the moment it&apos;s approved (uncheck to keep paused)
       </label>
+
+      <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4 space-y-3">
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Applies to</div>
+        <div className="grid sm:grid-cols-2 gap-2">
+          <label className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer ${form.appliesToAll ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5' : 'border-[color:var(--color-ink)]/12'}`}>
+            <input
+              type="radio" name="scope" checked={form.appliesToAll}
+              onChange={() => setForm({ ...form, appliesToAll: true, productIds: [] })}
+              className="mt-1 accent-[color:var(--color-forest)]"
+            />
+            <span>
+              <span className="block text-[13px] font-medium text-[color:var(--color-ink)]">Whole menu</span>
+              <span className="block text-[11.5px] text-[color:var(--color-ink-soft)]/75">Every non-regulated item gets the discount.</span>
+            </span>
+          </label>
+          <label className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer ${!form.appliesToAll ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5' : 'border-[color:var(--color-ink)]/12'}`}>
+            <input
+              type="radio" name="scope" checked={!form.appliesToAll}
+              onChange={() => setForm({ ...form, appliesToAll: false })}
+              className="mt-1 accent-[color:var(--color-forest)]"
+            />
+            <span>
+              <span className="block text-[13px] font-medium text-[color:var(--color-ink)]">Selected items only</span>
+              <span className="block text-[11.5px] text-[color:var(--color-ink-soft)]/75">Pick specific items below.</span>
+            </span>
+          </label>
+        </div>
+
+        {!form.appliesToAll && (
+          <div className="rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-cream)]/40 p-3">
+            {products === null ? (
+              <p className="text-[12px] text-[color:var(--color-ink-soft)]">Loading your menu…</p>
+            ) : products.length === 0 ? (
+              <p className="text-[12px] text-[color:var(--color-ink-soft)]">No menu items yet. Add items to your menu first.</p>
+            ) : (
+              <div className="max-h-64 overflow-y-auto divide-y divide-[color:var(--color-ink)]/8">
+                {products.map((p) => {
+                  const checked = form.productIds.includes(p.id);
+                  const disabled = p.isRegulated;
+                  return (
+                    <label
+                      key={p.id}
+                      className={`flex items-center gap-3 py-2 text-[13px] ${disabled ? 'opacity-45 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        disabled={disabled}
+                        checked={checked}
+                        onChange={(e) => {
+                          const next = e.target.checked
+                            ? [...form.productIds, p.id]
+                            : form.productIds.filter((id) => id !== p.id);
+                          setForm({ ...form, productIds: next });
+                        }}
+                        className="accent-[color:var(--color-forest)]"
+                      />
+                      <span className="flex-1 truncate">
+                        {p.name}
+                        {disabled && <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">MRP — can&apos;t discount</span>}
+                      </span>
+                      <span className="shrink-0 text-[12px] text-[color:var(--color-ink-soft)]">₹{p.priceInr}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+            <div className="mt-2 flex items-center justify-between text-[11.5px] text-[color:var(--color-ink-soft)]">
+              <span>{form.productIds.length} selected</span>
+              {products && products.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, productIds: products.filter((p) => !p.isRegulated).map((p) => p.id) })}
+                  className="text-[color:var(--color-forest)] hover:underline"
+                >Select all eligible</button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {err && <p className="text-[12.5px] text-[color:var(--color-terracotta)]">{err}</p>}
 

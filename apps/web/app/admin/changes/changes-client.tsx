@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 interface Change {
   id: string;
-  entity: 'VENDOR' | 'PRODUCT' | 'RIDER';
+  entity: 'VENDOR' | 'PRODUCT' | 'RIDER' | 'CAMPAIGN';
   entityId: string | null;
   operation: 'UPDATE' | 'CREATE' | 'DELETE';
   payload: Record<string, unknown>;

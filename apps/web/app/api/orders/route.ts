@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { PaymentMethod } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from '@/lib/session';
+import { getCustomerScope } from '@/lib/customer-scope';
 // status only advances via vendor/rider actions — no demo auto-progression
 import { computeBreakdown } from '@/lib/pricing';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
+import { getCodEligibility, COD_MAX_ORDER_INR } from '@/lib/cod';
 
 interface IncomingItem {
   productId: string;
@@ -15,6 +16,7 @@ interface IncomingBody {
   items: IncomingItem[];
   notes?: string;
   paymentMethod?: PaymentMethod;
+  addressId?: string;
   giftWrap?: boolean;
   insurance?: boolean;
   tipInr?: number;
@@ -23,9 +25,11 @@ interface IncomingBody {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession();
-  if (!session) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
-  if (!session.society || !session.building || !session.flat) {
+  const scope = await getCustomerScope();
+  if (!scope) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
+  const { session, userId, db } = scope;
+
+  if (session.addresses.length === 0) {
     return NextResponse.json({ ok: false, error: 'Set a delivery address before placing an order' }, { status: 400 });
   }
 
@@ -35,6 +39,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'Cart is empty' }, { status: 400 });
     }
 
+    // Resolve the delivery address from the user's saved list. The client
+    // sends an addressId; if it doesn't, fall back to the default. We never
+    // trust client-supplied society/building/flat strings — always read them
+    // off the saved address record.
+    const address =
+      session.addresses.find((a) => a.id === body.addressId) ??
+      session.addresses.find((a) => a.isDefault) ??
+      session.addresses[0];
+    if (!address) {
+      return NextResponse.json({ ok: false, error: 'Set a delivery address before placing an order' }, { status: 400 });
+    }
+
+    const paymentMethod = body.paymentMethod ?? 'COD';
+
+    // Catalog reads use the raw prisma client — products and coupons are
+    // public and the scoped client doesn't gate them.
     const productIds = body.items.map((i) => i.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, inStock: true },
@@ -64,9 +84,9 @@ export async function POST(req: Request) {
     const priceItems = body.items.map((i) => {
       const p = byId.get(i.productId)!;
       const qty = Math.max(1, Math.floor(i.quantity));
-      const match = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated }, activeDiscounts);
-      const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.pct);
-      if (match.pct > 0) cartHasCampaign = true;
+      const match = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated, priceInr: p.priceInr, mrpInr: p.mrpInr }, activeDiscounts);
+      const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
+      if (match.saving > 0) cartHasCampaign = true;
       return {
         mrpInr: priced.mrpInr ?? priced.priceInr,
         priceInr: priced.priceInr,
@@ -85,7 +105,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate + load coupon
+    // Validate + load coupon (public catalog read)
     let coupon = null as Awaited<ReturnType<typeof prisma.coupon.findUnique>> | null;
     if (body.couponCode) {
       coupon = await prisma.coupon.findUnique({ where: { code: body.couponCode.toUpperCase().trim() } });
@@ -122,11 +142,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = await prisma.user.upsert({
-      where: { phone: session.phone },
-      create: { phone: session.phone, name: session.name ?? undefined },
-      update: {},
-    });
+    if (paymentMethod === 'COD') {
+      const cod = await getCodEligibility(db);
+      if (!cod.eligible) {
+        const remaining = Math.max(1, cod.threshold - cod.prepaidCount);
+        return NextResponse.json(
+          { ok: false, error: `Pay online for ${remaining} more order${remaining === 1 ? '' : 's'} to unlock cash on delivery.` },
+          { status: 400 },
+        );
+      }
+      if (breakdown.totalInr > COD_MAX_ORDER_INR) {
+        return NextResponse.json(
+          { ok: false, error: `Cash on delivery is capped at ₹${COD_MAX_ORDER_INR}. Pay online for orders above this amount.` },
+          { status: 400 },
+        );
+      }
+    }
 
     // Two flows, nothing more:
     //   every vendor supports self-delivery  → VENDOR_SELF      (vendor sees + delivers themselves)
@@ -141,17 +172,20 @@ export async function POST(req: Request) {
     const primaryVendor = products[0].vendor;
     const hub = primaryVendor.hub;
 
-    const order = await prisma.order.create({
+    // db.order.create auto-injects userId from the scope — the explicit
+    // userId field below is illustrative only; the wrapper would override
+    // anything we put here.
+    const order = await db.order.create({
       data: {
-        userId: user.id,
+        userId,
         vendorId: primaryVendor.id,
         status: 'PLACED',
-        paymentMethod: body.paymentMethod ?? 'COD',
+        paymentMethod,
         hub,
         fulfilmentMode,
-        society: session.society,
-        building: session.building,
-        flat: session.flat,
+        society: address.society,
+        building: address.building,
+        flat: address.flat,
         subtotalInr: breakdown.subtotalInr,
         convenienceInr: breakdown.convenienceInr,
         taxInr: breakdown.taxInr,
@@ -199,14 +233,11 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const session = await getServerSession();
-  if (!session) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
+  const scope = await getCustomerScope();
+  if (!scope) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { phone: session.phone } });
-  if (!user) return NextResponse.json({ ok: true, orders: [] });
-
-  const orders = await prisma.order.findMany({
-    where: { userId: user.id },
+  // db.order.findMany auto-applies userId — even an empty `where` is safe.
+  const orders = await scope.db.order.findMany({
     orderBy: { placedAt: 'desc' },
     include: { items: { select: { name: true, quantity: true, imageUrl: true, accent: true, glyph: true } } },
   });

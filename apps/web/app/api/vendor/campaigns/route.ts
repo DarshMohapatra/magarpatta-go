@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import type { CampaignType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
+import { queueChange } from '@/lib/pending-change';
+import { logActivity } from '@/lib/activity-log';
 
 const VALID_TYPES: CampaignType[] = [
   'NEW_OPENING', 'FLASH_SALE', 'FESTIVAL', 'LATE_NIGHT',
@@ -23,8 +25,10 @@ interface Body {
   title?: string;
   body?: string;
   ctaLabel?: string;
+  appliesToAll?: boolean;
   productIds?: string[];
-  discountPct?: number;
+  discountPct?: number | null;
+  discountFlatInr?: number | null;
   startsAt?: string;
   endsAt?: string;
   active?: boolean;
@@ -53,14 +57,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'End must be after start.' }, { status: 400 });
   }
 
+  const appliesToAll = b.appliesToAll !== false;
+  const productIds = Array.isArray(b.productIds) ? b.productIds.filter((x) => typeof x === 'string') : [];
+  if (!appliesToAll && productIds.length === 0) {
+    return NextResponse.json({ ok: false, error: 'Pick at least one item, or set the offer to apply to your whole menu.' }, { status: 400 });
+  }
+
+  const discountPct = typeof b.discountPct === 'number' && b.discountPct > 0
+    ? Math.max(1, Math.min(90, Math.floor(b.discountPct)))
+    : null;
+  const discountFlatInr = typeof b.discountFlatInr === 'number' && b.discountFlatInr > 0
+    ? Math.max(1, Math.floor(b.discountFlatInr))
+    : null;
+  if (discountPct && discountFlatInr) {
+    return NextResponse.json({ ok: false, error: 'Pick either a % discount or a flat ₹ amount — not both.' }, { status: 400 });
+  }
+
   const data: Prisma.CampaignUncheckedCreateInput = {
     vendorId: s.vendorId,
     type,
     title,
     body,
     ctaLabel: b.ctaLabel?.trim() || null,
-    productIds: Array.isArray(b.productIds) ? b.productIds.filter((x) => typeof x === 'string') : [],
-    discountPct: typeof b.discountPct === 'number' ? Math.max(0, Math.min(90, Math.floor(b.discountPct))) : null,
+    appliesToAll,
+    productIds: appliesToAll ? [] : productIds,
+    discountPct,
+    discountFlatInr,
     startsAt,
     endsAt,
     active: b.active ?? true,
@@ -68,5 +90,36 @@ export async function POST(req: Request) {
   };
 
   const campaign = await prisma.campaign.create({ data });
+
+  await queueChange({
+    entity: 'CAMPAIGN',
+    entityId: campaign.id,
+    operation: 'CREATE',
+    payload: {
+      type: campaign.type,
+      title: campaign.title,
+      body: campaign.body,
+      ctaLabel: campaign.ctaLabel,
+      appliesToAll: campaign.appliesToAll,
+      productIds: campaign.productIds,
+      discountPct: campaign.discountPct,
+      discountFlatInr: campaign.discountFlatInr,
+      startsAt: campaign.startsAt.toISOString(),
+      endsAt: campaign.endsAt.toISOString(),
+      active: campaign.active,
+    } as never,
+    summary: `${s.shopName} · new campaign "${campaign.title}"`,
+    vendorId: s.vendorId,
+  });
+
+  await logActivity({
+    actorRole: 'VENDOR',
+    actorId: s.vendorId,
+    actorName: s.shopName,
+    action: 'CAMPAIGN_CREATE',
+    summary: `${s.shopName} submitted campaign "${campaign.title}"`,
+    metadata: { campaignId: campaign.id, type: campaign.type },
+  });
+
   return NextResponse.json({ ok: true, campaign });
 }

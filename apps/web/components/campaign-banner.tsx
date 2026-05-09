@@ -10,11 +10,19 @@ interface Campaign {
   title: string;
   body: string;
   ctaLabel: string | null;
+  appliesToAll: boolean;
   productIds: string[];
   discountPct: number | null;
+  discountFlatInr: number | null;
   startsAt: string;
   endsAt: string;
   vendor: { id: string; slug: string; name: string; hub: string };
+}
+
+function formatDiscount(c: Campaign): string | null {
+  if (c.discountPct && c.discountPct > 0) return `${c.discountPct}% off`;
+  if (c.discountFlatInr && c.discountFlatInr > 0) return `₹${c.discountFlatInr} off`;
+  return null;
 }
 
 const STORAGE_KEY = 'mg_campaign_dismissed';
@@ -114,11 +122,11 @@ export function CampaignBanner() {
                 <span className="text-[11.5px] text-[color:var(--color-ink-soft)]">
                   {current.vendor.name} · {current.vendor.hub}
                 </span>
-                {current.discountPct ? (
+                {formatDiscount(current) && (
                   <span className="ml-1 rounded-full bg-[color:var(--color-terracotta)]/10 text-[color:var(--color-terracotta)] text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5">
-                    {current.discountPct}% off
+                    {formatDiscount(current)}
                   </span>
-                ) : null}
+                )}
                 <span className="ml-auto text-[11px] text-[color:var(--color-ink-soft)]/60">
                   Ends {fmtRelative(current.endsAt)}
                 </span>

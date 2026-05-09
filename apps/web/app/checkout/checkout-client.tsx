@@ -10,13 +10,25 @@ import {
   DELIVERY_FEE, GIFT_WRAP_FEE, INSURANCE_FEE, TAX_RATE,
 } from '@/lib/pricing';
 
+interface CheckoutAddress {
+  id: string;
+  label: 'HOME' | 'WORK' | 'OTHER';
+  society: string;
+  building: string;
+  flat: string;
+  verified: boolean;
+  isDefault: boolean;
+}
+
 interface Props {
   session: {
     phone: string;
     name: string | null;
-    society: string | null;
-    building: string | null;
-    flat: string | null;
+    addresses: CheckoutAddress[];
+  };
+  cod: {
+    eligible: boolean;
+    maxOrderInr: number;
   };
 }
 
@@ -36,7 +48,7 @@ interface AppliedCoupon {
 const STEPS: Step[] = ['cart', 'address', 'payment'];
 const STEP_LABEL: Record<Step, string> = { cart: 'Cart', address: 'Address', payment: 'Payment' };
 
-export function CheckoutClient({ session }: Props) {
+export function CheckoutClient({ session, cod }: Props) {
   const router = useRouter();
   const items = useCart((s) => s.items);
   const add = useCart((s) => s.add);
@@ -54,6 +66,10 @@ export function CheckoutClient({ session }: Props) {
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    session.addresses.find((a) => a.isDefault)?.id ?? session.addresses[0]?.id ?? null,
+  );
+  const selectedAddress = session.addresses.find((a) => a.id === selectedAddressId) ?? null;
   const [payMethod, setPayMethod] = useState<PaymentMethod>('CARD');
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
@@ -76,6 +92,15 @@ export function CheckoutClient({ session }: Props) {
   const deliveryFee = coupon?.freeDelivery ? 0 : baseDelivery;
   const discount = coupon?.discountInr ?? 0;
   const total = Math.max(0, subtotal + convenience + tax + addOns + deliveryFee - discount);
+
+  // COD is only offered to customers who've completed enough prepaid orders
+  // (or who admin has pre-approved), and only when this order's total is
+  // within the COD ceiling. The reasoning isn't shown to the customer — the
+  // tile simply doesn't appear when they aren't eligible.
+  const codAvailable = cod.eligible && total <= cod.maxOrderInr;
+  if (payMethod === 'COD' && !codAvailable) {
+    setPayMethod('CARD');
+  }
 
   async function applyCoupon() {
     const code = couponInput.trim().toUpperCase();
@@ -113,7 +138,7 @@ export function CheckoutClient({ session }: Props) {
     setCoupon(null);
     setCouponError(null);
   }
-  const hasAddress = Boolean(session.society && session.building && session.flat);
+  const hasAddress = Boolean(selectedAddress);
 
   function validatePayment(): string | null {
     if (payMethod === 'CARD') {
@@ -159,6 +184,7 @@ export function CheckoutClient({ session }: Props) {
           items: items.map((i) => ({ productId: i.id, quantity: i.qty })),
           notes: notes.trim() || undefined,
           paymentMethod: payMethod,
+          addressId: selectedAddressId,
           giftWrap,
           insurance,
           tipInr: tip,
@@ -250,6 +276,8 @@ export function CheckoutClient({ session }: Props) {
               {step === 'address' && (
                 <AddressStep
                   session={session}
+                  selectedAddressId={selectedAddressId}
+                  setSelectedAddressId={setSelectedAddressId}
                   notes={notes}
                   setNotes={setNotes}
                   onBack={() => setStep('cart')}
@@ -262,6 +290,7 @@ export function CheckoutClient({ session }: Props) {
                 <PaymentStep
                   payMethod={payMethod}
                   setPayMethod={setPayMethod}
+                  codAvailable={codAvailable}
                   cardNumber={cardNumber}
                   setCardNumber={setCardNumber}
                   cardExpiry={cardExpiry}
@@ -537,8 +566,10 @@ function CartStep({ items, increment, decrement, remove, onNext }: {
   );
 }
 
-function AddressStep({ session, notes, setNotes, onBack, onNext, hasAddress }: {
+function AddressStep({ session, selectedAddressId, setSelectedAddressId, notes, setNotes, onBack, onNext, hasAddress }: {
   session: Props['session'];
+  selectedAddressId: string | null;
+  setSelectedAddressId: (id: string) => void;
   notes: string;
   setNotes: (v: string) => void;
   onBack: () => void;
@@ -548,34 +579,76 @@ function AddressStep({ session, notes, setNotes, onBack, onNext, hasAddress }: {
   return (
     <>
       <Card label="Delivery address">
-        {hasAddress ? (
-          <div className="rounded-xl border-2 border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5 p-4 flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <div className="font-medium text-[color:var(--color-ink)]">{session.name ?? 'Your address'}</div>
-              <div className="mt-1 text-[13.5px] text-[color:var(--color-ink-soft)]">Flat {session.flat}, {session.building}</div>
-              <div className="text-[13.5px] text-[color:var(--color-ink-soft)]">{session.society}, Magarpatta City</div>
-              <div className="text-[13.5px] text-[color:var(--color-ink-soft)]">Pune, Maharashtra · 411028</div>
-              <div className="mt-2 text-[12px] text-[color:var(--color-ink-soft)]/75">+91 {session.phone}</div>
-              <Link href="/signup" className="mt-3 inline-block text-[12.5px] text-[color:var(--color-forest)] underline underline-offset-4">
-                Change address →
-              </Link>
-            </div>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2.5 7.5l3 3 6-6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-          </div>
-        ) : (
+        {session.addresses.length === 0 ? (
           <div className="rounded-xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/5 p-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
             <div>
               <div className="font-medium text-[color:var(--color-terracotta-dark)]">No delivery address yet</div>
-              <div className="text-[13px] text-[color:var(--color-ink-soft)]">Set your society, building and flat.</div>
+              <div className="text-[13px] text-[color:var(--color-ink-soft)]">Add your first address to continue.</div>
             </div>
-            <Link href="/signup" className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
-              Set address
+            <Link href="/account/addresses?return=/checkout" className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+              Add address
             </Link>
           </div>
+        ) : (
+          <ul className="space-y-2.5">
+            {session.addresses.map((a) => {
+              const active = a.id === selectedAddressId;
+              return (
+                <li key={a.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAddressId(a.id)}
+                    className={cn(
+                      'w-full text-left rounded-xl border-2 p-4 transition-colors flex items-start justify-between gap-4',
+                      active
+                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5'
+                        : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] hover:border-[color:var(--color-forest)]/40',
+                    )}
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="rounded-full bg-[color:var(--color-ink)]/8 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] font-medium text-[color:var(--color-ink-soft)]">
+                          {a.label === 'HOME' ? 'Home' : a.label === 'WORK' ? 'Work' : 'Other'}
+                        </span>
+                        {a.isDefault && (
+                          <span className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] font-medium">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-1.5 text-[14px] font-medium text-[color:var(--color-ink)]">
+                        Flat {a.flat}, {a.building}
+                      </div>
+                      <div className="text-[13px] text-[color:var(--color-ink-soft)]">{a.society}</div>
+                      <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75">+91 {session.phone}</div>
+                    </div>
+                    <span
+                      className={cn(
+                        'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
+                        active
+                          ? 'bg-[color:var(--color-forest)] border-[color:var(--color-forest)] text-[color:var(--color-cream)]'
+                          : 'border-[color:var(--color-ink)]/20',
+                      )}
+                    >
+                      {active && (
+                        <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                          <path d="M2.5 7.5l3 3 6-6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+            <li>
+              <Link
+                href="/account/addresses?return=/checkout"
+                className="block rounded-xl border border-dashed border-[color:var(--color-ink)]/20 px-4 py-3 text-[13px] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/5 hover:border-[color:var(--color-forest)]/40"
+              >
+                + Add another address
+              </Link>
+            </li>
+          </ul>
         )}
       </Card>
 
@@ -617,6 +690,7 @@ function AddressStep({ session, notes, setNotes, onBack, onNext, hasAddress }: {
 function PaymentStep(props: {
   payMethod: PaymentMethod;
   setPayMethod: (m: PaymentMethod) => void;
+  codAvailable: boolean;
   cardNumber: string;
   setCardNumber: (v: string) => void;
   cardExpiry: string;
@@ -640,15 +714,17 @@ function PaymentStep(props: {
   onSubmit: () => void;
   total: number;
 }) {
-  const { payMethod, setPayMethod } = props;
+  const { payMethod, setPayMethod, codAvailable } = props;
   return (
     <>
       <Card label="Payment method">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className={cn('grid gap-2.5 grid-cols-2', codAvailable ? 'sm:grid-cols-4' : 'sm:grid-cols-3')}>
           <PayTile active={payMethod === 'CARD'} onClick={() => setPayMethod('CARD')} label="Card" icon={<CardIcon />} />
           <PayTile active={payMethod === 'UPI'} onClick={() => setPayMethod('UPI')} label="UPI" icon={<UpiIcon />} />
           <PayTile active={payMethod === 'NET_BANKING'} onClick={() => setPayMethod('NET_BANKING')} label="Net Banking" icon={<BankIcon />} />
-          <PayTile active={payMethod === 'COD'} onClick={() => setPayMethod('COD')} label="Cash" icon={<CashIcon />} />
+          {codAvailable && (
+            <PayTile active={payMethod === 'COD'} onClick={() => setPayMethod('COD')} label="Cash" icon={<CashIcon />} />
+          )}
         </div>
 
         <div className="mt-5 rounded-xl bg-[color:var(--color-cream)] p-4 sm:p-5">

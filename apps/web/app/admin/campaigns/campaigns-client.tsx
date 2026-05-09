@@ -9,8 +9,10 @@ interface Campaign {
   title: string;
   body: string;
   ctaLabel: string | null;
+  appliesToAll: boolean;
   productIds: string[];
   discountPct: number | null;
+  discountFlatInr: number | null;
   startsAt: string;
   endsAt: string;
   active: boolean;
@@ -126,7 +128,8 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
                 <div className="text-[12px] text-[color:var(--color-ink-soft)] truncate">{c.vendor.name} · {c.vendor.hub}</div>
                 <div className="mt-1 text-[11px] text-[color:var(--color-ink-soft)]/65">
                   {fmtDate(c.startsAt)} → {fmtDate(c.endsAt)}
-                  {c.discountPct ? ` · ${c.discountPct}% off` : ''}
+                  {c.discountPct ? ` · ${c.discountPct}% off` : c.discountFlatInr ? ` · ₹${c.discountFlatInr} off` : ''}
+                  {!c.appliesToAll && c.productIds.length > 0 ? ` · ${c.productIds.length} item${c.productIds.length === 1 ? '' : 's'}` : ''}
                 </div>
               </button>
             </li>
@@ -153,8 +156,18 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
               <KV label="Starts">{fmtDate(selected.startsAt)}</KV>
               <KV label="Ends">{fmtDate(selected.endsAt)}</KV>
               <KV label="CTA">{selected.ctaLabel ?? '—'}</KV>
-              <KV label="Discount">{selected.discountPct ? `${selected.discountPct}%` : '—'}</KV>
-              <KV label="Items linked">{selected.productIds.length || '—'}</KV>
+              <KV label="Discount">
+                {selected.discountPct
+                  ? `${selected.discountPct}%`
+                  : selected.discountFlatInr
+                    ? `₹${selected.discountFlatInr}`
+                    : '—'}
+              </KV>
+              <KV label="Applies to">
+                {selected.appliesToAll
+                  ? 'Whole menu'
+                  : `${selected.productIds.length} item${selected.productIds.length === 1 ? '' : 's'}`}
+              </KV>
               <KV label="Vendor turned on">{selected.active ? 'Yes' : 'Paused'}</KV>
             </div>
 

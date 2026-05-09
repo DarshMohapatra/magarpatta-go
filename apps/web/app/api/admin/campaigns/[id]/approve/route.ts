@@ -11,22 +11,31 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.campaign.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
 
-  // Approving a removal request → delete the campaign outright.
-  if (existing.pendingRemoval) {
-    await prisma.campaign.delete({ where: { id } });
-    revalidateTag('menu');
-    return NextResponse.json({ ok: true, removed: true });
-  }
+  const wasRemoval = existing.pendingRemoval;
 
-  const c = await prisma.campaign.update({
-    where: { id },
-    data: {
-      approvalStatus: 'APPROVED',
-      approvedAt: new Date(),
-      approvedBy: admin.id,
-      approvalNote: null,
-    },
+  await prisma.$transaction(async (tx) => {
+    if (wasRemoval) {
+      // Approving a removal request → delete the campaign outright.
+      await tx.campaign.delete({ where: { id } });
+    } else {
+      await tx.campaign.update({
+        where: { id },
+        data: {
+          approvalStatus: 'APPROVED',
+          approvedAt: new Date(),
+          approvedBy: admin.id,
+          approvalNote: null,
+        },
+      });
+    }
+
+    // Resolve any matching audit rows so the Changes tab mirrors reality.
+    await tx.pendingChange.updateMany({
+      where: { entity: 'CAMPAIGN', entityId: id, status: 'PENDING' },
+      data: { status: 'APPROVED', reviewedBy: admin.id, reviewedAt: new Date() },
+    });
   });
+
   revalidateTag('menu');
-  return NextResponse.json({ ok: true, campaign: c });
+  return NextResponse.json({ ok: true, removed: wasRemoval });
 }
