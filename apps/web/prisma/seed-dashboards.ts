@@ -416,6 +416,14 @@ async function main() {
   });
   console.log(`  ✓ Admin · 9999999999 / admin123`);
 
+  // ── Curator ──────────────────────────────────────────────────
+  await prisma.curator.upsert({
+    where: { phone: '7000000001' },
+    update: { name: 'Magarpatta Curator', active: true },
+    create: { phone: '7000000001', name: 'Magarpatta Curator', active: true },
+  });
+  console.log(`  ✓ Curator · 7000000001 (OTP 123456 in demo mode)`);
+
   // ── Riders — sync with hardcoded roster in lib/riders.ts ─────
   const RIDER_ROSTER = [
     { phone: '8888888801', name: 'Akash M.', dl: 'MH12 2019 0021', aadhaarLast4: '4421', vehicle: 'motorcycle', veh: 'MH12 AM 2211' },

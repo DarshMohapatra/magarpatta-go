@@ -10,26 +10,51 @@ datasource db {
 model User {
   id          String        @id @default(cuid())
   phone       String        @unique // 10-digit Indian mobile, no +91 prefix
+  // Optional email — populated when a customer files a ticket from email,
+  // or during account settings update. Used to thread inbound email tickets
+  // back to the right user.
+  email       String?       @unique
   firebaseUid String?       @unique
   name        String?
+  // COD trust: a customer earns COD by completing N successful prepaid orders.
+  // Admin can override this and pre-approve a customer (corporate accounts,
+  // known regulars, etc.) by flipping codApprovedByAdmin true.
+  codApprovedByAdmin Boolean   @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   addresses   UserAddress[]
   orders      Order[]
   feedback    OrderFeedback[]
+  tickets     SupportTicket[]
 
   @@index([phone])
 }
 
+enum AddressLabel {
+  HOME
+  WORK
+  OTHER
+}
+
 model UserAddress {
-  id        String   @id @default(cuid())
+  id        String       @id @default(cuid())
   userId    String
+  label     AddressLabel @default(HOME)
   society   String
   building  String
   flat      String
-  isDefault Boolean  @default(true)
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // True when (society, building) maps to a Magarpatta society/tower the
+  // platform has confirmed as in-area. COD is only offered on verified
+  // addresses — office towers stay unverified until ops marks them so.
+  verified  Boolean      @default(false)
+  isDefault Boolean      @default(false)
+  // Geocoded coordinates of the (society, building) — used for the customer
+  // geofence in the rider corridor check. Geocoded lazily via Nominatim;
+  // null means we haven't tried yet OR the address didn't resolve.
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, society, building, flat])
   @@index([userId])
@@ -141,6 +166,7 @@ model Vendor {
   feedback OrderFeedback[]
   campaigns      Campaign[]
   pendingChanges PendingChange[]
+  menuImports    MenuImportJob[]
 
   @@index([approvalStatus])
   @@index([hub])
@@ -279,10 +305,19 @@ model Order {
   cancelledAt       DateTime?
   cancelReason      String?
 
+  // Geofencing — snapshot of the rider's hub at accept time, and the total
+  // ground distance the rider covered (sum of haversine deltas between
+  // location pings) computed when the order is DELIVERED.
+  hubIdAtAccept    String?
+  distanceCoveredM Int?
+
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   vendor         Vendor?       @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   items          OrderItem[]
   feedback       OrderFeedback?
+  tickets        SupportTicket[]
+  pings          RiderLocationPing[]
+  deviations     RiderDeviationAlert[]
 
   @@index([userId])
   @@index([vendorId])
@@ -357,7 +392,32 @@ model RiderProfile {
   createdAt      DateTime            @default(now())
   approvedAt     DateTime?
 
+  // Geofencing — every rider belongs to exactly one hub. Allowed corridor
+  // for an order is anchored at this hub's lat/lng and radius.
+  hubId          String?
+  hub            Hub?                @relation(fields: [hubId], references: [id], onDelete: SetNull)
+
+  pings          RiderLocationPing[]
+  deviations     RiderDeviationAlert[]
+
   @@index([approvalStatus])
+  @@index([hubId])
+}
+
+/// Geographic hub a rider operates out of. Each rider is assigned exactly
+/// one hub; orders dispatched to the rider must originate within the hub's
+/// pickup geofence (and the rider must return here after delivery).
+model Hub {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String   @unique
+  // Center point + radius for the hub's geofence (meters).
+  latitude  Float
+  longitude Float
+  radiusM   Int      @default(150)
+  createdAt DateTime @default(now())
+
+  riders    RiderProfile[]
 }
 
 enum AdminRole {
@@ -375,6 +435,34 @@ model Admin {
   role         AdminRole @default(OPS)
   passwordHash String    // legacy — retained for audit; OTP is the live signin path
   createdAt    DateTime  @default(now())
+}
+
+/// Helpdesk role — sits between customer and admin for support-ticket triage.
+/// Owns the SupportTicket queue end-to-end (acknowledge, reply, status, resolve).
+/// Admin only views the queue read-only for oversight.
+model SupportAgent {
+  id              String          @id @default(cuid())
+  phone           String          @unique
+  email           String?         @unique
+  name            String
+  // Teams the agent serves — used by the routing engine. An empty array means
+  // generalist (eligible for any team). Multi-team agents are common at our
+  // scale — one person handling billing + general.
+  teams           SupportTeam[]   @default([])
+  active          Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  assignedTickets SupportTicket[]
+}
+
+/// Curator role — sits between vendor and admin for menu-import review.
+/// A curator authenticates the OCR'd menu against the original photo, fixes
+/// items, then forwards to admin for final approval.
+model Curator {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
 
 enum CampaignType {
@@ -401,8 +489,13 @@ model Campaign {
   title          String
   body           String
   ctaLabel       String?
+  // appliesToAll = true → discount applies to every product the vendor sells
+  // (productIds is ignored). false → only the items in productIds.
+  appliesToAll   Boolean                 @default(true)
   productIds     String[]                @default([])
+  // Exactly one of discountPct / discountFlatInr is set when a discount applies.
   discountPct    Int?
+  discountFlatInr Int?
   startsAt       DateTime
   endsAt         DateTime
   active         Boolean                 @default(true)
@@ -470,12 +563,81 @@ model PendingChange {
   @@index([vendorId])
 }
 
+/// Bulk menu-import job submitted by a vendor. Lives in PENDING_CURATOR
+/// status until a curator reviews against the original photo. On approval the
+/// curator-edited items get fanned out as PRODUCT/CREATE PendingChange rows
+/// for the admin queue (same path single-item adds take).
+enum MenuImportStatus {
+  PENDING_CURATOR
+  CURATED
+  REJECTED
+}
+
+model MenuImportJob {
+  id            String            @id @default(cuid())
+  vendorId      String
+  categorySlug  String
+  source        String            // 'photo' | 'qr' | 'url' | 'paste'
+  items         Json              // ParsedItem[] with edits made by the curator
+  status        MenuImportStatus  @default(PENDING_CURATOR)
+  curatorNote   String?
+  curatedBy     String?
+  curatedAt     DateTime?
+  submittedAt   DateTime          @default(now())
+
+  vendor Vendor              @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  images MenuImportImage[]
+
+  @@index([status])
+  @@index([vendorId])
+}
+
+model MenuImportImage {
+  id        String   @id @default(cuid())
+  jobId     String
+  bytes     Bytes
+  mime      String
+  ord       Int      @default(0)
+  createdAt DateTime @default(now())
+
+  job MenuImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+/// Cross-portal audit trail. Operational + config actions logged here so
+/// admin can scroll one feed and see who did what across vendor/rider/
+/// curator/admin/customer.
+enum ActorRole {
+  VENDOR
+  RIDER
+  CURATOR
+  ADMIN
+  CUSTOMER
+  HELPDESK
+}
+
+model ActivityLog {
+  id        String     @id @default(cuid())
+  actorRole ActorRole
+  actorId   String?
+  actorName String
+  action    String     // verb-y key: 'CAMPAIGN_CREATE', 'ORDER_ACCEPT', 'MENU_IMPORT_APPROVE'
+  summary   String     // human-readable line
+  metadata  Json?
+  createdAt DateTime   @default(now())
+
+  @@index([actorRole, actorId])
+  @@index([createdAt])
+  @@index([action])
+}
+
 /// One active OTP per (phone, purpose). Upserted on each send.
 /// codeHash is sha256 of the plaintext code — we never store plaintext.
 model OtpCode {
   id         String    @id @default(cuid())
   phone      String
-  purpose    String    // CUSTOMER_SIGNIN | VENDOR_SIGNIN | VENDOR_REGISTER | RIDER_SIGNIN | RIDER_REGISTER | ADMIN_SIGNIN
+  purpose    String    // CUSTOMER_SIGNIN | VENDOR_SIGNIN | VENDOR_REGISTER | RIDER_SIGNIN | RIDER_REGISTER | ADMIN_SIGNIN | CURATOR_SIGNIN
   codeHash   String
   expiresAt  DateTime
   attempts   Int       @default(0)
@@ -484,4 +646,344 @@ model OtpCode {
 
   @@unique([phone, purpose])
   @@index([phone])
+}
+
+/// Customer support / trouble-ticket categories. Customer picks one when
+/// filing; admin can re-categorise during triage.
+enum TicketCategory {
+  WRONG_ITEM
+  MISSING_ITEM
+  QUALITY
+  LATE_DELIVERY
+  RIDER_BEHAVIOUR
+  PAYMENT
+  REFUND
+  ACCOUNT
+  OTHER
+}
+
+enum TicketStatus {
+  OPEN                // Customer just filed, no admin has touched it
+  IN_REVIEW           // Admin has acknowledged / is investigating
+  AWAITING_CUSTOMER   // Admin replied, ball is in customer's court
+  RESOLVED            // Admin marked resolved (customer can re-open by replying)
+  CLOSED              // Final state — no further replies accepted
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TicketAuthor {
+  CUSTOMER
+  HELPDESK
+}
+
+model SupportTicket {
+  id              String                 @id @default(cuid())
+  shortCode       String                 @unique          // T-XXXXXX, what the customer sees
+  userId          String
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId         String?
+  order           Order?                 @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  category        TicketCategory
+  subject         String                                  // 1-line headline from customer
+  status          TicketStatus           @default(OPEN)
+  priority        TicketPriority         @default(NORMAL)
+  assignedAgentId String?                                 // SupportAgent who owns the ticket
+  assignedAgent   SupportAgent?          @relation(fields: [assignedAgentId], references: [id], onDelete: SetNull)
+
+  // Channel + thread key (email Message-ID / WA conversation ID) so inbound
+  // webhooks can reply onto the same ticket.
+  channel         TicketChannel          @default(IN_APP)
+  externalThreadKey String?
+
+  // Routing — which team currently owns the ticket (separate from individual
+  // agent ownership). Reassigning a team triggers re-evaluation.
+  team            SupportTeam            @default(GENERAL)
+
+  // SLA — populated at create-time from the matched policy. firstResponseAt
+  // is set the first time HELPDESK posts a message; the breached flags are
+  // sticky once tripped (used for analytics).
+  slaPolicyId            String?
+  slaPolicy              SupportSlaPolicy? @relation(fields: [slaPolicyId], references: [id], onDelete: SetNull)
+  firstResponseAt        DateTime?
+  firstResponseDueAt     DateTime?
+  resolveDueAt           DateTime?
+  firstResponseBreached  Boolean         @default(false)
+  resolveBreached        Boolean         @default(false)
+
+  // Escalation depth — incremented each time an escalation rule fires.
+  escalationLevel        Int             @default(0)
+  // Set whenever a customer reply re-opens a RESOLVED ticket.
+  lastReopenedAt         DateTime?
+
+  resolvedAt      DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  messages        SupportTicketMessage[]
+  escalationEvents SupportEscalationEvent[]
+  incomingEvents  IncomingChannelEvent[]
+  kbViews         KbArticleView[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([assignedAgentId])
+  @@index([team, status])
+  @@index([channel])
+  @@index([firstResponseBreached, firstResponseDueAt])
+  @@index([resolveBreached, resolveDueAt])
+}
+
+model SupportTicketMessage {
+  id         String         @id @default(cuid())
+  ticketId   String
+  ticket     SupportTicket  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author     TicketAuthor
+  authorName String                                    // snapshot — admin/customer name at time of write
+  body       String                                    // free-form, plain text
+  createdAt  DateTime       @default(now())
+
+  @@index([ticketId, createdAt])
+}
+
+/// Rider GPS ping — written from the rider's browser via watchPosition().
+/// Idle pings (no active order) have orderId = null. Used both for live
+/// tracking and for offline corridor / distance analysis.
+model RiderLocationPing {
+  id        String       @id @default(cuid())
+  riderId   String
+  rider     RiderProfile @relation(fields: [riderId], references: [id], onDelete: Cascade)
+  orderId   String?
+  order     Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  latitude  Float
+  longitude Float
+  accuracyM Int?                              // GPS accuracy from the browser, meters
+  createdAt DateTime     @default(now())
+
+  @@index([riderId, createdAt])
+  @@index([orderId, createdAt])
+}
+
+enum DeviationSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum DeviationAlertStatus {
+  OPEN                // Just detected, no human has touched it
+  AWAITING_RIDER      // Admin requested an explanation, rider hasn't replied yet
+  UNDER_REVIEW        // Rider explained, admin reviewing
+  RESOLVED            // Admin closed with a verdict
+  DISMISSED           // Admin closed as a false positive
+}
+
+/// Fired when a rider's location stays outside the allowed corridor for
+/// the current order phase (or while idle, when far from their hub) for
+/// longer than the debounce window. Routed to admin for adjudication.
+model RiderDeviationAlert {
+  id                     String                @id @default(cuid())
+  riderId                String
+  rider                  RiderProfile          @relation(fields: [riderId], references: [id], onDelete: Cascade)
+  orderId                String?
+  order                  Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  detectedAt             DateTime              @default(now())
+  // Snapshot of position + corridor distance at the moment of detection.
+  lastLatitude           Float
+  lastLongitude          Float
+  distanceFromCorridorM  Int                   // how far off path, meters
+  durationOutsideS       Int                   // how long they were outside before we fired
+  severity               DeviationSeverity     @default(MEDIUM)
+  status                 DeviationAlertStatus  @default(OPEN)
+
+  // Admin → rider explanation request loop
+  explanationRequestedAt DateTime?
+  explanationRequestedBy String?               // adminId
+  riderExplanation       String?
+  riderExplainedAt       DateTime?
+
+  // Resolution
+  resolvedBy             String?               // adminId
+  resolvedAt             DateTime?
+  resolution             String?               // free-form admin note: dismissed / warned / fined etc.
+
+  @@index([status, detectedAt])
+  @@index([riderId, detectedAt])
+  @@index([orderId])
+}
+
+// ============================================================================
+// Helpdesk: channels, teams, SLAs, routing, escalation, KB, inbound events.
+// Multi-tenancy is handled by deploying a separate Vercel instance per
+// township (driven by SITE_SLUG + lib/site-config.ts), so these models don't
+// carry siteId — each deployment owns its own DB.
+// ============================================================================
+enum TicketChannel {
+  IN_APP
+  EMAIL
+  WHATSAPP
+  PHONE       // reserved — Phase 2
+  SOCIAL      // reserved — Phase 2
+}
+
+enum SupportTeam {
+  GENERAL      // first line — anything generic
+  BILLING      // payments, refunds
+  RIDER_OPS    // rider / delivery issues
+  VENDOR_OPS   // vendor / order issues
+  ESCALATIONS  // tier 2
+}
+
+/// SLA policy — picks the response/resolution targets a ticket must meet.
+/// Resolution priority: most-specific match wins (priority + team + site
+/// > priority + team > priority > catch-all). The matcher lives in lib/sla.ts.
+model SupportSlaPolicy {
+  id                       String         @id @default(cuid())
+  name                     String
+  // Optional match criteria — all combine with AND. Most-specific match wins.
+  priority                 TicketPriority?
+  team                     SupportTeam?
+  // Targets, in minutes from createdAt. firstResponseMinutes drives the
+  // first-response SLA; resolveMinutes drives the resolution SLA.
+  firstResponseMinutes     Int
+  resolveMinutes           Int
+  // Phase 1: simple boolean. Phase 2 will introduce a calendar.
+  businessHoursOnly        Boolean        @default(false)
+  active                   Boolean        @default(true)
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+
+  tickets                  SupportTicket[]
+
+  @@index([active, priority, team])
+}
+
+/// Routing rules evaluated at ticket-create. Lowest `priority` wins; first
+/// match assigns. `match` and `action` are JSON to keep the rule editor simple.
+/// match  = { category?, channel?, hasOrder?, keywordsAny? }
+/// action = { team?, agentId?, strategy? }    strategy ∈ ROUND_ROBIN | LEAST_BUSY
+model SupportRoutingRule {
+  id          String   @id @default(cuid())
+  name        String
+  priority    Int      @default(100)
+  match       Json
+  action      Json
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active, priority])
+}
+
+enum EscalationTrigger {
+  FIRST_RESPONSE_OVERDUE
+  RESOLVE_OVERDUE
+  CUSTOMER_REOPEN
+  INACTIVE_TICKET             // no message in N hours
+}
+
+/// Escalation rule — fires when its trigger condition is met. Mutates the
+/// ticket (priority bump, team reassign) and records a SupportEscalationEvent.
+model SupportEscalationRule {
+  id                String                  @id @default(cuid())
+  name              String
+  trigger           EscalationTrigger
+  // For overdue triggers: minutes past breach before firing. For
+  // INACTIVE_TICKET: minutes of message silence required.
+  thresholdMinutes  Int                     @default(0)
+  // Optional priority bump: ticket priority becomes max(current, this).
+  bumpToPriority    TicketPriority?
+  // Optional team reassign on fire.
+  reassignToTeam    SupportTeam?
+  // Agent IDs to notify (Phase 1: surfaced in alerts; Phase 2: email/WA push).
+  notifyAgentIds    String[]                @default([])
+  active            Boolean                 @default(true)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  events            SupportEscalationEvent[]
+
+  @@index([active, trigger])
+}
+
+model SupportEscalationEvent {
+  id            String                 @id @default(cuid())
+  ticketId      String
+  ticket        SupportTicket          @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ruleId        String?
+  rule          SupportEscalationRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  trigger       EscalationTrigger
+  oldPriority   TicketPriority
+  newPriority   TicketPriority
+  oldTeam       SupportTeam?
+  newTeam       SupportTeam?
+  reason        String                 // human-readable summary shown in audit
+  occurredAt    DateTime               @default(now())
+
+  @@index([ticketId, occurredAt])
+}
+
+/// Knowledge base article. isPublic = true → visible at /help; false →
+/// internal-only (visible to helpdesk in suggestions, not at /help).
+model KbArticle {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  title           String
+  body            String          // Markdown
+  category        TicketCategory?
+  tags            String[]        @default([])
+  isPublic        Boolean         @default(true)
+  helpfulCount    Int             @default(0)
+  notHelpfulCount Int             @default(0)
+  archived        Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  views           KbArticleView[]
+
+  @@index([archived, isPublic])
+  @@index([category])
+}
+
+/// Tracks article suggestions/views — drives both analytics ("did the KB
+/// actually help?") and de-duplication ("don't re-suggest articles already
+/// surfaced on this ticket").
+model KbArticleView {
+  id          String         @id @default(cuid())
+  articleId   String
+  article     KbArticle      @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  ticketId    String?
+  ticket      SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  // SUGGESTED = system surfaced it on a ticket
+  // OPENED    = agent clicked through from a ticket
+  // PUBLIC    = customer/anonymous read on /help/[slug]
+  kind        String
+  createdAt   DateTime       @default(now())
+
+  @@index([ticketId])
+  @@index([articleId, createdAt])
+}
+
+/// Raw inbound webhook payload. Dedupe key (channel, externalId) keeps
+/// retries idempotent; stored payload allows audit / replay.
+model IncomingChannelEvent {
+  id          String         @id @default(cuid())
+  channel     TicketChannel
+  externalId  String                                 // provider message ID
+  fromAddr    String?                                // email-from / phone E.164
+  toAddr      String?                                // inbox / WA business number
+  subject     String?
+  bodyText    String                                 // plaintext body extracted by the webhook
+  rawPayload  Json                                   // full provider payload — kept for audit
+  ticketId    String?
+  ticket      SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  receivedAt  DateTime       @default(now())
+
+  @@unique([channel, externalId])
+  @@index([ticketId])
 }

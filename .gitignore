@@ -33,3 +33,12 @@ pnpm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Vercel project link
+.vercel/
+
+# Generated PDFs (markdown source is canonical)
+*.pdf
+
+# Wireframe archive (extracted dir is canonical)
+wireframes.zip
