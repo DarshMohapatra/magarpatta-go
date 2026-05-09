@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { siteConfig } from '@/lib/site-config';
 
 interface Product {
   id: string;
@@ -152,7 +154,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
         <h2 className="font-serif text-[22px]">Menu editing unlocks after approval</h2>
         <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
-          You can prepare your menu once your shop is approved by Magarpatta Go.
+          You can prepare your menu once your shop is approved by {siteConfig.platformName}.
         </p>
       </div>
     );
@@ -175,7 +177,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           </h1>
           <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
             Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
-            <span className="block mt-1">Add / edit / remove goes through Magarpatta Go review. Stock toggle is instant.</span>
+            <span className="block mt-1">Add / edit / remove goes through {siteConfig.platformName} review. Stock toggle is instant.</span>
           </p>
           {pendingCount > 0 && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-saffron)]/12 text-[color:var(--color-saffron)] px-3 py-1 text-[11.5px]">
@@ -184,9 +186,14 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
             </div>
           )}
         </div>
-        <button onClick={openNew} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]">
-          + Add item
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/vendor/menu/import" className="rounded-full border border-[color:var(--color-forest)]/40 text-[color:var(--color-forest)] px-4 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-forest)]/8">
+            Import from photo / QR
+          </Link>
+          <button onClick={openNew} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+            + Add item
+          </button>
+        </div>
       </div>
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] shadow-lg">
