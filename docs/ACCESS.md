@@ -285,7 +285,43 @@ All vendors approved + active unless noted. Sign in is OTP at `/vendor/signin`. 
 | Fulfilment | **Concierge only** · vendor never notified · rider walks in & pays at the stall |
 | Commission | 0% (off-platform pickup) |
 
-### 8 · Demo Dosa House · `dosa-house` *(PENDING — for admin approval testing)*
+### 8 · Magarpatta Mandi · `magarpatta-mandi` *(Wholesale — Fruit / Vegetables)*
+
+| Field | Value |
+| --- | --- |
+| Hub | Magarpatta |
+| Type | grocery |
+| Description | Fresh fruits and vegetables straight from Pune mandi. Prices update each morning after the wholesale auction. |
+| Hours | 07:00–20:00 |
+| Address | Magarpatta City, Hadapsar, Pune |
+| Owner | Magarpatta Mandi Owner · `9999900001` |
+| **OTP** | `123456` (DEMO_MODE) |
+| **isWholesale** | true — visible when admin flips `wholesale_only_mode` on |
+| **Min order** | ₹200 |
+| Commission | 15% (default) |
+| Fulfilment | **Concierge / platform rider** |
+| Catalogue | 12 SKUs — onions, potatoes, tomatoes, green chillies, coriander, baby spinach, capsicum, lemons, bananas, apples, watermelon, pomegranate |
+| Daily-overrides screen | `/vendor/today` |
+
+### 9 · Magarpatta Daily · `magarpatta-daily` *(Wholesale — Eggs / Meat / Breads)*
+
+| Field | Value |
+| --- | --- |
+| Hub | Magarpatta |
+| Type | grocery |
+| Description | Eggs, fresh meat and breads delivered the same day. Halal/jhatka clearly labelled, chill chain maintained. |
+| Hours | 07:00–21:00 |
+| Address | Magarpatta City, Hadapsar, Pune |
+| Owner | Magarpatta Daily Owner · `9999900002` |
+| **OTP** | `123456` (DEMO_MODE) |
+| **isWholesale** | true — visible when admin flips `wholesale_only_mode` on |
+| **Min order** | ₹250 |
+| Commission | 15% (default) |
+| Fulfilment | **Concierge / platform rider** |
+| Catalogue | 9 SKUs — brown eggs (tray of 30), white eggs (half-dozen), chicken breast, chicken thigh, chicken keema, mutton curry-cut, whole-wheat loaf, pav, multigrain loaf |
+| Daily-overrides screen | `/vendor/today` |
+
+### 10 · Demo Dosa House · `dosa-house` *(PENDING — for admin approval testing)*
 
 | Field | Value |
 | --- | --- |
@@ -315,6 +351,12 @@ All vendors approved + active unless noted. Sign in is OTP at `/vendor/signin`. 
 | Magarpatta Pharmacy | 9000000006 | Magarpatta | Concierge / rider |
 | Starbucks · Seasons | 9000000007 | Seasons Mall | **Self-delivery** |
 | Gulab Paan Corner | — | Magarpatta Market | Concierge only · off platform |
+| **Magarpatta Mandi** *(wholesale)* | **9999900001** | Magarpatta | Concierge / rider |
+| **Magarpatta Daily** *(wholesale)* | **9999900002** | Magarpatta | Concierge / rider |
+
+OTP for all signed-in vendors is `123456` while `DEMO_MODE` in `lib/otp.ts` is on. Flip the demo flag before launch — see `MEMORY.md` → `project_magarpatta_demo_otp.md`.
+
+The two wholesale vendors above are the only ones visible to customers when `wholesale_only_mode` is on (admin → `/admin/settings`). Flip it off to show the full retail catalogue.
 
 ---
 
