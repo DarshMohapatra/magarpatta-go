@@ -40,6 +40,7 @@ export interface Breakdown {
   addOnsInr: number;       // gift wrap + insurance
   deliveryFeeInr: number;  // after FREEDEL waiver
   discountInr: number;     // coupon discount on subtotal
+  membershipFeeInr: number;// plan price when this order activates a plan
   totalInr: number;
 }
 
@@ -51,6 +52,10 @@ export interface BreakdownOpts {
   insurance?: boolean;
   tipInr?: number;
   coupon?: CouponInput | null;
+  /** Plan price when this order ALSO activates a membership. Added to the
+   *  total as its own line so the customer sees what they paid for the plan
+   *  separately from what they paid for the food. */
+  membershipFeeInr?: number;
 }
 
 export function computeBreakdown(items: PriceableItem[], opts: BreakdownOpts): Breakdown {
@@ -85,7 +90,8 @@ export function computeBreakdown(items: PriceableItem[], opts: BreakdownOpts): B
     }
   }
 
-  const total = subtotal + convenience + tax + addOns + delivery - discount;
+  const membershipFee = Math.max(0, Math.floor(opts.membershipFeeInr ?? 0));
+  const total = subtotal + convenience + tax + addOns + delivery + membershipFee - discount;
 
   return {
     subtotalInr: subtotal,
@@ -94,6 +100,7 @@ export function computeBreakdown(items: PriceableItem[], opts: BreakdownOpts): B
     addOnsInr: addOns,
     deliveryFeeInr: delivery,
     discountInr: discount,
+    membershipFeeInr: membershipFee,
     totalInr: Math.max(0, total),
   };
 }

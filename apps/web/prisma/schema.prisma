@@ -324,8 +324,11 @@ model Order {
   // don't rewrite history. deliveryCreditUsed reflects whether this order
   // consumed one of the subscription's included deliveries (vs the
   // post-included ₹12 fee or a non-member's standard fee).
+  // membershipFeeInr is non-zero only when this order ALSO activated a
+  // new plan — the customer paid the food bill + the plan in one payment.
   subscriptionId      String?
   deliveryCreditUsed  Boolean   @default(false)
+  membershipFeeInr    Int       @default(0)
 
   // Vendor snapshot
   vendorName     String?

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles, type JoinPlanIntent } from '@/lib/cart';
 import { ProductGlyph } from '@/components/product-glyph';
 import { cn } from '@/lib/utils';
 import {
@@ -54,6 +54,15 @@ interface Props {
   } | null;
   /** Whether the platform has any active top-ups — drives the "Recharge" CTA. */
   topUpsAvailable: boolean;
+  /** Plan we'd offer if the user isn't a member. Null if they already are. */
+  planOffer: {
+    planId: string;
+    name: string;
+    priceInr: number;
+    includedDeliveries: number;
+    cycleDays: number;
+    postIncludedFeeInr: number;
+  } | null;
   /** Slot picker config. */
   slotOptions: {
     today: string;
@@ -86,6 +95,7 @@ export function CheckoutClient({
   standardFeeInr,
   membership,
   topUpsAvailable,
+  planOffer,
   slotOptions,
 }: Props) {
   const router = useRouter();
@@ -200,10 +210,15 @@ export function CheckoutClient({
   const campaignTitles = useMemo(() => cartCampaignTitles(items), [items]);
   const tax = Math.round(subtotal * TAX_RATE);
   const addOns = (giftWrap ? GIFT_WRAP_FEE : 0) + (insurance ? INSURANCE_FEE : 0) + tip;
-  const baseDelivery = items.length > 0 ? deliveryFeeInr : 0;
+  // When a plan is being added to this order, member benefit kicks in
+  // immediately: delivery on THIS order is free, and the plan price shows
+  // as its own line in the total.
+  const joiningPlan = useCart((s) => s.joinPlan);
+  const baseDelivery = items.length === 0 ? 0 : joiningPlan ? 0 : deliveryFeeInr;
   const deliveryFee = coupon?.freeDelivery ? 0 : baseDelivery;
+  const membershipFee = joiningPlan?.priceInr ?? 0;
   const discount = coupon?.discountInr ?? 0;
-  const total = Math.max(0, subtotal + convenience + tax + addOns + deliveryFee - discount);
+  const total = Math.max(0, subtotal + convenience + tax + addOns + deliveryFee + membershipFee - discount);
 
   // COD is only offered to customers who've completed enough prepaid orders
   // (or who admin has pre-approved), and only when this order's total is
@@ -312,6 +327,7 @@ export function CheckoutClient({
           deliveryWindow,
           deliverySlotId: deliveryWindow === 'SLOTTED' ? slotId : undefined,
           deliverySlotDate: deliveryWindow === 'SLOTTED' ? slotDate : undefined,
+          joinPlanId: joiningPlan?.planId,
         }),
       });
       const data = await res.json();
@@ -411,10 +427,41 @@ export function CheckoutClient({
               )}
             </div>
           )}
-          {!membership && (
-            <div className="mt-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-2">
-              <span>Delivery fee on this order: <strong>₹{standardFeeInr}</strong>. Save on every delivery with a plan.</span>
-              <Link href="/account/membership" className="underline text-[color:var(--color-forest)]">See plans →</Link>
+          {!membership && joiningPlan && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/8 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-3">
+              <span>
+                <strong>{joiningPlan.name}</strong> added to this order — delivery free starting now. {joiningPlan.includedDeliveries - 1} free deliveries left after this one.
+              </span>
+              <button
+                onClick={() => useCart.getState().removePlanFromCart()}
+                className="text-[12px] text-[color:var(--color-terracotta)] hover:underline"
+              >
+                Remove plan
+              </button>
+            </div>
+          )}
+          {!membership && !joiningPlan && planOffer && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/5 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-3">
+              <span>
+                Add <strong>{planOffer.name}</strong> (₹{planOffer.priceInr}) to this order — {planOffer.includedDeliveries} free deliveries including this one.
+              </span>
+              <button
+                onClick={() => useCart.getState().addPlanToCart({
+                  planId: planOffer.planId,
+                  name: planOffer.name,
+                  priceInr: planOffer.priceInr,
+                  includedDeliveries: planOffer.includedDeliveries,
+                  cycleDays: planOffer.cycleDays,
+                })}
+                className="rounded-md bg-[color:var(--color-forest)] text-white px-3 py-1.5 text-[12.5px] font-medium hover:opacity-90"
+              >
+                Add to order
+              </button>
+            </div>
+          )}
+          {!membership && !planOffer && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 text-[13px]">
+              Delivery fee on this order: <strong>₹{standardFeeInr}</strong>.
             </div>
           )}
 
@@ -599,8 +646,11 @@ export function CheckoutClient({
                 {tip > 0 && <Row label="Rider tip" value={`₹${tip}`} />}
                 <Row
                   label="Delivery"
-                  value={coupon?.freeDelivery ? 'FREE' : `₹${deliveryFee}`}
+                  value={coupon?.freeDelivery ? 'FREE' : deliveryFee === 0 && (membership || joiningPlan) ? 'FREE · Member' : `₹${deliveryFee}`}
                 />
+                {joiningPlan && (
+                  <Row label={joiningPlan.name} value={`₹${joiningPlan.priceInr}`} />
+                )}
                 {discount > 0 && (
                   <div className="flex items-center justify-between text-[color:var(--color-forest)]">
                     <span>{coupon?.code} discount</span>

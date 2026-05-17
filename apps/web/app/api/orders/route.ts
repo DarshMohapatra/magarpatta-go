@@ -32,6 +32,12 @@ interface IncomingBody {
   deliverySlotId?: string;
   /** Required when deliveryWindow === 'SLOTTED'. YYYY-MM-DD. */
   deliverySlotDate?: string;
+  /** When set, this order also activates the named MembershipPlan: customer
+   *  pays the plan price as part of this checkout, gets a fresh subscription
+   *  with a GRANT for the plan's includedDeliveries, and this order
+   *  immediately debits one credit (so delivery on it is free). Server
+   *  rejects this if the customer already has an active subscription. */
+  joinPlanId?: string;
 }
 
 export async function POST(req: Request) {
@@ -148,11 +154,37 @@ export async function POST(req: Request) {
 
     // Delivery fee = (member with credits → 0) | (member, no credits →
     // postIncludedFeeInr) | (non-member → settings.delivery_fee_inr).
+    // If this order ALSO activates a plan (joinPlanId), force the member
+    // path: delivery on this order is free, and we'll create the sub +
+    // GRANT + DEBIT in a transaction below.
     const [standardFeeInr, membership] = await Promise.all([
       getDeliveryFeeInr(),
       getMembershipState(userId),
     ]);
-    const feeCtx = resolveDeliveryFee(membership, standardFeeInr);
+    let joiningPlan: { id: string; name: string; priceInr: number; cycleDays: number; includedDeliveries: number; postIncludedFeeInr: number } | null = null;
+    if (body.joinPlanId) {
+      if (membership.isActive) {
+        return NextResponse.json(
+          { ok: false, error: 'You already have an active subscription. Recharge it from /account/membership instead of buying a new plan.' },
+          { status: 400 },
+        );
+      }
+      const plan = await prisma.membershipPlan.findUnique({ where: { id: body.joinPlanId } });
+      if (!plan || !plan.active) {
+        return NextResponse.json({ ok: false, error: 'That plan is no longer available' }, { status: 400 });
+      }
+      joiningPlan = {
+        id: plan.id,
+        name: plan.name,
+        priceInr: plan.priceInr,
+        cycleDays: plan.cycleDays,
+        includedDeliveries: plan.includedDeliveries,
+        postIncludedFeeInr: plan.postIncludedFeeInr,
+      };
+    }
+    const feeCtx = joiningPlan
+      ? { feeInr: 0, source: 'free' as const, subscriptionId: null, debitCredit: true }
+      : resolveDeliveryFee(membership, standardFeeInr);
 
     const breakdown = computeBreakdown(
       priceItems.map((i) => ({ mrpInr: i.mrpInr, priceInr: i.priceInr, isRegulated: i.isRegulated, quantity: i.quantity })),
@@ -170,6 +202,7 @@ export async function POST(req: Request) {
               maxDiscountInr: coupon.maxDiscountInr,
             }
           : null,
+        membershipFeeInr: joiningPlan?.priceInr ?? 0,
       },
     );
 
@@ -238,55 +271,153 @@ export async function POST(req: Request) {
     // db.order.create auto-injects userId from the scope — the explicit
     // userId field below is illustrative only; the wrapper would override
     // anything we put here.
-    const order = await db.order.create({
-      data: {
-        userId,
-        vendorId: primaryVendor.id,
-        status: 'PLACED',
-        paymentMethod,
-        hub,
-        fulfilmentMode,
-        society: address.society,
-        building: address.building,
-        flat: address.flat,
-        subtotalInr: breakdown.subtotalInr,
-        convenienceInr: breakdown.convenienceInr,
-        taxInr: breakdown.taxInr,
-        addOnsInr: breakdown.addOnsInr,
-        deliveryFeeInr: breakdown.deliveryFeeInr,
-        discountInr: breakdown.discountInr,
-        couponCode: coupon?.code ?? null,
-        totalInr: breakdown.totalInr,
-        giftWrap: Boolean(body.giftWrap),
-        insurance: Boolean(body.insurance),
-        deliveryMode: body.deliveryMode ?? 'standard',
-        deliveryWindow: windowKind,
-        deliverySlotId: slotSnapshot?.id ?? null,
-        deliverySlotLabel: slotSnapshot?.label ?? null,
-        deliverySlotStart: slotSnapshot?.start ?? null,
-        deliverySlotEnd: slotSnapshot?.end ?? null,
-        subscriptionId: feeCtx.subscriptionId,
-        deliveryCreditUsed: feeCtx.debitCredit,
-        vendorName: primaryVendor.name,
-        vendorHub: primaryVendor.hub,
-        notes: body.notes ?? null,
-        items: {
-          create: priceItems.map((i) => ({
-            productId: i.product.id,
-            name: i.product.name,
-            vendorName: i.product.vendor.name,
-            unit: i.product.unit,
-            priceInr: i.priceInr,
-            mrpInr: i.mrpInr,
-            isRegulated: i.isRegulated,
-            quantity: i.quantity,
-            accent: i.product.accent,
-            glyph: i.product.glyph,
-            imageUrl: i.product.imageUrl,
-          })),
+    // When joining a plan we want the subscription, the GRANT row, the
+    // order, and its DEBIT to all succeed or none — otherwise we'd risk a
+    // charged customer with no plan, or a sub with no debit. The order
+    // create still goes through the customer-scoped client; we use the raw
+    // prisma transaction for the surrounding writes.
+    let order;
+    let activatedSubscriptionId: string | null = null;
+    if (joiningPlan) {
+      const now = new Date();
+      const cycleEnd = new Date(now);
+      cycleEnd.setDate(cycleEnd.getDate() + joiningPlan.cycleDays);
+      const result = await prisma.$transaction(async (tx) => {
+        const sub = await tx.subscription.create({
+          data: {
+            userId,
+            planId: joiningPlan!.id,
+            cycleStart: now,
+            cycleEnd,
+            planNameSnapshot: joiningPlan!.name,
+            priceInrSnapshot: joiningPlan!.priceInr,
+            cycleDaysSnapshot: joiningPlan!.cycleDays,
+            includedDeliveriesSnapshot: joiningPlan!.includedDeliveries,
+            postIncludedFeeInrSnapshot: joiningPlan!.postIncludedFeeInr,
+          },
+        });
+        await tx.subscriptionLedger.create({
+          data: {
+            subscriptionId: sub.id,
+            type: 'GRANT',
+            deltaDeliveries: joiningPlan!.includedDeliveries,
+            note: `Plan purchase — ${joiningPlan!.name} (with order)`,
+          },
+        });
+        const ord = await tx.order.create({
+          data: {
+            userId,
+            vendorId: primaryVendor.id,
+            status: 'PLACED',
+            paymentMethod,
+            hub,
+            fulfilmentMode,
+            society: address.society,
+            building: address.building,
+            flat: address.flat,
+            subtotalInr: breakdown.subtotalInr,
+            convenienceInr: breakdown.convenienceInr,
+            taxInr: breakdown.taxInr,
+            addOnsInr: breakdown.addOnsInr,
+            deliveryFeeInr: breakdown.deliveryFeeInr,
+            discountInr: breakdown.discountInr,
+            couponCode: coupon?.code ?? null,
+            totalInr: breakdown.totalInr,
+            giftWrap: Boolean(body.giftWrap),
+            insurance: Boolean(body.insurance),
+            deliveryMode: body.deliveryMode ?? 'standard',
+            deliveryWindow: windowKind,
+            deliverySlotId: slotSnapshot?.id ?? null,
+            deliverySlotLabel: slotSnapshot?.label ?? null,
+            deliverySlotStart: slotSnapshot?.start ?? null,
+            deliverySlotEnd: slotSnapshot?.end ?? null,
+            subscriptionId: sub.id,
+            deliveryCreditUsed: true,
+            membershipFeeInr: joiningPlan!.priceInr,
+            vendorName: primaryVendor.name,
+            vendorHub: primaryVendor.hub,
+            notes: body.notes ?? null,
+            items: {
+              create: priceItems.map((i) => ({
+                productId: i.product.id,
+                name: i.product.name,
+                vendorName: i.product.vendor.name,
+                unit: i.product.unit,
+                priceInr: i.priceInr,
+                mrpInr: i.mrpInr,
+                isRegulated: i.isRegulated,
+                quantity: i.quantity,
+                accent: i.product.accent,
+                glyph: i.product.glyph,
+                imageUrl: i.product.imageUrl,
+              })),
+            },
+          },
+        });
+        await tx.subscriptionLedger.create({
+          data: {
+            subscriptionId: sub.id,
+            orderId: ord.id,
+            type: 'DEBIT',
+            deltaDeliveries: -1,
+            note: 'Order delivery (activation)',
+          },
+        });
+        return { ord, subId: sub.id };
+      });
+      order = result.ord;
+      activatedSubscriptionId = result.subId;
+    } else {
+      order = await db.order.create({
+        data: {
+          userId,
+          vendorId: primaryVendor.id,
+          status: 'PLACED',
+          paymentMethod,
+          hub,
+          fulfilmentMode,
+          society: address.society,
+          building: address.building,
+          flat: address.flat,
+          subtotalInr: breakdown.subtotalInr,
+          convenienceInr: breakdown.convenienceInr,
+          taxInr: breakdown.taxInr,
+          addOnsInr: breakdown.addOnsInr,
+          deliveryFeeInr: breakdown.deliveryFeeInr,
+          discountInr: breakdown.discountInr,
+          couponCode: coupon?.code ?? null,
+          totalInr: breakdown.totalInr,
+          giftWrap: Boolean(body.giftWrap),
+          insurance: Boolean(body.insurance),
+          deliveryMode: body.deliveryMode ?? 'standard',
+          deliveryWindow: windowKind,
+          deliverySlotId: slotSnapshot?.id ?? null,
+          deliverySlotLabel: slotSnapshot?.label ?? null,
+          deliverySlotStart: slotSnapshot?.start ?? null,
+          deliverySlotEnd: slotSnapshot?.end ?? null,
+          subscriptionId: feeCtx.subscriptionId,
+          deliveryCreditUsed: feeCtx.debitCredit,
+          vendorName: primaryVendor.name,
+          vendorHub: primaryVendor.hub,
+          notes: body.notes ?? null,
+          items: {
+            create: priceItems.map((i) => ({
+              productId: i.product.id,
+              name: i.product.name,
+              vendorName: i.product.vendor.name,
+              unit: i.product.unit,
+              priceInr: i.priceInr,
+              mrpInr: i.mrpInr,
+              isRegulated: i.isRegulated,
+              quantity: i.quantity,
+              accent: i.product.accent,
+              glyph: i.product.glyph,
+              imageUrl: i.product.imageUrl,
+            })),
+          },
         },
-      },
-    });
+      });
+    }
 
     if (coupon) {
       await prisma.coupon.update({
@@ -295,11 +426,13 @@ export async function POST(req: Request) {
       });
     }
 
-    if (feeCtx.debitCredit && feeCtx.subscriptionId) {
+    if (!joiningPlan && feeCtx.debitCredit && feeCtx.subscriptionId) {
+      // The non-joining member path still debits one credit per order. The
+      // joining path already wrote its DEBIT inside the transaction above.
       await debitCreditForOrder(feeCtx.subscriptionId, order.id);
     }
 
-    return NextResponse.json({ ok: true, orderId: order.id });
+    return NextResponse.json({ ok: true, orderId: order.id, activatedSubscriptionId });
   } catch (e) {
     console.error('[orders] POST failed:', e);
     return NextResponse.json({ ok: false, error: (e as Error).message || 'Could not place order' }, { status: 500 });

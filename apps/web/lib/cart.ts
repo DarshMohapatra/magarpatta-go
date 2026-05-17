@@ -36,9 +36,23 @@ function hubKey(p: { vendorHub?: string | null; vendorName: string }): string {
   return (p.vendorHub && p.vendorHub.trim()) || p.vendorName;
 }
 
+export interface JoinPlanIntent {
+  planId: string;
+  name: string;
+  priceInr: number;
+  includedDeliveries: number;
+  cycleDays: number;
+}
+
 interface CartState {
   items: CartItem[];
   drawerOpen: boolean;
+  /** Membership plan the customer has chosen to add to THIS order. Null until
+   *  they tap "Add to order" on the plan tile in the drawer or checkout. The
+   *  total at checkout includes this; on order placement the server activates
+   *  the subscription, debits one credit for this order, and zeroes the
+   *  delivery fee. */
+  joinPlan: JoinPlanIntent | null;
   openDrawer: () => void;
   closeDrawer: () => void;
   add: (p: CartProduct) => AddResult;
@@ -47,6 +61,8 @@ interface CartState {
   decrement: (id: string) => void;
   remove: (id: string) => void;
   clear: () => void;
+  addPlanToCart: (plan: JoinPlanIntent) => void;
+  removePlanFromCart: () => void;
 }
 
 export const useCart = create<CartState>()(
@@ -96,9 +112,12 @@ export const useCart = create<CartState>()(
             .filter((i) => i.qty > 0),
         })),
       remove: (id) => set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
-      clear: () => set({ items: [] }),
+      clear: () => set({ items: [], joinPlan: null }),
+      joinPlan: null,
+      addPlanToCart: (plan) => set({ joinPlan: plan }),
+      removePlanFromCart: () => set({ joinPlan: null }),
     }),
-    { name: 'mg-cart-v3' },
+    { name: 'mg-cart-v4' },
   ),
 );
 
@@ -122,6 +141,7 @@ const LAST_PHONE_KEY = 'mg_last_signed_phone';
  */
 export function clearCartForSignout(): void {
   useCart.getState().clear();
+  useCart.getState().removePlanFromCart();
   try { localStorage.removeItem(LAST_PHONE_KEY); } catch { /* SSR or private mode */ }
 }
 

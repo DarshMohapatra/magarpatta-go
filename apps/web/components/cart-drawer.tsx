@@ -1,10 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors, cartCampaignSavings, cartCampaignTitles } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors, cartCampaignSavings, cartCampaignTitles, type JoinPlanIntent } from '@/lib/cart';
 import { ProductGlyph } from './product-glyph';
 import { cn } from '@/lib/utils';
+
+interface CartContext {
+  signedIn: boolean;
+  effectiveFeeInr: number;
+  standardFeeInr: number;
+  membership: {
+    planName: string;
+    creditsLeft: number;
+    creditsGranted: number;
+    postIncludedFeeInr: number;
+  } | null;
+  planOffer: JoinPlanIntent & { postIncludedFeeInr: number } | null;
+}
 
 export function CartDrawer() {
   const items = useCart((s) => s.items);
@@ -13,6 +26,11 @@ export function CartDrawer() {
   const increment = useCart((s) => s.increment);
   const decrement = useCart((s) => s.decrement);
   const remove = useCart((s) => s.remove);
+  const joinPlan = useCart((s) => s.joinPlan);
+  const addPlanToCart = useCart((s) => s.addPlanToCart);
+  const removePlanFromCart = useCart((s) => s.removePlanFromCart);
+
+  const [ctx, setCtx] = useState<CartContext | null>(null);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -22,12 +40,39 @@ export function CartDrawer() {
     return () => document.removeEventListener('keydown', onKey);
   }, [open, close]);
 
+  // Pull live context every time the drawer opens — the user might have signed
+  // in or activated a plan since the page loaded.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch('/api/cart/context')
+      .then((r) => r.json())
+      .then((data) => { if (!cancelled && data.ok) setCtx(data); })
+      .catch(() => { /* fall back to legacy display */ });
+    return () => { cancelled = true; };
+  }, [open]);
+
+  // If a plan was added but the customer just activated one some other way,
+  // strip it silently so we don't double-charge.
+  useEffect(() => {
+    if (ctx?.membership && joinPlan) removePlanFromCart();
+  }, [ctx?.membership, joinPlan, removePlanFromCart]);
+
   const subtotal = cartSubtotalMrp(items);
   const convenience = cartConvenience(items);
   const campaignSavings = cartCampaignSavings(items);
   const campaignTitles = cartCampaignTitles(items);
-  const deliveryFee = items.length > 0 ? 25 : 0;
-  const total = subtotal + convenience + deliveryFee;
+
+  // Delivery fee: zero if member with credits, zero if plan-being-purchased
+  // (member benefit kicks in this order), else the user-effective fee.
+  const planInCart = Boolean(joinPlan);
+  const deliveryFee = items.length === 0
+    ? 0
+    : planInCart
+      ? 0
+      : ctx?.effectiveFeeInr ?? 0;
+  const membershipFee = planInCart && joinPlan ? joinPlan.priceInr : 0;
+  const total = subtotal + convenience + deliveryFee + membershipFee;
 
   return (
     <>
@@ -156,7 +201,66 @@ export function CartDrawer() {
                   </div>
                 </li>
               ))}
+
+              {/* Plan in cart (line item) */}
+              {joinPlan && (
+                <li className="flex gap-4 px-6 py-4 bg-[color:var(--color-forest)]/5">
+                  <div className="h-16 w-16 shrink-0 rounded-xl flex items-center justify-center bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2l2.5 7H22l-6 4.5 2.3 7.5L12 16.5 5.7 21 8 13.5 2 9h7.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-serif text-[17px] leading-tight text-[color:var(--color-ink)] truncate">
+                      {joinPlan.name}
+                    </h3>
+                    <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/85">
+                      Activates with this order · {joinPlan.includedDeliveries} free deliveries · {joinPlan.cycleDays}-day cycle
+                    </p>
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <span className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-forest)] font-medium">
+                        Membership
+                      </span>
+                      <div className="text-right">
+                        <div className="font-serif text-[17px] text-[color:var(--color-ink)]">₹{joinPlan.priceInr}</div>
+                        <button
+                          onClick={removePlanFromCart}
+                          className="text-[11px] text-[color:var(--color-ink-soft)]/65 hover:text-[color:var(--color-terracotta)] underline underline-offset-2"
+                        >
+                          remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              )}
             </ul>
+          )}
+
+          {/* Plan offer (only when there's something to deliver AND user isn't
+              already a member AND plan isn't already in cart). */}
+          {items.length > 0 && !joinPlan && ctx?.planOffer && !ctx.membership && (
+            <div className="mx-6 my-4 rounded-2xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/5 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Save on every delivery</div>
+              <div className="mt-1 font-serif text-[18px] leading-tight">
+                Add {ctx.planOffer.name} for ₹{ctx.planOffer.priceInr}
+              </div>
+              <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
+                Includes {ctx.planOffer.includedDeliveries} free deliveries — starting with this one. ₹{ctx.planOffer.postIncludedFeeInr} per delivery after that.
+              </p>
+              <button
+                onClick={() => addPlanToCart({
+                  planId: ctx.planOffer!.planId,
+                  name: ctx.planOffer!.name,
+                  priceInr: ctx.planOffer!.priceInr,
+                  includedDeliveries: ctx.planOffer!.includedDeliveries,
+                  cycleDays: ctx.planOffer!.cycleDays,
+                })}
+                className="mt-3 w-full rounded-lg bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium hover:opacity-90"
+              >
+                Add to this order
+              </button>
+            </div>
           )}
         </div>
 
@@ -184,9 +288,29 @@ export function CartDrawer() {
               </div>
             )}
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[color:var(--color-ink-soft)]">Delivery fee</span>
-              <span className="text-[color:var(--color-ink)]">₹{deliveryFee}</span>
+              <span className="text-[color:var(--color-ink-soft)]">
+                Delivery fee
+                {(planInCart || ctx?.membership) && (
+                  <span className="ml-1.5 text-[10px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] font-medium">Member</span>
+                )}
+              </span>
+              <span className="text-[color:var(--color-ink)]">
+                {deliveryFee === 0 && ctx ? (
+                  <>
+                    <span className="line-through text-[color:var(--color-ink-soft)]/60 mr-1">₹{ctx.standardFeeInr}</span>
+                    ₹0
+                  </>
+                ) : (
+                  `₹${deliveryFee}`
+                )}
+              </span>
             </div>
+            {membershipFee > 0 && joinPlan && (
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="text-[color:var(--color-ink-soft)]">{joinPlan.name}</span>
+                <span className="text-[color:var(--color-ink)]">₹{membershipFee}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between pt-3 border-t border-[color:var(--color-ink)]/8">
               <span className="font-serif text-[18px] text-[color:var(--color-ink)]">Total</span>
               <span className="font-serif text-[22px] text-[color:var(--color-forest)]">₹{total}</span>

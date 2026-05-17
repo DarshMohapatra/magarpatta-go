@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/lib/cart';
 
 interface PlanRow {
   id: string;
@@ -35,7 +36,6 @@ interface State {
 }
 
 type Intent =
-  | { kind: 'plan'; planId: string; amount: number; title: string; subtitle: string }
   | { kind: 'topup'; topUpId: string; amount: number; title: string; subtitle: string };
 
 function daysUntil(isoDate: string): number {
@@ -54,14 +54,12 @@ export function MembershipClient({
   topUps: TopUpRow[];
 }) {
   const router = useRouter();
+  const addPlanToCart = useCart((s) => s.addPlanToCart);
   const [intent, setIntent] = useState<Intent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function completePurchase(intent: Intent) {
-    const body =
-      intent.kind === 'plan'
-        ? { action: 'subscribe', planId: intent.planId }
-        : { action: 'topup', topUpId: intent.topUpId };
+    const body = { action: 'topup', topUpId: intent.topUpId };
     const res = await fetch('/api/account/membership', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -70,6 +68,21 @@ export function MembershipClient({
     const data = await res.json();
     if (!data.ok) throw new Error(data.error ?? 'Purchase failed');
     router.refresh();
+  }
+
+  function startPlanFlow(p: PlanRow) {
+    // Plans are bought as a line item on a real order: drop the plan into
+    // the cart and send the user to the menu so they can add food. The cart
+    // drawer will surface "Saver 30 — ₹250" and the checkout will collect
+    // payment for the food + plan in one go.
+    addPlanToCart({
+      planId: p.id,
+      name: p.name,
+      priceInr: p.priceInr,
+      includedDeliveries: p.includedDeliveries,
+      cycleDays: p.cycleDays,
+    });
+    router.push('/menu');
   }
 
   const sub = initialState.subscription;
@@ -126,19 +139,14 @@ export function MembershipClient({
                   <li>✓ ₹{p.postIncludedFeeInr}/delivery after that</li>
                 </ul>
                 <button
-                  onClick={() =>
-                    setIntent({
-                      kind: 'plan',
-                      planId: p.id,
-                      amount: p.priceInr,
-                      title: `Activate ${p.name}`,
-                      subtitle: `${p.includedDeliveries} free deliveries · ${p.cycleDays}-day cycle`,
-                    })
-                  }
+                  onClick={() => startPlanFlow(p)}
                   className="mt-6 rounded-full bg-[color:var(--color-forest)] text-white px-5 py-2.5 text-[13.5px] font-medium hover:opacity-90"
                 >
-                  Activate this plan
+                  Add to my next order →
                 </button>
+                <p className="mt-2 text-[11px] text-[color:var(--color-ink-soft)]">
+                  Activates with your next order — pay food + plan together.
+                </p>
               </div>
             ))}
           </div>

@@ -3,6 +3,7 @@ import { getCustomerScope } from '@/lib/customer-scope';
 import { getMembershipState, listActivePlans, listActiveTopUps } from '@/lib/membership';
 import { NavbarWithSession } from '@/components/navbar-with-session';
 import { Footer } from '@/components/footer';
+import { CartDrawer } from '@/components/cart-drawer';
 import { MembershipClient } from './membership-client';
 
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,7 @@ export default async function MembershipPage() {
         />
       </div>
       <Footer />
+      <CartDrawer />
     </main>
   );
 }
