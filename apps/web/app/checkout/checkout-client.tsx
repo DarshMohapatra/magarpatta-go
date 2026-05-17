@@ -130,13 +130,13 @@ export function CheckoutClient({
   const [processingLine, setProcessingLine] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Delivery window: "ORDER_NOW" or one of the admin-configured slots. We
-  // initialise to ORDER_NOW so the customer can always proceed even if no
-  // slots are configured.
-  const [deliveryWindow, setDeliveryWindow] = useState<'ORDER_NOW' | 'SLOTTED'>('ORDER_NOW');
+  // Delivery window. Order-now was retired for the wholesale launch — every
+  // customer must pick a future slot. `deliveryWindow` stays as a state for
+  // the API contract but is locked to SLOTTED.
+  const deliveryWindow: 'SLOTTED' = 'SLOTTED';
   const [slotDate, setSlotDate] = useState<string>(slotOptions.today);
   const [slotId, setSlotId] = useState<string>('');
-  const [slotAvailability, setSlotAvailability] = useState<Array<SlotDef & { booked: number; full: boolean }>>([]);
+  const [slotAvailability, setSlotAvailability] = useState<Array<SlotDef & { booked: number; full: boolean; expired: boolean }>>([]);
   const [slotLoading, setSlotLoading] = useState(false);
 
   // Cart revalidation — drop OOS items and surface price changes before payment.
@@ -181,7 +181,7 @@ export function CheckoutClient({
   }, [revalidated, remove]);
 
   useEffect(() => {
-    if (deliveryWindow !== 'SLOTTED' || slotOptions.definitions.length === 0) return;
+    if (slotOptions.definitions.length === 0) return;
     let cancelled = false;
     setSlotLoading(true);
     fetch(`/api/slots?date=${slotDate}`)
@@ -189,19 +189,38 @@ export function CheckoutClient({
       .then((data) => {
         if (cancelled || !data.ok) return;
         setSlotAvailability(data.slots);
-        // Default to the first not-full slot only if nothing's been picked
-        // yet. Functional setState avoids putting slotId in the dep array,
-        // which would re-fire this effect on every selection.
+        // Default to the first slot that isn't expired or full. The user
+        // can change it; if there's nothing pickable on this date the
+        // picker shows an empty-state message.
         setSlotId((cur) => {
-          if (cur) return cur;
-          const first = (data.slots as Array<{ id: string; full: boolean }>).find((s) => !s.full);
+          if (cur && (data.slots as Array<{ id: string; full: boolean; expired: boolean }>).some((s) => s.id === cur && !s.expired && !s.full)) {
+            return cur;
+          }
+          const first = (data.slots as Array<{ id: string; full: boolean; expired: boolean }>).find((s) => !s.full && !s.expired);
           return first?.id ?? '';
         });
       })
       .catch(() => { /* ignore — picker shows empty state */ })
       .finally(() => { if (!cancelled) setSlotLoading(false); });
     return () => { cancelled = true; };
-  }, [deliveryWindow, slotDate, slotOptions.definitions.length]);
+  }, [slotDate, slotOptions.definitions.length]);
+
+  // Build 7 future dates client-side from the server-supplied today ISO so
+  // wholesale customers can order ahead. Labels: Today, Tomorrow, then
+  // "Mon 19 May" style.
+  const dateOptions = useMemo(() => {
+    const out: Array<{ iso: string; label: string }> = [];
+    const [y, m, d] = slotOptions.today.split('-').map(Number);
+    const base = new Date(y, (m ?? 1) - 1, d ?? 1);
+    for (let i = 0; i < 7; i++) {
+      const dt = new Date(base);
+      dt.setDate(dt.getDate() + i);
+      const iso = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dt.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+      out.push({ iso, label });
+    }
+    return out;
+  }, [slotOptions.today]);
 
   const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
   const convenience = useMemo(() => cartConvenience(items), [items]);
@@ -465,96 +484,71 @@ export function CheckoutClient({
             </div>
           )}
 
-          {/* Delivery-window picker — visible whenever address step matters,
-             so we render it under the indicator and let it sit above the
-             three-step grid. Customer always sees "Order now" + slot list. */}
+          {/* Delivery slot picker — wholesale launch is slot-only, no
+             same-hour "Order now" path. Customer must pick a future window
+             that hasn't hit its cutoff yet. */}
           {items.length > 0 && (
             <div className="mt-5 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">When should we deliver?</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  onClick={() => setDeliveryWindow('ORDER_NOW')}
-                  className={cn(
-                    'rounded-full px-4 py-2 text-[13px] border',
-                    deliveryWindow === 'ORDER_NOW'
-                      ? 'bg-[color:var(--color-forest)] text-white border-[color:var(--color-forest)]'
-                      : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
-                  )}
-                >
-                  Order now
-                </button>
-                {slotOptions.definitions.length > 0 && (
-                  <button
-                    onClick={() => setDeliveryWindow('SLOTTED')}
-                    className={cn(
-                      'rounded-full px-4 py-2 text-[13px] border',
-                      deliveryWindow === 'SLOTTED'
-                        ? 'bg-[color:var(--color-forest)] text-white border-[color:var(--color-forest)]'
-                        : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
-                    )}
-                  >
-                    Schedule a slot
-                  </button>
-                )}
-              </div>
+              <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Pick a delivery slot</div>
+              <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
+                Choose any day this week. Slots close before they start — orders for the morning slot must be placed before 6 PM the previous day.
+              </p>
 
-              {deliveryWindow === 'SLOTTED' && (
-                <div className="mt-4">
-                  <div className="flex gap-2 mb-3">
-                    <button
-                      onClick={() => { setSlotDate(slotOptions.today); setSlotId(''); }}
-                      className={cn(
-                        'rounded-md px-3 py-1.5 text-[12px] border',
-                        slotDate === slotOptions.today
-                          ? 'bg-[color:var(--color-forest)]/8 border-[color:var(--color-forest)]/50'
-                          : 'border-[color:var(--color-ink)]/15',
-                      )}
-                    >
-                      Today
-                    </button>
-                    <button
-                      onClick={() => { setSlotDate(slotOptions.tomorrow); setSlotId(''); }}
-                      className={cn(
-                        'rounded-md px-3 py-1.5 text-[12px] border',
-                        slotDate === slotOptions.tomorrow
-                          ? 'bg-[color:var(--color-forest)]/8 border-[color:var(--color-forest)]/50'
-                          : 'border-[color:var(--color-ink)]/15',
-                      )}
-                    >
-                      Tomorrow
-                    </button>
+              {slotOptions.definitions.length === 0 ? (
+                <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)] italic">
+                  No delivery slots configured yet. Please contact support.
+                </p>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  {/* Date row — 7 days */}
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {dateOptions.map((d) => (
+                      <button
+                        key={d.iso}
+                        onClick={() => { setSlotDate(d.iso); setSlotId(''); }}
+                        className={cn(
+                          'rounded-md px-3 py-1.5 text-[12px] border whitespace-nowrap shrink-0',
+                          slotDate === d.iso
+                            ? 'bg-[color:var(--color-forest)] text-white border-[color:var(--color-forest)]'
+                            : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                        )}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
                   </div>
+
+                  {/* Slot row */}
                   {slotLoading ? (
                     <p className="text-[12px] text-[color:var(--color-ink-soft)]">Loading slots…</p>
-                  ) : slotAvailability.length === 0 ? (
-                    <p className="text-[12px] text-[color:var(--color-ink-soft)] italic">No slots defined yet — pick Order now.</p>
-                  ) : (
-                    <div className="grid sm:grid-cols-2 gap-2">
-                      {slotAvailability.map((s) => {
-                        const pickable = !s.full;
-                        return (
+                  ) : (() => {
+                    const usable = slotAvailability.filter((s) => !s.expired);
+                    if (usable.length === 0) {
+                      return (
+                        <p className="text-[12.5px] text-[color:var(--color-ink-soft)] italic">
+                          All slots for this day have closed. Pick a later date above.
+                        </p>
+                      );
+                    }
+                    return (
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        {usable.map((s) => (
                           <button
                             key={s.id}
-                            onClick={() => pickable && setSlotId(s.id)}
-                            disabled={!pickable}
+                            onClick={() => setSlotId(s.id)}
                             className={cn(
-                              'rounded-lg px-3 py-2.5 text-left border text-[13px] flex items-center justify-between',
+                              'rounded-lg px-3 py-2.5 text-left border text-[13px]',
                               slotId === s.id
                                 ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/8'
-                                : pickable
-                                  ? 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40'
-                                  : 'border-[color:var(--color-ink)]/10 opacity-50 cursor-not-allowed',
+                                : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
                             )}
                           >
-                            <span>{s.label}</span>
-                            <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
-                              {s.full ? 'Full' : s.booked >= Math.max(1, Math.floor(s.capacity * 0.8)) ? 'Filling fast' : `${Math.max(0, s.capacity - s.booked)} left`}
-                            </span>
+                            {s.label}
                           </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
