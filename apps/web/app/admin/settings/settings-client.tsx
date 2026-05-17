@@ -1,0 +1,241 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { SlotDefinition } from '@/lib/settings';
+
+interface Props {
+  initialDeliveryFeeInr: number;
+  initialSlots: SlotDefinition[];
+  canEdit: boolean;
+}
+
+function minutesToHHMM(mins: number): string {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function hhmmToMinutes(value: string): number | null {
+  const m = /^([0-9]{1,2}):([0-9]{2})$/.exec(value.trim());
+  if (!m) return null;
+  const h = Number(m[1]);
+  const mm = Number(m[2]);
+  if (h < 0 || h > 24 || mm < 0 || mm > 59) return null;
+  return h * 60 + mm;
+}
+
+function slugify(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 32);
+}
+
+export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }: Props) {
+  const router = useRouter();
+  const [deliveryFee, setDeliveryFee] = useState(String(initialDeliveryFeeInr));
+  const [slots, setSlots] = useState<SlotDefinition[]>(initialSlots);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [savedNote, setSavedNote] = useState<string | null>(null);
+
+  function addSlot() {
+    const id = `slot-${Date.now().toString(36)}`;
+    setSlots((prev) => [
+      ...prev,
+      { id, label: '', startMin: 540, endMin: 660, capacity: 20 },
+    ]);
+  }
+
+  function updateSlot(idx: number, patch: Partial<SlotDefinition>) {
+    setSlots((prev) => prev.map((s, i) => {
+      if (i !== idx) return s;
+      const next = { ...s, ...patch };
+      // Auto-derive id from label if id is still the default machine id and label is set.
+      if (patch.label !== undefined && next.id.startsWith('slot-') && next.label) {
+        next.id = slugify(next.label) || next.id;
+      }
+      return next;
+    }));
+  }
+
+  function removeSlot(idx: number) {
+    setSlots((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  async function save() {
+    setError(null);
+    setSavedNote(null);
+
+    const feeNum = Number(deliveryFee);
+    if (!Number.isInteger(feeNum) || feeNum < 0 || feeNum > 500) {
+      setError('Delivery fee must be a whole rupee value between 0 and 500.');
+      return;
+    }
+
+    for (const s of slots) {
+      if (!s.label.trim()) { setError('Every slot needs a label.'); return; }
+      if (s.endMin <= s.startMin) { setError(`Slot "${s.label}" ends before it starts.`); return; }
+      if (s.capacity < 0) { setError(`Slot "${s.label}" capacity can't be negative.`); return; }
+    }
+    const ids = slots.map((s) => s.id);
+    if (new Set(ids).size !== ids.length) {
+      setError('Two slots share the same id. Edit a label so they differ.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          delivery_fee_inr: feeNum,
+          slot_definitions: slots,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.error ?? 'Save failed');
+        return;
+      }
+      setSavedNote('Saved. Changes are live.');
+      router.refresh();
+    } catch {
+      setError('Network error. Try again.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="mt-10 space-y-10">
+      {/* Delivery fee */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <h2 className="font-serif text-[22px]">Delivery fee</h2>
+        <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
+          What a non-member pays per delivery. Members on an active plan don't see this fee.
+        </p>
+        <div className="mt-4 flex items-center gap-3">
+          <span className="text-[20px] font-medium">₹</span>
+          <input
+            type="number"
+            value={deliveryFee}
+            onChange={(e) => setDeliveryFee(e.target.value)}
+            disabled={!canEdit}
+            min={0}
+            max={500}
+            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-forest)] outline-none disabled:opacity-60"
+          />
+          <span className="text-[12px] text-[color:var(--color-ink-soft)]">per delivery</span>
+        </div>
+      </section>
+
+      {/* Delivery slots */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-serif text-[22px]">Delivery slots</h2>
+            <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
+              Customers pick one of these at checkout, or choose "Order now".
+              Capacity is a soft cap — overbooking is permitted.
+            </p>
+          </div>
+          {canEdit && (
+            <button
+              onClick={addSlot}
+              className="rounded-lg bg-[color:var(--color-forest)] text-white px-4 py-2 text-[13px] hover:opacity-90"
+            >
+              + Add slot
+            </button>
+          )}
+        </div>
+
+        {slots.length === 0 ? (
+          <p className="mt-6 text-[13px] text-[color:var(--color-ink-soft)] italic">
+            No slots yet — customers will only see "Order now" at checkout.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-2">
+            {slots.map((slot, idx) => (
+              <div
+                key={slot.id}
+                className="grid grid-cols-12 items-center gap-3 rounded-lg border border-[color:var(--color-ink)]/10 px-3 py-3"
+              >
+                <input
+                  type="text"
+                  value={slot.label}
+                  onChange={(e) => updateSlot(idx, { label: e.target.value })}
+                  disabled={!canEdit}
+                  placeholder="e.g. 9 AM – 11 AM"
+                  className="col-span-4 rounded border border-[color:var(--color-ink)]/15 px-2 py-1.5 text-[14px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                />
+                <div className="col-span-2 flex items-center gap-1">
+                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">from</span>
+                  <input
+                    type="time"
+                    value={minutesToHHMM(slot.startMin)}
+                    onChange={(e) => {
+                      const mins = hhmmToMinutes(e.target.value);
+                      if (mins !== null) updateSlot(idx, { startMin: mins });
+                    }}
+                    disabled={!canEdit}
+                    className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                  />
+                </div>
+                <div className="col-span-2 flex items-center gap-1">
+                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">to</span>
+                  <input
+                    type="time"
+                    value={minutesToHHMM(slot.endMin)}
+                    onChange={(e) => {
+                      const mins = hhmmToMinutes(e.target.value);
+                      if (mins !== null) updateSlot(idx, { endMin: mins });
+                    }}
+                    disabled={!canEdit}
+                    className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                  />
+                </div>
+                <div className="col-span-3 flex items-center gap-1">
+                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">cap</span>
+                  <input
+                    type="number"
+                    value={slot.capacity}
+                    min={0}
+                    onChange={(e) => updateSlot(idx, { capacity: Math.max(0, Number(e.target.value) || 0) })}
+                    disabled={!canEdit}
+                    className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                  />
+                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">orders</span>
+                </div>
+                {canEdit && (
+                  <button
+                    onClick={() => removeSlot(idx)}
+                    className="col-span-1 text-[12px] text-[color:var(--color-terracotta)] hover:underline"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Save bar */}
+      <div className="sticky bottom-4 flex items-center justify-end gap-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 shadow-sm">
+        {error && <span className="text-[13px] text-[color:var(--color-terracotta)]">{error}</span>}
+        {savedNote && !error && <span className="text-[13px] text-[color:var(--color-forest)]">{savedNote}</span>}
+        <button
+          onClick={save}
+          disabled={!canEdit || saving}
+          className="rounded-lg bg-[color:var(--color-forest)] text-white px-5 py-2 text-[14px] disabled:opacity-50 hover:opacity-90"
+        >
+          {saving ? 'Saving…' : 'Save changes'}
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -26,6 +26,7 @@ model User {
   orders      Order[]
   feedback    OrderFeedback[]
   tickets     SupportTicket[]
+  subscriptions Subscription[]
 
   @@index([phone])
 }
@@ -201,10 +202,34 @@ model Product {
   vendor      Vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   orderItems  OrderItem[]
+  dailyOverrides ProductDailyOverride[]
 
   @@index([vendorId])
   @@index([categoryId])
   @@index([inStock])
+}
+
+/// Per-day price/stock overrides set by the vendor. The customer-facing
+/// reader (lib/product-availability.ts) checks today's row first, then the
+/// most recent prior row, then falls back to the master Product fields.
+/// Vendor can edit at any time; updates are live immediately.
+model ProductDailyOverride {
+  id          String   @id @default(cuid())
+  productId   String
+  vendorId    String       // denormalised — vendors authorise edits by ownership
+  forDate     DateTime     // truncated to UTC midnight; one row per product per date
+  priceInr    Int?
+  mrpInr      Int?
+  inStock     Boolean?
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, forDate])
+  @@index([vendorId, forDate])
+  @@index([forDate])
 }
 
 enum OrderStatus {
@@ -228,6 +253,11 @@ enum OrderFulfilmentMode {
   PLATFORM_RIDER              // vendor is on the platform, accepts + marks ready; rider picks up
   VENDOR_SELF                 // vendor's own delivery staff takes it to the customer
   PLATFORM_RIDER_CONCIERGE    // vendor not aware (off-platform, or their team busy); rider walks in, orders in person, brings back
+}
+
+enum DeliveryWindow {
+  ORDER_NOW
+  SLOTTED
 }
 
 enum CouponType {
@@ -280,6 +310,23 @@ model Order {
   insurance      Boolean       @default(false)
   deliveryMode   String        @default("standard")
 
+  // Customer-chosen window. ORDER_NOW = the legacy ASAP path; SLOTTED = an
+  // admin-defined slot (id snapshotted in deliverySlotId; start/end stored as
+  // absolute timestamps so reports don't need to re-resolve against the
+  // current settings.slot_definitions).
+  deliveryWindow    DeliveryWindow @default(ORDER_NOW)
+  deliverySlotId    String?
+  deliverySlotLabel String?
+  deliverySlotStart DateTime?
+  deliverySlotEnd   DateTime?
+
+  // Membership context for this order — snapshotted so plan edits later
+  // don't rewrite history. deliveryCreditUsed reflects whether this order
+  // consumed one of the subscription's included deliveries (vs the
+  // post-included ₹12 fee or a non-member's standard fee).
+  subscriptionId      String?
+  deliveryCreditUsed  Boolean   @default(false)
+
   // Vendor snapshot
   vendorName     String?
   vendorHub      String?
@@ -313,11 +360,13 @@ model Order {
 
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   vendor         Vendor?       @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
   items          OrderItem[]
   feedback       OrderFeedback?
   tickets        SupportTicket[]
   pings          RiderLocationPing[]
   deviations     RiderDeviationAlert[]
+  ledgerEntries  SubscriptionLedger[]
 
   @@index([userId])
   @@index([vendorId])
@@ -326,6 +375,7 @@ model Order {
   @@index([riderPhone])
   @@index([hub])
   @@index([fulfilmentMode])
+  @@index([deliverySlotId, deliverySlotStart])
 }
 
 model OrderItem {
@@ -986,4 +1036,111 @@ model IncomingChannelEvent {
 
   @@unique([channel, externalId])
   @@index([ticketId])
+}
+
+/// Runtime-editable platform configuration. One row per named knob — admin
+/// edits live here so we can change delivery fees, slot windows etc. without
+/// a deploy. Reads are cached per-request via React's cache() in
+/// lib/settings.ts; writes also append an ActivityLog row.
+model SiteSetting {
+  key         String   @id
+  valueJson   Json
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+/// Subscription products customers can buy. Admin edits the catalog; live
+/// Subscription rows snapshot their plan's fields at purchase time so plan
+/// edits don't rewrite history.
+model MembershipPlan {
+  id                 String   @id @default(cuid())
+  name               String   // e.g. "Saver 30"
+  description        String?
+  priceInr           Int
+  cycleDays          Int      @default(30)
+  includedDeliveries Int      // e.g. 20
+  postIncludedFeeInr Int      // delivery fee after credits exhausted, e.g. 12
+  active             Boolean  @default(true)
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  subscriptions      Subscription[]
+
+  @@index([active, sortOrder])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Subscription {
+  id                          String             @id @default(cuid())
+  userId                      String
+  planId                      String
+  status                      SubscriptionStatus @default(ACTIVE)
+  cycleStart                  DateTime           @default(now())
+  cycleEnd                    DateTime
+  autoRenew                   Boolean            @default(false)
+
+  // Plan snapshot — frozen at purchase so cycle math is stable even if the
+  // admin edits the plan tomorrow.
+  planNameSnapshot            String
+  priceInrSnapshot            Int
+  cycleDaysSnapshot           Int
+  includedDeliveriesSnapshot  Int
+  postIncludedFeeInrSnapshot  Int
+
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  user                        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                        MembershipPlan    @relation(fields: [planId], references: [id], onDelete: Restrict)
+  ledger                      SubscriptionLedger[]
+  orders                      Order[]
+
+  @@index([userId, status])
+  @@index([cycleEnd])
+}
+
+enum SubscriptionLedgerType {
+  GRANT      // initial credits at purchase
+  DEBIT      // one credit consumed by an order
+  TOPUP      // recharge added more credits without extending cycle
+  EXPIRE     // cycle ended; remaining credits forfeited (event-only)
+  REFUND     // admin refund / order-cancel restoration
+}
+
+model SubscriptionLedger {
+  id              String                 @id @default(cuid())
+  subscriptionId  String
+  type            SubscriptionLedgerType
+  deltaDeliveries Int                    @default(0)
+  orderId         String?                // present on DEBIT, REFUND
+  topUpId         String?                // present on TOPUP
+  note            String?
+  createdAt       DateTime               @default(now())
+
+  subscription    Subscription           @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  order           Order?                 @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([subscriptionId, createdAt])
+  @@index([orderId])
+}
+
+/// Recharge SKUs. Admin edits this catalog; customers buy one to add credits
+/// to their active subscription without extending cycleEnd.
+model MembershipTopUp {
+  id               String   @id @default(cuid())
+  name             String   // e.g. "+10 deliveries"
+  priceInr         Int
+  addedDeliveries  Int
+  active           Boolean  @default(true)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([active, sortOrder])
 }

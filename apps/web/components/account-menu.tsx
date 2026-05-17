@@ -127,6 +127,9 @@ export function AccountMenu({ initialSession }: Props) {
             <Link href="/orders" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Orders
             </Link>
+            <Link href="/account/membership" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+              Membership
+            </Link>
             <Link href="/account/addresses" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
               Manage addresses
             </Link>

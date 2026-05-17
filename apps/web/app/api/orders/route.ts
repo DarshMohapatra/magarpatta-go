@@ -4,8 +4,12 @@ import { prisma } from '@/lib/prisma';
 import { getCustomerScope } from '@/lib/customer-scope';
 // status only advances via vendor/rider actions — no demo auto-progression
 import { computeBreakdown } from '@/lib/pricing';
+import { getDeliveryFeeInr, getSlotDefinitions } from '@/lib/settings';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getCodEligibility, COD_MAX_ORDER_INR } from '@/lib/cod';
+import { resolveAvailability } from '@/lib/product-availability';
+import { materialiseSlot, parseDateIso } from '@/lib/slots';
+import { getMembershipState, resolveDeliveryFee, debitCreditForOrder } from '@/lib/membership';
 
 interface IncomingItem {
   productId: string;
@@ -22,6 +26,12 @@ interface IncomingBody {
   tipInr?: number;
   deliveryMode?: string;
   couponCode?: string;
+  /** 'ORDER_NOW' or 'SLOTTED'. Defaults to 'ORDER_NOW' for backwards-compat. */
+  deliveryWindow?: 'ORDER_NOW' | 'SLOTTED';
+  /** Required when deliveryWindow === 'SLOTTED'. */
+  deliverySlotId?: string;
+  /** Required when deliveryWindow === 'SLOTTED'. YYYY-MM-DD. */
+  deliverySlotDate?: string;
 }
 
 export async function POST(req: Request) {
@@ -57,12 +67,27 @@ export async function POST(req: Request) {
     // public and the scoped client doesn't gate them.
     const productIds = body.items.map((i) => i.productId);
     const products = await prisma.product.findMany({
-      where: { id: { in: productIds }, inStock: true },
+      where: { id: { in: productIds } },
       include: { vendor: true },
     });
 
     if (products.length !== productIds.length) {
       return NextResponse.json({ ok: false, error: 'Some items are no longer available' }, { status: 400 });
+    }
+
+    // Apply today's vendor-set overrides — they're the live source of truth
+    // for price + stock. Anything OOS via override blocks placement.
+    const availability = await resolveAvailability(
+      products.map((p) => ({ id: p.id, priceInr: p.priceInr, mrpInr: p.mrpInr, inStock: p.inStock })),
+    );
+    const oosNames = products
+      .filter((p) => !(availability.get(p.id)?.inStock ?? p.inStock))
+      .map((p) => p.name);
+    if (oosNames.length > 0) {
+      return NextResponse.json(
+        { ok: false, error: `Out of stock: ${oosNames.join(', ')}. Remove these and try again.` },
+        { status: 400 },
+      );
     }
 
     // Single-hub enforcement: cart may mix vendors, but only within the same
@@ -83,9 +108,13 @@ export async function POST(req: Request) {
     let cartHasCampaign = false;
     const priceItems = body.items.map((i) => {
       const p = byId.get(i.productId)!;
+      const eff = availability.get(p.id)!;
+      // Daily override wins for both price + mrp. Discounts apply on top.
+      const basePrice = eff.priceInr;
+      const baseMrp = eff.mrpInr;
       const qty = Math.max(1, Math.floor(i.quantity));
-      const match = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated, priceInr: p.priceInr, mrpInr: p.mrpInr }, activeDiscounts);
-      const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
+      const match = discountFor({ id: p.id, vendorId: p.vendorId, isRegulated: p.isRegulated, priceInr: basePrice, mrpInr: baseMrp }, activeDiscounts);
+      const priced = applyDiscount({ priceInr: basePrice, mrpInr: baseMrp, isRegulated: p.isRegulated }, match.saving, match.campaign);
       if (match.saving > 0) cartHasCampaign = true;
       return {
         mrpInr: priced.mrpInr ?? priced.priceInr,
@@ -117,9 +146,18 @@ export async function POST(req: Request) {
       }
     }
 
+    // Delivery fee = (member with credits → 0) | (member, no credits →
+    // postIncludedFeeInr) | (non-member → settings.delivery_fee_inr).
+    const [standardFeeInr, membership] = await Promise.all([
+      getDeliveryFeeInr(),
+      getMembershipState(userId),
+    ]);
+    const feeCtx = resolveDeliveryFee(membership, standardFeeInr);
+
     const breakdown = computeBreakdown(
       priceItems.map((i) => ({ mrpInr: i.mrpInr, priceInr: i.priceInr, isRegulated: i.isRegulated, quantity: i.quantity })),
       {
+        deliveryFeeInr: feeCtx.feeInr,
         giftWrap: body.giftWrap,
         insurance: body.insurance,
         tipInr: body.tipInr,
@@ -134,6 +172,31 @@ export async function POST(req: Request) {
           : null,
       },
     );
+
+    // Resolve the chosen delivery window into stable absolute timestamps so
+    // the order row is self-contained (and reports don't rely on the live
+    // settings.slot_definitions list).
+    let slotSnapshot: { id: string; label: string; start: Date; end: Date } | null = null;
+    const windowKind = body.deliveryWindow ?? 'ORDER_NOW';
+    if (windowKind === 'SLOTTED') {
+      if (!body.deliverySlotId || !body.deliverySlotDate) {
+        return NextResponse.json({ ok: false, error: 'Slot id and date are required for slotted delivery' }, { status: 400 });
+      }
+      const defs = await getSlotDefinitions();
+      const def = defs.find((d) => d.id === body.deliverySlotId);
+      if (!def) {
+        return NextResponse.json({ ok: false, error: 'That slot is no longer available' }, { status: 400 });
+      }
+      const dateIso = body.deliverySlotDate;
+      const { start, end } = materialiseSlot(def, dateIso);
+      // Reject past windows. Same-day past slots default to a useful message.
+      if (end.getTime() < Date.now()) {
+        return NextResponse.json({ ok: false, error: 'That slot has already passed. Pick a later window.' }, { status: 400 });
+      }
+      // Re-anchor the date arg so the YYYY-MM-DD validator runs.
+      parseDateIso(dateIso);
+      slotSnapshot = { id: def.id, label: def.label, start, end };
+    }
 
     if (coupon && breakdown.discountInr === 0 && breakdown.deliveryFeeInr !== 0) {
       return NextResponse.json(
@@ -197,6 +260,13 @@ export async function POST(req: Request) {
         giftWrap: Boolean(body.giftWrap),
         insurance: Boolean(body.insurance),
         deliveryMode: body.deliveryMode ?? 'standard',
+        deliveryWindow: windowKind,
+        deliverySlotId: slotSnapshot?.id ?? null,
+        deliverySlotLabel: slotSnapshot?.label ?? null,
+        deliverySlotStart: slotSnapshot?.start ?? null,
+        deliverySlotEnd: slotSnapshot?.end ?? null,
+        subscriptionId: feeCtx.subscriptionId,
+        deliveryCreditUsed: feeCtx.debitCredit,
         vendorName: primaryVendor.name,
         vendorHub: primaryVendor.hub,
         notes: body.notes ?? null,
@@ -223,6 +293,10 @@ export async function POST(req: Request) {
         where: { id: coupon.id },
         data: { usageCount: { increment: 1 } },
       });
+    }
+
+    if (feeCtx.debitCredit && feeCtx.subscriptionId) {
+      await debitCreditForOrder(feeCtx.subscriptionId, order.id);
     }
 
     return NextResponse.json({ ok: true, orderId: order.id });

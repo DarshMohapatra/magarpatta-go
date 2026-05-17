@@ -1,14 +1,22 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles } from '@/lib/cart';
 import { ProductGlyph } from '@/components/product-glyph';
 import { cn } from '@/lib/utils';
 import {
-  DELIVERY_FEE, GIFT_WRAP_FEE, INSURANCE_FEE, TAX_RATE,
+  GIFT_WRAP_FEE, INSURANCE_FEE, TAX_RATE,
 } from '@/lib/pricing';
+
+interface SlotDef {
+  id: string;
+  label: string;
+  startMin: number;
+  endMin: number;
+  capacity: number;
+}
 
 interface CheckoutAddress {
   id: string;
@@ -30,6 +38,28 @@ interface Props {
     eligible: boolean;
     maxOrderInr: number;
   };
+  /** Resolved delivery fee for THIS customer — already factors in membership. */
+  deliveryFeeInr: number;
+  /** Where the fee came from. UI uses this to decide the banner copy. */
+  feeSource: 'free' | 'post-included' | 'standard';
+  /** Non-member fee (settings.delivery_fee_inr). Shown next to the strikethrough
+   *  when a member sees ₹0. */
+  standardFeeInr: number;
+  /** Membership snapshot (null if customer isn't subscribed). */
+  membership: {
+    planName: string;
+    creditsLeft: number;
+    creditsGranted: number;
+    postIncludedFeeInr: number;
+  } | null;
+  /** Whether the platform has any active top-ups — drives the "Recharge" CTA. */
+  topUpsAvailable: boolean;
+  /** Slot picker config. */
+  slotOptions: {
+    today: string;
+    tomorrow: string;
+    definitions: SlotDef[];
+  };
 }
 
 type PaymentMethod = 'CARD' | 'UPI' | 'NET_BANKING' | 'COD';
@@ -48,7 +78,16 @@ interface AppliedCoupon {
 const STEPS: Step[] = ['cart', 'address', 'payment'];
 const STEP_LABEL: Record<Step, string> = { cart: 'Cart', address: 'Address', payment: 'Payment' };
 
-export function CheckoutClient({ session, cod }: Props) {
+export function CheckoutClient({
+  session,
+  cod,
+  deliveryFeeInr,
+  feeSource,
+  standardFeeInr,
+  membership,
+  topUpsAvailable,
+  slotOptions,
+}: Props) {
   const router = useRouter();
   const items = useCart((s) => s.items);
   const add = useCart((s) => s.add);
@@ -81,6 +120,71 @@ export function CheckoutClient({ session, cod }: Props) {
   const [processingLine, setProcessingLine] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Delivery window: "ORDER_NOW" or one of the admin-configured slots. We
+  // initialise to ORDER_NOW so the customer can always proceed even if no
+  // slots are configured.
+  const [deliveryWindow, setDeliveryWindow] = useState<'ORDER_NOW' | 'SLOTTED'>('ORDER_NOW');
+  const [slotDate, setSlotDate] = useState<string>(slotOptions.today);
+  const [slotId, setSlotId] = useState<string>('');
+  const [slotAvailability, setSlotAvailability] = useState<Array<SlotDef & { booked: number; full: boolean }>>([]);
+  const [slotLoading, setSlotLoading] = useState(false);
+
+  // Cart revalidation — drop OOS items and surface price changes before payment.
+  const [revalidated, setRevalidated] = useState(false);
+  const [priceChanges, setPriceChanges] = useState<Array<{ name: string; oldPriceInr: number; newPriceInr: number }>>([]);
+  const [removedOos, setRemovedOos] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (items.length === 0 || revalidated) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/cart/revalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: items.map((i) => ({ id: i.id, priceInr: i.priceInr, mrpInr: i.mrpInr })) }),
+        });
+        const data = await res.json();
+        if (!data.ok || cancelled) return;
+        // Drop OOS items from the cart locally.
+        for (const o of data.oos as Array<{ id: string; name: string }>) {
+          remove(o.id);
+        }
+        if (data.oos.length > 0) {
+          setRemovedOos(data.oos.map((o: { name: string }) => o.name));
+        }
+        if (data.changed.length > 0) {
+          setPriceChanges(data.changed);
+        }
+        setRevalidated(true);
+      } catch {
+        // Best-effort — fall through; server-side will re-check at placement.
+        setRevalidated(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [items, revalidated, remove]);
+
+  useEffect(() => {
+    if (deliveryWindow !== 'SLOTTED' || slotOptions.definitions.length === 0) return;
+    let cancelled = false;
+    setSlotLoading(true);
+    fetch(`/api/slots?date=${slotDate}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled || !data.ok) return;
+        setSlotAvailability(data.slots);
+        // Default to the first not-full slot if user hasn't picked one yet.
+        if (!slotId) {
+          const first = (data.slots as Array<{ id: string; full: boolean }>).find((s) => !s.full);
+          if (first) setSlotId(first.id);
+        }
+      })
+      .catch(() => { /* ignore — picker shows empty state */ })
+      .finally(() => { if (!cancelled) setSlotLoading(false); });
+    return () => { cancelled = true; };
+  }, [deliveryWindow, slotDate, slotOptions.definitions.length, slotId]);
+
   const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
   const convenience = useMemo(() => cartConvenience(items), [items]);
   const campaignSavings = useMemo(() => cartCampaignSavings(items), [items]);
@@ -88,7 +192,7 @@ export function CheckoutClient({ session, cod }: Props) {
   const campaignTitles = useMemo(() => cartCampaignTitles(items), [items]);
   const tax = Math.round(subtotal * TAX_RATE);
   const addOns = (giftWrap ? GIFT_WRAP_FEE : 0) + (insurance ? INSURANCE_FEE : 0) + tip;
-  const baseDelivery = items.length > 0 ? DELIVERY_FEE : 0;
+  const baseDelivery = items.length > 0 ? deliveryFeeInr : 0;
   const deliveryFee = coupon?.freeDelivery ? 0 : baseDelivery;
   const discount = coupon?.discountInr ?? 0;
   const total = Math.max(0, subtotal + convenience + tax + addOns + deliveryFee - discount);
@@ -176,6 +280,13 @@ export function CheckoutClient({ session, cod }: Props) {
       await new Promise((r) => setTimeout(r, payMethod === 'COD' ? 500 : 900));
     }
 
+    if (deliveryWindow === 'SLOTTED' && !slotId) {
+      setError('Pick a slot or switch to "Order now".');
+      setPlacing(false);
+      setProcessingLine(null);
+      return;
+    }
+
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -190,6 +301,9 @@ export function CheckoutClient({ session, cod }: Props) {
           tipInr: tip,
           deliveryMode: 'standard',
           couponCode: coupon?.code,
+          deliveryWindow,
+          deliverySlotId: deliveryWindow === 'SLOTTED' ? slotId : undefined,
+          deliverySlotDate: deliveryWindow === 'SLOTTED' ? slotDate : undefined,
         }),
       });
       const data = await res.json();
@@ -255,6 +369,141 @@ export function CheckoutClient({ session, cod }: Props) {
           </div>
 
           <StepIndicator current={currentIdx} />
+
+          {/* Cart-revalidation banners — render once on load if anything changed. */}
+          {removedOos.length > 0 && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/10 px-4 py-3 text-[13px] text-[color:var(--color-terracotta)]">
+              Removed from your cart (out of stock): {removedOos.join(', ')}.
+            </div>
+          )}
+          {priceChanges.length > 0 && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-saffron)]/35 bg-[color:var(--color-saffron)]/10 px-4 py-3 text-[13px]">
+              Prices updated since you added these items:
+              <ul className="mt-1.5 list-disc pl-5">
+                {priceChanges.map((c) => (
+                  <li key={c.name}>{c.name}: ₹{c.oldPriceInr} → <strong>₹{c.newPriceInr}</strong></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Membership status banner */}
+          {membership && feeSource === 'free' && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/8 px-4 py-3 text-[13px]">
+              <strong>{membership.planName}</strong> — delivery free on this order. {membership.creditsLeft} of {membership.creditsGranted} credits left this cycle.
+            </div>
+          )}
+          {membership && feeSource === 'post-included' && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-saffron)]/40 bg-[color:var(--color-saffron)]/10 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-2">
+              <span>
+                <strong>{membership.planName}</strong> — you've used all free deliveries. This order is ₹{membership.postIncludedFeeInr}.
+              </span>
+              {topUpsAvailable && (
+                <Link href="/account/membership" className="underline text-[color:var(--color-forest)]">Recharge to keep saving →</Link>
+              )}
+            </div>
+          )}
+          {!membership && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-2">
+              <span>Delivery fee on this order: <strong>₹{standardFeeInr}</strong>. Save on every delivery with a plan.</span>
+              <Link href="/account/membership" className="underline text-[color:var(--color-forest)]">See plans →</Link>
+            </div>
+          )}
+
+          {/* Delivery-window picker — visible whenever address step matters,
+             so we render it under the indicator and let it sit above the
+             three-step grid. Customer always sees "Order now" + slot list. */}
+          {items.length > 0 && (
+            <div className="mt-5 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">When should we deliver?</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => setDeliveryWindow('ORDER_NOW')}
+                  className={cn(
+                    'rounded-full px-4 py-2 text-[13px] border',
+                    deliveryWindow === 'ORDER_NOW'
+                      ? 'bg-[color:var(--color-forest)] text-white border-[color:var(--color-forest)]'
+                      : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                  )}
+                >
+                  Order now
+                </button>
+                {slotOptions.definitions.length > 0 && (
+                  <button
+                    onClick={() => setDeliveryWindow('SLOTTED')}
+                    className={cn(
+                      'rounded-full px-4 py-2 text-[13px] border',
+                      deliveryWindow === 'SLOTTED'
+                        ? 'bg-[color:var(--color-forest)] text-white border-[color:var(--color-forest)]'
+                        : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                    )}
+                  >
+                    Schedule a slot
+                  </button>
+                )}
+              </div>
+
+              {deliveryWindow === 'SLOTTED' && (
+                <div className="mt-4">
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => { setSlotDate(slotOptions.today); setSlotId(''); }}
+                      className={cn(
+                        'rounded-md px-3 py-1.5 text-[12px] border',
+                        slotDate === slotOptions.today
+                          ? 'bg-[color:var(--color-forest)]/8 border-[color:var(--color-forest)]/50'
+                          : 'border-[color:var(--color-ink)]/15',
+                      )}
+                    >
+                      Today
+                    </button>
+                    <button
+                      onClick={() => { setSlotDate(slotOptions.tomorrow); setSlotId(''); }}
+                      className={cn(
+                        'rounded-md px-3 py-1.5 text-[12px] border',
+                        slotDate === slotOptions.tomorrow
+                          ? 'bg-[color:var(--color-forest)]/8 border-[color:var(--color-forest)]/50'
+                          : 'border-[color:var(--color-ink)]/15',
+                      )}
+                    >
+                      Tomorrow
+                    </button>
+                  </div>
+                  {slotLoading ? (
+                    <p className="text-[12px] text-[color:var(--color-ink-soft)]">Loading slots…</p>
+                  ) : slotAvailability.length === 0 ? (
+                    <p className="text-[12px] text-[color:var(--color-ink-soft)] italic">No slots defined yet — pick Order now.</p>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {slotAvailability.map((s) => {
+                        const pickable = !s.full;
+                        return (
+                          <button
+                            key={s.id}
+                            onClick={() => pickable && setSlotId(s.id)}
+                            disabled={!pickable}
+                            className={cn(
+                              'rounded-lg px-3 py-2.5 text-left border text-[13px] flex items-center justify-between',
+                              slotId === s.id
+                                ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/8'
+                                : pickable
+                                  ? 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40'
+                                  : 'border-[color:var(--color-ink)]/10 opacity-50 cursor-not-allowed',
+                            )}
+                          >
+                            <span>{s.label}</span>
+                            <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
+                              {s.full ? 'Full' : s.booked >= Math.max(1, Math.floor(s.capacity * 0.8)) ? 'Filling fast' : `${Math.max(0, s.capacity - s.booked)} left`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

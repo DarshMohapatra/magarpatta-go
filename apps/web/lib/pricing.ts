@@ -7,13 +7,13 @@
  *    markup that only surfaces at checkout as a "Convenience fee" line.
  *  - Regulated packaged goods charge exactly MRP — no markup.
  *  - Tax = 5% GST on subtotal (food delivery service rate).
- *  - Flat ₹25 delivery fee (can be waived by FREEDEL coupon).
+ *  - Delivery fee is admin-configurable (lib/settings.ts → delivery_fee_inr)
+ *    and threaded in as `deliveryFeeInr`. FREEDEL coupon waives it.
  *  - Coupon discount applied after convenience + tax, before total.
  */
 
 import type { CouponType } from '@prisma/client';
 
-export const DELIVERY_FEE = 25;
 export const GIFT_WRAP_FEE = 50;
 export const INSURANCE_FEE = 100;
 export const TAX_RATE = 0.05;
@@ -43,10 +43,17 @@ export interface Breakdown {
   totalInr: number;
 }
 
-export function computeBreakdown(
-  items: PriceableItem[],
-  opts: { giftWrap?: boolean; insurance?: boolean; tipInr?: number; coupon?: CouponInput | null } = {},
-): Breakdown {
+export interface BreakdownOpts {
+  /** From SiteSetting `delivery_fee_inr` — required so we never ship a
+   *  hard-coded fallback. Callers fetch via lib/settings.getDeliveryFeeInr(). */
+  deliveryFeeInr: number;
+  giftWrap?: boolean;
+  insurance?: boolean;
+  tipInr?: number;
+  coupon?: CouponInput | null;
+}
+
+export function computeBreakdown(items: PriceableItem[], opts: BreakdownOpts): Breakdown {
   let subtotal = 0;
   let convenience = 0;
 
@@ -62,7 +69,7 @@ export function computeBreakdown(
   const tax = Math.round(subtotal * TAX_RATE);
 
   let discount = 0;
-  let delivery = DELIVERY_FEE;
+  let delivery = opts.deliveryFeeInr;
 
   if (opts.coupon) {
     const c = opts.coupon;
