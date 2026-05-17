@@ -224,6 +224,11 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }:
         )}
       </section>
 
+      {/* One-shot launch seed — only meaningful on a fresh prod DB. */}
+      {canEdit && (
+        <SeedDefaultsButton />
+      )}
+
       {/* Save bar */}
       <div className="sticky bottom-4 flex items-center justify-end gap-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 shadow-sm">
         {error && <span className="text-[13px] text-[color:var(--color-terracotta)]">{error}</span>}
@@ -237,5 +242,54 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }:
         </button>
       </div>
     </div>
+  );
+}
+
+function SeedDefaultsButton() {
+  const [running, setRunning] = useState(false);
+  const [report, setReport] = useState<Record<string, string> | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function run() {
+    setRunning(true);
+    setErr(null);
+    setReport(null);
+    try {
+      const res = await fetch('/api/admin/seed-defaults', { method: 'POST' });
+      const data = await res.json();
+      if (!data.ok) {
+        setErr(data.error ?? 'Failed');
+        return;
+      }
+      setReport(data.report);
+    } catch {
+      setErr('Network error');
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/5 p-6">
+      <h2 className="font-serif text-[20px]">One-shot launch seed</h2>
+      <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
+        Inserts the Saver 30 plan, top-up SKUs, and the default morning/evening slots — only if they're missing. Safe to run more than once.
+      </p>
+      <button
+        onClick={run}
+        disabled={running}
+        className="mt-3 rounded-md bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:opacity-90"
+      >
+        {running ? 'Seeding…' : 'Seed launch defaults'}
+      </button>
+      {err && <p className="mt-2 text-[12px] text-[color:var(--color-terracotta)]">{err}</p>}
+      {report && (
+        <ul className="mt-3 text-[12px] text-[color:var(--color-ink-soft)] space-y-1 list-disc pl-5">
+          {Object.entries(report).map(([k, v]) => (
+            <li key={k}><strong>{k}:</strong> {v}</li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

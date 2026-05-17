@@ -134,19 +134,24 @@ export function CheckoutClient({
   const [priceChanges, setPriceChanges] = useState<Array<{ name: string; oldPriceInr: number; newPriceInr: number }>>([]);
   const [removedOos, setRemovedOos] = useState<string[]>([]);
 
+  // One revalidation per checkout-page entry. Runs once when the cart has
+  // items; future cart edits go through the normal client-side flow. We
+  // depend only on `revalidated` (a flag we set when the call finishes) so
+  // Zustand's per-render array reference for `items` doesn't refire us.
   useEffect(() => {
-    if (items.length === 0 || revalidated) return;
+    if (revalidated) return;
+    const snapshot = useCart.getState().items;
+    if (snapshot.length === 0) return;
     let cancelled = false;
     (async () => {
       try {
         const res = await fetch('/api/cart/revalidate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items: items.map((i) => ({ id: i.id, priceInr: i.priceInr, mrpInr: i.mrpInr })) }),
+          body: JSON.stringify({ items: snapshot.map((i) => ({ id: i.id, priceInr: i.priceInr, mrpInr: i.mrpInr })) }),
         });
         const data = await res.json();
         if (!data.ok || cancelled) return;
-        // Drop OOS items from the cart locally.
         for (const o of data.oos as Array<{ id: string; name: string }>) {
           remove(o.id);
         }
@@ -156,14 +161,14 @@ export function CheckoutClient({
         if (data.changed.length > 0) {
           setPriceChanges(data.changed);
         }
-        setRevalidated(true);
       } catch {
-        // Best-effort — fall through; server-side will re-check at placement.
-        setRevalidated(true);
+        /* server re-checks at placement anyway */
+      } finally {
+        if (!cancelled) setRevalidated(true);
       }
     })();
     return () => { cancelled = true; };
-  }, [items, revalidated, remove]);
+  }, [revalidated, remove]);
 
   useEffect(() => {
     if (deliveryWindow !== 'SLOTTED' || slotOptions.definitions.length === 0) return;
@@ -174,16 +179,19 @@ export function CheckoutClient({
       .then((data) => {
         if (cancelled || !data.ok) return;
         setSlotAvailability(data.slots);
-        // Default to the first not-full slot if user hasn't picked one yet.
-        if (!slotId) {
+        // Default to the first not-full slot only if nothing's been picked
+        // yet. Functional setState avoids putting slotId in the dep array,
+        // which would re-fire this effect on every selection.
+        setSlotId((cur) => {
+          if (cur) return cur;
           const first = (data.slots as Array<{ id: string; full: boolean }>).find((s) => !s.full);
-          if (first) setSlotId(first.id);
-        }
+          return first?.id ?? '';
+        });
       })
       .catch(() => { /* ignore — picker shows empty state */ })
       .finally(() => { if (!cancelled) setSlotLoading(false); });
     return () => { cancelled = true; };
-  }, [deliveryWindow, slotDate, slotOptions.definitions.length, slotId]);
+  }, [deliveryWindow, slotDate, slotOptions.definitions.length]);
 
   const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
   const convenience = useMemo(() => cartConvenience(items), [items]);

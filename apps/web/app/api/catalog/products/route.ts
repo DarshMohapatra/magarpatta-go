@@ -9,17 +9,28 @@ export async function GET(req: Request) {
   const q = url.searchParams.get('q');
   const vegOnly = url.searchParams.get('veg') === '1';
 
-  // We no longer filter by inStock at the DB layer — a master-stock=true
-  // product can be marked OOS today by a vendor daily override and vice
-  // versa. resolveAvailability is the authority; we filter on its output.
-  const where: Record<string, unknown> = {};
+  // DB-level filter: a product is visible if its master is in stock OR a
+  // vendor daily override exists (which might flip it either way). This
+  // keeps the row set bounded — without it, we'd scan every product the
+  // vendor ever added. resolveAvailability is still the final authority on
+  // what gets returned to the client.
+  const where: Record<string, unknown> = {
+    OR: [
+      { inStock: true },
+      { dailyOverrides: { some: {} } },
+    ],
+  };
   if (categorySlug) where.category = { slug: categorySlug };
   if (vendorSlug) where.vendor = { slug: vendorSlug };
   if (vegOnly) where.isVeg = true;
   if (q) {
-    where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { description: { contains: q, mode: 'insensitive' } },
+    where.AND = [
+      {
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+        ],
+      },
     ];
   }
 

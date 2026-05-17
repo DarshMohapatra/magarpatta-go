@@ -65,12 +65,17 @@ export async function resolveAvailability(
   const ids = base.map((b) => b.id);
   if (ids.length === 0) return new Map();
 
-  // Fetch every override row up to and including today for these products,
-  // ordered newest first. Then take the first row per product.
+  // Bound the scan to the last 30 days. Older overrides are stale enough
+  // that falling back to master is correct, and the cap keeps the query
+  // cheap as the table grows. Vendors edit at least once a month in normal
+  // operation, so this almost never under-resolves.
+  const carryFloor = new Date(today);
+  carryFloor.setDate(carryFloor.getDate() - 30);
+
   const overrides = await prisma.productDailyOverride.findMany({
     where: {
       productId: { in: ids },
-      forDate: { lte: today },
+      forDate: { gte: carryFloor, lte: today },
     },
     orderBy: [{ productId: 'asc' }, { forDate: 'desc' }],
   });
