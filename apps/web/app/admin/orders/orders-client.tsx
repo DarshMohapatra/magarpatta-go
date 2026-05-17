@@ -1,5 +1,7 @@
 'use client';
 
+import { DeliveryProofUpload } from '@/components/delivery-proof-upload';
+
 import { useEffect, useState } from 'react';
 
 interface Order {
@@ -188,6 +190,15 @@ export function AdminOrdersClient() {
                 </div>
               )
             )}
+            <details className="mt-3 group">
+              <summary className="cursor-pointer text-[11.5px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] hover:underline list-none">
+                <span className="group-open:hidden">📷 Delivery photo</span>
+                <span className="hidden group-open:inline">▾ Delivery photo</span>
+              </summary>
+              <div className="mt-3">
+                <DeliveryProofUpload orderId={o.id} canUpload={true} />
+              </div>
+            </details>
           </li>
         ))}
       </ul>

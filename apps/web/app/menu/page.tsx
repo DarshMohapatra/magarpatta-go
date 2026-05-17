@@ -7,6 +7,8 @@ import { CampaignBanner } from '@/components/campaign-banner';
 import { MenuClient } from './menu-client';
 import { applyDiscount, discountFor } from '@/lib/active-discounts';
 import { getActiveDiscounts, getAllInStockProducts, getMenuCategories } from '@/lib/menu-cache';
+import { resolveAvailability } from '@/lib/product-availability';
+import { getWholesaleOnlyMode } from '@/lib/settings';
 import type { ProductCardData } from '@/components/product-card';
 
 export const dynamic = 'force-dynamic';
@@ -39,59 +41,81 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
 
   // Default unfiltered case is hot — serve from the shared cache. Filter
   // combos vary too much to bother caching, so they hit Prisma directly.
+  // We pull either masters-in-stock OR products with a daily override so
+  // the override resolver can flip an OOS item back on for today.
   const productsPromise = isUnfiltered
     ? getAllInStockProducts()
     : prisma.product.findMany({
         where: {
-          inStock: true,
+          OR: [
+            { inStock: true },
+            { dailyOverrides: { some: {} } },
+          ],
           ...(activeSlug ? { category: { slug: activeSlug } } : {}),
           ...(vegOnly ? { isVeg: true } : {}),
           ...(q
             ? {
-                OR: [
-                  { name: { contains: q, mode: 'insensitive' as const } },
-                  { description: { contains: q, mode: 'insensitive' as const } },
+                AND: [
+                  {
+                    OR: [
+                      { name: { contains: q, mode: 'insensitive' as const } },
+                      { description: { contains: q, mode: 'insensitive' as const } },
+                    ],
+                  },
                 ],
               }
             : {}),
         },
         orderBy: [{ category: { order: 'asc' } }, { name: 'asc' }],
         include: {
-          vendor: { select: { id: true, slug: true, name: true, hub: true } },
+          vendor: { select: { id: true, slug: true, name: true, hub: true, isWholesale: true } },
           category: { select: { slug: true, name: true } },
         },
       });
 
-  const [categories, products, discounts] = await Promise.all([
+  const [categories, productsRaw, discounts, wholesaleOnly] = await Promise.all([
     getMenuCategories(),
     productsPromise,
     getActiveDiscounts(),
+    getWholesaleOnlyMode(),
   ]);
 
-  const productData: ProductCardData[] = products.map((p) => {
-    const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: p.priceInr, mrpInr: p.mrpInr }, discounts);
-    const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
-    return {
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      priceInr: priced.priceInr,
-      mrpInr: priced.mrpInr,
-      originalMrpInr: priced.originalMrpInr,
-      discountPct: priced.discountPct,
-      discountFlatInr: priced.discountFlatInr,
-      campaignTitle: match.campaign?.title ?? null,
-      campaignType: match.campaign?.type ?? null,
-      unit: p.unit,
-      isVeg: p.isVeg,
-      isRegulated: p.isRegulated,
-      accent: p.accent,
-      glyph: p.glyph,
-      tagline: p.tagline,
-      imageUrl: p.imageUrl,
-      vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
-    };
-  });
+  const wholesaleScoped = wholesaleOnly
+    ? productsRaw.filter((p) => p.vendor.isWholesale)
+    : productsRaw;
+
+  const availability = await resolveAvailability(
+    wholesaleScoped.map((p) => ({ id: p.id, priceInr: p.priceInr, mrpInr: p.mrpInr, inStock: p.inStock })),
+  );
+
+  const productData: ProductCardData[] = wholesaleScoped
+    .filter((p) => availability.get(p.id)?.inStock ?? p.inStock)
+    .map((p) => {
+      const eff = availability.get(p.id)!;
+      const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: eff.priceInr, mrpInr: eff.mrpInr }, discounts);
+      const priced = applyDiscount({ priceInr: eff.priceInr, mrpInr: eff.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
+      return {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        priceInr: priced.priceInr,
+        mrpInr: priced.mrpInr,
+        originalMrpInr: priced.originalMrpInr,
+        discountPct: priced.discountPct,
+        discountFlatInr: priced.discountFlatInr,
+        campaignTitle: match.campaign?.title ?? null,
+        campaignType: match.campaign?.type ?? null,
+        unit: p.unit,
+        isVeg: p.isVeg,
+        isRegulated: p.isRegulated,
+        accent: p.accent,
+        glyph: p.glyph,
+        tagline: p.tagline,
+        imageUrl: p.imageUrl,
+        vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
+        priceUpdatedAt: eff.sourceLabel === 'today' && eff.updatedAt ? eff.updatedAt.toISOString() : null,
+      };
+    });
 
   const totalProducts = categories.reduce((sum, c) => sum + c._count.products, 0);
 

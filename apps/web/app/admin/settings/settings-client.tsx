@@ -7,6 +7,7 @@ import type { SlotDefinition } from '@/lib/settings';
 interface Props {
   initialDeliveryFeeInr: number;
   initialSlots: SlotDefinition[];
+  initialWholesaleOnly: boolean;
   canEdit: boolean;
 }
 
@@ -33,10 +34,11 @@ function slugify(label: string): string {
     .slice(0, 32);
 }
 
-export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }: Props) {
+export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, canEdit }: Props) {
   const router = useRouter();
   const [deliveryFee, setDeliveryFee] = useState(String(initialDeliveryFeeInr));
   const [slots, setSlots] = useState<SlotDefinition[]>(initialSlots);
+  const [wholesaleOnly, setWholesaleOnly] = useState<boolean>(initialWholesaleOnly);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedNote, setSavedNote] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }:
     const id = `slot-${Date.now().toString(36)}`;
     setSlots((prev) => [
       ...prev,
-      { id, label: '', startMin: 540, endMin: 660, capacity: 20 },
+      { id, label: '', startMin: 540, endMin: 660, capacity: 20, cutoffMinutesBefore: 0 },
     ]);
   }
 
@@ -94,6 +96,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }:
         body: JSON.stringify({
           delivery_fee_inr: feeNum,
           slot_definitions: slots,
+          wholesale_only_mode: wholesaleOnly,
         }),
       });
       const data = await res.json();
@@ -162,66 +165,104 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, canEdit }:
             {slots.map((slot, idx) => (
               <div
                 key={slot.id}
-                className="grid grid-cols-12 items-center gap-3 rounded-lg border border-[color:var(--color-ink)]/10 px-3 py-3"
+                className="rounded-lg border border-[color:var(--color-ink)]/10 px-3 py-3 space-y-2"
               >
-                <input
-                  type="text"
-                  value={slot.label}
-                  onChange={(e) => updateSlot(idx, { label: e.target.value })}
-                  disabled={!canEdit}
-                  placeholder="e.g. 9 AM – 11 AM"
-                  className="col-span-4 rounded border border-[color:var(--color-ink)]/15 px-2 py-1.5 text-[14px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
-                />
-                <div className="col-span-2 flex items-center gap-1">
-                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">from</span>
+                <div className="grid grid-cols-12 items-center gap-3">
                   <input
-                    type="time"
-                    value={minutesToHHMM(slot.startMin)}
-                    onChange={(e) => {
-                      const mins = hhmmToMinutes(e.target.value);
-                      if (mins !== null) updateSlot(idx, { startMin: mins });
-                    }}
+                    type="text"
+                    value={slot.label}
+                    onChange={(e) => updateSlot(idx, { label: e.target.value })}
                     disabled={!canEdit}
-                    className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    placeholder="e.g. 9 AM – 11 AM"
+                    className="col-span-4 rounded border border-[color:var(--color-ink)]/15 px-2 py-1.5 text-[14px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
                   />
+                  <div className="col-span-2 flex items-center gap-1">
+                    <span className="text-[11px] text-[color:var(--color-ink-soft)]">from</span>
+                    <input
+                      type="time"
+                      value={minutesToHHMM(slot.startMin)}
+                      onChange={(e) => {
+                        const mins = hhmmToMinutes(e.target.value);
+                        if (mins !== null) updateSlot(idx, { startMin: mins });
+                      }}
+                      disabled={!canEdit}
+                      className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    />
+                  </div>
+                  <div className="col-span-2 flex items-center gap-1">
+                    <span className="text-[11px] text-[color:var(--color-ink-soft)]">to</span>
+                    <input
+                      type="time"
+                      value={minutesToHHMM(slot.endMin)}
+                      onChange={(e) => {
+                        const mins = hhmmToMinutes(e.target.value);
+                        if (mins !== null) updateSlot(idx, { endMin: mins });
+                      }}
+                      disabled={!canEdit}
+                      className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    />
+                  </div>
+                  <div className="col-span-3 flex items-center gap-1">
+                    <span className="text-[11px] text-[color:var(--color-ink-soft)]">cap</span>
+                    <input
+                      type="number"
+                      value={slot.capacity}
+                      min={0}
+                      onChange={(e) => updateSlot(idx, { capacity: Math.max(0, Number(e.target.value) || 0) })}
+                      disabled={!canEdit}
+                      className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    />
+                    <span className="text-[11px] text-[color:var(--color-ink-soft)]">orders</span>
+                  </div>
+                  {canEdit && (
+                    <button
+                      onClick={() => removeSlot(idx)}
+                      className="col-span-1 text-[12px] text-[color:var(--color-terracotta)] hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
-                <div className="col-span-2 flex items-center gap-1">
-                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">to</span>
-                  <input
-                    type="time"
-                    value={minutesToHHMM(slot.endMin)}
-                    onChange={(e) => {
-                      const mins = hhmmToMinutes(e.target.value);
-                      if (mins !== null) updateSlot(idx, { endMin: mins });
-                    }}
-                    disabled={!canEdit}
-                    className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
-                  />
-                </div>
-                <div className="col-span-3 flex items-center gap-1">
-                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">cap</span>
+                <div className="flex items-center gap-2 pl-1 text-[12px] text-[color:var(--color-ink-soft)]">
+                  <span>Cutoff</span>
                   <input
                     type="number"
-                    value={slot.capacity}
+                    value={slot.cutoffMinutesBefore ?? 0}
                     min={0}
-                    onChange={(e) => updateSlot(idx, { capacity: Math.max(0, Number(e.target.value) || 0) })}
+                    onChange={(e) => updateSlot(idx, { cutoffMinutesBefore: Math.max(0, Number(e.target.value) || 0) })}
                     disabled={!canEdit}
-                    className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    className="w-24 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[12.5px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
                   />
-                  <span className="text-[11px] text-[color:var(--color-ink-soft)]">orders</span>
+                  <span>minutes before slot start (e.g. 900 = 15 h → must order by 6 PM previous day for a 9 AM slot)</span>
                 </div>
-                {canEdit && (
-                  <button
-                    onClick={() => removeSlot(idx)}
-                    className="col-span-1 text-[12px] text-[color:var(--color-terracotta)] hover:underline"
-                  >
-                    Remove
-                  </button>
-                )}
               </div>
             ))}
           </div>
         )}
+      </section>
+
+      {/* Wholesale-only mode */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-[22px]">Wholesale-only mode</h2>
+            <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[560px]">
+              While on, the public catalog only shows products from vendors
+              flagged as wholesale. Use this to soft-launch with a curated
+              subset of suppliers. Flip off when retail vendors go live.
+            </p>
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={wholesaleOnly}
+              onChange={(e) => setWholesaleOnly(e.target.checked)}
+              disabled={!canEdit}
+              className="h-4 w-4"
+            />
+            <span className="text-[13px] font-medium">{wholesaleOnly ? 'On' : 'Off'}</span>
+          </label>
+        </div>
       </section>
 
       {/* One-shot launch seed — only meaningful on a fresh prod DB. */}

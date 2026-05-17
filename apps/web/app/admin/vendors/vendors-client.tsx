@@ -31,6 +31,8 @@ interface Vendor {
   selfDeliveryFeeInr: number | null;
   selfDeliveryAvailable: boolean;
   onPlatform: boolean;
+  isWholesale: boolean;
+  minOrderInr: number | null;
   createdAt: string;
   submittedAt: string | null;
   approvedAt: string | null;
@@ -239,6 +241,57 @@ export function AdminVendorsClient({ initialStatus }: { initialStatus: string })
               {selected.supportsSelfDelivery && selected.selfDeliveryFeeInr != null && (
                 <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/70">Self-delivery fee · ₹{selected.selfDeliveryFeeInr}</p>
               )}
+            </div>
+
+            <div className="pt-3 border-t border-[color:var(--color-ink)]/8">
+              <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65 mb-2">Wholesale</div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selected.isWholesale}
+                    onChange={async (e) => {
+                      setBusy(true);
+                      try {
+                        const r = await fetch(`/api/admin/vendors/${selected.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ isWholesale: e.target.checked }),
+                        });
+                        const j = await r.json();
+                        if (j.ok) { setSelected({ ...selected, isWholesale: e.target.checked }); load(); }
+                      } finally { setBusy(false); }
+                    }}
+                    className="accent-[color:var(--color-forest)]"
+                  />
+                  Wholesale vendor (shown when "Wholesale-only mode" is on)
+                </label>
+                <label className="flex items-center gap-2 text-[13px]">
+                  <span className="w-[140px] text-[color:var(--color-ink-soft)]">Min order (₹)</span>
+                  <input
+                    type="number"
+                    defaultValue={selected.minOrderInr ?? ''}
+                    min={0}
+                    placeholder="No minimum"
+                    onBlur={async (e) => {
+                      const raw = e.target.value.trim();
+                      const next = raw === '' ? null : Math.max(0, Number(raw));
+                      if (next === selected.minOrderInr) return;
+                      setBusy(true);
+                      try {
+                        const r = await fetch(`/api/admin/vendors/${selected.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ minOrderInr: next }),
+                        });
+                        const j = await r.json();
+                        if (j.ok) { setSelected({ ...selected, minOrderInr: next }); load(); }
+                      } finally { setBusy(false); }
+                    }}
+                    className="w-32 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+                  />
+                </label>
+              </div>
             </div>
 
             {selected.approvalNote && (

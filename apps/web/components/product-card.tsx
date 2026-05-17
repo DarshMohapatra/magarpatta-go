@@ -31,6 +31,19 @@ export interface ProductCardData {
   campaignTitle?: string | null;
   /** Active campaign type (e.g. WEEKEND, FLASH_SALE) — used for the cart label. */
   campaignType?: string | null;
+  /** ISO timestamp of the latest vendor daily-override on this product
+   *  (only set when it was edited today). Used to render the "Updated X
+   *  mins ago" freshness badge. */
+  priceUpdatedAt?: string | null;
+}
+
+function relativeMinutes(iso: string): string {
+  const then = new Date(iso).getTime();
+  const mins = Math.max(0, Math.round((Date.now() - then) / 60000));
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
+  const hours = Math.round(mins / 60);
+  return `${hours} hour${hours === 1 ? '' : 's'} ago`;
 }
 
 const ACCENT_BG: Record<string, string> = {
@@ -165,6 +178,11 @@ export function ProductCard({
           {product.tagline && (
             <span className="rounded-full bg-[color:var(--color-paper)]/90 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]">
               {product.tagline}
+            </span>
+          )}
+          {product.priceUpdatedAt && (
+            <span className="rounded-full bg-[color:var(--color-forest)]/12 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-forest)] font-medium">
+              Updated {relativeMinutes(product.priceUpdatedAt)}
             </span>
           )}
         </div>

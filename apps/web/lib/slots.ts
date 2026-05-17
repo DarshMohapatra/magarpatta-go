@@ -16,6 +16,10 @@ export interface SlotAvailability extends SlotDefinition {
   booked: number;
   /** booked >= capacity. UI-only signal. */
   full: boolean;
+  /** True if the slot's start − cutoffMinutesBefore is already in the past
+   *  for this date. The picker hides expired slots; the order POST rejects
+   *  them. */
+  expired: boolean;
 }
 
 export function startOfDayUtc(d: Date): Date {
@@ -73,9 +77,19 @@ export async function getSlotAvailability(dateIso: string): Promise<SlotAvailabi
     if (b.deliverySlotId) counts.set(b.deliverySlotId, b._count._all);
   }
 
+  const now = Date.now();
   return defs.map((d) => {
     const booked = counts.get(d.id) ?? 0;
-    return { ...d, dateIso, booked, full: booked >= d.capacity };
+    const { start } = materialiseSlot(d, dateIso);
+    const cutoff = d.cutoffMinutesBefore ?? 0;
+    const acceptOrdersUntil = start.getTime() - cutoff * 60 * 1000;
+    return {
+      ...d,
+      dateIso,
+      booked,
+      full: booked >= d.capacity,
+      expired: acceptOrdersUntil <= now,
+    };
   });
 }
 

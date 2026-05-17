@@ -81,6 +81,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'Some items are no longer available' }, { status: 400 });
     }
 
+    // Enforce per-vendor minimum order. We aggregate the cart's MRP subtotal
+    // per vendor and refuse the order if any vendor's spend is below the
+    // floor they've configured. The client-side checkout calls this same
+    // rule pre-flight; this is the authoritative check.
+    {
+      const perVendor = new Map<string, number>();
+      for (const p of products) {
+        const incoming = body.items.find((i) => i.productId === p.id);
+        if (!incoming) continue;
+        const qty = Math.max(1, Math.floor(incoming.quantity));
+        const line = (p.mrpInr ?? p.priceInr) * qty;
+        perVendor.set(p.vendorId, (perVendor.get(p.vendorId) ?? 0) + line);
+      }
+      const vendorsById = new Map(products.map((p) => [p.vendorId, p.vendor]));
+      for (const [vid, spend] of perVendor) {
+        const v = vendorsById.get(vid);
+        if (v?.minOrderInr && spend < v.minOrderInr) {
+          return NextResponse.json(
+            { ok: false, error: `${v.name} has a minimum order of ₹${v.minOrderInr}. Add ₹${v.minOrderInr - spend} more from them to proceed.` },
+            { status: 400 },
+          );
+        }
+      }
+    }
+
     // Apply today's vendor-set overrides — they're the live source of truth
     // for price + stock. Anything OOS via override blocks placement.
     const availability = await resolveAvailability(
@@ -222,11 +247,18 @@ export async function POST(req: Request) {
       }
       const dateIso = body.deliverySlotDate;
       const { start, end } = materialiseSlot(def, dateIso);
-      // Reject past windows. Same-day past slots default to a useful message.
+      // Reject past windows AND windows whose cutoff has already passed.
+      const cutoff = def.cutoffMinutesBefore ?? 0;
+      const acceptUntil = start.getTime() - cutoff * 60 * 1000;
       if (end.getTime() < Date.now()) {
         return NextResponse.json({ ok: false, error: 'That slot has already passed. Pick a later window.' }, { status: 400 });
       }
-      // Re-anchor the date arg so the YYYY-MM-DD validator runs.
+      if (acceptUntil <= Date.now()) {
+        return NextResponse.json(
+          { ok: false, error: `Orders for ${def.label} closed ${cutoff > 0 ? `${cutoff} minutes` : 'before'} the slot started. Pick a later date.` },
+          { status: 400 },
+        );
+      }
       parseDateIso(dateIso);
       slotSnapshot = { id: def.id, label: def.label, start, end };
     }

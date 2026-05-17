@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { siteConfig } from '@/lib/site-config';
+import { DeliveryProofUpload } from '@/components/delivery-proof-upload';
 
 interface OrderRow {
   id: string;
@@ -262,6 +263,15 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
         </div>
       </div>
       {children}
+      <details className="mt-3 group">
+        <summary className="cursor-pointer text-[11.5px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] hover:underline list-none">
+          <span className="group-open:hidden">📷 Add / view delivery photo</span>
+          <span className="hidden group-open:inline">▾ Delivery photo</span>
+        </summary>
+        <div className="mt-3">
+          <DeliveryProofUpload orderId={o.id} canUpload={true} />
+        </div>
+      </details>
     </li>
   );
 }

@@ -74,14 +74,22 @@ export const getRestaurantIndex = unstable_cache(
 
 export const getAllInStockProducts = unstable_cache(
   async () => prisma.product.findMany({
-    where: { inStock: true },
+    // Match the catalog API: an item is candidate-visible when its master
+    // is in stock OR a vendor daily-override exists. The override resolver
+    // is the final authority on what reaches the customer.
+    where: {
+      OR: [
+        { inStock: true },
+        { dailyOverrides: { some: {} } },
+      ],
+    },
     orderBy: [{ category: { order: 'asc' } }, { name: 'asc' }],
     include: {
-      vendor: { select: { id: true, slug: true, name: true, hub: true } },
+      vendor: { select: { id: true, slug: true, name: true, hub: true, isWholesale: true } },
       category: { select: { slug: true, name: true } },
     },
   }),
-  ['all-in-stock-products'],
+  ['all-in-stock-products-v2'],
   { revalidate: TTL, tags: ['menu', 'products'] },
 );
 

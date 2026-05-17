@@ -5,18 +5,22 @@ import { setSetting, type SettingKey, type SlotDefinition } from '@/lib/settings
 interface UpdateBody {
   delivery_fee_inr?: number;
   slot_definitions?: SlotDefinition[];
+  wholesale_only_mode?: boolean;
 }
 
 function validateSlotDefinition(s: unknown): s is SlotDefinition {
   if (!s || typeof s !== 'object') return false;
   const d = s as Record<string, unknown>;
+  const cutoffOk = d.cutoffMinutesBefore === undefined
+    || (typeof d.cutoffMinutesBefore === 'number' && d.cutoffMinutesBefore >= 0 && d.cutoffMinutesBefore <= 7 * 24 * 60);
   return (
     typeof d.id === 'string' && d.id.length > 0 &&
     typeof d.label === 'string' && d.label.length > 0 &&
     typeof d.startMin === 'number' && d.startMin >= 0 && d.startMin < 1440 &&
     typeof d.endMin === 'number' && d.endMin > 0 && d.endMin <= 1440 &&
     d.endMin > d.startMin &&
-    typeof d.capacity === 'number' && d.capacity >= 0
+    typeof d.capacity === 'number' && d.capacity >= 0 &&
+    cutoffOk
   );
 }
 
@@ -52,7 +56,7 @@ export async function POST(req: Request) {
   if (body.slot_definitions !== undefined) {
     if (!Array.isArray(body.slot_definitions) || !body.slot_definitions.every(validateSlotDefinition)) {
       return NextResponse.json(
-        { ok: false, error: 'slot_definitions has invalid entries — each needs id, label, startMin<endMin (0–1440), capacity' },
+        { ok: false, error: 'slot_definitions has invalid entries — each needs id, label, startMin<endMin (0–1440), capacity, optional cutoffMinutesBefore' },
         { status: 400 },
       );
     }
@@ -62,6 +66,14 @@ export async function POST(req: Request) {
     }
     await setSetting('slot_definitions', body.slot_definitions, actor);
     updated.push('slot_definitions');
+  }
+
+  if (body.wholesale_only_mode !== undefined) {
+    if (typeof body.wholesale_only_mode !== 'boolean') {
+      return NextResponse.json({ ok: false, error: 'wholesale_only_mode must be true/false' }, { status: 400 });
+    }
+    await setSetting('wholesale_only_mode', body.wholesale_only_mode, actor);
+    updated.push('wholesale_only_mode');
   }
 
   if (updated.length === 0) {

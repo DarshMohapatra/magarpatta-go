@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { OrderStatus, PaymentMethod, OrderFulfilmentMode } from '@prisma/client';
 import { OrderTracker, useLiveOrder } from './order-tracker';
 import { FeedbackForm } from './feedback-form';
+import { DeliveryProofUpload } from '@/components/delivery-proof-upload';
 import { ProductGlyph } from '@/components/product-glyph';
 import { deliveryOtp } from '@/lib/orders';
 import { useCart } from '@/lib/cart';
@@ -210,6 +211,11 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
             </div>
           </div>
         )}
+
+        {/* Delivery proof — what the vendor packed for you */}
+        <div className="mt-6">
+          <DeliveryProofUpload orderId={order.id} canUpload={false} />
+        </div>
 
         {/* Feedback form — only once delivered */}
         {live.status === 'DELIVERED' && (

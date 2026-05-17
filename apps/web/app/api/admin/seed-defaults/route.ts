@@ -32,8 +32,8 @@ export async function POST() {
   // so we don't trample a list an admin has already curated.
   const slotsRow = await prisma.siteSetting.findUnique({ where: { key: 'slot_definitions' } });
   const defaults = [
-    { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30 },
-    { id: 'evening-5-7', label: '5 PM – 7 PM', startMin: 1020, endMin: 1140, capacity: 30 },
+    { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30, cutoffMinutesBefore: 900 },
+    { id: 'evening-5-7', label: '5 PM – 7 PM', startMin: 1020, endMin: 1140, capacity: 30, cutoffMinutesBefore: 300 },
   ];
   if (!slotsRow) {
     await prisma.siteSetting.create({ data: { key: 'slot_definitions', valueJson: defaults } });
@@ -81,6 +81,15 @@ export async function POST() {
     }
   }
   report.top_ups = topUpReport.join('; ');
+
+  // Wholesale vendors (idempotent — checks by slug)
+  try {
+    const { ensureWholesale } = await import('../../../../prisma/seed-wholesale');
+    await ensureWholesale();
+    report.wholesale_vendors = 'ensured Magarpatta Mandi + Magarpatta Daily + products';
+  } catch (e) {
+    report.wholesale_vendors = `failed: ${(e as Error).message}`;
+  }
 
   await logActivity({
     actorRole: 'ADMIN',

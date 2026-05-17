@@ -18,31 +18,32 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "@vercel/blob": "^2.3.3",
+    "clsx": "^2.1.1",
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2",
+    "framer-motion": "^11.15.0",
+    "html5-qrcode": "^2.3.8",
+    "lucide-react": "^0.468.0",
     "next": "^15.1.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.5",
-    "lucide-react": "^0.468.0",
-    "framer-motion": "^11.15.0",
-    "firebase": "^11.1.0",
-    "firebase-admin": "^13.0.2",
-    "@prisma/client": "^6.1.0",
-    "zustand": "^5.0.2",
     "tesseract.js": "^5.1.1",
-    "html5-qrcode": "^2.3.8"
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
-    "typescript": "^5.7.2",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
-    "postcss": "^8.4.49",
     "eslint": "^9.17.0",
     "eslint-config-next": "^15.1.3",
+    "postcss": "^8.4.49",
     "prisma": "^6.1.0",
-    "tsx": "^4.19.2"
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

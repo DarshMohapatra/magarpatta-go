@@ -163,6 +163,16 @@ model Vendor {
   // notifications, and the rider walks into the shop to place the order.
   onPlatform            Boolean @default(true)
 
+  // Wholesale-channel flag. When SiteSetting.wholesale_only_mode is on, the
+  // customer catalog only shows products from vendors with isWholesale=true
+  // — used to soft-launch the platform with a curated subset of suppliers.
+  isWholesale Boolean @default(false)
+
+  // Minimum cart subtotal (₹) for the vendor's items, enforced at checkout.
+  // Null = no minimum. Used by wholesale suppliers where below a certain
+  // amount the trip isn't worth dispatching.
+  minOrderInr Int?
+
   orders   Order[]
   feedback OrderFeedback[]
   campaigns      Campaign[]
@@ -171,6 +181,7 @@ model Vendor {
 
   @@index([approvalStatus])
   @@index([hub])
+  @@index([isWholesale])
 }
 
 model Category {
@@ -370,6 +381,7 @@ model Order {
   pings          RiderLocationPing[]
   deviations     RiderDeviationAlert[]
   ledgerEntries  SubscriptionLedger[]
+  deliveryProofs OrderDeliveryProof[]
 
   @@index([userId])
   @@index([vendorId])
@@ -1131,6 +1143,25 @@ model SubscriptionLedger {
 
   @@index([subscriptionId, createdAt])
   @@index([orderId])
+}
+
+/// Image(s) of the actual goods leaving the vendor for an order. Wholesale
+/// vendors send a photo of the basket before dispatch so the customer sees
+/// exactly what they're getting; admin can also upload one on the vendor's
+/// behalf when the vendor sends the photo over WhatsApp.
+model OrderDeliveryProof {
+  id             String    @id @default(cuid())
+  orderId        String
+  imageUrl       String
+  uploadedByRole ActorRole
+  uploadedById   String?
+  uploadedByName String?
+  note           String?
+  createdAt      DateTime  @default(now())
+
+  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
 }
 
 /// Recharge SKUs. Admin edits this catalog; customers buy one to add credits

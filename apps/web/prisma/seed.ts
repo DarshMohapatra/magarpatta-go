@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { MAGARPATTA_SOCIETIES } from '../lib/societies';
+import { ensureWholesale } from './seed-wholesale';
 
 const prisma = new PrismaClient();
 
@@ -57,15 +58,16 @@ async function main() {
   console.log(`\n✅ Done. ${societyCount} societies, ${buildingCount} buildings.`);
 
   console.log('\n🌱 Seeding default site settings…');
-  const defaults: Array<{ key: string; valueJson: object | number }> = [
+  const defaults: Array<{ key: string; valueJson: object | number | boolean }> = [
     { key: 'delivery_fee_inr', valueJson: 15 },
     {
       key: 'slot_definitions',
       valueJson: [
-        { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30 },
-        { id: 'evening-5-7', label: '5 PM – 7 PM', startMin: 1020, endMin: 1140, capacity: 30 },
+        { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30, cutoffMinutesBefore: 900 },
+        { id: 'evening-5-7', label: '5 PM – 7 PM', startMin: 1020, endMin: 1140, capacity: 30, cutoffMinutesBefore: 300 },
       ],
     },
+    { key: 'wholesale_only_mode', valueJson: false },
   ];
   for (const d of defaults) {
     const existing = await prisma.siteSetting.findUnique({ where: { key: d.key } });
@@ -73,7 +75,7 @@ async function main() {
       console.log(`  ↻ ${d.key} already set (${JSON.stringify(existing.valueJson)}) — leaving as-is`);
       continue;
     }
-    await prisma.siteSetting.create({ data: { key: d.key, valueJson: d.valueJson as object } });
+    await prisma.siteSetting.create({ data: { key: d.key, valueJson: d.valueJson as object | number | boolean } });
     console.log(`  ✓ ${d.key} = ${JSON.stringify(d.valueJson)}`);
   }
 
@@ -110,6 +112,8 @@ async function main() {
     await prisma.membershipTopUp.create({ data: t });
     console.log(`  ✓ Top-up "${t.name}" (₹${t.priceInr})`);
   }
+
+  await ensureWholesale();
 }
 
 main()

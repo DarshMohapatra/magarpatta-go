@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveAvailability } from '@/lib/product-availability';
+import { getWholesaleOnlyMode } from '@/lib/settings';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -14,14 +15,18 @@ export async function GET(req: Request) {
   // keeps the row set bounded — without it, we'd scan every product the
   // vendor ever added. resolveAvailability is still the final authority on
   // what gets returned to the client.
+  const wholesaleOnly = await getWholesaleOnlyMode();
   const where: Record<string, unknown> = {
     OR: [
       { inStock: true },
       { dailyOverrides: { some: {} } },
     ],
   };
+  if (wholesaleOnly) {
+    where.vendor = { isWholesale: true };
+  }
   if (categorySlug) where.category = { slug: categorySlug };
-  if (vendorSlug) where.vendor = { slug: vendorSlug };
+  if (vendorSlug) where.vendor = { ...((where.vendor as object | undefined) ?? {}), slug: vendorSlug };
   if (vegOnly) where.isVeg = true;
   if (q) {
     where.AND = [
@@ -66,6 +71,12 @@ export async function GET(req: Request) {
         tagline: p.tagline,
         vendor: p.vendor,
         category: p.category,
+        // Customer catalog badge: only emitted when today's override is in
+        // effect, so the UI can show "Updated 11 mins ago" for the
+        // freshness signal wholesale customers care about.
+        priceUpdatedAt: eff.sourceLabel === 'today' && eff.updatedAt
+          ? eff.updatedAt.toISOString()
+          : null,
       };
     }),
   });

@@ -30,16 +30,26 @@ export interface SlotDefinition {
    *  launch — the picker shows "filling fast" past this number but the
    *  order still goes through. */
   capacity: number;
+  /** Minimum minutes the order must be placed BEFORE the slot starts.
+   *  Defaults to 0 (no cutoff). Wholesale uses this to enforce procurement
+   *  timing — e.g. 9 AM slot with 900-min cutoff stops accepting orders at
+   *  6 PM the previous day. */
+  cutoffMinutesBefore?: number;
 }
 
 export interface SettingShape {
   delivery_fee_inr: number;
   slot_definitions: SlotDefinition[];
+  /** When true, the customer catalog only shows products from vendors with
+   *  Vendor.isWholesale=true. Used to soft-launch with a curated subset of
+   *  suppliers; admin flips this for the public launch. */
+  wholesale_only_mode: boolean;
 }
 
 export const SETTINGS_DEFAULTS: SettingShape = {
   delivery_fee_inr: 15,
   slot_definitions: [],
+  wholesale_only_mode: false,
 };
 
 export type SettingKey = keyof SettingShape;
@@ -59,16 +69,21 @@ export const getSlotDefinitions = cache(async (): Promise<SlotDefinition[]> => {
   return readRaw('slot_definitions');
 });
 
+export const getWholesaleOnlyMode = cache(async (): Promise<boolean> => {
+  return readRaw('wholesale_only_mode');
+});
+
 /**
  * Returns every setting key in one shot — used by the admin settings screen
  * so it can render the whole form without a fan-out of getters.
  */
-export const getAllSettings = cache(async (): Promise<{
-  delivery_fee_inr: number;
-  slot_definitions: SlotDefinition[];
-}> => {
-  const [fee, slots] = await Promise.all([getDeliveryFeeInr(), getSlotDefinitions()]);
-  return { delivery_fee_inr: fee, slot_definitions: slots };
+export const getAllSettings = cache(async (): Promise<SettingShape> => {
+  const [fee, slots, wholesaleOnly] = await Promise.all([
+    getDeliveryFeeInr(),
+    getSlotDefinitions(),
+    getWholesaleOnlyMode(),
+  ]);
+  return { delivery_fee_inr: fee, slot_definitions: slots, wholesale_only_mode: wholesaleOnly };
 });
 
 export async function setSetting<K extends SettingKey>(

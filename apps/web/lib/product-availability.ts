@@ -21,6 +21,10 @@ export interface EffectiveAvailability {
   inStock: boolean;
   sourceLabel: 'today' | 'carry-forward' | 'master';
   sourceDateIso?: string;
+  /** When a today-override is in effect, the wall-clock time the vendor
+   *  saved it. Used by the customer catalog to render a "Updated X mins
+   *  ago" freshness badge. */
+  updatedAt?: Date;
 }
 
 interface BaseFields {
@@ -39,6 +43,7 @@ function applyOverride(base: BaseFields, ov: {
   mrpInr: number | null;
   inStock: boolean | null;
   forDate: Date;
+  updatedAt: Date;
 }, sourceLabel: 'today' | 'carry-forward'): EffectiveAvailability {
   return {
     productId: base.id,
@@ -47,6 +52,7 @@ function applyOverride(base: BaseFields, ov: {
     inStock: ov.inStock ?? base.inStock,
     sourceLabel,
     sourceDateIso: dateIso(ov.forDate),
+    updatedAt: ov.updatedAt,
   };
 }
 
