@@ -4,6 +4,7 @@ import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { RestaurantsClient, type VendorRow } from './restaurants-client';
 import { getRestaurantIndex } from '@/lib/menu-cache';
+import { getWholesaleOnlyMode } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,11 @@ export default function RestaurantsPage() {
 }
 
 async function RestaurantsList() {
-  const vendors = await getRestaurantIndex();
+  const [vendorsRaw, wholesaleOnly] = await Promise.all([
+    getRestaurantIndex(),
+    getWholesaleOnlyMode(),
+  ]);
+  const vendors = wholesaleOnly ? vendorsRaw.filter((v) => v.isWholesale) : vendorsRaw;
   const rows: VendorRow[] = vendors.map((v) => ({
     slug: v.slug,
     name: v.name,

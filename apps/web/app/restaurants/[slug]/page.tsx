@@ -8,6 +8,8 @@ import { ProductCard, type ProductCardData } from '@/components/product-card';
 import { HighlightOnMount } from '@/components/highlight-on-mount';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getVendorBySlug, getVendorProducts } from '@/lib/menu-cache';
+import { getWholesaleOnlyMode } from '@/lib/settings';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,9 +24,19 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
 
   // Cheap header query first — the hero paints as soon as this lands; the
   // (slower) menu+discount fetch streams in via Suspense.
-  const vendor = await getVendorBySlug(slug);
+  const [vendor, wholesaleOnly] = await Promise.all([
+    getVendorBySlug(slug),
+    getWholesaleOnlyMode(),
+  ]);
 
   if (!vendor) notFound();
+
+  // In wholesale-only mode, non-wholesale vendor pages should 404 too — the
+  // index hides them but a direct URL would still resolve without this check.
+  if (wholesaleOnly) {
+    const flag = await prisma.vendor.findUnique({ where: { slug }, select: { isWholesale: true } });
+    if (!flag?.isWholesale) notFound();
+  }
 
   return (
     <main className="relative z-10 min-h-screen">
@@ -36,7 +48,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            All restaurants & shops
+            All vendors
           </Link>
 
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">

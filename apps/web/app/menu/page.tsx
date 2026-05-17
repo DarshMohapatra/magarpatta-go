@@ -88,46 +88,64 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
     wholesaleScoped.map((p) => ({ id: p.id, priceInr: p.priceInr, mrpInr: p.mrpInr, inStock: p.inStock })),
   );
 
-  const productData: ProductCardData[] = wholesaleScoped
-    .filter((p) => availability.get(p.id)?.inStock ?? p.inStock)
-    .map((p) => {
-      const eff = availability.get(p.id)!;
-      const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: eff.priceInr, mrpInr: eff.mrpInr }, discounts);
-      const priced = applyDiscount({ priceInr: eff.priceInr, mrpInr: eff.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
-      return {
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        priceInr: priced.priceInr,
-        mrpInr: priced.mrpInr,
-        originalMrpInr: priced.originalMrpInr,
-        discountPct: priced.discountPct,
-        discountFlatInr: priced.discountFlatInr,
-        campaignTitle: match.campaign?.title ?? null,
-        campaignType: match.campaign?.type ?? null,
-        unit: p.unit,
-        isVeg: p.isVeg,
-        isRegulated: p.isRegulated,
-        accent: p.accent,
-        glyph: p.glyph,
-        tagline: p.tagline,
-        imageUrl: p.imageUrl,
-        vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
-        priceUpdatedAt: eff.sourceLabel === 'today' && eff.updatedAt ? eff.updatedAt.toISOString() : null,
-      };
-    });
+  const visibleProducts = wholesaleScoped.filter((p) => availability.get(p.id)?.inStock ?? p.inStock);
 
-  const totalProducts = categories.reduce((sum, c) => sum + c._count.products, 0);
+  const productData: ProductCardData[] = visibleProducts.map((p) => {
+    const eff = availability.get(p.id)!;
+    const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: eff.priceInr, mrpInr: eff.mrpInr }, discounts);
+    const priced = applyDiscount({ priceInr: eff.priceInr, mrpInr: eff.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
+    return {
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      priceInr: priced.priceInr,
+      mrpInr: priced.mrpInr,
+      originalMrpInr: priced.originalMrpInr,
+      discountPct: priced.discountPct,
+      discountFlatInr: priced.discountFlatInr,
+      campaignTitle: match.campaign?.title ?? null,
+      campaignType: match.campaign?.type ?? null,
+      unit: p.unit,
+      isVeg: p.isVeg,
+      isRegulated: p.isRegulated,
+      accent: p.accent,
+      glyph: p.glyph,
+      tagline: p.tagline,
+      imageUrl: p.imageUrl,
+      vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
+      priceUpdatedAt: eff.sourceLabel === 'today' && eff.updatedAt ? eff.updatedAt.toISOString() : null,
+    };
+  });
+
+  // Compute live per-category counts from the filtered product set instead
+  // of the cached _count (which counts every product regardless of wholesale
+  // mode). Categories with zero in-scope products drop out entirely so the
+  // sidebar doesn't show empty cuisines in wholesale-only mode.
+  // Reference vs slug: catalog API embeds slug+name on each row; we group
+  // by slug to compute per-category totals here.
+  // Note: we fetch products via the cached / inline query that JOINs to a
+  // category select { slug, name }. visibleProducts.map((p) => p.category.slug).
+  const countsBySlug = new Map<string, number>();
+  for (const p of visibleProducts) {
+    const slug = (p as { category?: { slug?: string } }).category?.slug;
+    if (!slug) continue;
+    countsBySlug.set(slug, (countsBySlug.get(slug) ?? 0) + 1);
+  }
+  const liveCategories = categories
+    .map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      glyph: c.glyph,
+      productCount: countsBySlug.get(c.slug) ?? 0,
+    }))
+    .filter((c) => c.productCount > 0);
+
+  const totalProducts = visibleProducts.length;
 
   return (
     <MenuClient
-      categories={categories.map((c) => ({
-        id: c.id,
-        slug: c.slug,
-        name: c.name,
-        glyph: c.glyph,
-        productCount: c._count.products,
-      }))}
+      categories={liveCategories}
       products={productData}
       activeSlug={activeSlug}
       initialQuery={q}

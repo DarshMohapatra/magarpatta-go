@@ -58,7 +58,19 @@ export const getRestaurantIndex = unstable_cache(
   async () => prisma.vendor.findMany({
     where: { active: true },
     orderBy: [{ rating: 'desc' }, { name: 'asc' }],
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      hub: true,
+      description: true,
+      accent: true,
+      vendorType: true,
+      tags: true,
+      rating: true,
+      etaMinutes: true,
+      costForTwo: true,
+      isWholesale: true,
       products: {
         where: { inStock: true },
         orderBy: { priceInr: 'desc' },
@@ -68,7 +80,7 @@ export const getRestaurantIndex = unstable_cache(
       _count: { select: { products: { where: { inStock: true } } } },
     },
   }),
-  ['restaurant-index'],
+  ['restaurant-index-v2'],
   { revalidate: TTL, tags: ['menu', 'vendors'] },
 );
 

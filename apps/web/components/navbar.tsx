@@ -10,7 +10,7 @@ import type { SessionUser } from '@/lib/session';
 
 const LINKS = [
   { href: '/menu', label: 'Menu' },
-  { href: '/restaurants', label: 'Restaurants' },
+  { href: '/restaurants', label: 'Vendors' },
   { href: '/home#how', label: 'How it works' },
   { href: '/home#why', label: 'Why us' },
 ];

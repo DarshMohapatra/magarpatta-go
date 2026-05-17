@@ -73,13 +73,13 @@ export function RestaurantsClient({ vendors }: { vendors: VendorRow[] }) {
       <section className="pt-24 pb-8">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-            Partner shops · {vendors.length} live in your postcode
+            Partner vendors · {vendors.length} live in your postcode
           </div>
           <h1 className="mt-3 font-serif text-[40px] sm:text-[56px] leading-[0.98] tracking-[-0.025em]">
-            Restaurants & shops, <span className="italic text-[color:var(--color-forest)]">all in one list.</span>
+            Vendors, <span className="italic text-[color:var(--color-forest)]">all in one list.</span>
           </h1>
           <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-2xl">
-            Pick a shop, open its menu, order what you want. Every item lands in ~25 minutes.
+            Pick a vendor, open its menu, order what you want. Every item lands in ~25 minutes.
           </p>
         </div>
       </section>
@@ -96,7 +96,7 @@ export function RestaurantsClient({ vendors }: { vendors: VendorRow[] }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search restaurants, cuisines, shops…"
+              placeholder="Search vendors, cuisines, items…"
               className="w-full pl-9 pr-4 py-2.5 rounded-full bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 text-[13.5px] outline-none focus:border-[color:var(--color-forest)] placeholder:text-[color:var(--color-ink-soft)]/50"
             />
           </div>
