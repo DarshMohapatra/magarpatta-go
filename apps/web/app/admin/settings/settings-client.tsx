@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { SlotDefinition } from '@/lib/settings';
+import type { SlotDefinition, CustomerNotice } from '@/lib/settings';
 
 interface Props {
   initialDeliveryFeeInr: number;
   initialSlots: SlotDefinition[];
   initialWholesaleOnly: boolean;
+  initialNotice: CustomerNotice;
   canEdit: boolean;
 }
 
@@ -34,11 +35,12 @@ function slugify(label: string): string {
     .slice(0, 32);
 }
 
-export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, canEdit }: Props) {
+export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, initialNotice, canEdit }: Props) {
   const router = useRouter();
   const [deliveryFee, setDeliveryFee] = useState(String(initialDeliveryFeeInr));
   const [slots, setSlots] = useState<SlotDefinition[]>(initialSlots);
   const [wholesaleOnly, setWholesaleOnly] = useState<boolean>(initialWholesaleOnly);
+  const [notice, setNotice] = useState<CustomerNotice>(initialNotice);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedNote, setSavedNote] = useState<string | null>(null);
@@ -97,6 +99,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
           delivery_fee_inr: feeNum,
           slot_definitions: slots,
           wholesale_only_mode: wholesaleOnly,
+          customer_notice: notice,
         }),
       });
       const data = await res.json();
@@ -262,6 +265,66 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             />
             <span className="text-[13px] font-medium">{wholesaleOnly ? 'On' : 'Off'}</span>
           </label>
+        </div>
+      </section>
+
+      {/* Customer broadcast notice */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <h2 className="font-serif text-[22px]">Customer banner</h2>
+        <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[560px]">
+          A short notice shown across customer pages. Use it for slot changes
+          ("9–11 AM extended to 10 AM today"), holiday hours, or weather delays.
+          Toggle off to hide without deleting the text.
+        </p>
+        <div className="mt-4 space-y-3">
+          <textarea
+            value={notice.message}
+            onChange={(e) => setNotice({ ...notice, message: e.target.value.slice(0, 280) })}
+            disabled={!canEdit}
+            rows={2}
+            maxLength={280}
+            placeholder="e.g. Tomorrow's 9–11 AM slot starts 30 minutes early — please order by 5:30 PM today."
+            className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+          />
+          <div className="flex flex-wrap items-center gap-4 text-[13px]">
+            <label className="inline-flex items-center gap-2">
+              Level
+              <select
+                value={notice.level}
+                onChange={(e) => setNotice({ ...notice, level: e.target.value as 'info' | 'warning' | 'alert' })}
+                disabled={!canEdit}
+                className="rounded-md border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+              >
+                <option value="info">Info (green)</option>
+                <option value="warning">Warning (saffron)</option>
+                <option value="alert">Alert (terracotta)</option>
+              </select>
+            </label>
+            <label className="inline-flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notice.active}
+                onChange={(e) => setNotice({ ...notice, active: e.target.checked })}
+                disabled={!canEdit}
+                className="h-4 w-4"
+              />
+              <span className="font-medium">{notice.active ? 'Showing to customers' : 'Hidden'}</span>
+            </label>
+            <span className="text-[11px] text-[color:var(--color-ink-soft)]">{notice.message.length}/280 characters</span>
+          </div>
+          {notice.message && (
+            <div className="mt-2 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">Preview</div>
+          )}
+          {notice.message && (
+            <div className={
+              'rounded-lg px-4 py-2.5 text-[13px] ' +
+              (notice.level === 'alert' ? 'bg-[color:var(--color-terracotta)]/10 border border-[color:var(--color-terracotta)]/30 text-[color:var(--color-terracotta-dark)]'
+                : notice.level === 'warning' ? 'bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/30'
+                : 'bg-[color:var(--color-forest)]/8 border border-[color:var(--color-forest)]/30 text-[color:var(--color-forest)]')
+            }>
+              {notice.message}
+            </div>
+          )}
         </div>
       </section>
 

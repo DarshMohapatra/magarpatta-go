@@ -29,6 +29,7 @@ export default async function AdminSettingsPage() {
         initialDeliveryFeeInr={settings.delivery_fee_inr}
         initialSlots={settings.slot_definitions}
         initialWholesaleOnly={settings.wholesale_only_mode}
+        initialNotice={settings.customer_notice}
         canEdit={admin.role === 'SUPER_ADMIN' || admin.role === 'OPS'}
       />
     </AdminShell>

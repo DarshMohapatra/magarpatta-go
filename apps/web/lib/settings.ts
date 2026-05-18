@@ -37,6 +37,15 @@ export interface SlotDefinition {
   cutoffMinutesBefore?: number;
 }
 
+export interface CustomerNotice {
+  /** Shown verbatim in the banner across customer pages. Keep it short. */
+  message: string;
+  /** Styling cue. info = blue/forest, warning = saffron, alert = terracotta. */
+  level: 'info' | 'warning' | 'alert';
+  /** Off-switch without clearing the message. */
+  active: boolean;
+}
+
 export interface SettingShape {
   delivery_fee_inr: number;
   slot_definitions: SlotDefinition[];
@@ -44,12 +53,16 @@ export interface SettingShape {
    *  Vendor.isWholesale=true. Used to soft-launch with a curated subset of
    *  suppliers; admin flips this for the public launch. */
   wholesale_only_mode: boolean;
+  /** Admin-broadcast banner shown across customer pages. Used to flag slot
+   *  changes, weather delays, holiday hours, etc. */
+  customer_notice: CustomerNotice;
 }
 
 export const SETTINGS_DEFAULTS: SettingShape = {
   delivery_fee_inr: 15,
   slot_definitions: [],
   wholesale_only_mode: false,
+  customer_notice: { message: '', level: 'info', active: false },
 };
 
 export type SettingKey = keyof SettingShape;
@@ -73,17 +86,27 @@ export const getWholesaleOnlyMode = cache(async (): Promise<boolean> => {
   return readRaw('wholesale_only_mode');
 });
 
+export const getCustomerNotice = cache(async (): Promise<CustomerNotice> => {
+  return readRaw('customer_notice');
+});
+
 /**
  * Returns every setting key in one shot — used by the admin settings screen
  * so it can render the whole form without a fan-out of getters.
  */
 export const getAllSettings = cache(async (): Promise<SettingShape> => {
-  const [fee, slots, wholesaleOnly] = await Promise.all([
+  const [fee, slots, wholesaleOnly, notice] = await Promise.all([
     getDeliveryFeeInr(),
     getSlotDefinitions(),
     getWholesaleOnlyMode(),
+    getCustomerNotice(),
   ]);
-  return { delivery_fee_inr: fee, slot_definitions: slots, wholesale_only_mode: wholesaleOnly };
+  return {
+    delivery_fee_inr: fee,
+    slot_definitions: slots,
+    wholesale_only_mode: wholesaleOnly,
+    customer_notice: notice,
+  };
 });
 
 export async function setSetting<K extends SettingKey>(

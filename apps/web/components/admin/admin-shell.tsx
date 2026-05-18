@@ -18,6 +18,7 @@ const NAV = [
   { href: '/admin/deviations', label: 'Deviations' },
   { href: '/admin/finance', label: 'Finance' },
   { href: '/admin/analytics/support', label: 'Analytics' },
+  { href: '/admin/reports/slots', label: 'Slot report' },
   { href: '/admin/activity', label: 'Activity' },
   { href: '/admin/settings', label: 'Settings' },
 ];

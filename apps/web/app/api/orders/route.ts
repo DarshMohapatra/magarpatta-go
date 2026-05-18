@@ -10,6 +10,7 @@ import { getCodEligibility, COD_MAX_ORDER_INR } from '@/lib/cod';
 import { resolveAvailability } from '@/lib/product-availability';
 import { materialiseSlot, parseDateIso } from '@/lib/slots';
 import { getMembershipState, resolveDeliveryFee, debitCreditForOrder } from '@/lib/membership';
+import { notifyVendorOnWhatsApp } from '@/lib/whatsapp';
 
 interface IncomingItem {
   productId: string;
@@ -463,6 +464,20 @@ export async function POST(req: Request) {
       // joining path already wrote its DEBIT inside the transaction above.
       await debitCreditForOrder(feeCtx.subscriptionId, order.id);
     }
+
+    // WhatsApp notification — fire-and-forget. Skips silently when env not
+    // configured, so dev/CI doesn't need Twilio set up.
+    void notifyVendorOnWhatsApp({
+      orderId: order.id,
+      vendorName: primaryVendor.name,
+      slotLabel: slotSnapshot?.label ?? null,
+      slotStart: slotSnapshot?.start ?? null,
+      totalInr: breakdown.totalInr,
+      society: address.society,
+      building: address.building,
+      flat: address.flat,
+      items: priceItems.map((i) => ({ name: i.product.name, quantity: i.quantity, unit: i.product.unit })),
+    });
 
     return NextResponse.json({ ok: true, orderId: order.id, activatedSubscriptionId });
   } catch (e) {

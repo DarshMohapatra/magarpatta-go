@@ -6,6 +6,7 @@ interface UpdateBody {
   delivery_fee_inr?: number;
   slot_definitions?: SlotDefinition[];
   wholesale_only_mode?: boolean;
+  customer_notice?: { message: string; level: 'info' | 'warning' | 'alert'; active: boolean };
 }
 
 function validateSlotDefinition(s: unknown): s is SlotDefinition {
@@ -74,6 +75,19 @@ export async function POST(req: Request) {
     }
     await setSetting('wholesale_only_mode', body.wholesale_only_mode, actor);
     updated.push('wholesale_only_mode');
+  }
+
+  if (body.customer_notice !== undefined) {
+    const n = body.customer_notice;
+    if (!n || typeof n !== 'object'
+      || typeof n.message !== 'string' || n.message.length > 280
+      || !['info', 'warning', 'alert'].includes(n.level)
+      || typeof n.active !== 'boolean'
+    ) {
+      return NextResponse.json({ ok: false, error: 'customer_notice must be { message ≤ 280, level: info|warning|alert, active }' }, { status: 400 });
+    }
+    await setSetting('customer_notice', n, actor);
+    updated.push('customer_notice');
   }
 
   if (updated.length === 0) {

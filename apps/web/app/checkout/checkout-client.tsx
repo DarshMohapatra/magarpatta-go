@@ -143,34 +143,47 @@ export function CheckoutClient({
   const [revalidated, setRevalidated] = useState(false);
   const [priceChanges, setPriceChanges] = useState<Array<{ name: string; oldPriceInr: number; newPriceInr: number }>>([]);
   const [removedOos, setRemovedOos] = useState<string[]>([]);
+  const [minOrderBlockers, setMinOrderBlockers] = useState<Array<{ vendorName: string; requiredMin: number; currentSpend: number; shortBy: number }>>([]);
 
-  // One revalidation per checkout-page entry. Runs once when the cart has
-  // items; future cart edits go through the normal client-side flow. We
-  // depend only on `revalidated` (a flag we set when the call finishes) so
-  // Zustand's per-render array reference for `items` doesn't refire us.
+  // Revalidate on entry AND whenever the line-item composition changes so
+  // min-order blockers update live as the customer adds/removes things. We
+  // key on a stable signature (ids + qtys) rather than the items array
+  // reference to avoid Zustand re-render bounce.
+  const itemsSignature = items.map((i) => `${i.id}:${i.qty}`).join(',');
   useEffect(() => {
-    if (revalidated) return;
     const snapshot = useCart.getState().items;
-    if (snapshot.length === 0) return;
+    if (snapshot.length === 0) {
+      setMinOrderBlockers([]);
+      return;
+    }
     let cancelled = false;
+    const isFirstPass = !revalidated;
     (async () => {
       try {
         const res = await fetch('/api/cart/revalidate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items: snapshot.map((i) => ({ id: i.id, priceInr: i.priceInr, mrpInr: i.mrpInr })) }),
+          body: JSON.stringify({
+            items: snapshot.map((i) => ({ id: i.id, priceInr: i.priceInr, mrpInr: i.mrpInr, quantity: i.qty })),
+          }),
         });
         const data = await res.json();
         if (!data.ok || cancelled) return;
-        for (const o of data.oos as Array<{ id: string; name: string }>) {
-          remove(o.id);
+        // OOS removal + price-change banner only fire on the first revalidate
+        // so the customer doesn't see them re-appear after they manually edit
+        // their cart.
+        if (isFirstPass) {
+          for (const o of data.oos as Array<{ id: string; name: string }>) {
+            remove(o.id);
+          }
+          if (data.oos.length > 0) {
+            setRemovedOos(data.oos.map((o: { name: string }) => o.name));
+          }
+          if (data.changed.length > 0) {
+            setPriceChanges(data.changed);
+          }
         }
-        if (data.oos.length > 0) {
-          setRemovedOos(data.oos.map((o: { name: string }) => o.name));
-        }
-        if (data.changed.length > 0) {
-          setPriceChanges(data.changed);
-        }
+        setMinOrderBlockers(data.minOrderBlockers ?? []);
       } catch {
         /* server re-checks at placement anyway */
       } finally {
@@ -178,7 +191,7 @@ export function CheckoutClient({
       }
     })();
     return () => { cancelled = true; };
-  }, [revalidated, remove]);
+  }, [itemsSignature, revalidated, remove]);
 
   useEffect(() => {
     if (slotOptions.definitions.length === 0) return;
@@ -300,6 +313,11 @@ export function CheckoutClient({
   }
 
   async function placeOrder() {
+    if (minOrderBlockers.length > 0) {
+      const b = minOrderBlockers[0];
+      setError(`${b.vendorName} has a minimum of ₹${b.requiredMin}. Add ₹${b.shortBy} more from them before paying.`);
+      return;
+    }
     const pErr = validatePayment();
     if (pErr) {
       setError(pErr);
@@ -427,6 +445,21 @@ export function CheckoutClient({
                   <li key={c.name}>{c.name}: ₹{c.oldPriceInr} → <strong>₹{c.newPriceInr}</strong></li>
                 ))}
               </ul>
+            </div>
+          )}
+          {minOrderBlockers.length > 0 && (
+            <div className="mt-4 rounded-xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/8 px-4 py-3 text-[13px]">
+              <div className="font-medium text-[color:var(--color-terracotta-dark)]">Add more before you can check out</div>
+              <ul className="mt-1.5 list-disc pl-5 text-[color:var(--color-ink)]">
+                {minOrderBlockers.map((b) => (
+                  <li key={b.vendorName}>
+                    <strong>{b.vendorName}</strong> has a minimum of ₹{b.requiredMin}. You have ₹{b.currentSpend} — add <strong>₹{b.shortBy} more</strong>.
+                  </li>
+                ))}
+              </ul>
+              <Link href="/menu" className="mt-2 inline-block text-[12.5px] text-[color:var(--color-forest)] hover:underline">
+                Back to menu →
+              </Link>
             </div>
           )}
 
@@ -568,6 +601,9 @@ export function CheckoutClient({
                   decrement={decrement}
                   remove={remove}
                   onNext={() => setStep(hasAddress ? 'address' : 'address')}
+                  blockedReason={minOrderBlockers.length > 0
+                    ? `Cart is below ${minOrderBlockers[0].vendorName}'s minimum (₹${minOrderBlockers[0].requiredMin}).`
+                    : null}
                 />
               )}
 
@@ -796,12 +832,13 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-function CartStep({ items, increment, decrement, remove, onNext }: {
+function CartStep({ items, increment, decrement, remove, onNext, blockedReason }: {
   items: ReturnType<typeof useCart.getState>['items'];
   increment: (id: string) => void;
   decrement: (id: string) => void;
   remove: (id: string) => void;
   onNext: () => void;
+  blockedReason: string | null;
 }) {
   return (
     <>
@@ -856,11 +893,18 @@ function CartStep({ items, increment, decrement, remove, onNext }: {
         <Link href="/menu" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 border border-[color:var(--color-ink)]/10">
           ← Continue shopping
         </Link>
-        <button onClick={onNext} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]">
-          Continue to address
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+        <button
+          onClick={onNext}
+          disabled={Boolean(blockedReason)}
+          title={blockedReason ?? undefined}
+          className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[color:var(--color-forest)]"
+        >
+          {blockedReason ? 'Add more to continue' : 'Continue to address'}
+          {!blockedReason && (
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
         </button>
       </div>
     </>
