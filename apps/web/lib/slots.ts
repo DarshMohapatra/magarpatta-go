@@ -104,19 +104,19 @@ export async function getSlotAvailability(dateIso: string): Promise<SlotAvailabi
   });
 }
 
+/**
+ * IST calendar date for the given instant. We never want server-local TZ
+ * here — Vercel runs in UTC, and past 18:30 UTC the IST date is already
+ * the next day. en-CA gives YYYY-MM-DD format.
+ */
+function istDate(d: Date): string {
+  return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+}
+
 export function isoToday(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${dd}`;
+  return istDate(new Date());
 }
 
 export function isoTomorrow(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${dd}`;
+  return istDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Instrument_Serif } from 'next/font/google';
 import { siteConfig } from '@/lib/site-config';
 import './globals.css';
@@ -26,9 +26,25 @@ export const metadata: Metadata = {
     description: `Hyper-local delivery, only inside ${siteConfig.siteName}.`,
     type: 'website',
   },
-  icons: {
-    icon: '/favicon.ico',
+  // PWA bits. The `appleWebApp` block tells iOS Safari that "Add to Home
+  // Screen" should produce a standalone-launching app icon with our brand
+  // colours. The manifest link is injected automatically by Next because
+  // we have app/manifest.ts; app/icon.tsx + app/apple-icon.tsx wire up the
+  // <link rel="icon"> and <link rel="apple-touch-icon"> tags for free.
+  applicationName: siteConfig.platformName,
+  appleWebApp: {
+    capable: true,
+    title: siteConfig.platformName,
+    statusBarStyle: 'default',
   },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0d4a2e',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
