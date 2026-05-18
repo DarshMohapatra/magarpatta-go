@@ -77,6 +77,15 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
     await onVerify(code);
   }
 
+  // Auto-verify the instant the 6th digit lands so the customer doesn't
+  // feel like they're pressing "Go" twice (once to send OTP, once to
+  // verify). Matches the customer Firebase verify flow's UX.
+  useEffect(() => {
+    if (step !== 'code' || code.length !== 6 || busy || sending) return;
+    onVerify(code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, step]);
+
   return (
     <form onSubmit={submit} className="mt-6 space-y-4">
       <label className="block">
@@ -112,6 +121,7 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
           <input
             autoFocus
             inputMode="numeric"
+            autoComplete="one-time-code"
             maxLength={6}
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}

@@ -125,3 +125,41 @@ html { scroll-behavior: smooth; }
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ───────────────────────────────────────────────────────────────────
+   Mobile / PWA polish
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Prevent overscroll glow / horizontal swipe past content on iOS Safari. */
+html, body { overscroll-behavior-x: none; }
+body { overflow-x: hidden; }
+
+/* iOS Safari auto-zooms on focus into any text/number/email input below
+   16px. That breaks our 13-14px small inputs. Force >=16px when the
+   viewport is narrow enough that auto-zoom would trigger. The text only
+   looks larger on phones; tablets and desktop ignore. */
+@media (max-width: 600px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="search"],
+  input:not([type]),
+  textarea,
+  select { font-size: 16px; }
+}
+
+/* Bottom-fixed elements should clear the iPhone home indicator. */
+.pwa-safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+
+/* Decent touch targets — anything we use as a button should be at least 40px
+   tappable. Use sparingly via the class so we don't blow up small chips. */
+.touch-target { min-height: 40px; min-width: 40px; }
+
+/* When the app is installed as a PWA (display-mode: standalone), the user
+   doesn't see the URL bar — hide tiny mid-page browser-only affordances
+   if any. Currently a no-op, but useful as a future styling hook. */
+@media (display-mode: standalone) {
+  .browser-only { display: none; }
+}

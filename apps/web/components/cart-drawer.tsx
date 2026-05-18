@@ -265,7 +265,7 @@ export function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <footer className="border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]/60 px-6 py-5 space-y-3">
+          <footer className="border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]/60 px-6 py-5 space-y-3 pwa-safe-bottom">
             <div className="flex items-center justify-between text-[13px]">
               <span className="text-[color:var(--color-ink-soft)]">Subtotal (MRP)</span>
               <span className="text-[color:var(--color-ink)]">₹{subtotal + campaignSavings}</span>
