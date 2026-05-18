@@ -18,6 +18,26 @@ function minutesToHHMM(mins: number): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
+function cutoffSummary(slot: SlotDefinition): string {
+  const cutoff = slot.cutoffMinutesBefore ?? 0;
+  if (cutoff <= 0) return 'No cutoff — bookable until slot start';
+  const cutoffAtMin = slot.startMin - cutoff;
+  // 12-hour formatting for the rendered time
+  const formatTime = (totalMins: number) => {
+    const m = ((totalMins % 1440) + 1440) % 1440;
+    const h24 = Math.floor(m / 60);
+    const mm = m % 60;
+    const ampm = h24 >= 12 ? 'PM' : 'AM';
+    const h12 = ((h24 % 12) || 12);
+    return mm === 0 ? `${h12} ${ampm}` : `${h12}:${String(mm).padStart(2, '0')} ${ampm}`;
+  };
+  if (cutoffAtMin < 0) {
+    const t = formatTime(cutoffAtMin); // wraps via mod 1440
+    return `Orders close at ${t} the day before`;
+  }
+  return `Orders close at ${formatTime(cutoffAtMin)} the same day`;
+}
+
 function hhmmToMinutes(value: string): number | null {
   const m = /^([0-9]{1,2}):([0-9]{2})$/.exec(value.trim());
   if (!m) return null;
@@ -226,7 +246,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                     </button>
                   )}
                 </div>
-                <div className="flex items-center gap-2 pl-1 text-[12px] text-[color:var(--color-ink-soft)]">
+                <div className="flex items-center gap-2 pl-1 text-[12px] text-[color:var(--color-ink-soft)] flex-wrap">
                   <span>Cutoff</span>
                   <input
                     type="number"
@@ -236,7 +256,10 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                     disabled={!canEdit}
                     className="w-24 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[12.5px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
                   />
-                  <span>minutes before slot start (e.g. 900 = 15 h → must order by 6 PM previous day for a 9 AM slot)</span>
+                  <span>minutes before slot start</span>
+                  <span className="ml-auto rounded-full bg-[color:var(--color-forest)]/8 px-2 py-0.5 text-[11px] text-[color:var(--color-forest)] font-medium">
+                    {cutoffSummary(slot)}
+                  </span>
                 </div>
               </div>
             ))}

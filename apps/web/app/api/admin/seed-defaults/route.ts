@@ -32,7 +32,7 @@ export async function POST() {
   // so we don't trample a list an admin has already curated.
   const slotsRow = await prisma.siteSetting.findUnique({ where: { key: 'slot_definitions' } });
   const defaults = [
-    { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30, cutoffMinutesBefore: 900 },
+    { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30, cutoffMinutesBefore: 300 },
     { id: 'evening-5-7', label: '5 PM – 7 PM', startMin: 1020, endMin: 1140, capacity: 30, cutoffMinutesBefore: 300 },
   ];
   if (!slotsRow) {

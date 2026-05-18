@@ -63,7 +63,10 @@ async function main() {
     {
       key: 'slot_definitions',
       valueJson: [
-        { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30, cutoffMinutesBefore: 900 },
+        // 5-hour cutoff for both slots: morning (9 AM) closes at 4 AM same
+        // day; evening (5 PM) closes at 12 PM same day. After that the
+        // next-day slots take over.
+        { id: 'morning-9-11', label: '9 AM – 11 AM', startMin: 540, endMin: 660, capacity: 30, cutoffMinutesBefore: 300 },
         { id: 'evening-5-7', label: '5 PM – 7 PM', startMin: 1020, endMin: 1140, capacity: 30, cutoffMinutesBefore: 300 },
       ],
     },

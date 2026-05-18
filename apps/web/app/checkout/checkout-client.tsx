@@ -524,7 +524,7 @@ export function CheckoutClient({
             <div className="mt-5 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
               <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Pick a delivery slot</div>
               <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
-                Choose any day this week. Slots close before they start — orders for the morning slot must be placed before 6 PM the previous day.
+                Choose any day this week. Each slot closes a few hours before it starts — if today's are gone, pick a later day.
               </p>
 
               {slotOptions.definitions.length === 0 ? (
