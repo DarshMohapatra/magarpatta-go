@@ -41,8 +41,27 @@ export async function POST() {
   } else if (Array.isArray(slotsRow.valueJson) && slotsRow.valueJson.length === 0) {
     await prisma.siteSetting.update({ where: { key: 'slot_definitions' }, data: { valueJson: defaults } });
     report.slot_definitions = 'filled empty array with 2 defaults';
+  } else if (Array.isArray(slotsRow.valueJson)) {
+    // Heal step: legacy rows seeded before `cutoffMinutesBefore` existed
+    // come back with the field missing, which makes getSlotAvailability
+    // default cutoff to 0 and leave the slot bookable until its end-time.
+    // Patch in the 5-hour default without touching anything else.
+    const slots = slotsRow.valueJson as Array<Record<string, unknown>>;
+    let healed = 0;
+    for (const s of slots) {
+      if (typeof s.cutoffMinutesBefore !== 'number') {
+        s.cutoffMinutesBefore = 300;
+        healed++;
+      }
+    }
+    if (healed > 0) {
+      await prisma.siteSetting.update({ where: { key: 'slot_definitions' }, data: { valueJson: slots as object } });
+      report.slot_definitions = `kept existing (${slots.length}); patched ${healed} missing cutoffMinutesBefore → 300`;
+    } else {
+      report.slot_definitions = `kept existing (${slots.length} slots, all have cutoff)`;
+    }
   } else {
-    report.slot_definitions = `kept existing (${Array.isArray(slotsRow.valueJson) ? slotsRow.valueJson.length : '?'} slots)`;
+    report.slot_definitions = 'kept existing (unrecognised shape)';
   }
 
   // Saver 30 plan

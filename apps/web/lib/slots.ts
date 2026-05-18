@@ -42,16 +42,22 @@ export function parseDateIso(value: string | null | undefined): Date {
 }
 
 /**
- * Convert a SlotDefinition + a target local date into the absolute start/end
- * timestamps that we snapshot onto Order. We treat startMin/endMin as local
- * wall-clock minutes; the JS Date constructor handles the offset.
+ * Convert a SlotDefinition + a target IST date into the absolute UTC start
+ * and end timestamps we snapshot onto Order. startMin/endMin are wall-clock
+ * minutes in *India Standard Time*, not in whatever timezone the server
+ * happens to run in — Vercel functions run in UTC, so using `new Date(y, m,
+ * d, h, mm)` (which uses host-local time) would put 5 PM IST at 22:30 IST
+ * on prod. Building the date via an ISO string with the +05:30 offset
+ * pins both endpoints regardless of host TZ.
  */
 export function materialiseSlot(def: SlotDefinition, dateIso: string): { start: Date; end: Date } {
-  const [y, m, d] = dateIso.split('-').map((n) => Number(n));
-  const start = new Date(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0, 0);
-  start.setMinutes(def.startMin);
-  const end = new Date(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0, 0);
-  end.setMinutes(def.endMin);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const startHH = Math.floor(def.startMin / 60);
+  const startMM = def.startMin % 60;
+  const endHH = Math.floor(def.endMin / 60);
+  const endMM = def.endMin % 60;
+  const start = new Date(`${dateIso}T${pad(startHH)}:${pad(startMM)}:00+05:30`);
+  const end = new Date(`${dateIso}T${pad(endHH)}:${pad(endMM)}:00+05:30`);
   return { start, end };
 }
 
@@ -80,15 +86,20 @@ export async function getSlotAvailability(dateIso: string): Promise<SlotAvailabi
   const now = Date.now();
   return defs.map((d) => {
     const booked = counts.get(d.id) ?? 0;
-    const { start } = materialiseSlot(d, dateIso);
+    const { start, end } = materialiseSlot(d, dateIso);
     const cutoff = d.cutoffMinutesBefore ?? 0;
     const acceptOrdersUntil = start.getTime() - cutoff * 60 * 1000;
+    // A slot is expired if either: (a) the cutoff-before-start has passed,
+    // or (b) the slot end time itself is already in the past. (b) covers
+    // the case where cutoffMinutesBefore is 0 / missing — e.g. legacy rows
+    // seeded before that field existed.
+    const expired = acceptOrdersUntil <= now || end.getTime() <= now;
     return {
       ...d,
       dateIso,
       booked,
       full: booked >= d.capacity,
-      expired: acceptOrdersUntil <= now,
+      expired,
     };
   });
 }
