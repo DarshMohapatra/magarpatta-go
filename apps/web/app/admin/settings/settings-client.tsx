@@ -328,6 +328,9 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
         </div>
       </section>
 
+      {/* WhatsApp test — only useful once Twilio env vars are wired. */}
+      {canEdit && <WhatsAppTestButton />}
+
       {/* One-shot launch seed — only meaningful on a fresh prod DB. */}
       {canEdit && (
         <SeedDefaultsButton />
@@ -346,6 +349,52 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
         </button>
       </div>
     </div>
+  );
+}
+
+function WhatsAppTestButton() {
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  async function run() {
+    setRunning(true);
+    setResult(null);
+    try {
+      const res = await fetch('/api/admin/whatsapp-test', { method: 'POST' });
+      const data = await res.json();
+      if (!data.ok) {
+        setResult({ ok: false, message: data.error ?? 'Failed' });
+        return;
+      }
+      setResult({ ok: true, message: `Test message queued to ${data.sentTo}. Check your WhatsApp.` });
+    } catch {
+      setResult({ ok: false, message: 'Network error' });
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/5 p-6">
+      <h2 className="font-serif text-[20px]">WhatsApp sandbox test</h2>
+      <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
+        Sends a sample order summary to <code>WHATSAPP_TEST_RECIPIENT</code>.
+        Requires the four Twilio env vars set on Vercel — without them the
+        button returns a 503 listing what's missing.
+      </p>
+      <button
+        onClick={run}
+        disabled={running}
+        className="mt-3 rounded-md bg-[color:var(--color-forest)] text-white px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:opacity-90"
+      >
+        {running ? 'Sending…' : 'Send test WhatsApp'}
+      </button>
+      {result && (
+        <p className={`mt-2 text-[12.5px] ${result.ok ? 'text-[color:var(--color-forest)]' : 'text-[color:var(--color-terracotta)]'}`}>
+          {result.message}
+        </p>
+      )}
+    </section>
   );
 }
 
