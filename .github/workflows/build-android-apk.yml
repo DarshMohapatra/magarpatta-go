@@ -1,6 +1,7 @@
- name: Build Android APK
 
-  on:
+  name: Build Android APK
+
+  "on":
     push:
       branches: [main]
       paths:
@@ -50,14 +51,14 @@
         - name: Generate Prisma client
           run: pnpm --filter web exec prisma generate
 
-        - name: Add Android platform (if missing)
+        - name: Add Android platform if missing
           working-directory: apps/web
           run: |
             if [ ! -d android ]; then
               npx --yes cap add android
             fi
 
-        - name: Sync Capacitor → Android
+        - name: Sync Capacitor to Android
           working-directory: apps/web
           run: npx --yes cap sync android
 
@@ -74,7 +75,7 @@
             path: apps/web/android/app/build/outputs/apk/debug/app-debug.apk
             if-no-files-found: error
 
-        - name: Publish to rolling Release "android-latest"
+        - name: Publish to rolling Release android-latest
           if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
           uses: softprops/action-gh-release@v2
           with:
@@ -82,4 +83,3 @@
             name: 'Magarpatta Go · Android (latest)'
             body: |
               Auto-built debug APK from commit ${{ github.sha }}.
-
