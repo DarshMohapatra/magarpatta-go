@@ -1,20 +1,16 @@
 #!/usr/bin/env node
-/**
- * Render launcher icons for the Capacitor Android shell. Run AFTER
- * `npx cap add android` / `npx cap sync android` so the freshly-generated
- * mipmap-*/ic_launcher* files exist; this script overwrites them with our
- * brand mark (sourced from apps/web/resources/launcher-icon.svg).
- *
- * What we emit (matching the Android launcher icon spec):
- *   mipmap-mdpi      ic_launcher.png             48 × 48
- *   mipmap-hdpi      ic_launcher.png             72 × 72
- *   mipmap-xhdpi     ic_launcher.png             96 × 96
- *   mipmap-xxhdpi    ic_launcher.png            144 × 144
- *   mipmap-xxxhdpi   ic_launcher.png            192 × 192
- *   (same for ic_launcher_round.png + ic_launcher_foreground.png used by
- *   Android 8+ adaptive icons; foreground is rendered larger inside a
- *   safe-zone so the system can mask/crop without cutting the M.)
- */
+// Render launcher icons for the Capacitor Android shell. Run AFTER
+// `npx cap add android` and `npx cap sync android` so the freshly-generated
+// mipmap density folders exist; this script overwrites the default
+// Capacitor `ic_launcher` PNGs with our brand mark from
+// apps/web/resources/launcher-icon.svg.
+//
+// Outputs per density (mdpi 48px, hdpi 72px, xhdpi 96px, xxhdpi 144px,
+// xxxhdpi 192px):
+//   ic_launcher.png             square legacy icon
+//   ic_launcher_round.png       round legacy icon (Android 7.1- launchers)
+//   ic_launcher_foreground.png  adaptive icon foreground (Android 8+),
+//                               inset 25% so the safe-zone preserves the M
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
