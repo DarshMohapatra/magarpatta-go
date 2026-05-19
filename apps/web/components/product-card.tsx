@@ -133,18 +133,25 @@ export function ProductCard({
     <article
       onClick={handleCardClick}
       className={cn(
-        // min-w-0 so the card never demands more width than its grid track
-        // (children with shrink-0 / nowrap can otherwise push the whole
-        // grid wider than the viewport on small phones).
-        'group relative min-w-0 overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
+        // w-full + min-w-0: pin the card to its grid track on every breakpoint.
+        // Without min-w-0 a child with intrinsic size (the product img, the
+        // shrink-0 Add button) can force the grid column wider than the
+        // viewport on small phones — caused the "one card per row, second
+        // card clipped" bug in earlier builds.
+        'group relative w-full min-w-0 overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
         viewShopOnAdd && 'cursor-pointer',
       )}
     >
       <div
         className={cn(
-          // Compact image strip: shorter on phones, full height from sm up so
-          // 2-per-row mobile grid + 3/4-per-row desktop grid both look tight.
-          'relative aspect-square sm:h-40 sm:aspect-auto border-b border-[color:var(--color-ink)]/8 flex items-center justify-center overflow-hidden',
+          // Explicit fixed height (not aspect-square) so the column track
+          // size is decoupled from the actual image's intrinsic dimensions.
+          // aspect-ratio + an <img> with a large natural size makes CSS Grid
+          // compute the column from the image's max-content, which was
+          // pushing each card to ~70% viewport width on Android WebView and
+          // clipping the second column. Flat height = stable Blinkit-style
+          // compact rows.
+          'relative h-28 sm:h-36 lg:h-40 border-b border-[color:var(--color-ink)]/8 flex items-center justify-center overflow-hidden',
           ACCENT_BG[product.accent ?? 'forest'] ?? ACCENT_BG.forest,
         )}
       >
@@ -203,8 +210,8 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="p-2.5 sm:p-4">
-        <h3 className="font-serif text-[15px] sm:text-[18px] leading-tight text-[color:var(--color-ink)] line-clamp-2">
+      <div className="p-2.5 sm:p-4 min-w-0">
+        <h3 className="font-serif text-[14px] sm:text-[17px] leading-tight text-[color:var(--color-ink)] line-clamp-2 break-words">
           {product.name}
         </h3>
         <p className="mt-0.5 text-[11px] sm:text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">

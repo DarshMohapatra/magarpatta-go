@@ -31,21 +31,37 @@ const config: CapacitorConfig = {
     ],
   },
   android: {
-    // White status-bar text on the forest theme colour, matches the PWA.
-    backgroundColor: '#0d4a2e',
+    // Cream (matches body bg in globals.css). This is the Activity window
+    // colour shown AFTER the splash hides but BEFORE the Vercel WebView has
+    // painted its first frame. Earlier this was forest green (#0d4a2e),
+    // which produced the "permanent green screen" — the splash faded at
+    // 1.2 s, then the WebView took another 2-3 s to load the page, and
+    // during that gap the user saw solid forest. Cream makes the gap look
+    // like a clean loading state instead of a broken green wall.
+    backgroundColor: '#f7efe1',
   },
   ios: {
-    backgroundColor: '#0d4a2e',
+    backgroundColor: '#f7efe1',
     // Allow the WebView to launch into the in-app browser for any external
     // links (Twilio sandbox, payment gateways) without leaving the app.
     contentInset: 'always',
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1200,
+      // Hold the branded splash long enough to cover a typical Vercel cold
+      // start (~2.5-3 s on first open). When the WebView paints sooner the
+      // splash still hides early via Capacitor's auto-hide hook; this is
+      // the maximum, not a minimum.
+      launchShowDuration: 3000,
+      // Splash itself stays brand green — this is the *splash* background,
+      // not the Activity background. User sees green splash → cream gap
+      // (if any) → page. No solid-green-for-3s screen anymore.
       backgroundColor: '#0d4a2e',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
+      // Fade out cleanly instead of cutting to whatever's behind.
+      splashFullScreen: true,
+      splashImmersive: true,
     },
   },
 };
