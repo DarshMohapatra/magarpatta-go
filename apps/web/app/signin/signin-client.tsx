@@ -36,12 +36,22 @@ export function SignInClient() {
     } catch (e) {
       resetRecaptcha('recaptcha-container');
       const msg = (e as Error).message;
+      // Map the messy Firebase + reCAPTCHA error strings to short, customer-
+      // friendly copy. The "reCAPTCHA already rendered" path is the most
+      // common after a back-button navigation; the reset above plus a
+      // refresh fixes it. For unknown numbers Firebase doesn't error — it
+      // happily sends an SMS — so "not registered" surfaces only after
+      // verify; we hint at /signup as the next step regardless.
       setError(
         msg.includes('too-many-requests')
-          ? 'Too many attempts. Try again in a few minutes.'
+          ? 'Too many attempts on this number. Try again in a few minutes.'
           : msg.includes('invalid-phone-number')
-            ? 'That phone number looks invalid.'
-            : `Could not send OTP: ${msg}`,
+            ? 'That phone number looks invalid — double-check the 10 digits.'
+            : msg.includes('reCAPTCHA') || msg.includes('recaptcha')
+              ? 'Couldn\'t reach the SMS service. Refresh this page and try again.'
+              : msg.includes('billing') || msg.includes('not-enabled')
+                ? 'Phone sign-in isn\'t enabled for this number yet — try a different number or create an account.'
+                : 'Could not send the code. If this is your first time here, tap "Create an account" below.',
       );
       setLoading(false);
     }
@@ -87,7 +97,20 @@ export function SignInClient() {
         </div>
       </div>
 
-      {error && <p className="text-[13px] text-[color:var(--color-terracotta)]">{error}</p>}
+      {error && (
+        <div className="rounded-xl bg-[color:var(--color-terracotta)]/8 border border-[color:var(--color-terracotta)]/25 px-4 py-3 space-y-2">
+          <p className="text-[13px] text-[color:var(--color-terracotta-dark)] leading-snug">{error}</p>
+          <a
+            href="/signup"
+            className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]"
+          >
+            Create an account
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        </div>
+      )}
 
       <button
         type="submit"

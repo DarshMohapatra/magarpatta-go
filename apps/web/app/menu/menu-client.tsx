@@ -53,15 +53,15 @@ export function MenuClient({
   const activeCategory = categories.find((c) => c.slug === activeSlug);
 
   return (
-    <section className="pt-24 pb-16">
-      <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-              Search everything · {totalProducts} items across all vendors
+    <section className="pt-20 sm:pt-24 pb-16">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
+        {/* Header — tighter on phones, headline sized down so it doesn't push past viewport */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6 sm:mb-10">
+          <div className="min-w-0">
+            <div className="text-[10.5px] sm:text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
+              {totalProducts} items
             </div>
-            <h1 className="mt-3 font-serif text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
+            <h1 className="mt-2 font-serif text-[28px] sm:text-[40px] lg:text-[56px] leading-[1.02] tracking-[-0.02em]">
               {activeCategory ? (
                 <>
                   {activeCategory.name.split(' ')[0]}{' '}
@@ -76,8 +76,8 @@ export function MenuClient({
                 </>
               )}
             </h1>
-            <p className="mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
-              Looking for a specific dish or item? Search here. Prefer to browse a shop&apos;s full menu?{' '}
+            <p className="hidden sm:block mt-3 text-[14.5px] text-[color:var(--color-ink-soft)] max-w-xl">
+              Looking for a specific item? Search here. Prefer to browse a shop&apos;s full menu?{' '}
               <Link href="/restaurants" className="text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]">
                 Open vendors →
               </Link>
@@ -86,7 +86,7 @@ export function MenuClient({
         </div>
 
         {/* Filters strip */}
-        <div className="sticky top-16 z-30 -mx-6 lg:-mx-10 px-6 lg:px-10 py-4 bg-[color:var(--color-cream)]/85 backdrop-blur-md border-y border-[color:var(--color-ink)]/8 flex items-center gap-3 flex-wrap">
+        <div className="sticky top-16 z-30 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 py-3 sm:py-4 bg-[color:var(--color-cream)]/85 backdrop-blur-md border-y border-[color:var(--color-ink)]/8 flex items-center gap-2 sm:gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-md">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-ink-soft)]/60">
               <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.3" />
@@ -132,7 +132,7 @@ export function MenuClient({
         </div>
 
         {/* Layout: sidebar + grid */}
-        <div className="mt-8 grid lg:grid-cols-[220px_1fr] gap-8 lg:gap-10">
+        <div className="mt-5 sm:mt-8 grid lg:grid-cols-[220px_1fr] gap-6 lg:gap-10">
           {/* Category sidebar */}
           <aside className="lg:sticky lg:top-36 lg:self-start">
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70 mb-3">

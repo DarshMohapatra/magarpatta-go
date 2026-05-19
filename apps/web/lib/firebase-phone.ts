@@ -47,6 +47,11 @@ export function resetRecaptcha(containerId?: string) {
 }
 
 export async function sendPhoneOtp(phoneE164: string, containerId: string): Promise<ConfirmationResult> {
+  // Always start fresh — Firebase's RecaptchaVerifier chokes if the host
+  // container has any prior reCAPTCHA markup (back-button navigation, hot
+  // reload, two phone-sign-in screens in the session, etc. all leave
+  // residue). Resetting here makes "Send OTP" reliable on first tap.
+  resetRecaptcha(containerId);
   const v = ensureRecaptcha(containerId);
   return signInWithPhoneNumber(firebaseAuth, phoneE164, v);
 }
