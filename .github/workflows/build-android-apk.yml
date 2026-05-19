@@ -1,0 +1,85 @@
+ name: Build Android APK
+
+  on:
+    push:
+      branches: [main]
+      paths:
+        - 'apps/web/**'
+        - '.github/workflows/build-android-apk.yml'
+    workflow_dispatch:
+
+  permissions:
+    contents: write
+
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      timeout-minutes: 25
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Set up Node
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20'
+
+        - name: Set up Java 17
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '17'
+
+        - name: Set up Android SDK
+          uses: android-actions/setup-android@v3
+
+        - name: Install pnpm
+          uses: pnpm/action-setup@v3
+          with:
+            version: 10
+
+        - name: Cache pnpm store
+          uses: actions/cache@v4
+          with:
+            path: ~/.local/share/pnpm/store
+            key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+
+        - name: Install workspace dependencies
+          run: pnpm install --frozen-lockfile
+
+        - name: Generate Prisma client
+          run: pnpm --filter web exec prisma generate
+
+        - name: Add Android platform (if missing)
+          working-directory: apps/web
+          run: |
+            if [ ! -d android ]; then
+              npx --yes cap add android
+            fi
+
+        - name: Sync Capacitor → Android
+          working-directory: apps/web
+          run: npx --yes cap sync android
+
+        - name: Build debug APK
+          working-directory: apps/web/android
+          run: |
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --no-daemon
+
+        - name: Upload APK as workflow artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: magarpatta-go-debug-apk
+            path: apps/web/android/app/build/outputs/apk/debug/app-debug.apk
+            if-no-files-found: error
+
+        - name: Publish to rolling Release "android-latest"
+          if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+          uses: softprops/action-gh-release@v2
+          with:
+            tag_name: android-latest
+            name: 'Magarpatta Go · Android (latest)'
+            body: |
+              Auto-built debug APK from commit ${{ github.sha }}.
+
