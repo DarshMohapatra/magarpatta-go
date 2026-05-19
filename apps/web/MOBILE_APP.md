@@ -1,120 +1,103 @@
-# Magarpatta Go — Mobile app build guide
+# Magarpatta Go — Mobile apps
 
-This wraps the existing Next.js site (deployed at https://web-eta-ebon-80.vercel.app) into a native APK (Android) and IPA (iOS) using **Capacitor**. The app is a thin WebView shell pointed at the live deploy, so every code change you push to `main` is reflected on next app open — no new APK needed for content changes.
+The customer / admin / vendor / rider sites are all wrapped into mobile-app shells via two routes that already work today:
 
-## What's already wired up
+| Platform | Format | Cost | Install time | What you get |
+|---|---|---|---|---|
+| **Android** | APK file from CI | Free | 10 minutes | Real APK you sideload onto any phone. App icon, standalone window, no browser chrome. |
+| **iPhone / iPad** | PWA (Add to Home Screen) | Free | 30 seconds | Home-screen icon, standalone window, no Safari chrome. Functionally identical to a real app for the wholesale-trial use cases. |
 
-- `capacitor.config.ts` — app id `com.magarpattago.app`, name **Magarpatta Go**, server URL pinned to the prod Vercel URL.
-- Capacitor 7 packages installed in `apps/web`:
-  - `@capacitor/core`, `@capacitor/cli`
-  - `@capacitor/android`, `@capacitor/ios`
-
-No native project folders yet — those are generated on first `cap add` (separately for Android and iOS).
+Below: how to get each, and why iOS doesn't have a "real .ipa" path that's free.
 
 ---
 
-## Android APK — one-time setup
+## Android APK — automatic build via GitHub Actions
 
-**Pre-requisites (install once on your laptop):**
-- [Android Studio](https://developer.android.com/studio) — includes the SDK
-- Java 17 (Android Studio bundles this)
+There's a workflow at `.github/workflows/build-android-apk.yml` that builds the APK in the cloud on every push to `main` and on demand. **You don't need Android Studio installed locally.**
 
-**Generate the Android project:**
+### Get the latest APK
 
-```bash
-cd apps/web
-npx cap add android
-```
+1. Open your GitHub repo: https://github.com/DarshMohapatra/magarpatta-go
+2. Click **Releases** (right sidebar) or go to `/releases/tag/android-latest`
+3. Download **`app-debug.apk`** from the latest "Magarpatta Go · Android (latest)" release
+4. Send the file to your phone (Drive, WhatsApp to yourself, USB)
+5. Tap the APK on the phone → tap "Install"
+   - On first attempt the phone may ask: "Allow Chrome (or whichever app you opened the APK from) to install unknown apps?" → say yes, then re-tap install
+6. Open the Magarpatta Go icon on your home screen
 
-This creates `apps/web/android/` — a Gradle project Capacitor will keep in sync with your config.
+The app **loads the live Vercel deploy inside a native shell**. Every change you push to the website appears in the app on next launch — no rebuild needed for content changes.
 
-**Build the APK:**
+### Trigger a fresh build manually
 
-```bash
-cd apps/web
-npx cap sync android         # copies config into the Android project
-npx cap open android         # opens Android Studio
-```
+If you've pushed many things and want a fresh APK without waiting for a code push:
+1. GitHub → **Actions** tab
+2. Click **"Build Android APK"** workflow on the left
+3. **Run workflow** dropdown (top right) → green button
+4. Wait ~5 minutes → the new APK lands on the release and as a workflow artifact
 
-In Android Studio:
-1. Wait for Gradle sync (~2 minutes on a fresh machine)
-2. Menu: **Build → Build Bundle(s) / APK(s) → Build APK(s)**
-3. When it finishes, click the "locate" link in the toast — the APK is at `apps/web/android/app/build/outputs/apk/debug/app-debug.apk`
+### When you need a new APK
 
-That `.apk` file is what you sideload onto Android phones for testing. It's signed with a debug key (not Play-Store-ready, but installs fine on any Android device with "Install from unknown sources" enabled).
+Only when you change something **native** (icon, splash, the Capacitor config, add plugins). For everything else — UI tweaks, new vendors, pricing — the live app picks it up automatically.
 
 ---
 
-## iOS IPA — one-time setup
+## iPhone / iPad — PWA via Safari (the only free path)
 
-**Pre-requisites:**
-- A **Mac** (Apple's Xcode toolchain only runs on macOS — this isn't a Capacitor limitation, it's an Apple one)
-- [Xcode](https://apps.apple.com/in/app/xcode/id497799835) (free from the App Store)
-- An **Apple ID** for signing — `$99/year` Apple Developer membership only required if you want to TestFlight or App Store; a free Apple ID can sideload to your own devices for 7 days at a time
+There is **no free way to install a real `.ipa` on an iPhone**. Apple intentionally requires:
+- A Mac with Xcode (the Apple toolchain is Mac-only), AND
+- Either a $99/year Apple Developer account (for TestFlight / App Store), OR
+- Building in Xcode and installing directly via USB to phones registered in your Apple ID — and the install expires every 7 days
 
-**Generate the iOS project (on the Mac):**
+For our wholesale trial that's not worth it. The **PWA gives you 95% of a native app experience for ₹0**:
 
-```bash
-cd apps/web
-npx cap add ios
-```
+### Install the PWA on iPhone
 
-This creates `apps/web/ios/` — an Xcode workspace.
+1. Open Safari on the iPhone
+2. Go to https://web-eta-ebon-80.vercel.app
+3. You'll see a green prompt at the bottom: **"Install Magarpatta Go — Tap ⬆ at the bottom, then Add to Home Screen"**
+4. Tap the **Share** button (⬆ square at the bottom centre of Safari)
+5. Scroll down the share sheet → **Add to Home Screen**
+6. Confirm the name → **Add**
+7. The Magarpatta Go icon appears on your home screen. Tap it.
 
-**Build the IPA:**
+Once installed, the app launches **full-screen** — no Safari address bar, no tabs. Looks and feels like a native app. The leaf-and-M icon shows on the home screen. Splash uses the brand forest green.
 
-```bash
-cd apps/web
-npx cap sync ios
-npx cap open ios         # opens Xcode
-```
+### What's different from a real iOS app
 
-In Xcode:
-1. Top-left dropdown → select your Apple ID under "Signing & Capabilities" (or pick "Personal Team" if you don't have a paid account)
-2. Connect your iPhone via USB, select it in the device dropdown next to the Play button
-3. Hit **Play (▶)** — Xcode builds, signs with your Apple ID, and installs the app on your phone
-4. First launch: on the phone, go to **Settings → General → VPN & Device Management** → trust your Apple ID
+- **No push notifications** unless you're on iOS 16.4+ and have already installed it
+- **No App Store presence** (you can't search for it)
+- Everything else — sign in, browse menu, place order, view orders, see proofs — works identically
 
-For a distributable IPA (to share or upload to TestFlight):
-- Xcode menu: **Product → Archive**
-- Window → Organizer → select the archive → **Distribute App** → pick destination (Ad Hoc / Development / TestFlight)
+### What would be needed for a real iOS app
 
----
+If you decide to do this later:
+1. Buy Apple Developer Program — `$99 / year` per Apple ID
+2. Get a Mac (or rent a cloud Mac — MacInCloud ~$30/month)
+3. Run `npx cap add ios && npx cap open ios` on the Mac
+4. Sign with your developer cert, archive, upload to App Store Connect → TestFlight or App Store review
 
-## Updating the apps
-
-For **content / code changes** (anything in the Next.js app): just `git push` and `vercel deploy`. The app will pick up the new version on next launch because it's pointed at the live URL.
-
-For **native changes** (icons, splash screen, new Capacitor plugins, app id rename):
-```bash
-cd apps/web
-npx cap sync
-```
-Then rebuild APK / IPA from Android Studio / Xcode.
+The Capacitor config in `apps/web/capacitor.config.ts` is already correct for that path — only the toolchain is gated by Apple.
 
 ---
 
-## Distribution paths (truly free)
+## What's already configured
 
-**Android:**
-- **Direct APK download** — host the `.apk` somewhere (Vercel Blob, S3, your website) and share the link. Users install with one tap (after enabling unknown sources).
-- **Firebase App Distribution** — free, lets up to a few dozen testers self-install via a link/email.
-- **Google Play Internal Testing** — needs ₹2,000 (~$25) one-time developer fee but then internal testing is free. Closer to a real-app feel.
+In `apps/web/capacitor.config.ts`:
+- App id: `com.magarpattago.app`
+- App name: `Magarpatta Go`
+- WebView server URL: `https://web-eta-ebon-80.vercel.app`
+- Splash screen: 1.2 s, forest theme colour
+- Status bar tint
 
-**iOS:**
-- **Sideload via Xcode** — fine for you + a few internal testers (Apple ID, 7-day signing).
-- **TestFlight** — needs the $99/year Apple Developer account. There is no free TestFlight.
-- **App Store** — same $99/year + review.
+Packages installed:
+- `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, `@capacitor/ios`
 
-Nothing iOS-related is "free" in any real sense; budget the $99/year if you want public distribution.
+The `android/` and `ios/` folders are **not** committed — they're generated fresh by the GitHub Actions workflow on each Android build, and would be generated by `npx cap add ios` on a Mac when you decide to do iOS.
 
 ---
 
-## Caveats with the WebView approach
+## TL;DR
 
-- **First load** needs internet — the app shows a blank/splash until Vercel responds. Subsequent navigations cache via the WebView, but cold start hits the network.
-- **Push notifications** aren't wired up (Capacitor supports them via a separate plugin if you need them later).
-- **Cookies persist** within the app's WebView, so session-based auth (Firebase phone OTP, admin/vendor sessions) work normally.
-- **External links** (like a Razorpay payment page) open in the in-app browser by default — they can be tweaked to open in Safari/Chrome if needed.
-
-For the wholesale trial scope (browse menu, place order, see status, WhatsApp goes to vendor) this WebView shell is functionally identical to running the site in mobile Safari/Chrome — just with a real home-screen icon and standalone window chrome.
+- **Android phone**: GitHub repo → Releases → download APK → install. Done.
+- **iPhone**: Safari → share button → Add to Home Screen. The PWA hint banner walks you through it on first visit.
+- **Real iOS native app**: requires $99/year + a Mac. Worth it for App Store launch, not for the trial.

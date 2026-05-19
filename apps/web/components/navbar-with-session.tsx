@@ -1,6 +1,7 @@
 import { getServerSession, type SessionUser } from '@/lib/session';
 import { Navbar } from './navbar';
 import { CustomerNoticeBanner } from './customer-notice-banner';
+import { IosInstallHint } from './ios-install-hint';
 
 export type InitialSession = SessionUser | null;
 
@@ -19,6 +20,7 @@ export async function NavbarWithSession() {
     <>
       <CustomerNoticeBanner />
       <Navbar initialSession={session} />
+      <IosInstallHint />
     </>
   );
 }
