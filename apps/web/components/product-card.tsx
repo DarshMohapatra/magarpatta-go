@@ -133,7 +133,10 @@ export function ProductCard({
     <article
       onClick={handleCardClick}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
+        // min-w-0 so the card never demands more width than its grid track
+        // (children with shrink-0 / nowrap can otherwise push the whole
+        // grid wider than the viewport on small phones).
+        'group relative min-w-0 overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
         viewShopOnAdd && 'cursor-pointer',
       )}
     >

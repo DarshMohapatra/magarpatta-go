@@ -138,7 +138,7 @@ export function MenuClient({
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70 mb-3">
               Categories
             </div>
-            <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible -mx-6 px-6 lg:mx-0 lg:px-0 pb-2 lg:pb-0">
+            <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible -mx-4 sm:-mx-6 px-4 sm:px-6 lg:mx-0 lg:px-0 pb-2 lg:pb-0">
               <button
                 onClick={() => updateQuery({ cat: null })}
                 className={cn(
