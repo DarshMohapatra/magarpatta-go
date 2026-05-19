@@ -1,6 +1,6 @@
- name: Build Android APK
+name: Build Android APK
 
-  "on":
+  'on':
     push:
       branches: [main]
       paths:
@@ -24,7 +24,7 @@
           with:
             node-version: '22'
 
-        - name: Set up Java 21
+        - name: Set up Java
           uses: actions/setup-java@v4
           with:
             distribution: 'temurin'
@@ -79,6 +79,13 @@
           uses: softprops/action-gh-release@v2
           with:
             tag_name: android-latest
-            name: 'Magarpatta Go · Android (latest)'
+            name: Magarpatta Go Android latest
             body: |
-              Auto-built debug APK from commit ${{ github.sha }}.
+              Auto-built debug APK. Install on any Android phone:
+              1. Download app-debug.apk below.
+              2. Open it on the phone. Allow Install from unknown sources if prompted.
+              3. Launch the app.
+            files: apps/web/android/app/build/outputs/apk/debug/app-debug.apk
+            prerelease: true
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
