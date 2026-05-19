@@ -44,10 +44,13 @@ const COL = [
 
 export function Footer() {
   return (
-    <footer className="bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)]/80 pt-20 pb-10 mt-0">
-      <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
-        <div className="grid lg:grid-cols-[1.4fr_repeat(4,1fr)] gap-10 lg:gap-14 pb-16 border-b border-[color:var(--color-cream)]/15">
-          <div className="max-w-sm">
+    <footer className="w-full bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)]/80 pt-16 pb-10 mt-0">
+      <div className="w-full mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-10">
+        {/* Explicit grid-cols-1 + grid-cols-2 for narrow phones so the four
+            link columns each take half-width instead of squeezing into a
+            mystery half-track on mobile (the screenshot bug). */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,1fr)] gap-10 lg:gap-14 pb-12 border-b border-[color:var(--color-cream)]/15">
+          <div className="w-full sm:col-span-2 lg:col-span-1 max-w-md">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
               <span className="text-[15px] tracking-tight font-medium text-[color:var(--color-cream)]">
@@ -63,8 +66,8 @@ export function Footer() {
           </div>
 
           {COL.map((c) => (
-            <div key={c.title}>
-              <h4 className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron-soft)] mb-5">
+            <div key={c.title} className="w-full">
+              <h4 className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron-soft)] mb-4">
                 {c.title}
               </h4>
               <ul className="space-y-3">
@@ -83,11 +86,11 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[12px] text-[color:var(--color-cream)]/55">
+        <div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-[12px] text-[color:var(--color-cream)]/55">
           <div>© 2026 {siteConfig.platformName}. FSSAI pending.</div>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <span>Made with care in {siteConfig.siteName}</span>
-            <span className="h-4 w-px bg-[color:var(--color-cream)]/20" />
+            <span className="hidden sm:inline-block h-4 w-px bg-[color:var(--color-cream)]/20" />
             <span>v0.1.0 · Phase 1 · MVP</span>
           </div>
         </div>

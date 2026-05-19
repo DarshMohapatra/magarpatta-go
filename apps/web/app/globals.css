@@ -130,9 +130,12 @@ html { scroll-behavior: smooth; }
    Mobile / PWA polish
    ─────────────────────────────────────────────────────────────────── */
 
-/* Prevent overscroll glow / horizontal swipe past content on iOS Safari. */
+/* Prevent overscroll glow / horizontal swipe past content on iOS Safari.
+   `overflow-x: hidden` on body intentionally NOT set — it was clipping
+   the footer's full-width background on some Android Chrome viewports.
+   If horizontal scroll ever appears it's a sign of a bug to fix at the
+   source, not a global hammer. */
 html, body { overscroll-behavior-x: none; }
-body { overflow-x: hidden; }
 
 /* iOS Safari auto-zooms on focus into any text/number/email input below
    16px. That breaks our 13-14px small inputs. Force >=16px when the

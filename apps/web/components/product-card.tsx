@@ -145,13 +145,17 @@ export function ProductCard({
       >
         {showImage ? (
           // Using plain img to allow onError graceful fallback to the glyph.
+          // object-contain (not -cover) so wholesale produce photos — many
+          // shot portrait against a white background — show the whole
+          // product instead of a tightly-cropped detail. The accent-tinted
+          // tile sits behind, framing the image cleanly.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.imageUrl!}
             alt={product.name}
             loading="lazy"
             onError={() => setImgError(true)}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+            className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-[1.03] transition-transform duration-500"
           />
         ) : (
           <ProductGlyph glyph={product.glyph} accent={product.accent} />
