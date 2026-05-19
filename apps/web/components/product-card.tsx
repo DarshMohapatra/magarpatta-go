@@ -139,7 +139,9 @@ export function ProductCard({
     >
       <div
         className={cn(
-          'relative h-44 border-b border-[color:var(--color-ink)]/8 flex items-center justify-center overflow-hidden',
+          // Compact image strip: shorter on phones, full height from sm up so
+          // 2-per-row mobile grid + 3/4-per-row desktop grid both look tight.
+          'relative aspect-square sm:h-40 sm:aspect-auto border-b border-[color:var(--color-ink)]/8 flex items-center justify-center overflow-hidden',
           ACCENT_BG[product.accent ?? 'forest'] ?? ACCENT_BG.forest,
         )}
       >
@@ -198,48 +200,39 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="p-4">
-        <h3 className="font-serif text-[19px] leading-tight text-[color:var(--color-ink)]">
+      <div className="p-2.5 sm:p-4">
+        <h3 className="font-serif text-[15px] sm:text-[18px] leading-tight text-[color:var(--color-ink)] line-clamp-2">
           {product.name}
         </h3>
-        <p className="mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">
-          {product.vendor.name}
-          {product.unit && <span> · {product.unit}</span>}
+        <p className="mt-0.5 text-[11px] sm:text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">
+          {product.unit ?? product.vendor.name}
         </p>
-        {viewShopOnAdd && (
-          <p className="mt-1 text-[11px] text-[color:var(--color-forest)]/85 inline-flex items-center gap-1">
-            View shop & more items
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-              <path d="M2 5h6m0 0L5 2m3 3L5 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </p>
-        )}
 
-        <div className="mt-3 flex items-end justify-between gap-3">
-          <div className="flex items-baseline gap-2">
-            <span className={cn('font-serif text-[22px]', onSale ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink)]')}>
+        <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className={cn('font-serif text-[17px] sm:text-[20px]', onSale ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink)]')}>
               ₹{displayPrice}
             </span>
             {onSale && (
-              <span className="text-[12px] text-[color:var(--color-ink-soft)]/55 line-through">
+              <span className="text-[11px] text-[color:var(--color-ink-soft)]/55 line-through">
                 ₹{product.originalMrpInr}
               </span>
             )}
           </div>
 
           {item ? (
-            <div className="inline-flex items-center gap-0 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+            <div className="inline-flex items-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
               <button
                 onClick={() => decrement(product.id)}
-                className="h-9 w-9 flex items-center justify-center hover:bg-[color:var(--color-forest-dark)] rounded-l-full"
+                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:bg-[color:var(--color-forest-dark)] rounded-l-full"
                 aria-label="Decrease quantity"
               >
                 −
               </button>
-              <span className="w-6 text-center text-[13px] font-medium">{item.qty}</span>
+              <span className="w-5 sm:w-6 text-center text-[12.5px] font-medium">{item.qty}</span>
               <button
                 onClick={() => increment(product.id)}
-                className="h-9 w-9 flex items-center justify-center hover:bg-[color:var(--color-forest-dark)] rounded-r-full"
+                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:bg-[color:var(--color-forest-dark)] rounded-r-full"
                 aria-label="Increase quantity"
               >
                 +
@@ -248,12 +241,9 @@ export function ProductCard({
           ) : (
             <button
               onClick={handleAdd}
-              className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-forest)] hover:bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium transition-colors"
+              className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-forest)] hover:bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)] px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-medium transition-colors shrink-0"
             >
               Add
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-              </svg>
             </button>
           )}
         </div>

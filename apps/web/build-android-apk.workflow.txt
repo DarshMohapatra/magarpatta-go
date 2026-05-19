@@ -37,6 +37,9 @@ jobs:
         run: |
           if [ ! -d android ]; then npx --yes cap add android; fi
           npx --yes cap sync android
+      - name: Brand the launcher icons
+        working-directory: apps/web
+        run: node scripts/generate-android-icons.mjs
       - name: Build debug APK
         working-directory: apps/web/android
         run: |

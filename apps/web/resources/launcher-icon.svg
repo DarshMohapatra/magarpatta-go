@@ -1,0 +1,46 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Magarpatta Go launcher icon — matches the PWA mark.
+    Forest gradient background, cream squircle, italic serif M, saffron leaf
+    cresting top-right with a vein highlight, terracotta accent dot bottom-left.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0d4a2e"/>
+      <stop offset="0.6" stop-color="#1a5d3a"/>
+      <stop offset="1.4" stop-color="#f2a83c"/>
+    </linearGradient>
+    <radialGradient id="disc" cx="0.3" cy="0.25" r="0.8">
+      <stop offset="0" stop-color="#fcf6e8"/>
+      <stop offset="1" stop-color="#f1e7c8"/>
+    </radialGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2c15a"/>
+      <stop offset="1" stop-color="#e08f2e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Cream squircle. 1024-wide canvas; disc is 792 wide centred. -->
+  <rect x="116" y="116" width="792" height="792" rx="240" ry="240" fill="url(#disc)"/>
+
+  <!-- Saffron leaf: petal shape with a vein highlight. Placed top-right. -->
+  <g transform="translate(720,290) rotate(-15)">
+    <path d="M -130 0 Q 0 -130 130 0 Q 0 130 -130 0 Z" fill="url(#leaf)"/>
+    <line x1="-90" y1="0" x2="60" y2="0" stroke="#fffbeb" stroke-opacity="0.55" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <!-- Italic serif M. Using system serif via font-family stack. -->
+  <text x="512" y="690"
+        font-family="'Times New Roman', 'Liberation Serif', 'DejaVu Serif', serif"
+        font-size="700"
+        font-style="italic"
+        font-weight="600"
+        fill="#0d4a2e"
+        text-anchor="middle">M</text>
+
+  <!-- Terracotta accent dot, bottom-left. -->
+  <circle cx="256" cy="800" r="28" fill="#c8552a"/>
+</svg>

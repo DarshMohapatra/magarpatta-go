@@ -14,12 +14,12 @@ export default function MenuLoading() {
                 <div key={i} className="h-9 rounded-lg bg-[color:var(--color-ink)]/6 animate-pulse" />
               ))}
             </aside>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
               {[0, 1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="rounded-2xl border border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)] overflow-hidden">
-                  <div className="h-44 bg-[color:var(--color-ink)]/6 animate-pulse" />
-                  <div className="p-4 space-y-2">
-                    <div className="h-5 w-3/4 rounded-md bg-[color:var(--color-ink)]/8" />
+                  <div className="h-28 sm:h-32 bg-[color:var(--color-ink)]/6 animate-pulse" />
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 w-3/4 rounded-md bg-[color:var(--color-ink)]/8" />
                     <div className="h-3 w-1/2 rounded-full bg-[color:var(--color-ink)]/6" />
                   </div>
                 </div>
