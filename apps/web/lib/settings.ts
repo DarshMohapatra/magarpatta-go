@@ -67,6 +67,12 @@ export interface SettingShape {
   /** Master switch for the slot-bypass feature. Off = customer must always
    *  pick a slot, no matter the cart size. */
   slot_bypass_enabled: boolean;
+  /** Platform-wide minimum minutes a slot must stop accepting orders BEFORE
+   *  its start time. Acts as a floor over each slot's own
+   *  cutoffMinutesBefore — so a 5–7 PM slot with cutoff=0 still closes 60
+   *  min early when this is set to 60. Prevents last-second orders that
+   *  can't be picked / prepped / dispatched in time. */
+  slot_min_cutoff_minutes: number;
 }
 
 export const SETTINGS_DEFAULTS: SettingShape = {
@@ -77,6 +83,7 @@ export const SETTINGS_DEFAULTS: SettingShape = {
   catalog_allowed_categories: ['produce'],
   slot_bypass_threshold_inr: 1000,
   slot_bypass_enabled: true,
+  slot_min_cutoff_minutes: 60,
 };
 
 export type SettingKey = keyof SettingShape;
@@ -116,12 +123,16 @@ export const getSlotBypassConfig = cache(async (): Promise<{ enabled: boolean; t
   return { enabled, thresholdInr };
 });
 
+export const getSlotMinCutoffMinutes = cache(async (): Promise<number> => {
+  return readRaw('slot_min_cutoff_minutes');
+});
+
 /**
  * Returns every setting key in one shot — used by the admin settings screen
  * so it can render the whole form without a fan-out of getters.
  */
 export const getAllSettings = cache(async (): Promise<SettingShape> => {
-  const [fee, slots, wholesaleOnly, notice, allowedCats, bypassEnabled, bypassThreshold] = await Promise.all([
+  const [fee, slots, wholesaleOnly, notice, allowedCats, bypassEnabled, bypassThreshold, minCutoff] = await Promise.all([
     getDeliveryFeeInr(),
     getSlotDefinitions(),
     getWholesaleOnlyMode(),
@@ -129,6 +140,7 @@ export const getAllSettings = cache(async (): Promise<SettingShape> => {
     getAllowedCategorySlugs(),
     readRaw('slot_bypass_enabled'),
     readRaw('slot_bypass_threshold_inr'),
+    readRaw('slot_min_cutoff_minutes'),
   ]);
   return {
     delivery_fee_inr: fee,
@@ -138,6 +150,7 @@ export const getAllSettings = cache(async (): Promise<SettingShape> => {
     catalog_allowed_categories: allowedCats,
     slot_bypass_threshold_inr: bypassThreshold,
     slot_bypass_enabled: bypassEnabled,
+    slot_min_cutoff_minutes: minCutoff,
   };
 });
 

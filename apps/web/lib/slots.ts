@@ -1,6 +1,6 @@
 import 'server-only';
 import { prisma } from './prisma';
-import { getSlotDefinitions, type SlotDefinition } from './settings';
+import { getSlotDefinitions, getSlotMinCutoffMinutes, type SlotDefinition } from './settings';
 
 /**
  * Slot picker support. Customers either pick "Order now" or one of the admin-
@@ -61,8 +61,18 @@ export function materialiseSlot(def: SlotDefinition, dateIso: string): { start: 
   return { start, end };
 }
 
+/**
+ * Effective cutoff = max(slot's own cutoff, platform-wide floor). The floor
+ * lives on a SiteSetting so it can be tuned without a code change. Used by
+ * both the picker (here) and the order POST validator so the rule is
+ * enforced on both sides.
+ */
+export function effectiveCutoffMinutes(def: Pick<SlotDefinition, 'cutoffMinutesBefore'>, platformMin: number): number {
+  return Math.max(def.cutoffMinutesBefore ?? 0, platformMin ?? 0);
+}
+
 export async function getSlotAvailability(dateIso: string): Promise<SlotAvailability[]> {
-  const defs = await getSlotDefinitions();
+  const [defs, platformMin] = await Promise.all([getSlotDefinitions(), getSlotMinCutoffMinutes()]);
   if (defs.length === 0) return [];
 
   const dayStart = startOfDayUtc(new Date(dateIso));
@@ -87,7 +97,11 @@ export async function getSlotAvailability(dateIso: string): Promise<SlotAvailabi
   return defs.map((d) => {
     const booked = counts.get(d.id) ?? 0;
     const { start, end } = materialiseSlot(d, dateIso);
-    const cutoff = d.cutoffMinutesBefore ?? 0;
+    // Use the effective cutoff (slot's own value floored by the platform
+    // minimum) so a 5–7 PM slot with cutoff=0 still closes 60 min ahead of
+    // its 5 PM start time. Without this, last-minute orders the rider
+    // physically can't fulfil leak through.
+    const cutoff = effectiveCutoffMinutes(d, platformMin);
     const acceptOrdersUntil = start.getTime() - cutoff * 60 * 1000;
     // A slot is expired if either: (a) the cutoff-before-start has passed,
     // or (b) the slot end time itself is already in the past. (b) covers

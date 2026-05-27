@@ -12,6 +12,7 @@ interface Props {
   initialAllowedCategories: string[];
   initialSlotBypassEnabled: boolean;
   initialSlotBypassThresholdInr: number;
+  initialSlotMinCutoffMinutes: number;
   allCategories: Array<{ slug: string; name: string }>;
   canEdit: boolean;
 }
@@ -59,7 +60,7 @@ function slugify(label: string): string {
     .slice(0, 32);
 }
 
-export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, initialNotice, initialAllowedCategories, initialSlotBypassEnabled, initialSlotBypassThresholdInr, allCategories, canEdit }: Props) {
+export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, initialNotice, initialAllowedCategories, initialSlotBypassEnabled, initialSlotBypassThresholdInr, initialSlotMinCutoffMinutes, allCategories, canEdit }: Props) {
   const router = useRouter();
   const [deliveryFee, setDeliveryFee] = useState(String(initialDeliveryFeeInr));
   const [slots, setSlots] = useState<SlotDefinition[]>(initialSlots);
@@ -68,6 +69,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
   const [allowedCategories, setAllowedCategories] = useState<string[]>(initialAllowedCategories);
   const [bypassEnabled, setBypassEnabled] = useState<boolean>(initialSlotBypassEnabled);
   const [bypassThreshold, setBypassThreshold] = useState<string>(String(initialSlotBypassThresholdInr));
+  const [minCutoff, setMinCutoff] = useState<string>(String(initialSlotMinCutoffMinutes));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedNote, setSavedNote] = useState<string | null>(null);
@@ -123,6 +125,12 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
       return;
     }
 
+    const minCutoffNum = Number(minCutoff);
+    if (!Number.isInteger(minCutoffNum) || minCutoffNum < 0 || minCutoffNum > 7 * 24 * 60) {
+      setError('Slot minimum cutoff must be a whole number of minutes between 0 and 10080 (one week).');
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await fetch('/api/admin/settings', {
@@ -136,6 +144,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
           catalog_allowed_categories: allowedCategories,
           slot_bypass_enabled: bypassEnabled,
           slot_bypass_threshold_inr: bypassThresholdNum,
+          slot_min_cutoff_minutes: minCutoffNum,
         }),
       });
       const data = await res.json();
@@ -351,6 +360,32 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             ? 'All categories visible (no filter).'
             : `${allowedCategories.length} of ${allCategories.length} categories visible to customers.`}
         </p>
+      </section>
+
+      {/* Platform-wide minimum slot cutoff — acts as a floor over each
+         slot's own cutoffMinutesBefore so slots disappear well before
+         their start time even when individual slot rows have cutoff=0. */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <h2 className="font-serif text-[22px]">Minimum slot cutoff</h2>
+        <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
+          Every delivery slot stops accepting orders at least this many
+          minutes before its start time, even if the slot's own cutoff is
+          smaller. Prevents last-second orders that can't be picked,
+          packed, and dispatched in time. Default <strong>60 min</strong> —
+          a 5 PM slot then disappears from the picker at 4 PM.
+        </p>
+        <div className="mt-4 flex items-center gap-3">
+          <input
+            type="number"
+            value={minCutoff}
+            onChange={(e) => setMinCutoff(e.target.value)}
+            disabled={!canEdit}
+            min={0}
+            max={7 * 24 * 60}
+            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-forest)] outline-none disabled:opacity-60"
+          />
+          <span className="text-[12px] text-[color:var(--color-ink-soft)]">minutes before the slot starts</span>
+        </div>
       </section>
 
       {/* Slot bypass — high-ticket orders skip the slot picker. */}

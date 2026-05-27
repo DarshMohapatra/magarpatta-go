@@ -40,6 +40,7 @@ export default async function AdminSettingsPage() {
         initialAllowedCategories={settings.catalog_allowed_categories}
         initialSlotBypassEnabled={settings.slot_bypass_enabled}
         initialSlotBypassThresholdInr={settings.slot_bypass_threshold_inr}
+        initialSlotMinCutoffMinutes={settings.slot_min_cutoff_minutes}
         allCategories={categories}
         canEdit={admin.role === 'SUPER_ADMIN' || admin.role === 'OPS'}
       />

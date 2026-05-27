@@ -4,11 +4,11 @@ import { prisma } from '@/lib/prisma';
 import { getCustomerScope } from '@/lib/customer-scope';
 // status only advances via vendor/rider actions — no demo auto-progression
 import { computeBreakdown } from '@/lib/pricing';
-import { getDeliveryFeeInr, getSlotDefinitions, getSlotBypassConfig } from '@/lib/settings';
+import { getDeliveryFeeInr, getSlotDefinitions, getSlotBypassConfig, getSlotMinCutoffMinutes } from '@/lib/settings';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getCodEligibility, COD_MAX_ORDER_INR } from '@/lib/cod';
 import { resolveAvailability } from '@/lib/product-availability';
-import { materialiseSlot, parseDateIso } from '@/lib/slots';
+import { materialiseSlot, parseDateIso, effectiveCutoffMinutes } from '@/lib/slots';
 import { getMembershipState, resolveDeliveryFee, debitCreditForOrder } from '@/lib/membership';
 import { notifyVendorOnWhatsApp } from '@/lib/whatsapp';
 
@@ -260,7 +260,7 @@ export async function POST(req: Request) {
       if (!body.deliverySlotId || !body.deliverySlotDate) {
         return NextResponse.json({ ok: false, error: 'Slot id and date are required for slotted delivery' }, { status: 400 });
       }
-      const defs = await getSlotDefinitions();
+      const [defs, platformMinCutoff] = await Promise.all([getSlotDefinitions(), getSlotMinCutoffMinutes()]);
       const def = defs.find((d) => d.id === body.deliverySlotId);
       if (!def) {
         return NextResponse.json({ ok: false, error: 'That slot is no longer available' }, { status: 400 });
@@ -268,7 +268,9 @@ export async function POST(req: Request) {
       const dateIso = body.deliverySlotDate;
       const { start, end } = materialiseSlot(def, dateIso);
       // Reject past windows AND windows whose cutoff has already passed.
-      const cutoff = def.cutoffMinutesBefore ?? 0;
+      // Use the effective cutoff so the same platform-floor that hides the
+      // slot in the picker is enforced here at order placement too.
+      const cutoff = effectiveCutoffMinutes(def, platformMinCutoff);
       const acceptUntil = start.getTime() - cutoff * 60 * 1000;
       if (end.getTime() < Date.now()) {
         return NextResponse.json({ ok: false, error: 'That slot has already passed. Pick a later window.' }, { status: 400 });
@@ -307,16 +309,27 @@ export async function POST(req: Request) {
       }
     }
 
-    // Two flows, nothing more:
-    //   every vendor supports self-delivery  → VENDOR_SELF      (vendor sees + delivers themselves)
-    //   else                                 → PLATFORM_RIDER   (concierge: vendor NOT notified; our rider
-    //                                                            walks into the shop, places the order at
-    //                                                            the counter, pays, brings it to the customer)
-    // If a vendor has self-delivery on, all their orders go to them — no "busy team" fallback.
+    // Three flows:
+    //   every vendor supports self-delivery → VENDOR_SELF (vendor delivers themselves)
+    //   any vendor is OFF-platform          → PLATFORM_RIDER_CONCIERGE (rider walks in,
+    //                                                                   buys at counter
+    //                                                                   like a customer)
+    //   else                                → PLATFORM_RIDER (vendor accepts + preps,
+    //                                                         rider picks up — wholesale
+    //                                                         + on-platform retail land
+    //                                                         here)
+    // The CONCIERGE branch ensures only truly off-platform vendors stay
+    // invisible to the vendor dashboard. ON-platform wholesale vendors
+    // now see their orders so they can prepare the goods before pickup.
     const vendorsInCart = [...new Map(products.map((p) => [p.vendor.id, p.vendor])).values()];
     const everyVendorSelfDelivers =
       vendorsInCart.length > 0 && vendorsInCart.every((v) => v.supportsSelfDelivery);
-    const fulfilmentMode = everyVendorSelfDelivers ? 'VENDOR_SELF' : 'PLATFORM_RIDER';
+    const anyVendorOffPlatform = vendorsInCart.some((v) => !v.onPlatform);
+    const fulfilmentMode = everyVendorSelfDelivers
+      ? 'VENDOR_SELF'
+      : anyVendorOffPlatform
+        ? 'PLATFORM_RIDER_CONCIERGE'
+        : 'PLATFORM_RIDER';
     const primaryVendor = products[0].vendor;
     const hub = primaryVendor.hub;
 

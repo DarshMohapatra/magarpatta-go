@@ -11,6 +11,7 @@ interface UpdateBody {
   catalog_allowed_categories?: string[];
   slot_bypass_enabled?: boolean;
   slot_bypass_threshold_inr?: number;
+  slot_min_cutoff_minutes?: number;
 }
 
 function validateSlotDefinition(s: unknown): s is SlotDefinition {
@@ -127,6 +128,18 @@ export async function POST(req: Request) {
     }
     await setSetting('slot_bypass_threshold_inr', t, actor);
     updated.push('slot_bypass_threshold_inr');
+  }
+
+  if (body.slot_min_cutoff_minutes !== undefined) {
+    const m = body.slot_min_cutoff_minutes;
+    if (!Number.isInteger(m) || m < 0 || m > 7 * 24 * 60) {
+      return NextResponse.json(
+        { ok: false, error: 'slot_min_cutoff_minutes must be a whole minute value between 0 and 10080 (one week)' },
+        { status: 400 },
+      );
+    }
+    await setSetting('slot_min_cutoff_minutes', m, actor);
+    updated.push('slot_min_cutoff_minutes');
   }
 
   if (updated.length === 0) {
