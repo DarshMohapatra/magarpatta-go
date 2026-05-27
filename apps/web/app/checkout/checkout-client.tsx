@@ -69,6 +69,13 @@ interface Props {
     tomorrow: string;
     definitions: SlotDef[];
   };
+  /** Express-delivery (slot bypass) configuration. When enabled and the
+   *  cart subtotal is at or above the threshold, the customer can skip the
+   *  slot picker and place the order for immediate dispatch. */
+  slotBypass: {
+    enabled: boolean;
+    thresholdInr: number;
+  };
 }
 
 type PaymentMethod = 'CARD' | 'UPI' | 'NET_BANKING' | 'COD';
@@ -97,6 +104,7 @@ export function CheckoutClient({
   topUpsAvailable,
   planOffer,
   slotOptions,
+  slotBypass,
 }: Props) {
   const router = useRouter();
   const items = useCart((s) => s.items);
@@ -130,10 +138,12 @@ export function CheckoutClient({
   const [processingLine, setProcessingLine] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Delivery window. Order-now was retired for the wholesale launch — every
-  // customer must pick a future slot. `deliveryWindow` stays as a state for
-  // the API contract but is locked to SLOTTED.
-  const deliveryWindow: 'SLOTTED' = 'SLOTTED';
+  // Delivery window. SLOTTED forces the customer to pick one of the
+  // configured windows. ORDER_NOW is only available when slot-bypass is
+  // enabled and the cart subtotal clears the configured threshold (so
+  // express dispatch is reserved for high-ticket orders that justify
+  // breaking the daily rider plan).
+  const [deliveryWindow, setDeliveryWindow] = useState<'SLOTTED' | 'ORDER_NOW'>('SLOTTED');
   const [slotDate, setSlotDate] = useState<string>(slotOptions.today);
   const [slotId, setSlotId] = useState<string>('');
   const [slotAvailability, setSlotAvailability] = useState<Array<SlotDef & { booked: number; full: boolean; expired: boolean }>>([]);
@@ -251,6 +261,18 @@ export function CheckoutClient({
   const membershipFee = joiningPlan?.priceInr ?? 0;
   const discount = coupon?.discountInr ?? 0;
   const total = Math.max(0, subtotal + convenience + tax + addOns + deliveryFee + membershipFee - discount);
+
+  // Express delivery (slot bypass) is offered only when the platform has the
+  // feature on AND the cart MRP subtotal clears the configured threshold.
+  // If the customer adds Express then drops items below the bar, fall back
+  // to the slot picker silently so a stale ORDER_NOW selection can't bypass
+  // the server-side check at submit time.
+  const canExpress = slotBypass.enabled && subtotal >= slotBypass.thresholdInr;
+  useEffect(() => {
+    if (!canExpress && deliveryWindow === 'ORDER_NOW') {
+      setDeliveryWindow('SLOTTED');
+    }
+  }, [canExpress, deliveryWindow]);
 
   // COD is only offered to customers who've completed enough prepaid orders
   // (or who admin has pre-approved), and only when this order's total is
@@ -517,10 +539,49 @@ export function CheckoutClient({
             </div>
           )}
 
-          {/* Delivery slot picker — wholesale launch is slot-only, no
-             same-hour "Order now" path. Customer must pick a future window
-             that hasn't hit its cutoff yet. */}
-          {items.length > 0 && (
+          {/* Express delivery card — only when the customer's cart clears
+             the slot-bypass threshold AND the feature is on. */}
+          {items.length > 0 && canExpress && (
+            <div className="mt-5 rounded-2xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/6 p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-forest)]">Express delivery available</div>
+                  <p className="mt-1 text-[13px] text-[color:var(--color-ink)]">
+                    Your order is above ₹{slotBypass.thresholdInr.toLocaleString('en-IN')} — you can skip the slot picker and have it dispatched now.
+                  </p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryWindow('ORDER_NOW')}
+                    className={cn(
+                      'rounded-full px-4 py-2 text-[12.5px] font-medium border transition-colors',
+                      deliveryWindow === 'ORDER_NOW'
+                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
+                        : 'border-[color:var(--color-forest)]/40 text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/8',
+                    )}
+                  >
+                    Deliver now
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryWindow('SLOTTED')}
+                    className={cn(
+                      'rounded-full px-4 py-2 text-[12.5px] font-medium border transition-colors',
+                      deliveryWindow === 'SLOTTED'
+                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
+                        : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                    )}
+                  >
+                    Pick a slot instead
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delivery slot picker — hidden when Express is chosen. */}
+          {items.length > 0 && deliveryWindow === 'SLOTTED' && (
             <div className="mt-5 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
               <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Pick a delivery slot</div>
               <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">

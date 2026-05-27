@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { getAdminSession } from '@/lib/admin-session';
 import { setSetting, type SettingKey, type SlotDefinition } from '@/lib/settings';
 
@@ -7,6 +8,9 @@ interface UpdateBody {
   slot_definitions?: SlotDefinition[];
   wholesale_only_mode?: boolean;
   customer_notice?: { message: string; level: 'info' | 'warning' | 'alert'; active: boolean };
+  catalog_allowed_categories?: string[];
+  slot_bypass_enabled?: boolean;
+  slot_bypass_threshold_inr?: number;
 }
 
 function validateSlotDefinition(s: unknown): s is SlotDefinition {
@@ -88,6 +92,41 @@ export async function POST(req: Request) {
     }
     await setSetting('customer_notice', n, actor);
     updated.push('customer_notice');
+  }
+
+  if (body.catalog_allowed_categories !== undefined) {
+    const cats = body.catalog_allowed_categories;
+    if (!Array.isArray(cats) || !cats.every((s) => typeof s === 'string' && s.length > 0 && s.length < 64)) {
+      return NextResponse.json(
+        { ok: false, error: 'catalog_allowed_categories must be an array of non-empty category slug strings' },
+        { status: 400 },
+      );
+    }
+    await setSetting('catalog_allowed_categories', cats, actor);
+    updated.push('catalog_allowed_categories');
+    // Burn the menu cache so the new whitelist takes effect on the next read
+    // instead of waiting out the 30-second TTL.
+    revalidateTag('menu');
+  }
+
+  if (body.slot_bypass_enabled !== undefined) {
+    if (typeof body.slot_bypass_enabled !== 'boolean') {
+      return NextResponse.json({ ok: false, error: 'slot_bypass_enabled must be true/false' }, { status: 400 });
+    }
+    await setSetting('slot_bypass_enabled', body.slot_bypass_enabled, actor);
+    updated.push('slot_bypass_enabled');
+  }
+
+  if (body.slot_bypass_threshold_inr !== undefined) {
+    const t = body.slot_bypass_threshold_inr;
+    if (!Number.isInteger(t) || t < 0 || t > 100000) {
+      return NextResponse.json(
+        { ok: false, error: 'slot_bypass_threshold_inr must be a whole rupee value between 0 and 100000' },
+        { status: 400 },
+      );
+    }
+    await setSetting('slot_bypass_threshold_inr', t, actor);
+    updated.push('slot_bypass_threshold_inr');
   }
 
   if (updated.length === 0) {

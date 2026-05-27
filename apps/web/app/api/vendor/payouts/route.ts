@@ -2,53 +2,64 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 
+/**
+ * Vendor-facing settlement view. Returns the rows the platform has computed
+ * for this vendor:
+ *   - payable: PAYABLE rows, newest first — money the platform owes them
+ *   - history: PAID rows in the last 90 days — record of money already sent
+ *
+ * The settlement totals are authoritative; we don't re-sum delivered orders
+ * here because doing so would drift away from what admin is paying out.
+ */
 export async function GET() {
   const s = await getVendorSession();
   if (!s) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
-  const vendor = await prisma.vendor.findUnique({
-    where: { id: s.vendorId },
-    select: { commissionPct: true },
-  });
-  const commissionPct = vendor?.commissionPct ?? 15;
+  const historyCutoff = new Date();
+  historyCutoff.setDate(historyCutoff.getDate() - 90);
 
-  const since = new Date();
-  since.setDate(since.getDate() - 14);
+  const [vendor, payable, history] = await Promise.all([
+    prisma.vendor.findUnique({
+      where: { id: s.vendorId },
+      select: { commissionPct: true, upiId: true, bankAccountNumber: true, bankIfsc: true, bankAccountName: true },
+    }),
+    prisma.vendorSettlement.findMany({
+      where: { vendorId: s.vendorId, status: 'PAYABLE' },
+      orderBy: [{ periodStart: 'desc' }],
+    }),
+    prisma.vendorSettlement.findMany({
+      where: { vendorId: s.vendorId, status: 'PAID', paidAt: { gte: historyCutoff } },
+      orderBy: [{ paidAt: 'desc' }],
+      take: 100,
+    }),
+  ]);
 
-  const delivered = await prisma.order.findMany({
-    where: { vendorId: s.vendorId, status: 'DELIVERED', deliveredAt: { gte: since } },
-    orderBy: { deliveredAt: 'desc' },
-    select: {
-      id: true, subtotalInr: true, totalInr: true, deliveredAt: true,
-      items: { select: { name: true, quantity: true } },
-    },
-  });
-
-  // Group by day (IST)
-  const dayMap = new Map<string, { date: string; orders: number; salesInr: number; commissionInr: number; payoutInr: number }>();
-  for (const o of delivered) {
-    if (!o.deliveredAt) continue;
-    const day = o.deliveredAt.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-    const cur = dayMap.get(day) ?? { date: day, orders: 0, salesInr: 0, commissionInr: 0, payoutInr: 0 };
-    cur.orders += 1;
-    cur.salesInr += o.subtotalInr;
-    cur.commissionInr = Math.round((cur.salesInr * commissionPct) / 100);
-    cur.payoutInr = cur.salesInr - cur.commissionInr;
-    dayMap.set(day, cur);
-  }
-  const byDay = [...dayMap.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-
-  const totalSales = byDay.reduce((s, d) => s + d.salesInr, 0);
-  const totalCommission = Math.round((totalSales * commissionPct) / 100);
-  const totalPayout = totalSales - totalCommission;
+  const totalPayableInr = payable.reduce((sum, r) => sum + r.payableInr, 0);
+  const totalGrossInr = payable.reduce((sum, r) => sum + r.grossInr, 0);
+  const totalCommissionInr = payable.reduce((sum, r) => sum + r.commissionInr, 0);
+  const paidLast90Inr = history.reduce((sum, r) => sum + r.payableInr, 0);
 
   return NextResponse.json({
     ok: true,
-    commissionPct,
-    totalSalesInr: totalSales,
-    totalCommissionInr: totalCommission,
-    totalPayoutInr: totalPayout,
-    byDay,
-    recentOrders: delivered.slice(0, 20),
+    commissionPct: vendor?.commissionPct ?? 15,
+    bankSnapshot: vendor
+      ? {
+          upiId: vendor.upiId,
+          bankAccountName: vendor.bankAccountName,
+          // Only the last 4 of the account number — vendor knows their own
+          // account, this is just a "yes we have it on file" confirmation.
+          accountLast4: vendor.bankAccountNumber ? vendor.bankAccountNumber.slice(-4) : null,
+          bankIfsc: vendor.bankIfsc,
+        }
+      : null,
+    payable,
+    history,
+    totals: {
+      totalPayableInr,
+      totalGrossInr,
+      totalCommissionInr,
+      paidLast90Inr,
+      payableCount: payable.length,
+    },
   });
 }

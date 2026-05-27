@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveAvailability } from '@/lib/product-availability';
-import { getWholesaleOnlyMode } from '@/lib/settings';
+import { getWholesaleOnlyMode, getAllowedCategorySlugs } from '@/lib/settings';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -15,7 +15,10 @@ export async function GET(req: Request) {
   // keeps the row set bounded — without it, we'd scan every product the
   // vendor ever added. resolveAvailability is still the final authority on
   // what gets returned to the client.
-  const wholesaleOnly = await getWholesaleOnlyMode();
+  const [wholesaleOnly, allowedCats] = await Promise.all([
+    getWholesaleOnlyMode(),
+    getAllowedCategorySlugs(),
+  ]);
   const where: Record<string, unknown> = {
     OR: [
       { inStock: true },
@@ -25,7 +28,19 @@ export async function GET(req: Request) {
   if (wholesaleOnly) {
     where.vendor = { isWholesale: true };
   }
-  if (categorySlug) where.category = { slug: categorySlug };
+  // Phase-1 catalog whitelist. If a category param is also supplied, we
+  // intersect — a request for a non-whitelisted category yields nothing.
+  if (allowedCats.length > 0) {
+    if (categorySlug) {
+      where.category = allowedCats.includes(categorySlug)
+        ? { slug: categorySlug }
+        : { slug: '__no_match__' };
+    } else {
+      where.category = { slug: { in: allowedCats } };
+    }
+  } else if (categorySlug) {
+    where.category = { slug: categorySlug };
+  }
   if (vendorSlug) where.vendor = { ...((where.vendor as object | undefined) ?? {}), slug: vendorSlug };
   if (vegOnly) where.isVeg = true;
   if (q) {

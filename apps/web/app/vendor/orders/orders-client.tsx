@@ -13,13 +13,11 @@ interface OrderRow {
   pickedUpAt: string | null;
   deliveredAt: string | null;
   cancelledAt: string | null;
-  riderName: string | null;
   fulfilmentMode: 'PLATFORM_RIDER' | 'VENDOR_SELF';
-  society: string;
-  building: string;
-  flat: string;
   subtotalInr: number;
-  totalInr: number;
+  deliverySlotLabel: string | null;
+  deliverySlotStart: string | null;
+  deliverySlotEnd: string | null;
   items: Array<{ name: string; quantity: number; unit?: string | null }>;
 }
 
@@ -247,15 +245,14 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
             </span>
           </div>
           <div className="mt-1 font-medium text-[14.5px] truncate">
-            → {o.building}, flat {o.flat}
-            <span className="text-[color:var(--color-ink-soft)]/60"> · {o.society}</span>
+            Order #{o.id.slice(-6).toUpperCase()}
+            {o.deliverySlotLabel && (
+              <span className="text-[color:var(--color-ink-soft)]/60"> · {o.deliverySlotLabel}</span>
+            )}
           </div>
           <div className="text-[12.5px] text-[color:var(--color-ink-soft)]/80 truncate">
             {o.items.map((i) => `${i.name}${i.quantity > 1 ? ` × ${i.quantity}` : ''}${i.unit ? ` (${i.unit})` : ''}`).join(', ')}
           </div>
-          {o.riderName && (
-            <div className="mt-1 text-[11px] text-[color:var(--color-ink-soft)]/70">Rider · {o.riderName}</div>
-          )}
         </div>
         <div className="text-right shrink-0">
           <div className="font-serif text-[18px]">₹{o.subtotalInr}</div>

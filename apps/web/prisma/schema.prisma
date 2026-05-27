@@ -178,10 +178,49 @@ model Vendor {
   campaigns      Campaign[]
   pendingChanges PendingChange[]
   menuImports    MenuImportJob[]
+  settlements    VendorSettlement[]
 
   @@index([approvalStatus])
   @@index([hub])
   @@index([isWholesale])
+}
+
+enum SettlementStatus {
+  PAYABLE
+  PAID
+}
+
+/// Per-period payout from the platform to a vendor. One row covers a single
+/// time window (typically a calendar day in IST). gross/commission/payable
+/// are denormalised at generation time so the row remains self-explanatory
+/// even if the vendor's commissionPct changes later. shiftKey is reserved
+/// for a future split into morning/evening shifts — keeping the column now
+/// avoids a migration when that lands.
+model VendorSettlement {
+  id            String           @id @default(cuid())
+  vendorId      String
+  periodStart   DateTime
+  periodEnd     DateTime
+  shiftKey      String?
+  orderCount    Int              @default(0)
+  grossInr      Int              @default(0)
+  commissionPct Int              @default(0)
+  commissionInr Int              @default(0)
+  payableInr    Int              @default(0)
+  status        SettlementStatus @default(PAYABLE)
+  paidAt        DateTime?
+  paidByAdminId String?
+  paymentRef    String?
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, periodStart, periodEnd])
+  @@index([status])
+  @@index([vendorId, status])
+  @@index([periodStart])
 }
 
 model Category {

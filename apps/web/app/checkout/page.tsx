@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
 import { getCodEligibility } from '@/lib/cod';
-import { getDeliveryFeeInr, getSlotDefinitions } from '@/lib/settings';
+import { getDeliveryFeeInr, getSlotDefinitions, getSlotBypassConfig } from '@/lib/settings';
 import { getMembershipState, resolveDeliveryFee, listActiveTopUps, listActivePlans } from '@/lib/membership';
 import { isoToday, isoTomorrow } from '@/lib/slots';
 import { NavbarWithSession } from '@/components/navbar-with-session';
@@ -15,10 +15,11 @@ export default async function CheckoutPage() {
   const scope = await getCustomerScope();
   if (!scope) redirect('/signin');
 
-  const [cod, standardFeeInr, slotDefs, membership, topUps, plans] = await Promise.all([
+  const [cod, standardFeeInr, slotDefs, slotBypass, membership, topUps, plans] = await Promise.all([
     getCodEligibility(scope.db),
     getDeliveryFeeInr(),
     getSlotDefinitions(),
+    getSlotBypassConfig(),
     getMembershipState(scope.userId),
     listActiveTopUps(),
     listActivePlans(),
@@ -68,6 +69,7 @@ export default async function CheckoutPage() {
           tomorrow: isoTomorrow(),
           definitions: slotDefs,
         }}
+        slotBypass={slotBypass}
       />
       <Footer />
       <CartDrawer />

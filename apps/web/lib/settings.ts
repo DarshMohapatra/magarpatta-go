@@ -56,6 +56,17 @@ export interface SettingShape {
   /** Admin-broadcast banner shown across customer pages. Used to flag slot
    *  changes, weather delays, holiday hours, etc. */
   customer_notice: CustomerNotice;
+  /** Whitelist of Category.slug values that show up in the public catalog.
+   *  Empty array = show every category (no filter). Used at Phase-1 launch
+   *  to expose only fruits + veggies while bread/eggs/meat sit dormant. */
+  catalog_allowed_categories: string[];
+  /** When the cart subtotal is at or above this threshold and the bypass is
+   *  enabled, the customer can place the order outside a delivery slot via
+   *  an "Express" option. 0 disables the lower bound entirely. */
+  slot_bypass_threshold_inr: number;
+  /** Master switch for the slot-bypass feature. Off = customer must always
+   *  pick a slot, no matter the cart size. */
+  slot_bypass_enabled: boolean;
 }
 
 export const SETTINGS_DEFAULTS: SettingShape = {
@@ -63,6 +74,9 @@ export const SETTINGS_DEFAULTS: SettingShape = {
   slot_definitions: [],
   wholesale_only_mode: false,
   customer_notice: { message: '', level: 'info', active: false },
+  catalog_allowed_categories: ['produce'],
+  slot_bypass_threshold_inr: 1000,
+  slot_bypass_enabled: true,
 };
 
 export type SettingKey = keyof SettingShape;
@@ -90,22 +104,40 @@ export const getCustomerNotice = cache(async (): Promise<CustomerNotice> => {
   return readRaw('customer_notice');
 });
 
+export const getAllowedCategorySlugs = cache(async (): Promise<string[]> => {
+  return readRaw('catalog_allowed_categories');
+});
+
+export const getSlotBypassConfig = cache(async (): Promise<{ enabled: boolean; thresholdInr: number }> => {
+  const [enabled, thresholdInr] = await Promise.all([
+    readRaw('slot_bypass_enabled'),
+    readRaw('slot_bypass_threshold_inr'),
+  ]);
+  return { enabled, thresholdInr };
+});
+
 /**
  * Returns every setting key in one shot — used by the admin settings screen
  * so it can render the whole form without a fan-out of getters.
  */
 export const getAllSettings = cache(async (): Promise<SettingShape> => {
-  const [fee, slots, wholesaleOnly, notice] = await Promise.all([
+  const [fee, slots, wholesaleOnly, notice, allowedCats, bypassEnabled, bypassThreshold] = await Promise.all([
     getDeliveryFeeInr(),
     getSlotDefinitions(),
     getWholesaleOnlyMode(),
     getCustomerNotice(),
+    getAllowedCategorySlugs(),
+    readRaw('slot_bypass_enabled'),
+    readRaw('slot_bypass_threshold_inr'),
   ]);
   return {
     delivery_fee_inr: fee,
     slot_definitions: slots,
     wholesale_only_mode: wholesaleOnly,
     customer_notice: notice,
+    catalog_allowed_categories: allowedCats,
+    slot_bypass_threshold_inr: bypassThreshold,
+    slot_bypass_enabled: bypassEnabled,
   };
 });
 

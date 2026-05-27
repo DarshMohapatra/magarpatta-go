@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getCustomerScope } from '@/lib/customer-scope';
 // status only advances via vendor/rider actions — no demo auto-progression
 import { computeBreakdown } from '@/lib/pricing';
-import { getDeliveryFeeInr, getSlotDefinitions } from '@/lib/settings';
+import { getDeliveryFeeInr, getSlotDefinitions, getSlotBypassConfig } from '@/lib/settings';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getCodEligibility, COD_MAX_ORDER_INR } from '@/lib/cod';
 import { resolveAvailability } from '@/lib/product-availability';
@@ -237,6 +237,25 @@ export async function POST(req: Request) {
     // settings.slot_definitions list).
     let slotSnapshot: { id: string; label: string; start: Date; end: Date } | null = null;
     const windowKind = body.deliveryWindow ?? 'ORDER_NOW';
+    // Slot-bypass guardrail. ORDER_NOW is reserved for high-ticket orders
+    // when admin has the feature on — otherwise every order has to ride
+    // through the slot grid. Server-side check so a tampered client can't
+    // sneak a low-value order past the threshold.
+    if (windowKind === 'ORDER_NOW') {
+      const bypass = await getSlotBypassConfig();
+      if (!bypass.enabled) {
+        return NextResponse.json(
+          { ok: false, error: 'Express delivery is not currently available. Please pick a slot.' },
+          { status: 400 },
+        );
+      }
+      if (breakdown.subtotalInr < bypass.thresholdInr) {
+        return NextResponse.json(
+          { ok: false, error: `Express delivery is available for orders of ₹${bypass.thresholdInr} or more. Add ₹${bypass.thresholdInr - breakdown.subtotalInr} more, or pick a slot.` },
+          { status: 400 },
+        );
+      }
+    }
     if (windowKind === 'SLOTTED') {
       if (!body.deliverySlotId || !body.deliverySlotDate) {
         return NextResponse.json({ ok: false, error: 'Slot id and date are required for slotted delivery' }, { status: 400 });

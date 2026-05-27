@@ -2,6 +2,7 @@ import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { prisma } from './prisma';
 import { getActiveDiscounts } from './active-discounts';
+import { getAllowedCategorySlugs } from './settings';
 
 /**
  * Cached read layer for the public menu.
@@ -10,11 +11,16 @@ import { getActiveDiscounts } from './active-discounts';
  * below, so two customers loading /menu within 30s share one DB roundtrip.
  * Mutations (admin approve, vendor stock toggle, etc.) call
  * `revalidateTag('menu')` to clear it.
+ *
+ * The category whitelist (`catalog_allowed_categories` site setting) is
+ * applied AFTER the cached read so its changes go live without a stale
+ * cache window — readers below filter on each call. Default whitelist is
+ * `['produce']` at Phase-1 launch.
  */
 
 const TTL = 30;
 
-export const getMenuCategories = unstable_cache(
+const getMenuCategoriesRaw = unstable_cache(
   async () => prisma.category.findMany({
     orderBy: { order: 'asc' },
     select: {
@@ -29,6 +35,13 @@ export const getMenuCategories = unstable_cache(
   { revalidate: TTL, tags: ['menu', 'categories'] },
 );
 
+export async function getMenuCategories() {
+  const [cats, allowed] = await Promise.all([getMenuCategoriesRaw(), getAllowedCategorySlugs()]);
+  if (allowed.length === 0) return cats;
+  const set = new Set(allowed);
+  return cats.filter((c) => set.has(c.slug));
+}
+
 export const getVendorBySlug = unstable_cache(
   async (slug: string) => prisma.vendor.findUnique({
     where: { slug },
@@ -41,7 +54,7 @@ export const getVendorBySlug = unstable_cache(
   { revalidate: TTL, tags: ['menu', 'vendors'] },
 );
 
-export const getVendorProducts = unstable_cache(
+const getVendorProductsRaw = unstable_cache(
   async (vendorId: string) => prisma.product.findMany({
     where: { vendorId, inStock: true },
     orderBy: [{ category: { order: 'asc' } }, { name: 'asc' }],
@@ -54,7 +67,14 @@ export const getVendorProducts = unstable_cache(
   { revalidate: TTL, tags: ['menu', 'products'] },
 );
 
-export const getRestaurantIndex = unstable_cache(
+export async function getVendorProducts(vendorId: string) {
+  const [rows, allowed] = await Promise.all([getVendorProductsRaw(vendorId), getAllowedCategorySlugs()]);
+  if (allowed.length === 0) return rows;
+  const set = new Set(allowed);
+  return rows.filter((p) => set.has(p.category.slug));
+}
+
+const getRestaurantIndexRaw = unstable_cache(
   async () => prisma.vendor.findMany({
     where: { active: true },
     orderBy: [{ rating: 'desc' }, { name: 'asc' }],
@@ -75,16 +95,31 @@ export const getRestaurantIndex = unstable_cache(
         where: { inStock: true },
         orderBy: { priceInr: 'desc' },
         take: 3,
-        select: { id: true, name: true, imageUrl: true, accent: true, priceInr: true, mrpInr: true },
+        select: {
+          id: true, name: true, imageUrl: true, accent: true, priceInr: true, mrpInr: true,
+          category: { select: { slug: true } },
+        },
       },
       _count: { select: { products: { where: { inStock: true } } } },
     },
   }),
-  ['restaurant-index-v2'],
+  ['restaurant-index-v3'],
   { revalidate: TTL, tags: ['menu', 'vendors'] },
 );
 
-export const getAllInStockProducts = unstable_cache(
+export async function getRestaurantIndex() {
+  const [rows, allowed] = await Promise.all([getRestaurantIndexRaw(), getAllowedCategorySlugs()]);
+  if (allowed.length === 0) return rows;
+  const set = new Set(allowed);
+  // Filter every vendor's preview products to the whitelist; drop vendors
+  // whose entire preview falls outside the whitelist so the index page
+  // doesn't show empty-shop cards.
+  return rows
+    .map((v) => ({ ...v, products: v.products.filter((p) => p.category && set.has(p.category.slug)) }))
+    .filter((v) => v.products.length > 0);
+}
+
+const getAllInStockProductsRaw = unstable_cache(
   async () => prisma.product.findMany({
     // Match the catalog API: an item is candidate-visible when its master
     // is in stock OR a vendor daily-override exists. The override resolver
@@ -104,6 +139,13 @@ export const getAllInStockProducts = unstable_cache(
   ['all-in-stock-products-v2'],
   { revalidate: TTL, tags: ['menu', 'products'] },
 );
+
+export async function getAllInStockProducts() {
+  const [rows, allowed] = await Promise.all([getAllInStockProductsRaw(), getAllowedCategorySlugs()]);
+  if (allowed.length === 0) return rows;
+  const set = new Set(allowed);
+  return rows.filter((p) => set.has(p.category.slug));
+}
 
 // Re-export so consumers don't have to import from two places.
 export { getActiveDiscounts };

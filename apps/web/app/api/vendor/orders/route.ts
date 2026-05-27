@@ -3,20 +3,36 @@ import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 
 /**
- * Vendor order queue. Groups orders for the signed-in vendor:
- *   incoming — PLACED, awaiting accept/reject
- *   preparing — ACCEPTED (vendor has accepted, not yet ready)
- *   ready — PREPARING or PICKED_UP (rider has picked up, read-only)
- *   onTheWay — OUT_FOR_DELIVERY
- *   history — last 30 delivered/cancelled
+ * Vendor order queue. Returns only the data a vendor needs to operate:
+ * order id, items, payable subtotal, status timestamps, slot label. Customer
+ * address, building/flat, phone, notes, rider identity and full order total
+ * (with platform convenience fee) are deliberately NOT selected — those live
+ * on the partner-management/admin console.
  */
+
+// Single source of truth for the vendor-safe order shape. Used by every
+// queue in this handler so a stray `include` can't quietly leak PII.
+const VENDOR_ORDER_SELECT = {
+  id: true,
+  status: true,
+  fulfilmentMode: true,
+  placedAt: true,
+  vendorAcceptedAt: true,
+  vendorReadyAt: true,
+  pickedUpAt: true,
+  deliveredAt: true,
+  cancelledAt: true,
+  subtotalInr: true,
+  deliverySlotLabel: true,
+  deliverySlotStart: true,
+  deliverySlotEnd: true,
+  items: { select: { name: true, quantity: true, unit: true } },
+} as const;
+
 export async function GET() {
   const s = await getVendorSession();
   if (!s) return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
 
-  // Vendors only ever see VENDOR_SELF orders. Everything routed through a
-  // Magarpatta Go rider is handled concierge-style — the rider walks into the
-  // shop and orders in person, so the vendor doesn't need a notification.
   const base = {
     vendorId: s.vendorId,
     fulfilmentMode: 'VENDOR_SELF' as const,
@@ -25,28 +41,28 @@ export async function GET() {
     prisma.order.findMany({
       where: { ...base, status: 'PLACED' },
       orderBy: { placedAt: 'asc' },
-      include: { items: { select: { name: true, quantity: true, unit: true } } },
+      select: VENDOR_ORDER_SELECT,
     }),
     prisma.order.findMany({
       where: { ...base, status: 'ACCEPTED' },
       orderBy: { vendorAcceptedAt: 'asc' },
-      include: { items: { select: { name: true, quantity: true, unit: true } } },
+      select: VENDOR_ORDER_SELECT,
     }),
     prisma.order.findMany({
       where: { ...base, status: { in: ['PREPARING', 'PICKED_UP'] } },
       orderBy: { vendorReadyAt: 'asc' },
-      include: { items: { select: { name: true, quantity: true, unit: true } } },
+      select: VENDOR_ORDER_SELECT,
     }),
     prisma.order.findMany({
       where: { ...base, status: 'OUT_FOR_DELIVERY' },
       orderBy: { pickedUpAt: 'asc' },
-      include: { items: { select: { name: true, quantity: true, unit: true } } },
+      select: VENDOR_ORDER_SELECT,
     }),
     prisma.order.findMany({
       where: { ...base, status: { in: ['DELIVERED', 'CANCELLED'] } },
       orderBy: { deliveredAt: 'desc' },
       take: 30,
-      include: { items: { select: { name: true, quantity: true } } },
+      select: VENDOR_ORDER_SELECT,
     }),
     prisma.order.findMany({
       where: {
@@ -54,11 +70,11 @@ export async function GET() {
         status: 'DELIVERED',
         deliveredAt: { gte: startOfDay() },
       },
-      select: { totalInr: true, subtotalInr: true },
+      select: { subtotalInr: true },
     }),
   ]);
 
-  const todaySalesInr = todayDelivered.reduce((s, o) => s + o.subtotalInr, 0);
+  const todaySalesInr = todayDelivered.reduce((sum, o) => sum + o.subtotalInr, 0);
   const todayOrders = todayDelivered.length;
 
   return NextResponse.json({

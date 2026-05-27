@@ -9,6 +9,10 @@ interface Props {
   initialSlots: SlotDefinition[];
   initialWholesaleOnly: boolean;
   initialNotice: CustomerNotice;
+  initialAllowedCategories: string[];
+  initialSlotBypassEnabled: boolean;
+  initialSlotBypassThresholdInr: number;
+  allCategories: Array<{ slug: string; name: string }>;
   canEdit: boolean;
 }
 
@@ -55,12 +59,15 @@ function slugify(label: string): string {
     .slice(0, 32);
 }
 
-export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, initialNotice, canEdit }: Props) {
+export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWholesaleOnly, initialNotice, initialAllowedCategories, initialSlotBypassEnabled, initialSlotBypassThresholdInr, allCategories, canEdit }: Props) {
   const router = useRouter();
   const [deliveryFee, setDeliveryFee] = useState(String(initialDeliveryFeeInr));
   const [slots, setSlots] = useState<SlotDefinition[]>(initialSlots);
   const [wholesaleOnly, setWholesaleOnly] = useState<boolean>(initialWholesaleOnly);
   const [notice, setNotice] = useState<CustomerNotice>(initialNotice);
+  const [allowedCategories, setAllowedCategories] = useState<string[]>(initialAllowedCategories);
+  const [bypassEnabled, setBypassEnabled] = useState<boolean>(initialSlotBypassEnabled);
+  const [bypassThreshold, setBypassThreshold] = useState<string>(String(initialSlotBypassThresholdInr));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedNote, setSavedNote] = useState<string | null>(null);
@@ -110,6 +117,12 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
       return;
     }
 
+    const bypassThresholdNum = Number(bypassThreshold);
+    if (!Number.isInteger(bypassThresholdNum) || bypassThresholdNum < 0 || bypassThresholdNum > 100000) {
+      setError('Slot bypass threshold must be a whole rupee value between 0 and 100000.');
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await fetch('/api/admin/settings', {
@@ -120,6 +133,9 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
           slot_definitions: slots,
           wholesale_only_mode: wholesaleOnly,
           customer_notice: notice,
+          catalog_allowed_categories: allowedCategories,
+          slot_bypass_enabled: bypassEnabled,
+          slot_bypass_threshold_inr: bypassThresholdNum,
         }),
       });
       const data = await res.json();
@@ -288,6 +304,89 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             />
             <span className="text-[13px] font-medium">{wholesaleOnly ? 'On' : 'Off'}</span>
           </label>
+        </div>
+      </section>
+
+      {/* Catalog whitelist — Phase-1 launch keeps only fruit + veg live. */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <h2 className="font-serif text-[22px]">Catalog whitelist</h2>
+        <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
+          Only checked categories appear in the public catalog. Leave all
+          unchecked to show every category (full catalog). Phase-1 default is
+          produce only — flip more on as supply lines for bread, eggs, meat
+          come online.
+        </p>
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {allCategories.map((c) => {
+            const checked = allowedCategories.includes(c.slug);
+            return (
+              <label
+                key={c.slug}
+                className={
+                  'flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer text-[13px] ' +
+                  (checked
+                    ? 'border-[color:var(--color-forest)]/40 bg-[color:var(--color-forest)]/8'
+                    : 'border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] hover:border-[color:var(--color-ink)]/25')
+                }
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled={!canEdit}
+                  onChange={(e) => {
+                    setAllowedCategories((prev) =>
+                      e.target.checked ? [...prev, c.slug] : prev.filter((s) => s !== c.slug),
+                    );
+                  }}
+                  className="h-4 w-4"
+                />
+                <span className="font-medium">{c.name}</span>
+                <span className="ml-auto text-[10.5px] text-[color:var(--color-ink-soft)]/70">{c.slug}</span>
+              </label>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-[11.5px] text-[color:var(--color-ink-soft)]/70">
+          {allowedCategories.length === 0
+            ? 'All categories visible (no filter).'
+            : `${allowedCategories.length} of ${allCategories.length} categories visible to customers.`}
+        </p>
+      </section>
+
+      {/* Slot bypass — high-ticket orders skip the slot picker. */}
+      <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-[22px]">Express orders (slot bypass)</h2>
+            <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[560px]">
+              When on, customers with a cart at or above the threshold below
+              can place an order outside the regular slot windows. Keep this
+              off to force every order into a slot.
+            </p>
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={bypassEnabled}
+              onChange={(e) => setBypassEnabled(e.target.checked)}
+              disabled={!canEdit}
+              className="h-4 w-4"
+            />
+            <span className="text-[13px] font-medium">{bypassEnabled ? 'On' : 'Off'}</span>
+          </label>
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <span className="text-[20px] font-medium">₹</span>
+          <input
+            type="number"
+            value={bypassThreshold}
+            onChange={(e) => setBypassThreshold(e.target.value)}
+            disabled={!canEdit || !bypassEnabled}
+            min={0}
+            max={100000}
+            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-forest)] outline-none disabled:opacity-50"
+          />
+          <span className="text-[12px] text-[color:var(--color-ink-soft)]">minimum cart subtotal for express delivery</span>
         </div>
       </section>
 
