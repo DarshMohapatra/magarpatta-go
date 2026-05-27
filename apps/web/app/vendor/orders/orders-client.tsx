@@ -219,6 +219,19 @@ function Section({ title, count, accent, children }: { title: string; count: num
   );
 }
 
+function formatDeliveryDay(iso: string): string {
+  // Show "Today" / "Tomorrow" when the IST calendar date matches; otherwise
+  // a short "Wed 28 May" form. Computed in IST so a Vercel UTC function
+  // doesn't flip the day after 6:30 PM IST.
+  const d = new Date(iso);
+  const day = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+  const todayIst = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+  const tomorrowIst = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+  if (day === todayIst) return 'today';
+  if (day === tomorrowIst) return 'tomorrow';
+  return d.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', timeZone: 'Asia/Kolkata' });
+}
+
 function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; muted?: boolean; children?: React.ReactNode }) {
   const placed = new Date(o.placedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
   const cls = accent === 'saffron'
@@ -246,10 +259,12 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
           </div>
           <div className="mt-1 font-medium text-[14.5px] truncate">
             Order #{o.id.slice(-6).toUpperCase()}
-            {o.deliverySlotLabel && (
-              <span className="text-[color:var(--color-ink-soft)]/60"> · {o.deliverySlotLabel}</span>
-            )}
           </div>
+          {(o.deliverySlotStart || o.deliverySlotLabel) && (
+            <div className="mt-0.5 text-[12.5px] text-[color:var(--color-forest)] font-medium">
+              Deliver {o.deliverySlotStart ? formatDeliveryDay(o.deliverySlotStart) : ''}{o.deliverySlotStart && o.deliverySlotLabel ? ' · ' : ''}{o.deliverySlotLabel ?? ''}
+            </div>
+          )}
           <div className="text-[12.5px] text-[color:var(--color-ink-soft)]/80 truncate">
             {o.items.map((i) => `${i.name}${i.quantity > 1 ? ` × ${i.quantity}` : ''}${i.unit ? ` (${i.unit})` : ''}`).join(', ')}
           </div>
