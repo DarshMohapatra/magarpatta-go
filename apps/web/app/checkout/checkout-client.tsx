@@ -143,7 +143,13 @@ export function CheckoutClient({
   // enabled and the cart subtotal clears the configured threshold (so
   // express dispatch is reserved for high-ticket orders that justify
   // breaking the daily rider plan).
-  const [deliveryWindow, setDeliveryWindow] = useState<'SLOTTED' | 'ORDER_NOW'>('SLOTTED');
+  // Default-to-express when the cart already qualifies on mount — same UX
+  // pattern as Blinkit/Zepto where express is the obvious primary path
+  // and the slot picker is the quieter alternative.
+  const [deliveryWindow, setDeliveryWindow] = useState<'SLOTTED' | 'ORDER_NOW'>(() => {
+    const initialSubtotal = cartSubtotalMrp(useCart.getState().items);
+    return slotBypass.enabled && initialSubtotal >= slotBypass.thresholdInr ? 'ORDER_NOW' : 'SLOTTED';
+  });
   const [slotDate, setSlotDate] = useState<string>(slotOptions.today);
   const [slotId, setSlotId] = useState<string>('');
   const [slotAvailability, setSlotAvailability] = useState<Array<SlotDef & { booked: number; full: boolean; expired: boolean }>>([]);
@@ -540,43 +546,59 @@ export function CheckoutClient({
           )}
 
           {/* Express delivery card — only when the customer's cart clears
-             the slot-bypass threshold AND the feature is on. */}
+             the slot-bypass threshold AND the feature is on. Designed like
+             Blinkit/Zepto: ETA-led headline ("In 10–30 minutes"), big primary
+             CTA that's already pre-selected, slot fallback tucked underneath
+             as a quiet link. */}
           {items.length > 0 && canExpress && (
-            <div className="mt-5 rounded-2xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/6 p-5">
+            <div className={cn(
+              'mt-5 rounded-2xl border p-5 transition-colors',
+              deliveryWindow === 'ORDER_NOW'
+                ? 'border-[color:var(--color-forest)]/40 bg-[color:var(--color-forest)]/8 shadow-[0_8px_24px_-12px_rgba(13,74,46,0.18)]'
+                : 'border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/4',
+            )}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-forest)]">Express delivery available</div>
-                  <p className="mt-1 text-[13px] text-[color:var(--color-ink)]">
-                    Your order is above ₹{slotBypass.thresholdInr.toLocaleString('en-IN')} — you can skip the slot picker and have it dispatched now.
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium">
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
+                      <path d="M6 1.5v4.5l3 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                      <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
+                    </svg>
+                    In 10 – 30 mins
+                  </div>
+                  <h3 className="mt-2 font-serif text-[22px] sm:text-[24px] leading-tight tracking-[-0.01em]">
+                    Get it <span className="italic text-[color:var(--color-forest)]">straight away.</span>
+                  </h3>
+                  <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
+                    Cart over ₹{slotBypass.thresholdInr.toLocaleString('en-IN')} qualifies for express dispatch — your rider leaves the moment you pay.
                   </p>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setDeliveryWindow('ORDER_NOW')}
-                    className={cn(
-                      'rounded-full px-4 py-2 text-[12.5px] font-medium border transition-colors',
-                      deliveryWindow === 'ORDER_NOW'
-                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
-                        : 'border-[color:var(--color-forest)]/40 text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/8',
-                    )}
-                  >
-                    Deliver now
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeliveryWindow('SLOTTED')}
-                    className={cn(
-                      'rounded-full px-4 py-2 text-[12.5px] font-medium border transition-colors',
-                      deliveryWindow === 'SLOTTED'
-                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
-                        : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
-                    )}
-                  >
-                    Pick a slot instead
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setDeliveryWindow('ORDER_NOW')}
+                  aria-pressed={deliveryWindow === 'ORDER_NOW'}
+                  className={cn(
+                    'rounded-full px-5 py-2.5 text-[13.5px] font-medium border transition-all shrink-0',
+                    deliveryWindow === 'ORDER_NOW'
+                      ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
+                      : 'border-[color:var(--color-forest)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/10',
+                  )}
+                >
+                  {deliveryWindow === 'ORDER_NOW' ? 'Express selected ✓' : 'Deliver now →'}
+                </button>
               </div>
+              <button
+                type="button"
+                onClick={() => setDeliveryWindow('SLOTTED')}
+                className={cn(
+                  'mt-3 text-[12px] underline underline-offset-4 transition-colors',
+                  deliveryWindow === 'SLOTTED'
+                    ? 'text-[color:var(--color-ink)] font-medium'
+                    : 'text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]',
+                )}
+              >
+                Or pick a delivery slot instead
+              </button>
             </div>
           )}
 

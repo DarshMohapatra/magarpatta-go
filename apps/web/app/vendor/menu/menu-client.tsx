@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { siteConfig } from '@/lib/site-config';
+import { ProductImagePicker } from '@/components/product-image-picker';
 
 interface Product {
   id: string;
@@ -132,7 +133,8 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       const j = await r.json();
       if (!j.ok) { alert(j.error ?? 'Could not save'); setSaving(false); return; }
       setDrawerOpen(false);
-      setToast(j.queued ? 'Submitted for review ✓' : 'Saved ✓');
+      // New items go live immediately (no admin queue). Edits still queue.
+      setToast(editingId ? (j.queued ? 'Edit submitted for review ✓' : 'Saved ✓') : 'Added to your menu — live now ✓');
       setTimeout(() => setToast(null), 3000);
       load();
     } finally {
@@ -177,7 +179,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           </h1>
           <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
             Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
-            <span className="block mt-1">Add / edit / remove goes through {siteConfig.platformName} review. Stock toggle is instant.</span>
+            <span className="block mt-1">New items go live immediately. Edits + removals still go through {siteConfig.platformName} review. Stock toggle is instant.</span>
           </p>
           {pendingCount > 0 && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-saffron)]/12 text-[color:var(--color-saffron)] px-3 py-1 text-[11.5px]">
@@ -269,10 +271,13 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                 </select>
               </Field>
               <Field label="Description"><textarea rows={2} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} className={inp} /></Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Unit (e.g. 500g)"><input value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))} className={inp} /></Field>
-                <Field label="Image URL (optional)"><input value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} className={inp} /></Field>
-              </div>
+              <Field label="Unit (e.g. 500g)"><input value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))} className={inp} /></Field>
+              <Field label="Item photo (optional)">
+                <ProductImagePicker
+                  value={form.imageUrl}
+                  onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                />
+              </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="MRP (₹)"><input type="number" inputMode="numeric" value={form.mrpInr} onChange={(e) => setForm((f) => ({ ...f, mrpInr: e.target.value }))} className={inp} /></Field>
                 <Field label={form.isRegulated ? 'Price = MRP (locked)' : 'Price (₹)'}>
