@@ -1,6 +1,8 @@
 # Magarpatta Go — Feature Documentation
 
-> **Last sync:** 2026-04-29. This file is the human-readable map of what the app actually does today. When in doubt, the code under `apps/web/` is the source of truth — tables here cite the file paths so you can verify.
+> **Last sync:** 2026-05-28. This file is the human-readable map of what the app actually does today. When in doubt, the code under `apps/web/` is the source of truth — tables here cite the file paths so you can verify.
+>
+> **What's new in this sync:** PII scrub on vendor portal (vendor no longer sees customer address) · catalog category whitelist (Phase-1 launch is produce-only) · slot bypass for high-ticket orders · vendor settlements with admin "Mark paid" flow · platform-wide minimum slot cutoff · delivery date on vendor cards · wholesale vendors now see PLATFORM_RIDER orders. Plain-English version in `docs/RECENT_CHANGES.md`.
 
 ---
 
@@ -84,6 +86,11 @@ Outside-the-geofence flats are rejected at this step.
 ### 3.4 Checkout (`/checkout`)
 3-step flow: Cart review → address confirm → payment.
 
+**Slot picker** (`/api/slots` + `lib/slots.ts`):
+- Customer picks a delivery slot from the admin-defined list (`SiteSetting.slot_definitions`). Each slot has its own `cutoffMinutesBefore`.
+- **Platform-wide minimum cutoff floor** (`SiteSetting.slot_min_cutoff_minutes`, default **60 min**): `effectiveCutoff = max(slot.cutoffMinutesBefore, platformMin)`. Stops orders sneaking through last-second on a slot whose own cutoff is 0. A 5–7 PM slot now disappears at 4 PM, not at 5 PM. Tunable from `/admin/settings`.
+- **Slot bypass (Express delivery)** (`SiteSetting.slot_bypass_enabled` + `slot_bypass_threshold_inr`, defaults `true` + ₹1000): when the cart MRP subtotal clears the threshold, an "Express delivery" card appears above the slot picker. Picking it sends `deliveryWindow=ORDER_NOW`; the server re-checks the threshold so a tampered client can't sneak a low-value express order through.
+
 Bill breakdown rendered from `lib/pricing.ts → computeBreakdown()`:
 
 | Line | How it's computed |
@@ -146,8 +153,27 @@ Every campaign mutation (create / edit / remove) writes BOTH the `Campaign` row 
 
 ### 4.5 Orders, payouts, feedback
 - **`/vendor/orders`** — incoming → preparing → ready → out-for-delivery board, with accept/reject buttons.
-- **`/vendor/payouts`** — daily transfer schedule and last-week breakdown.
+  - **PII-scrubbed** (`apps/web/app/api/vendor/orders/route.ts`): vendor sees order # + items + their payable subtotal + delivery date/slot. Customer address (society / building / flat), rider identity, customer notes, and the full order total (which includes the platform's convenience fee) are deliberately NOT selected. Address + contact are visible only on `/admin/orders` (partner-management console).
+  - **Delivery date shown** under the order number — "Deliver today · 5 PM – 7 PM" / "Deliver tomorrow · …" / "Deliver Wed 28 May · …". Computed from `deliverySlotStart` in IST so a UTC Vercel function doesn't flip the day after 6:30 PM IST.
+  - **Visible fulfilment modes**: `VENDOR_SELF` (vendor delivers themselves) + `PLATFORM_RIDER` (vendor accepts + preps, rider picks up — wholesale lives here). `PLATFORM_RIDER_CONCIERGE` orders stay invisible (they only happen for off-platform vendors where the rider walks in like a customer).
+- **`/vendor/payouts`** — see §4.6 below.
 - **`/vendor/shop`** — vendor profile (hours, address, fulfilment mode).
+
+### 4.6 Settlements (`/vendor/payouts`)
+
+Daily payout reconciliation system. Replaces the old "live-recompute from delivered orders" page with a stable, auditable settlement table.
+
+- **`VendorSettlement` model** (`prisma/schema.prisma`): one row per (vendor, IST day) with `grossInr`, `commissionPct`, `commissionInr`, `payableInr`, and a `SettlementStatus` (`PAYABLE` or `PAID`). The `shiftKey` column is reserved for a future morning/evening split — keeping it now avoids a migration when that lands.
+- **Generator** (`lib/settlements.ts`): groups DELIVERED orders by vendor for a given window, computes the payable, and upserts one row per (vendor, period). PAID rows are never clobbered by a rerun, so an already-paid record is safe.
+- **Nightly cron** (`/api/cron/settlements`, scheduled `0 19 * * *` UTC = 00:30 IST): runs the generator for "yesterday IST" so a freshly closed business day rolls into a PAYABLE settlement by next morning. Authenticated via `CRON_SECRET`. Manual reruns: `?daysAgo=N`.
+- **Vendor view** (`/vendor/payouts`):
+  - **Payable now** — list of PAYABLE rows with period, order count, gross, commission, net payable.
+  - **Paid history (last 90 days)** — `paidAt`, `paymentRef` (UPI txn id / UTR), per row.
+  - **Payout destination snapshot** — beneficiary name + last 4 of account + IFSC + UPI ID, read-only.
+
+### 4.7 Campaigns surface on the APK too
+
+The mobile APK is a Capacitor WebView that loads the production Vercel deploy directly (see `apps/web/MOBILE_APP.md`). So **every campaign / flash sale a vendor launches becomes visible in the APK the moment admin approves it** — no APK rebuild needed. Only changes to native plumbing (splash screen, app icon, Capacitor plugin config) require a fresh APK.
 
 ---
 
@@ -197,8 +223,24 @@ Lives under `/admin/*`. Top nav order:
 | `/admin/campaigns` | Per-campaign review with full diff. Approving a removal request deletes the campaign; rejecting clears the flag. Creates and edits go through the same surface. |
 | `/admin/changes` | Generic PendingChange queue. Tabs: **Awaiting · Applied · Rejected**. Diff view side-by-side per change. Curator-forwarded menu items show up as `Vendor · curated import "Item Name"`. |
 | `/admin/customers` | List of registered customers with addresses |
-| `/admin/finance` | GMV, payout summary, coupon-redemption stats |
+| `/admin/finance` | Two tabs: **Overview** (GMV, payout summary, coupon-redemption stats) + **Vendor settlements** (see below) |
+| `/admin/settings` | Runtime knobs — delivery fee, slot definitions, **catalog whitelist**, **slot minimum cutoff**, **express orders (slot bypass)**, wholesale-only mode, customer banner. Every save records an `ActivityLog` row. |
 | `/admin/activity` | Cross-portal audit feed (next section) |
+
+### 7.0a Vendor settlements (`/admin/finance` → Settlements tab)
+
+- **Payable list** — every PAYABLE `VendorSettlement` row across the platform, grouped by vendor with payout-destination snapshot (UPI / bank acc last 4 / IFSC) for quick paste into the bank UI.
+- **Mark paid** — admin clicks the button → prompted for a payment reference (UPI txn id / UTR / NEFT ref, required) → `POST /api/admin/settlements/:id/paid` stamps `status=PAID`, `paidAt`, `paidByAdminId`, `paymentRef`, writes an `ActivityLog` entry. Double-mark is rejected so a stray second click can't clobber the original record.
+- **Paid history (last 90 days)** — chronological feed of cleared settlements.
+- **Regenerate yesterday's settlements** button — manually fires the same logic the nightly cron runs, useful when the cron is paused or when a settlement needs to be re-computed after a late delivery.
+- **Role gating**: `SUPER_ADMIN` + `OPS` + `FINANCE` see the list. Only `SUPER_ADMIN` + `FINANCE` can mark paid.
+
+### 7.0b Catalog whitelist (`/admin/settings` → Catalog whitelist)
+
+- **`SiteSetting.catalog_allowed_categories`** (string[] of category slugs, default `['produce']`): when non-empty, the public catalog only surfaces products whose category is on the list. Applied at every read site: `lib/menu-cache.ts`, `/api/catalog/products`, `/api/catalog/categories`.
+- **Phase-1 launch is produce-only.** Bread, eggs, meat, sweets stay in the database — they're just hidden from customers until you tick their categories back on. No vendor is deactivated; the rows are dormant.
+- **UI**: checkbox group of every category, with a slug pill on the right so it's clear which is which. Empty list = no filter (full catalog).
+- Saves call `revalidateTag('menu')` so changes are immediate, not bound by the 30-second cache TTL.
 
 ### 7.1 Activity feed (`/admin/activity`)
 Every meaningful action by every role logs an `ActivityLog` row via `lib/activity-log.ts`. The page renders a single feed filterable by:
@@ -300,11 +342,15 @@ Why split? Per-entity approvals are heavy (legal docs, KYC, risk decisions). Con
 
 - **Geofence**: `lib/societies.ts` defines the polygon. Outside-the-fence addresses get politely declined at signup and at order time.
 - **Hub locking**: a cart can mix vendors *within* one hub but never across hubs. The cart drawer raises a "Replace cart?" dialog when the user tries.
-- **Two fulfilment modes**:
+- **Three fulfilment modes** (`OrderFulfilmentMode`):
   - `VENDOR_SELF` — vendor's own staff delivers (Baker's Basket, Starbucks). Vendor sees the order in their dashboard.
-  - `PLATFORM_RIDER` (concierge) — vendor not notified; our rider walks into the shop, places the order at the counter, pays from the float, brings it back.
-  - Decision rule: every vendor in the cart supports self-delivery → `VENDOR_SELF`; otherwise concierge.
-- **Off-platform vendors**: Gulab Paan Corner is on the customer-facing list but has no dashboard, no signin — only concierge fulfilment, no commission.
+  - `PLATFORM_RIDER` — vendor accepts + preps, our rider picks up from the counter. **Wholesale + on-platform retail vendors land here** — they're notified, they prepare, the rider collects. Visible on the vendor dashboard.
+  - `PLATFORM_RIDER_CONCIERGE` — vendor not notified; our rider walks into the shop, places the order at the counter, pays from the float, brings it back. Used for genuinely off-platform vendors (`Vendor.onPlatform=false`). NOT visible on any vendor dashboard.
+  - **Decision rule** in `/api/orders/route.ts`:
+    - every vendor self-delivers → `VENDOR_SELF`
+    - any vendor has `onPlatform=false` → `PLATFORM_RIDER_CONCIERGE`
+    - else → `PLATFORM_RIDER`
+- **Off-platform vendors**: Gulab Paan Corner is on the customer-facing list but has `onPlatform=false`, no dashboard, no signin — only concierge fulfilment, no commission. The `PLATFORM_RIDER_CONCIERGE` mode is what makes that possible.
 
 ---
 
