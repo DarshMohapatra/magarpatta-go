@@ -22,7 +22,17 @@ interface Draft {
   err: string | null;
 }
 
-export function TranslationsClient({ rows, canEdit }: { rows: ProductRow[]; canEdit: boolean }) {
+export function TranslationsClient({
+  rows,
+  canEdit,
+  scopedCategorySlugs,
+}: {
+  rows: ProductRow[];
+  canEdit: boolean;
+  // Empty array = no whitelist active (showing every category). Non-empty
+  // = scoped to those categories (matches Settings → Catalog whitelist).
+  scopedCategorySlugs: string[];
+}) {
   const router = useRouter();
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() => {
     const out: Record<string, Draft> = {};
@@ -107,6 +117,11 @@ export function TranslationsClient({ rows, canEdit }: { rows: ProductRow[]; canE
           <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
             Every product needs all three names so the customer language toggle works. Edits autosave as you click out of each input.
           </p>
+          {scopedCategorySlugs.length > 0 && (
+            <p className="mt-1 text-[11.5px] text-[color:var(--color-saffron)]">
+              Scoped to live categories: <strong>{scopedCategorySlugs.join(', ')}</strong>. Add more in Settings → Catalog whitelist to grow this list.
+            </p>
+          )}
           <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]/75">
             <strong>{missingCount}</strong> of {rows.length} products still missing a Hindi or Marathi translation.
           </p>

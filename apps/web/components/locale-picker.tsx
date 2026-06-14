@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { LOCALES, LOCALE_LABEL, type Locale } from '@/lib/i18n';
 
 /**
  * Customer-facing language pill. Three tabs: EN · हिं · मरा. Tapping one
- * fires PATCH /api/account/locale, which sets the `mg_locale` cookie (and
- * mirrors to User.locale when signed in). Then router.refresh() so server
- * components re-render with the new language — no full reload, no flash.
+ * fires PATCH /api/account/locale to set the `mg_locale` cookie, then
+ * hard-reloads so every server component re-renders against the new
+ * language. router.refresh() was racing against the cookie set + leaving
+ * the menu in the old language until the customer manually reloaded;
+ * window.location.reload after `await` is guaranteed-correct.
  *
  * Initial locale is read on the server (via lib/locale.getServerLocale)
  * and passed in as a prop, so the button highlights the right tab on first
@@ -16,28 +17,28 @@ import { LOCALES, LOCALE_LABEL, type Locale } from '@/lib/i18n';
  */
 export function LocalePicker({ initial }: { initial: Locale }) {
   const [locale, setLocale] = useState<Locale>(initial);
-  const [pending, startTransition] = useTransition();
-  const router = useRouter();
+  const [pending, setPending] = useState(false);
 
-  function pick(next: Locale) {
-    if (next === locale) return;
-    setLocale(next); // optimistic
-    fetch('/api/account/locale', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locale: next }),
-    })
-      .then(() => {
-        // Tell already-mounted client components (cart drawer, etc.) that the
-        // locale changed so they re-read the cookie without waiting for a
-        // navigation.
-        window.dispatchEvent(new CustomEvent('mg-locale-changed', { detail: next }));
-      })
-      .catch(() => {
-        // Cookie set failed somehow — UI is already optimistic. The next
-        // navigation will re-read the (unchanged) cookie and snap back.
+  async function pick(next: Locale) {
+    if (next === locale || pending) return;
+    setLocale(next); // optimistic for the pill highlight
+    setPending(true);
+    try {
+      await fetch('/api/account/locale', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale: next }),
       });
-    startTransition(() => router.refresh());
+      // Hard reload: any server-rendered component reads the cookie fresh,
+      // and any in-flight client state (cart drawer) re-hydrates from cookies
+      // / localStorage on mount. Safer than router.refresh() which sometimes
+      // skipped re-rendering the cached menu.
+      window.location.reload();
+    } catch {
+      // Network blip — revert the pill and let the customer try again.
+      setLocale(initial);
+      setPending(false);
+    }
   }
 
   return (
