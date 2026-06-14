@@ -14,7 +14,12 @@ import type { Locale } from './i18n';
  * Model: gemini-2.5-flash — cheap + fast, accurate for short noun phrases.
  */
 
-const MODEL = 'gemini-2.5-flash';
+// gemini-2.0-flash chosen for the much more generous free-tier quota
+// (1500 RPD vs 20 RPD on 2.5-flash) — accuracy for short noun-phrase
+// translations is indistinguishable. Each model has its own quota, so
+// switching here also frees up daily allowance immediately, even if 2.5
+// was already exhausted.
+const MODEL = 'gemini-2.0-flash';
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 export interface TranslatedName {

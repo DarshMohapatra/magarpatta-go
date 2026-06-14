@@ -4,6 +4,10 @@ import { translateMenuName } from '@/lib/gemini';
 import { asLocale } from '@/lib/i18n';
 import { getAdminSession } from '@/lib/admin-session';
 
+// Backfill loops with throttling — needs more than the default 10s Hobby
+// timeout. 120s gives us headroom for the 20-call batch + 4.5s sleeps.
+export const maxDuration = 120;
+
 /**
  * One-shot backfill: walk every Product (and Category) that lacks a Hindi
  * or Marathi translation, call Gemini, save. Idempotent — only touches rows
@@ -41,7 +45,12 @@ export async function POST(req: Request) {
   }
 
   const url = new URL(req.url);
-  const limit = Math.min(500, Math.max(1, Number(url.searchParams.get('limit') ?? 200)));
+  // Default 20 per batch: stays under gemini-2.0-flash's 15 RPM ceiling
+  // once we factor in the 4.5s throttle between calls (20 calls × 4.5s
+  // ≈ 90s, fits the maxDuration below). Smaller batches return more
+  // often, so the admin UI can show steady progress.
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit') ?? 20)));
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   // Pick up anything missing a translation OR where every column holds the
   // same English text (the Gemini-fallback case we want to retry).
@@ -59,7 +68,8 @@ export async function POST(req: Request) {
   });
 
   let productsTranslated = 0;
-  for (const p of products) {
+  for (let i = 0; i < products.length; i++) {
+    const p = products[i];
     const sourceLang = asLocale(p.nameSourceLang);
     const tx = await translateMenuName(p.name, sourceLang);
     // Skip if Gemini gave us back the same English in every slot — that
@@ -70,6 +80,10 @@ export async function POST(req: Request) {
       data: { name: tx.en, nameHi: tx.hi, nameMr: tx.mr },
     });
     productsTranslated++;
+    // Throttle: gemini-2.0-flash free tier is ~15 RPM, so 1 call every
+    // ~4.5s keeps us safely under the ceiling. Skip the sleep after the
+    // last item — no point delaying the response.
+    if (i < products.length - 1) await sleep(4500);
   }
 
   // Same treatment for categories — seeded ones are already in Hindi/Marathi,
