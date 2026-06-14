@@ -13,13 +13,12 @@ import { getAdminSession } from '@/lib/admin-session';
  *
  * Auth: admin session OR Bearer CRON_SECRET. SUPER_ADMIN / OPS only.
  */
-const TRACKED_PREFIXES = ['BLOB_', 'AZURE_', 'TWILIO_', 'WHATSAPP_', 'CRON_', 'DATABASE_', 'VERCEL_'];
+const TRACKED_PREFIXES = ['BLOB_', 'MYMEMORY_', 'TWILIO_', 'WHATSAPP_', 'CRON_', 'DATABASE_', 'VERCEL_'];
 const TRACKED_EXACT = [
   'BLOB_READ_WRITE_TOKEN',
   'BLOB_STORE_ID',
   'BLOB_WEBHOOK_PUBLIC_KEY',
-  'AZURE_TRANSLATOR_KEY',
-  'AZURE_TRANSLATOR_REGION',
+  'MYMEMORY_EMAIL',
   'CRON_SECRET',
   'DATABASE_URL',
   'TWILIO_ACCOUNT_SID',

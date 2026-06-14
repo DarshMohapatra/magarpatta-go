@@ -2,28 +2,28 @@ import 'server-only';
 import type { Locale } from './i18n';
 
 /**
- * Catalog name translation via Microsoft Azure Translator. Replaces the
- * earlier Gemini-based implementation that kept tripping over Google Cloud
- * free-tier eligibility quirks (limit: 0 even with the API enabled).
+ * Catalog name translation via MyMemory (https://mymemory.translated.net).
+ * Chosen for the zero-friction signup story: no API key, no billing, no
+ * credit card. Anonymous calls get 1,000 words/day; opting in by passing
+ * a contact email (via `MYMEMORY_EMAIL` env var) raises the cap to 50,000
+ * words/day — still no card required.
  *
- * Azure Translator's F0 tier is 2 million characters / month free, which
- * is several orders of magnitude more than any Phase-1 menu needs. Hindi
- * and Marathi are both first-class supported languages.
+ * MyMemory exposes one language pair per request, so translating into both
+ * Hindi and Marathi means two parallel HTTP calls per item. For our short
+ * noun-phrase use case (1-3 words per item) the round-trips are cheap and
+ * the quota is several orders of magnitude beyond what any Phase-1 menu
+ * needs.
  *
- * Required env (set on Vercel → Project Settings → Environment Variables,
- * and declared in turbo.json so they reach the build/runtime):
- *   AZURE_TRANSLATOR_KEY    — the "Key 1" or "Key 2" from the Translator
- *                             resource's Keys and Endpoint page.
- *   AZURE_TRANSLATOR_REGION — the Azure region the resource was created
- *                             in, e.g. "centralindia" or "eastus". Required
- *                             when using the global endpoint.
+ * Optional env (recommended in production for the higher quota):
+ *   MYMEMORY_EMAIL — any contact email; sent verbatim in the `de` param
+ *                    so MyMemory can scope rate limits per project.
  *
- * When either env is missing OR the call fails, the helper returns the
- * source text in every slot. The caller continues normally — the customer
+ * When the call fails (timeout, rate limit, 5xx) the source text is
+ * returned in every slot. The caller continues normally; the customer
  * renderer's English fallback keeps the page rendering.
  */
 
-const ENDPOINT = 'https://api.cognitive.microsofttranslator.com/translate';
+const ENDPOINT = 'https://api.mymemory.translated.net/get';
 
 export interface TranslatedName {
   en: string;
@@ -35,6 +35,44 @@ function fallback(text: string): TranslatedName {
   return { en: text, hi: text, mr: text };
 }
 
+interface MyMemoryResponse {
+  responseData?: { translatedText?: string; match?: number };
+  responseStatus?: number;
+  responseDetails?: string;
+}
+
+async function translateOne(text: string, source: Locale, target: Locale): Promise<string | null> {
+  const params = new URLSearchParams({
+    q: text,
+    langpair: `${source}|${target}`,
+  });
+  const email = process.env.MYMEMORY_EMAIL;
+  if (email) params.set('de', email);
+
+  try {
+    const resp = await fetch(`${ENDPOINT}?${params.toString()}`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) {
+      console.error('[translate] http error', resp.status, target, await resp.text().catch(() => ''));
+      return null;
+    }
+    const data = (await resp.json()) as MyMemoryResponse;
+    // MyMemory uses HTTP 200 + a status field in the body for rate-limit and
+    // language-pair errors. 429 / 4xx come back here too. Anything other
+    // than 200 in responseStatus is treated as a failure for this slot.
+    if (data.responseStatus !== 200) {
+      console.error('[translate] api error', data.responseStatus, target, data.responseDetails);
+      return null;
+    }
+    const out = data.responseData?.translatedText?.trim();
+    return out && out.length > 0 ? out : null;
+  } catch (e) {
+    console.error('[translate] failed', target, (e as Error).message);
+    return null;
+  }
+}
+
 export async function translateMenuName(
   rawText: string,
   sourceLang: Locale,
@@ -42,56 +80,22 @@ export async function translateMenuName(
   const text = rawText.trim();
   if (!text) return { en: '', hi: '', mr: '' };
 
-  const key = process.env.AZURE_TRANSLATOR_KEY;
-  const region = process.env.AZURE_TRANSLATOR_REGION;
-  if (!key || !region) {
-    console.warn('[translate] AZURE_TRANSLATOR_KEY/REGION not set — skipping translation for:', text);
-    return fallback(text);
-  }
-
-  // Build the query: source language + the two non-source target languages.
-  // The source column will be filled with the original text (no round trip).
+  // Always seed the source-language slot with the original — there's
+  // nothing to translate there.
+  const out: TranslatedName = { en: text, hi: text, mr: text };
   const targets: Locale[] = (['en', 'hi', 'mr'] as Locale[]).filter((l) => l !== sourceLang);
-  const params = new URLSearchParams({
-    'api-version': '3.0',
-    from: sourceLang,
-  });
-  for (const t of targets) params.append('to', t);
 
-  try {
-    const resp = await fetch(`${ENDPOINT}?${params.toString()}`, {
-      method: 'POST',
-      headers: {
-        'Ocp-Apim-Subscription-Key': key,
-        'Ocp-Apim-Subscription-Region': region,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([{ text }]),
-      // Vendor's save form is waiting — fall back fast on slow networks
-      // rather than block the UI.
-      signal: AbortSignal.timeout(8000),
-    });
+  // Fire the two non-source language pairs in parallel. Failures fall back
+  // to the source text per-slot rather than blowing up the whole call.
+  const results = await Promise.all(
+    targets.map(async (target) => ({ target, text: await translateOne(text, sourceLang, target) })),
+  );
 
-    if (!resp.ok) {
-      console.error('[translate] http error', resp.status, await resp.text().catch(() => ''));
-      return fallback(text);
-    }
-
-    const data = (await resp.json()) as Array<{
-      translations?: Array<{ text: string; to: string }>;
-    }>;
-
-    // Start with source column = original; fill the other two from response.
-    const out: TranslatedName = { en: text, hi: text, mr: text };
-    const translations = data[0]?.translations ?? [];
-    for (const t of translations) {
-      if (t.to === 'en') out.en = t.text;
-      else if (t.to === 'hi') out.hi = t.text;
-      else if (t.to === 'mr') out.mr = t.text;
-    }
-    return out;
-  } catch (e) {
-    console.error('[translate] failed', (e as Error).message);
-    return fallback(text);
+  for (const r of results) {
+    if (!r.text) continue;
+    if (r.target === 'en') out.en = r.text;
+    else if (r.target === 'hi') out.hi = r.text;
+    else if (r.target === 'mr') out.mr = r.text;
   }
+  return out;
 }

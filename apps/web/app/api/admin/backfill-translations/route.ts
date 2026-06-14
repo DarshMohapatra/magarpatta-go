@@ -37,18 +37,14 @@ export async function POST(req: Request) {
   if (!cronOk && !sessionOk) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
-  if (!process.env.AZURE_TRANSLATOR_KEY || !process.env.AZURE_TRANSLATOR_REGION) {
-    return NextResponse.json(
-      { ok: false, error: 'Translator env not set (AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION required).' },
-      { status: 500 },
-    );
-  }
-
+  // MyMemory works anonymously (no env var required). MYMEMORY_EMAIL is
+  // optional and only raises the daily quota — we don't gate the backfill
+  // on it. If a single call fails the helper falls back per-slot, so the
+  // batch keeps making progress.
   const url = new URL(req.url);
-  // Azure Translator F0 free tier is generous (2M chars/month). 50 items per
-  // batch is comfortable — no per-call throttle needed since we'd burn through
-  // a typical 1-3 word translation in well under the rate cap. Returns often
-  // enough for the admin UI to show steady progress.
+  // MyMemory's anonymous tier is 1,000 words/day, ~50,000 with email. 50
+  // items per batch is comfortable for a launch-sized catalog. Smaller
+  // batches return more often so the admin UI shows steady progress.
   const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') ?? 50)));
 
   // Pick up anything missing a translation OR where every column holds the
