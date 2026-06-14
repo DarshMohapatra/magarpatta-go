@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { logActivity } from '@/lib/activity-log';
-import { translateMenuName } from '@/lib/translate';
+import { queueChange } from '@/lib/pending-change';
 import { asLocale } from '@/lib/i18n';
 
 export async function GET() {
@@ -29,8 +28,9 @@ export async function GET() {
 
 interface CreateBody {
   name?: string;
-  // 'en' | 'hi' | 'mr' — the language the vendor typed `name` in. Server
-  // translates to the other two via Gemini.
+  // 'en' | 'hi' | 'mr' — the language the vendor typed `name` in. Stored
+  // on the row so the admin reviewer / translations editor knows what they
+  // already have when filling in the other two languages.
   nameSourceLang?: string;
   description?: string;
   categorySlug?: string;
@@ -49,15 +49,14 @@ interface CreateBody {
 }
 
 /**
- * Add a new product to the vendor's menu. As of 2026-05 this WRITES STRAIGHT
- * TO THE CATALOG — no admin approval gate. Vendors needed faster turnaround
- * on stocking new items at launch, and the old PendingChange flow created
- * a multi-hour lag on something the vendor is best placed to judge anyway.
+ * Add a new product to the vendor's menu. Goes through the PendingChange
+ * queue — admin reviews + approves before customers see it. Translations
+ * (Hindi/Marathi) are added by admin via /admin/translations, either at
+ * approval time or anytime after.
  *
- * Edits to existing items (PATCH /api/vendor/products/[id]) and removals
- * still go through PendingChange. The asymmetry is intentional: a new row
- * the customer hasn't seen yet has zero blast radius, but an edit/remove
- * affects an item the customer may already have in their cart.
+ * The vendor's typed name is mirrored into the source-language column
+ * (nameHi or nameMr) so the partial localisation is already in place if the
+ * vendor wrote in Hindi/Marathi; admin fills the missing slots later.
  */
 export async function POST(req: Request) {
   const s = await getVendorSession();
@@ -80,59 +79,54 @@ export async function POST(req: Request) {
   const isRegulated = b.isRegulated ?? true;
   const priceInr = isRegulated ? mrp : (b.priceInr && b.priceInr > mrp ? Math.floor(b.priceInr) : mrp + 1);
   const soldByWeight = b.soldByWeight === true;
-  // Estimated grams is only meaningful when the item sells by weight. We
-  // accept it even when soldByWeight=false (vendor toggled and re-toggled),
-  // but null it out on save to keep the column clean.
   const estimatedGrams = soldByWeight && b.estimatedGrams && b.estimatedGrams > 0
     ? Math.floor(b.estimatedGrams)
     : null;
-
-  // Auto-translate the typed name into all three languages. If Gemini is
-  // unreachable or the API key is missing, the helper returns the source
-  // text in every slot — the row is still valid and the customer renderer
-  // falls back to `name` (English column).
   const nameSourceLang = asLocale(b.nameSourceLang);
-  const translated = await translateMenuName(typedName, nameSourceLang);
 
-  const product = await prisma.product.create({
-    data: {
-      vendorId: s.vendorId,
-      categoryId: category.id,
-      name: translated.en,
-      nameHi: translated.hi,
-      nameMr: translated.mr,
-      nameSourceLang,
-      description: b.description?.trim() || null,
-      priceInr,
-      mrpInr: mrp,
-      isRegulated,
-      isVeg: b.isVeg ?? true,
-      soldByWeight,
-      estimatedGrams,
-      unit: b.unit?.trim() || null,
-      imageUrl: b.imageUrl?.trim() || null,
-      accent: b.accent?.trim() || 'forest',
-      glyph: b.glyph?.trim() || category.glyph || 'leaf',
-      inStock: true,
-    },
+  // Mirror the typed name into its language column so admin already has one
+  // slot filled when they get to the translations editor. The other two
+  // language columns stay null until admin types them.
+  const payload = {
+    vendorId: s.vendorId,
+    categoryId: category.id,
+    // categorySlug is stripped from the payload at approve-time — it's only
+    // here for admin display while reviewing.
+    categorySlug,
+    name: typedName,
+    nameHi: nameSourceLang === 'hi' ? typedName : null,
+    nameMr: nameSourceLang === 'mr' ? typedName : null,
+    nameSourceLang,
+    description: b.description?.trim() || null,
+    priceInr,
+    mrpInr: mrp,
+    isRegulated,
+    isVeg: b.isVeg ?? true,
+    soldByWeight,
+    estimatedGrams,
+    unit: b.unit?.trim() || null,
+    imageUrl: b.imageUrl?.trim() || null,
+    accent: b.accent?.trim() || 'forest',
+    glyph: b.glyph?.trim() || category.glyph || 'leaf',
+  };
+
+  const change = await queueChange({
+    entity: 'PRODUCT',
+    entityId: null,
+    operation: 'CREATE',
+    payload: payload as never,
+    summary: `${s.shopName} · add "${typedName}"`,
+    vendorId: s.vendorId,
   });
-
-  // Burn the public menu cache so the new item shows up for customers on
-  // the next read, not after the 30s TTL.
-  revalidateTag('menu');
 
   await logActivity({
     actorRole: 'VENDOR',
     actorId: s.vendorId,
     actorName: s.shopName,
-    action: 'PRODUCT_CREATE',
-    summary: `${s.shopName} added item "${translated.en}" (live)`,
-    metadata: { productId: product.id, name: translated.en, nameSourceLang, instant: true },
+    action: 'PRODUCT_CREATE_REQUEST',
+    summary: `${s.shopName} submitted item "${typedName}" for review`,
+    metadata: { name: typedName, nameSourceLang, pendingChangeId: change.id },
   });
 
-  return NextResponse.json({
-    ok: true,
-    productId: product.id,
-    translated: { en: translated.en, hi: translated.hi, mr: translated.mr },
-  });
+  return NextResponse.json({ ok: true, queued: true, pendingId: change.id });
 }

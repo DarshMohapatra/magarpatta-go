@@ -3,7 +3,6 @@ import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange, pickFields } from '@/lib/pending-change';
-import { translateMenuName } from '@/lib/translate';
 import { asLocale } from '@/lib/i18n';
 
 interface PatchBody {
@@ -38,17 +37,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const b = (await req.json()) as PatchBody;
   const data: Record<string, unknown> = {};
-  // Name + source language go through Gemini so the admin reviewer sees the
-  // localized payload BEFORE approving — they're not blindly approving an
-  // English-only edit. If the name didn't change we don't re-translate.
+  // Name edits store the vendor's typed text in the source-language column
+  // and `name` (English fallback). Admin re-translates via the translations
+  // editor if needed — there's no auto-translate step on the API side.
   if (typeof b.name === 'string') {
     const typedName = b.name.trim();
-    data.name = typedName; // overwritten with translated.en below
     const sourceLang = asLocale(b.nameSourceLang ?? existing.nameSourceLang);
-    const translated = await translateMenuName(typedName, sourceLang);
-    data.name = translated.en;
-    data.nameHi = translated.hi;
-    data.nameMr = translated.mr;
+    data.name = typedName;
+    if (sourceLang === 'hi') data.nameHi = typedName;
+    else if (sourceLang === 'mr') data.nameMr = typedName;
     data.nameSourceLang = sourceLang;
   }
   if (typeof b.description === 'string') data.description = b.description.trim() || null;

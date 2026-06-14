@@ -70,6 +70,7 @@ export default async function AdminHome() {
           <Tile href="/admin/campaigns" title="Pending campaigns" body="Flash sales, festival pushes, late-night deals." />
           <Tile href="/admin/changes" title="Pending menu approvals" body="Curator-forwarded menu imports and vendor edits." />
           <Tile href="/admin/orders" title="Live orders board" body="Reassign riders, cancel with refund note." />
+          <Tile href="/admin/translations" title="Translate catalog (Hindi / Marathi)" body="Fill in हिंदी and मराठी names for every product so the customer language toggle works." />
         </div>
       </div>
     </AdminShell>

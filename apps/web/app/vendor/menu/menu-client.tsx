@@ -161,19 +161,14 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       const j = await r.json();
       if (!j.ok) { alert(j.error ?? 'Could not save'); setSaving(false); return; }
       setDrawerOpen(false);
-      // New items go live immediately (no admin queue). Edits still queue.
-      // On create, surface the auto-translated names so the vendor sees what
-      // customers will read in Hindi + Marathi.
-      let confirmMsg: string;
-      if (editingId) {
-        confirmMsg = j.queued ? 'Edit submitted for review ✓' : 'Saved ✓';
-      } else if (j.translated && (j.translated.hi !== j.translated.en || j.translated.mr !== j.translated.en)) {
-        confirmMsg = `Added — translated to ${j.translated.hi} · ${j.translated.mr} ✓`;
-      } else {
-        confirmMsg = 'Added to your menu — live now ✓';
-      }
+      // Both add and edit go through the PendingChange queue — admin reviews
+      // and translates each item before customers see it. No more "live now"
+      // shortcut for adds.
+      const confirmMsg = editingId
+        ? (j.queued ? 'Edit submitted for review ✓' : 'Saved ✓')
+        : 'Submitted for review ✓';
       setToast(confirmMsg);
-      setTimeout(() => setToast(null), 4500);
+      setTimeout(() => setToast(null), 3500);
       load();
     } finally {
       setSaving(false);
@@ -217,7 +212,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           </h1>
           <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
             Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
-            <span className="block mt-1">New items go live immediately. Edits + removals still go through {siteConfig.platformName} review. Stock toggle is instant.</span>
+            <span className="block mt-1">New items, edits, and removals all go through {siteConfig.platformName} review before customers see them. Stock toggle (in stock / out) is the only instant change.</span>
           </p>
           {pendingCount > 0 && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-saffron)]/12 text-[color:var(--color-saffron)] px-3 py-1 text-[11.5px]">
