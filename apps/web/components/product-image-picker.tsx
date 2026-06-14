@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { upload } from '@vercel/blob/client';
 
 /**
  * Image picker for the vendor's menu add/edit drawer. Two modes:
- *   - Upload: vendor picks a file from their phone/laptop, it goes straight
- *     to Vercel Blob via /api/upload/product-image, and the public URL is
- *     handed back to the parent form via `onChange`.
+ *   - Upload: vendor picks a file from their phone/laptop, it's POSTed as
+ *     multipart/form-data to /api/upload/product-image which forwards to
+ *     Vercel Blob via put() and returns the public URL.
  *   - Paste URL: vendor pastes a hosted image URL (legacy path, kept so
  *     CDN-hosted images still work without re-uploading).
  *
@@ -28,11 +27,12 @@ export function ProductImagePicker({
     setBusy(true);
     setError(null);
     try {
-      const blob = await upload(`product-images/${Date.now()}-${file.name}`, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload/product-image',
-      });
-      onChange(blob.url);
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch('/api/upload/product-image', { method: 'POST', body: fd });
+      const j = (await r.json()) as { ok: boolean; url?: string; error?: string };
+      if (!j.ok || !j.url) throw new Error(j.error || 'Upload failed');
+      onChange(j.url);
     } catch (e) {
       setError((e as Error).message || 'Upload failed');
     } finally {
