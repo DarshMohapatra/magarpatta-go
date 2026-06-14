@@ -16,10 +16,25 @@ import { getVendorSession } from '@/lib/vendor-session';
 export async function POST(req: Request): Promise<NextResponse> {
   const vendor = await getVendorSession();
   if (!vendor) {
+    console.error('[blob-upload] not signed in');
     return NextResponse.json({ ok: false, error: 'Not signed in' }, { status: 401 });
   }
   if (vendor.approvalStatus !== 'APPROVED') {
+    console.error('[blob-upload] vendor not approved', vendor.vendorId);
     return NextResponse.json({ ok: false, error: 'Shop is not yet approved.' }, { status: 403 });
+  }
+
+  // Loud-on-failure diagnostics: the most common cause of "Failed to retrieve
+  // the client token" is BLOB_READ_WRITE_TOKEN missing from the Lambda
+  // runtime env. Log it before handleUpload so we can tell from the runtime
+  // logs whether the env reached us or not.
+  const tokenPresent = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  console.log('[blob-upload] BLOB_READ_WRITE_TOKEN present:', tokenPresent, '· vendor:', vendor.vendorId);
+  if (!tokenPresent) {
+    return NextResponse.json(
+      { ok: false, error: 'Blob storage is not configured on the server (BLOB_READ_WRITE_TOKEN missing).' },
+      { status: 500 },
+    );
   }
 
   const body = (await req.json()) as HandleUploadBody;
@@ -39,6 +54,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
     return NextResponse.json(result);
   } catch (e) {
+    console.error('[blob-upload] handleUpload threw:', (e as Error).message);
     return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 400 });
   }
 }
