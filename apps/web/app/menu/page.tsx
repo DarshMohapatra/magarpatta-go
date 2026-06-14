@@ -9,6 +9,7 @@ import { applyDiscount, discountFor } from '@/lib/active-discounts';
 import { getActiveDiscounts, getAllInStockProducts, getMenuCategories } from '@/lib/menu-cache';
 import { resolveAvailability } from '@/lib/product-availability';
 import { getWholesaleOnlyMode } from '@/lib/settings';
+import { getServerLocale } from '@/lib/locale';
 import type { ProductCardData } from '@/components/product-card';
 
 export const dynamic = 'force-dynamic';
@@ -73,11 +74,12 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
         },
       });
 
-  const [categories, productsRaw, discounts, wholesaleOnly] = await Promise.all([
+  const [categories, productsRaw, discounts, wholesaleOnly, locale] = await Promise.all([
     getMenuCategories(),
     productsPromise,
     getActiveDiscounts(),
     getWholesaleOnlyMode(),
+    getServerLocale(),
   ]);
 
   const wholesaleScoped = wholesaleOnly
@@ -97,6 +99,8 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
     return {
       id: p.id,
       name: p.name,
+      nameHi: p.nameHi,
+      nameMr: p.nameMr,
       description: p.description,
       priceInr: priced.priceInr,
       mrpInr: priced.mrpInr,
@@ -108,6 +112,8 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
       unit: p.unit,
       isVeg: p.isVeg,
       isRegulated: p.isRegulated,
+      soldByWeight: p.soldByWeight,
+      estimatedGrams: p.estimatedGrams,
       accent: p.accent,
       glyph: p.glyph,
       tagline: p.tagline,
@@ -136,6 +142,8 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
       id: c.id,
       slug: c.slug,
       name: c.name,
+      nameHi: c.nameHi,
+      nameMr: c.nameMr,
       glyph: c.glyph,
       productCount: countsBySlug.get(c.slug) ?? 0,
     }))
@@ -151,6 +159,7 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
       initialQuery={q}
       initialVegOnly={vegOnly}
       totalProducts={totalProducts}
+      locale={locale}
     />
   );
 }

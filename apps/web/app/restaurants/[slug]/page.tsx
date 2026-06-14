@@ -9,6 +9,8 @@ import { HighlightOnMount } from '@/components/highlight-on-mount';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getVendorBySlug, getVendorProducts } from '@/lib/menu-cache';
 import { getWholesaleOnlyMode } from '@/lib/settings';
+import { getServerLocale } from '@/lib/locale';
+import { pickName } from '@/lib/i18n';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -116,29 +118,35 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
 
 async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendorAccent: string | null }) {
   void vendorAccent;
-  const [products, discounts] = await Promise.all([
+  const [products, discounts, locale] = await Promise.all([
     getVendorProducts(vendorId),
     getActiveDiscounts(),
+    getServerLocale(),
   ]);
 
-  const byCategory = new Map<string, typeof products>();
+  // Group by category slug (stable across languages) — display name is
+  // pickName()'d at render time so each section header translates with the
+  // chosen locale.
+  type ProductWithCategory = typeof products[number];
+  type CategoryShape = ProductWithCategory['category'];
+  const bySlug = new Map<string, { category: CategoryShape; items: ProductWithCategory[] }>();
   for (const p of products) {
-    const key = p.category.name;
-    if (!byCategory.has(key)) byCategory.set(key, []);
-    byCategory.get(key)!.push(p);
+    const slug = p.category.slug;
+    if (!bySlug.has(slug)) bySlug.set(slug, { category: p.category, items: [] });
+    bySlug.get(slug)!.items.push(p);
   }
 
   return (
     <section className="py-12">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-        {byCategory.size > 1 && (
+        {bySlug.size > 1 && (
           <div className="hidden lg:block sticky top-16 bg-[color:var(--color-cream)]/85 backdrop-blur-md -mx-10 px-10 py-3 border-y border-[color:var(--color-ink)]/8 z-20 mb-8">
             <nav className="flex items-center gap-5 overflow-x-auto">
-              {[...byCategory.keys()].map((cat) => (
-                <a key={cat} href={`#${cat.toLowerCase().replace(/\s+/g, '-')}`} className="shrink-0 text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] whitespace-nowrap">
-                  {cat}
+              {[...bySlug.values()].map(({ category, items }) => (
+                <a key={category.slug} href={`#${category.slug}`} className="shrink-0 text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] whitespace-nowrap">
+                  {pickName(category, locale)}
                   <span className="ml-1.5 text-[11px] text-[color:var(--color-ink-soft)]/50">
-                    ({byCategory.get(cat)!.length})
+                    ({items.length})
                   </span>
                 </a>
               ))}
@@ -147,21 +155,23 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
         )}
 
         <div className="space-y-12">
-          {[...byCategory.entries()].map(([catName, products]) => (
-            <section key={catName} id={catName.toLowerCase().replace(/\s+/g, '-')}>
+          {[...bySlug.values()].map(({ category, items }) => (
+            <section key={category.slug} id={category.slug}>
               <div className="flex items-baseline justify-between mb-4">
-                <h2 className="font-serif text-[28px] sm:text-[32px] leading-tight">{catName}</h2>
+                <h2 className="font-serif text-[28px] sm:text-[32px] leading-tight">{pickName(category, locale)}</h2>
                 <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
-                  {products.length} item{products.length === 1 ? '' : 's'}
+                  {items.length} item{items.length === 1 ? '' : 's'}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-                {products.map((p) => {
+                {items.map((p) => {
                   const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: p.priceInr, mrpInr: p.mrpInr }, discounts);
                   const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
                   const data: ProductCardData = {
                     id: p.id,
                     name: p.name,
+                    nameHi: p.nameHi,
+                    nameMr: p.nameMr,
                     description: p.description,
                     priceInr: priced.priceInr,
                     mrpInr: priced.mrpInr,
@@ -173,6 +183,8 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
                     unit: p.unit,
                     isVeg: p.isVeg,
                     isRegulated: p.isRegulated,
+                    soldByWeight: p.soldByWeight,
+                    estimatedGrams: p.estimatedGrams,
                     accent: p.accent,
                     glyph: p.glyph,
                     tagline: p.tagline,
@@ -181,7 +193,7 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
                   };
                   return (
                     <div key={p.id} id={`product-${p.id}`} className="rounded-2xl scroll-mt-32">
-                      <ProductCard product={data} />
+                      <ProductCard product={data} locale={locale} />
                     </div>
                   );
                 })}

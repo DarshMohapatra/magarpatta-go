@@ -3,15 +3,20 @@ import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange, pickFields } from '@/lib/pending-change';
+import { translateMenuName } from '@/lib/gemini';
+import { asLocale } from '@/lib/i18n';
 
 interface PatchBody {
   name?: string;
+  nameSourceLang?: string;
   description?: string;
   mrpInr?: number;
   priceInr?: number;
   isRegulated?: boolean;
   isVeg?: boolean;
   inStock?: boolean;
+  soldByWeight?: boolean;
+  estimatedGrams?: number | null;
   unit?: string;
   imageUrl?: string;
   accent?: string;
@@ -33,7 +38,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const b = (await req.json()) as PatchBody;
   const data: Record<string, unknown> = {};
-  if (typeof b.name === 'string') data.name = b.name.trim();
+  // Name + source language go through Gemini so the admin reviewer sees the
+  // localized payload BEFORE approving — they're not blindly approving an
+  // English-only edit. If the name didn't change we don't re-translate.
+  if (typeof b.name === 'string') {
+    const typedName = b.name.trim();
+    data.name = typedName; // overwritten with translated.en below
+    const sourceLang = asLocale(b.nameSourceLang ?? existing.nameSourceLang);
+    const translated = await translateMenuName(typedName, sourceLang);
+    data.name = translated.en;
+    data.nameHi = translated.hi;
+    data.nameMr = translated.mr;
+    data.nameSourceLang = sourceLang;
+  }
   if (typeof b.description === 'string') data.description = b.description.trim() || null;
   if (typeof b.unit === 'string') data.unit = b.unit.trim() || null;
   if (typeof b.imageUrl === 'string') data.imageUrl = b.imageUrl.trim() || null;
@@ -41,6 +58,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (typeof b.glyph === 'string') data.glyph = b.glyph.trim();
   if (typeof b.isVeg === 'boolean') data.isVeg = b.isVeg;
   if (typeof b.isRegulated === 'boolean') data.isRegulated = b.isRegulated;
+
+  // soldByWeight + estimatedGrams travel together. When the toggle flips off
+  // we null the gram count to keep the column clean.
+  if (typeof b.soldByWeight === 'boolean') {
+    data.soldByWeight = b.soldByWeight;
+    if (!b.soldByWeight) data.estimatedGrams = null;
+  }
+  if (b.estimatedGrams !== undefined) {
+    const g = b.estimatedGrams;
+    data.estimatedGrams = typeof g === 'number' && g > 0 ? Math.floor(g) : null;
+  }
 
   const isRegulated = typeof b.isRegulated === 'boolean' ? b.isRegulated : existing.isRegulated;
 

@@ -4,6 +4,18 @@ import { useEffect, useState } from 'react';
 import { siteConfig } from '@/lib/site-config';
 import { DeliveryProofUpload } from '@/components/delivery-proof-upload';
 
+interface OrderItemRow {
+  id: string;
+  name: string;
+  quantity: number;
+  unit?: string | null;
+  priceInr: number;
+  soldByWeight: boolean;
+  estimatedGrams: number | null;
+  actualGrams: number | null;
+  reconciledAt: string | null;
+}
+
 interface OrderRow {
   id: string;
   status: string;
@@ -18,7 +30,7 @@ interface OrderRow {
   deliverySlotLabel: string | null;
   deliverySlotStart: string | null;
   deliverySlotEnd: string | null;
-  items: Array<{ name: string; quantity: number; unit?: string | null }>;
+  items: OrderItemRow[];
 }
 
 interface Data {
@@ -129,28 +141,39 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
       </Section>
 
       <Section title={data?.preparing.some((o) => o.fulfilmentMode === 'VENDOR_SELF') ? 'Preparing · mark ready, then set out' : 'Preparing · mark ready when food is boxed'} count={data?.preparing.length ?? 0}>
-        {data?.preparing.map((o) => (
-          <Card key={o.id} o={o}>
-            <div className="mt-3 flex gap-2">
-              <button
-                disabled={busy === o.id + ':ready'}
-                onClick={() => act(o.id, 'ready')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] px-4 py-2 text-[12.5px] font-medium hover:brightness-95 disabled:opacity-50"
-              >
-                {o.fulfilmentMode === 'VENDOR_SELF' ? 'Mark ready (boxed)' : 'Ready for pickup'}
-              </button>
-              {o.fulfilmentMode === 'VENDOR_SELF' && (
-                <button
-                  disabled={busy === o.id + ':out-for-delivery'}
-                  onClick={() => act(o.id, 'out-for-delivery')}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
-                >
-                  Head out now →
-                </button>
+        {data?.preparing.map((o) => {
+          const needsWeights = o.items.some((it) => it.soldByWeight && !it.reconciledAt);
+          return (
+            <Card key={o.id} o={o}>
+              {needsWeights && (
+                <WeightReconcileForm
+                  orderId={o.id}
+                  items={o.items.filter((it) => it.soldByWeight && !it.reconciledAt)}
+                  onDone={load}
+                />
               )}
-            </div>
-          </Card>
-        ))}
+              <div className="mt-3 flex gap-2 flex-wrap">
+                <button
+                  disabled={busy === o.id + ':ready' || needsWeights}
+                  title={needsWeights ? 'Confirm actual weights first' : undefined}
+                  onClick={() => act(o.id, 'ready')}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] px-4 py-2 text-[12.5px] font-medium hover:brightness-95 disabled:opacity-50"
+                >
+                  {o.fulfilmentMode === 'VENDOR_SELF' ? 'Mark ready (boxed)' : 'Ready for pickup'}
+                </button>
+                {o.fulfilmentMode === 'VENDOR_SELF' && (
+                  <button
+                    disabled={busy === o.id + ':out-for-delivery' || needsWeights}
+                    onClick={() => act(o.id, 'out-for-delivery')}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+                  >
+                    Head out now →
+                  </button>
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </Section>
 
       <Section title="Ready · waiting for pickup / leaving shop" count={data?.ready.length ?? 0}>
@@ -230,6 +253,127 @@ function formatDeliveryDay(iso: string): string {
   if (day === todayIst) return 'today';
   if (day === tomorrowIst) return 'tomorrow';
   return d.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', timeZone: 'Asia/Kolkata' });
+}
+
+/**
+ * Inline form on the "Preparing" card that lets the vendor enter the actual
+ * weighed grams for each soldByWeight item. Computes the per-gram rate from
+ * the order-time (priceInr / estimatedGrams), shows the projected new total,
+ * and POSTs to /reconcile-weight. Server fires the customer notification.
+ *
+ * A delta of >15% requires a short note (e.g. "smaller heap today"); the
+ * note travels with the customer's WhatsApp + bell notification.
+ */
+function WeightReconcileForm({
+  orderId,
+  items,
+  onDone,
+}: {
+  orderId: string;
+  items: OrderItemRow[];
+  onDone: () => void | Promise<void>;
+}) {
+  const [draft, setDraft] = useState<Record<string, { grams: string; note: string }>>(() =>
+    Object.fromEntries(items.map((it) => [it.id, { grams: '', note: '' }])),
+  );
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  function projected(it: OrderItemRow, gramsStr: string): { newInr: number; deltaPct: number } | null {
+    const g = Number(gramsStr);
+    if (!g || g <= 0 || !it.estimatedGrams || it.estimatedGrams <= 0) return null;
+    const rate = it.priceInr / it.estimatedGrams;
+    const newInr = Math.max(1, Math.round(rate * g));
+    const deltaPct = it.priceInr === 0 ? 0 : Math.abs(newInr - it.priceInr) / it.priceInr * 100;
+    return { newInr, deltaPct };
+  }
+
+  async function submit() {
+    setBusy(true);
+    setErr(null);
+    try {
+      const payload = {
+        items: items.map((it) => ({
+          orderItemId: it.id,
+          actualGrams: Number(draft[it.id]?.grams || 0),
+          note: draft[it.id]?.note?.trim() || undefined,
+        })),
+      };
+      const r = await fetch(`/api/vendor/orders/${orderId}/reconcile-weight`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const j = await r.json();
+      if (!j.ok) { setErr(j.error ?? 'Could not save weights'); return; }
+      await onDone();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 rounded-xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/6 p-3.5 space-y-3">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] font-medium">
+        Confirm actual weights
+      </div>
+      <ul className="space-y-2.5">
+        {items.map((it) => {
+          const d = draft[it.id] ?? { grams: '', note: '' };
+          const proj = projected(it, d.grams);
+          const needsNote = proj != null && proj.deltaPct > 15;
+          return (
+            <li key={it.id} className="grid sm:grid-cols-[1.2fr_90px_1fr] gap-2 items-start">
+              <div className="text-[12.5px]">
+                <div className="font-medium truncate">{it.name}</div>
+                <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/70">
+                  est. {it.estimatedGrams ?? '?'}g · ₹{it.priceInr}
+                  {it.priceInr > 0 && it.estimatedGrams ? (
+                    <span> · ₹{(it.priceInr / it.estimatedGrams).toFixed(2)}/g</span>
+                  ) : null}
+                </div>
+              </div>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                placeholder="grams"
+                value={d.grams}
+                onChange={(e) => setDraft((s) => ({ ...s, [it.id]: { ...s[it.id], grams: e.target.value } }))}
+                className="rounded-md border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] px-2.5 py-1.5 text-[12.5px]"
+              />
+              <div className="space-y-1">
+                {proj && (
+                  <div className={`text-[11px] ${proj.deltaPct > 15 ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-forest)]'}`}>
+                    → ₹{proj.newInr} ({proj.deltaPct > 0 ? proj.deltaPct.toFixed(0) : 0}% {proj.newInr > it.priceInr ? 'up' : 'down'})
+                  </div>
+                )}
+                {needsNote && (
+                  <input
+                    type="text"
+                    placeholder="Why? (smaller heap, larger pick…)"
+                    value={d.note}
+                    onChange={(e) => setDraft((s) => ({ ...s, [it.id]: { ...s[it.id], note: e.target.value } }))}
+                    className="w-full rounded-md border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-paper)] px-2.5 py-1.5 text-[11.5px]"
+                  />
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {err && (
+        <div className="text-[11.5px] text-[color:var(--color-terracotta)]">{err}</div>
+      )}
+      <button
+        disabled={busy || items.some((it) => !draft[it.id]?.grams)}
+        onClick={submit}
+        className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+      >
+        {busy ? 'Confirming…' : 'Confirm weights · notify customer'}
+      </button>
+    </div>
+  );
 }
 
 function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; muted?: boolean; children?: React.ReactNode }) {

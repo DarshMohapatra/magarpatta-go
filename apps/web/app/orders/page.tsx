@@ -7,6 +7,8 @@ import { CartDrawer } from '@/components/cart-drawer';
 import { statusLabel } from '@/lib/orders';
 import { ProductGlyph } from '@/components/product-glyph';
 import { ReorderButton } from '@/components/reorder-button';
+import { getServerLocale } from '@/lib/locale';
+import { pickName } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,10 +17,13 @@ export default async function OrdersPage() {
   if (!scope) redirect('/signin');
 
   // Wrapper auto-applies userId — empty where is safe.
-  const orders = await scope.db.order.findMany({
-    orderBy: { placedAt: 'desc' },
-    include: { items: true },
-  });
+  const [orders, locale] = await Promise.all([
+    scope.db.order.findMany({
+      orderBy: { placedAt: 'desc' },
+      include: { items: true },
+    }),
+    getServerLocale(),
+  ]);
 
   return (
     <main className="relative z-10 min-h-screen">
@@ -56,6 +61,8 @@ export default async function OrdersPage() {
                 const reorderItems = o.items.map((i) => ({
                   productId: i.productId,
                   name: i.name,
+                  nameHi: i.nameHi,
+                  nameMr: i.nameMr,
                   vendorName: i.vendorName,
                   unit: i.unit,
                   priceInr: i.priceInr,
@@ -65,6 +72,8 @@ export default async function OrdersPage() {
                   accent: i.accent,
                   glyph: i.glyph,
                   imageUrl: i.imageUrl,
+                  soldByWeight: i.soldByWeight,
+                  estimatedGrams: i.estimatedGrams,
                 }));
 
                 return (
@@ -91,7 +100,7 @@ export default async function OrdersPage() {
                             </span>
                           </div>
                           <div className="font-serif text-[22px] leading-tight text-[color:var(--color-ink)]">
-                            {o.items.slice(0, 2).map((i) => i.name).join(', ')}
+                            {o.items.slice(0, 2).map((i) => pickName(i, locale)).join(', ')}
                             {o.items.length > 2 && (
                               <span className="text-[color:var(--color-ink-soft)]"> · +{o.items.length - 2} more</span>
                             )}
@@ -114,7 +123,7 @@ export default async function OrdersPage() {
                             >
                               {i.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={i.imageUrl} alt={i.name} className="absolute inset-0 w-full h-full object-cover" />
+                                <img src={i.imageUrl} alt={pickName(i, locale)} className="absolute inset-0 w-full h-full object-cover" />
                               ) : (
                                 <div className="scale-[0.4]"><ProductGlyph glyph={i.glyph} accent={i.accent} /></div>
                               )}

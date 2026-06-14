@@ -9,12 +9,16 @@ import { DeliveryProofUpload } from '@/components/delivery-proof-upload';
 import { ProductGlyph } from '@/components/product-glyph';
 import { deliveryOtp } from '@/lib/orders';
 import { useCart } from '@/lib/cart';
+import { useClientLocale } from '@/lib/locale-client';
+import { pickName } from '@/lib/i18n';
 import { GIFT_WRAP_FEE, INSURANCE_FEE } from '@/lib/pricing';
 
 interface OrderItem {
   id: string;
   productId: string;
   name: string;
+  nameHi: string | null;
+  nameMr: string | null;
   vendorName: string;
   unit: string | null;
   priceInr: number;
@@ -24,6 +28,15 @@ interface OrderItem {
   accent: string | null;
   glyph: string | null;
   imageUrl: string | null;
+  // Weight reconciliation snapshot. estimated* is what the customer paid for;
+  // actual* is filled by the vendor before delivery. Customer detail page
+  // surfaces both side-by-side once reconciled.
+  soldByWeight: boolean;
+  estimatedGrams: number | null;
+  actualGrams: number | null;
+  actualPriceInr: number | null;
+  reconcileNote: string | null;
+  reconciledAt: string | null;
 }
 
 interface OrderData {
@@ -71,6 +84,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
   const router = useRouter();
   const cartAdd = useCart((s) => s.add);
   const cartClear = useCart((s) => s.clear);
+  const locale = useClientLocale();
 
   const placedMs = new Date(order.placedAt).getTime();
   const wallElapsed = Math.floor((Date.now() - placedMs) / 1000);
@@ -103,6 +117,8 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
         cartAdd({
           id: it.productId,
           name: it.name,
+          nameHi: it.nameHi,
+          nameMr: it.nameMr,
           priceInr: it.priceInr,
           mrpInr: it.mrpInr ?? it.priceInr,
           isRegulated: it.isRegulated,
@@ -111,6 +127,8 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           glyph: it.glyph,
           imageUrl: it.imageUrl,
           vendorName: it.vendorName,
+          soldByWeight: it.soldByWeight,
+          estimatedGrams: it.estimatedGrams,
         });
       }
     }
@@ -262,20 +280,37 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                   >
                     {it.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={it.imageUrl} alt={it.name} className="absolute inset-0 w-full h-full object-cover" />
+                      <img src={it.imageUrl} alt={pickName(it, locale)} className="absolute inset-0 w-full h-full object-cover" />
                     ) : (
                       <div className="scale-[0.45]"><ProductGlyph glyph={it.glyph} accent={it.accent} /></div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-serif text-[17px] leading-tight truncate">{it.name}</div>
+                    <div className="font-serif text-[17px] leading-tight truncate">{pickName(it, locale)}</div>
                     <div className="text-[12px] text-[color:var(--color-ink-soft)]/75 truncate">
                       {it.vendorName}
                       {it.unit && <span> · {it.unit}</span>}
                     </div>
+                    {/* Weight-priced items: surface both the estimate the customer
+                        paid against and the vendor's confirmed actual weight, so
+                        the bill is fully traceable on the order page. */}
+                    {it.soldByWeight && (
+                      <div className="mt-1.5 text-[11.5px] leading-snug">
+                        {it.reconciledAt && it.actualGrams && it.actualPriceInr != null ? (
+                          <span className="text-[color:var(--color-forest)]">
+                            Estimated {it.estimatedGrams}g · vendor confirmed {it.actualGrams}g · ₹{it.actualPriceInr}
+                            {it.reconcileNote && <span className="block text-[color:var(--color-ink-soft)]/70 italic">“{it.reconcileNote}”</span>}
+                          </span>
+                        ) : (
+                          <span className="text-[color:var(--color-ink-soft)]/75">
+                            Approx · ~{it.estimatedGrams}g — vendor confirms before delivery
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-serif text-[17px]">₹{(it.mrpInr ?? it.priceInr) * it.quantity}</div>
+                    <div className="font-serif text-[17px]">₹{(it.actualPriceInr ?? it.mrpInr ?? it.priceInr) * it.quantity}</div>
                     <div className="text-[11px] text-[color:var(--color-ink-soft)]/70">× {it.quantity}</div>
                   </div>
                 </li>

@@ -6,6 +6,11 @@ import { persist } from 'zustand/middleware';
 export interface CartProduct {
   id: string;
   name: string;
+  /** Hindi translation snapshot — null when the vendor saved before i18n
+   *  or Gemini was unreachable. The cart renderer falls back to `name`. */
+  nameHi?: string | null;
+  /** Marathi translation snapshot. */
+  nameMr?: string | null;
   priceInr: number;       // what we charge (mrp + ₹1 for non-reg, or discounted)
   mrpInr: number;         // sticker price shown to customer (post-discount if any)
   isRegulated: boolean;   // true = no markup
@@ -22,6 +27,11 @@ export interface CartProduct {
   campaignTitle?: string | null;
   /** Campaign type (e.g. WEEKEND) — drives the coupon-style code label. */
   campaignType?: string | null;
+  /** Loose-produce flag — priceInr/mrpInr are an *estimate* tied to
+   *  estimatedGrams. Vendor reconciles actual weight before delivery; the
+   *  cart shows an "Approx · final by weight" pill on these items. */
+  soldByWeight?: boolean;
+  estimatedGrams?: number | null;
 }
 
 export interface CartItem extends CartProduct {

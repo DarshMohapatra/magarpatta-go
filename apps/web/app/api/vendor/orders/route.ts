@@ -34,7 +34,23 @@ const VENDOR_ORDER_SELECT = {
   deliverySlotLabel: true,
   deliverySlotStart: true,
   deliverySlotEnd: true,
-  items: { select: { name: true, quantity: true, unit: true } },
+  items: {
+    select: {
+      id: true,
+      name: true,
+      quantity: true,
+      unit: true,
+      // Weight reconciliation: the vendor card surfaces a "Confirm weights"
+      // step when soldByWeight items haven't been reconciled yet. The price
+      // fields let the inline form display the per-gram rate the customer
+      // was billed against.
+      priceInr: true,
+      soldByWeight: true,
+      estimatedGrams: true,
+      actualGrams: true,
+      reconciledAt: true,
+    },
+  },
 } as const;
 
 export async function GET() {

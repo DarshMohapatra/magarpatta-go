@@ -4,12 +4,15 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ProductCard, type ProductCardData } from '@/components/product-card';
+import { pickName, type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface CategoryItem {
   id: string;
   slug: string;
   name: string;
+  nameHi: string | null;
+  nameMr: string | null;
   glyph: string | null;
   productCount: number;
 }
@@ -21,6 +24,7 @@ interface Props {
   initialQuery: string;
   initialVegOnly: boolean;
   totalProducts: number;
+  locale: Locale;
 }
 
 export function MenuClient({
@@ -30,6 +34,7 @@ export function MenuClient({
   initialQuery,
   initialVegOnly,
   totalProducts,
+  locale,
 }: Props) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery);
@@ -51,6 +56,7 @@ export function MenuClient({
   }
 
   const activeCategory = categories.find((c) => c.slug === activeSlug);
+  const activeCategoryName = activeCategory ? pickName(activeCategory, locale) : null;
 
   return (
     <section className="pt-20 sm:pt-24 pb-16">
@@ -62,11 +68,11 @@ export function MenuClient({
               {totalProducts} items
             </div>
             <h1 className="mt-2 font-serif text-[28px] sm:text-[40px] lg:text-[56px] leading-[1.02] tracking-[-0.02em]">
-              {activeCategory ? (
+              {activeCategoryName ? (
                 <>
-                  {activeCategory.name.split(' ')[0]}{' '}
+                  {activeCategoryName.split(' ')[0]}{' '}
                   <span className="italic text-[color:var(--color-forest)]">
-                    {activeCategory.name.split(' ').slice(1).join(' ') || 'only'}
+                    {activeCategoryName.split(' ').slice(1).join(' ') || 'only'}
                   </span>
                 </>
               ) : (
@@ -165,7 +171,7 @@ export function MenuClient({
                   )}
                 >
                   <span className="flex items-center justify-between gap-3">
-                    {c.name}
+                    {pickName(c, locale)}
                     <span className="text-[11px] opacity-70">{c.productCount}</span>
                   </span>
                 </button>
@@ -178,7 +184,7 @@ export function MenuClient({
             {products.length === 0 ? (
               <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
                 <p className="font-serif text-[24px] leading-tight">
-                  Nothing matches <span className="italic">&ldquo;{q || activeCategory?.name}&rdquo;</span>.
+                  Nothing matches <span className="italic">&ldquo;{q || activeCategoryName}&rdquo;</span>.
                 </p>
                 <p className="mt-2 text-[13.5px] text-[color:var(--color-ink-soft)]">
                   Clear filters or try a different search.
@@ -197,7 +203,7 @@ export function MenuClient({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                 {products.map((p) => (
-                  <ProductCard key={p.id} product={p} viewShopOnAdd />
+                  <ProductCard key={p.id} product={p} viewShopOnAdd locale={locale} />
                 ))}
               </div>
             )}

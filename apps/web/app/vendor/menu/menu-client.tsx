@@ -4,10 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { siteConfig } from '@/lib/site-config';
 import { ProductImagePicker } from '@/components/product-image-picker';
+import { LOCALES, LOCALE_LABEL, type Locale } from '@/lib/i18n';
 
 interface Product {
   id: string;
   name: string;
+  nameHi: string | null;
+  nameMr: string | null;
+  nameSourceLang: string;
   description: string | null;
   priceInr: number;
   mrpInr: number | null;
@@ -15,6 +19,8 @@ interface Product {
   isVeg: boolean;
   isRegulated: boolean;
   inStock: boolean;
+  soldByWeight: boolean;
+  estimatedGrams: number | null;
   imageUrl: string | null;
   accent: string | null;
   glyph: string | null;
@@ -32,18 +38,28 @@ const ACCENTS = ['forest', 'saffron', 'terracotta', 'gold'];
 const GLYPHS = ['leaf', 'sweet', 'drop', 'grain', 'loaf', 'cut', 'pill', 'cup', 'box'];
 
 const EMPTY: FormState = {
-  name: '', description: '', categorySlug: '', mrpInr: '', priceInr: '',
-  isRegulated: false, isVeg: true, unit: '', imageUrl: '', accent: 'forest', glyph: 'leaf',
+  name: '', nameSourceLang: 'en',
+  description: '', categorySlug: '', mrpInr: '', priceInr: '',
+  isRegulated: false, isVeg: true,
+  soldByWeight: false, estimatedGrams: '',
+  unit: '', imageUrl: '', accent: 'forest', glyph: 'leaf',
 };
 
 interface FormState {
   name: string;
+  // Which language the vendor is typing `name` in. Server auto-fills the
+  // other two via Gemini on save.
+  nameSourceLang: Locale;
   description: string;
   categorySlug: string;
   mrpInr: string;
   priceInr: string;
   isRegulated: boolean;
   isVeg: boolean;
+  // Loose-produce flow: priceInr/mrpInr describe the estimated cost tied to
+  // `estimatedGrams`. Vendor reconciles actual weight before delivery.
+  soldByWeight: boolean;
+  estimatedGrams: string;
   unit: string;
   imageUrl: string;
   accent: string;
@@ -95,14 +111,23 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
 
   function openEdit(p: Product) {
     setEditingId(p.id);
+    // Load the name in whichever language the vendor originally typed, not
+    // the English translation. Keeps editing intuitive — they see their own
+    // text. If we have nothing in the source column (rare — Gemini fallback
+    // case) we fall back to English.
+    const sourceLang: Locale = (p.nameSourceLang === 'hi' || p.nameSourceLang === 'mr') ? p.nameSourceLang : 'en';
+    const sourceText = sourceLang === 'hi' ? (p.nameHi ?? p.name) : sourceLang === 'mr' ? (p.nameMr ?? p.name) : p.name;
     setForm({
-      name: p.name,
+      name: sourceText,
+      nameSourceLang: sourceLang,
       description: p.description ?? '',
       categorySlug: p.category.slug,
       mrpInr: String(p.mrpInr ?? p.priceInr),
       priceInr: String(p.priceInr),
       isRegulated: p.isRegulated,
       isVeg: p.isVeg,
+      soldByWeight: p.soldByWeight,
+      estimatedGrams: p.estimatedGrams ? String(p.estimatedGrams) : '',
       unit: p.unit ?? '',
       imageUrl: p.imageUrl ?? '',
       accent: p.accent ?? 'forest',
@@ -116,12 +141,15 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
     try {
       const body = {
         name: form.name,
+        nameSourceLang: form.nameSourceLang,
         description: form.description,
         categorySlug: form.categorySlug,
         mrpInr: Number(form.mrpInr),
         priceInr: form.isRegulated ? Number(form.mrpInr) : Number(form.priceInr || Number(form.mrpInr) + 1),
         isRegulated: form.isRegulated,
         isVeg: form.isVeg,
+        soldByWeight: form.soldByWeight,
+        estimatedGrams: form.soldByWeight && form.estimatedGrams ? Number(form.estimatedGrams) : null,
         unit: form.unit,
         imageUrl: form.imageUrl,
         accent: form.accent,
@@ -134,8 +162,18 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       if (!j.ok) { alert(j.error ?? 'Could not save'); setSaving(false); return; }
       setDrawerOpen(false);
       // New items go live immediately (no admin queue). Edits still queue.
-      setToast(editingId ? (j.queued ? 'Edit submitted for review ✓' : 'Saved ✓') : 'Added to your menu — live now ✓');
-      setTimeout(() => setToast(null), 3000);
+      // On create, surface the auto-translated names so the vendor sees what
+      // customers will read in Hindi + Marathi.
+      let confirmMsg: string;
+      if (editingId) {
+        confirmMsg = j.queued ? 'Edit submitted for review ✓' : 'Saved ✓';
+      } else if (j.translated && (j.translated.hi !== j.translated.en || j.translated.mr !== j.translated.en)) {
+        confirmMsg = `Added — translated to ${j.translated.hi} · ${j.translated.mr} ✓`;
+      } else {
+        confirmMsg = 'Added to your menu — live now ✓';
+      }
+      setToast(confirmMsg);
+      setTimeout(() => setToast(null), 4500);
       load();
     } finally {
       setSaving(false);
@@ -264,7 +302,34 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
               <button onClick={() => setDrawerOpen(false)} className="text-[12px] text-[color:var(--color-ink-soft)]">Close</button>
             </div>
             <div className="px-6 py-5 space-y-4">
-              <Field label="Name"><input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={inp} /></Field>
+              <Field label="Name">
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  className={inp}
+                  // The placeholder shifts with the chosen source language so the
+                  // vendor sees an example in the script they're about to type in.
+                  placeholder={form.nameSourceLang === 'hi' ? 'जैसे — टमाटर' : form.nameSourceLang === 'mr' ? 'उदा. — टोमॅटो' : 'e.g. Tomato'}
+                />
+                <div className="mt-2 flex items-center gap-2 text-[10.5px] text-[color:var(--color-ink-soft)]/75">
+                  <span className="uppercase tracking-[0.14em]">Typing in</span>
+                  <div className="inline-flex rounded-full border border-[color:var(--color-ink)]/15 overflow-hidden">
+                    {LOCALES.map((lng) => (
+                      <button
+                        key={lng}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, nameSourceLang: lng }))}
+                        className={`px-2.5 py-1 text-[11px] ${form.nameSourceLang === lng ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+                      >
+                        {LOCALE_LABEL[lng]}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-[color:var(--color-ink-soft)]/65">
+                    — we&apos;ll translate to the other two automatically.
+                  </span>
+                </div>
+              </Field>
               <Field label="Category">
                 <select value={form.categorySlug} onChange={(e) => setForm((f) => ({ ...f, categorySlug: e.target.value }))} className={inp}>
                   {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
@@ -284,7 +349,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                   <input type="number" inputMode="numeric" disabled={form.isRegulated} value={form.isRegulated ? form.mrpInr : form.priceInr} onChange={(e) => setForm((f) => ({ ...f, priceInr: e.target.value }))} className={inp} />
                 </Field>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
                 <label className="inline-flex items-center gap-2 text-[12.5px]">
                   <input type="checkbox" checked={form.isRegulated} onChange={(e) => setForm((f) => ({ ...f, isRegulated: e.target.checked }))} className="accent-[color:var(--color-forest)]" />
                   Sells at printed MRP (regulated)
@@ -293,7 +358,33 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                   <input type="checkbox" checked={form.isVeg} onChange={(e) => setForm((f) => ({ ...f, isVeg: e.target.checked }))} className="accent-[color:var(--color-forest)]" />
                   Vegetarian
                 </label>
+                <label className="inline-flex items-center gap-2 text-[12.5px]">
+                  <input
+                    type="checkbox"
+                    checked={form.soldByWeight}
+                    onChange={(e) => setForm((f) => ({ ...f, soldByWeight: e.target.checked, estimatedGrams: e.target.checked ? f.estimatedGrams : '' }))}
+                    className="accent-[color:var(--color-forest)]"
+                  />
+                  Sold by weight
+                </label>
               </div>
+              {form.soldByWeight && (
+                <div className="rounded-xl bg-[color:var(--color-forest)]/6 border border-[color:var(--color-forest)]/20 p-4 space-y-3">
+                  <Field label="Estimated weight (grams)">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={form.estimatedGrams}
+                      onChange={(e) => setForm((f) => ({ ...f, estimatedGrams: e.target.value }))}
+                      className={inp}
+                      placeholder="e.g. 250"
+                    />
+                  </Field>
+                  <p className="text-[11px] text-[color:var(--color-ink-soft)]/80 leading-relaxed">
+                    The MRP above will be shown to customers as an <em>estimate</em> tied to this gram count. Before delivery you&apos;ll weigh the actual amount and confirm the final price — customers get notified of the difference.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Accent colour">
                   <select value={form.accent} onChange={(e) => setForm((f) => ({ ...f, accent: e.target.value }))} className={inp}>

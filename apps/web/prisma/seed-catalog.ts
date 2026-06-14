@@ -2,16 +2,20 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Categories carry Hindi + Marathi translations so the section headers
+// localize on first load — no Gemini round-trip needed for these seeded
+// names. Vendor-suggested categories (future) would still go through the
+// Gemini path.
 const CATEGORIES = [
-  { slug: 'sweets-snacks',   name: 'Sweets & Snacks',   glyph: 'sweet',    order: 10 },
-  { slug: 'produce',         name: 'Fresh Produce',     glyph: 'leaf',     order: 20 },
-  { slug: 'dairy',           name: 'Dairy & Eggs',      glyph: 'drop',     order: 30 },
-  { slug: 'groceries',       name: 'Pantry Staples',    glyph: 'grain',    order: 40 },
-  { slug: 'bakery',          name: 'Bakery',            glyph: 'loaf',     order: 50 },
-  { slug: 'meat',            name: 'Fresh Meat',        glyph: 'cut',      order: 60 },
-  { slug: 'medicines',       name: 'Medicines',         glyph: 'pill',     order: 70 },
-  { slug: 'beverages',       name: 'Beverages',         glyph: 'cup',      order: 80 },
-  { slug: 'essentials',      name: 'Daily Essentials',  glyph: 'box',      order: 90 },
+  { slug: 'sweets-snacks',   name: 'Sweets & Snacks',   nameHi: 'मिठाई और स्नैक्स',   nameMr: 'मिठाई व खाद्यपदार्थ',  glyph: 'sweet',    order: 10 },
+  { slug: 'produce',         name: 'Fresh Produce',     nameHi: 'ताज़ी सब्ज़ी',         nameMr: 'ताजी भाजी',              glyph: 'leaf',     order: 20 },
+  { slug: 'dairy',           name: 'Dairy & Eggs',      nameHi: 'डेयरी और अंडे',       nameMr: 'दूध आणि अंडी',           glyph: 'drop',     order: 30 },
+  { slug: 'groceries',       name: 'Pantry Staples',    nameHi: 'किराना',              nameMr: 'किराणा',                 glyph: 'grain',    order: 40 },
+  { slug: 'bakery',          name: 'Bakery',            nameHi: 'बेकरी',               nameMr: 'बेकरी',                  glyph: 'loaf',     order: 50 },
+  { slug: 'meat',            name: 'Fresh Meat',        nameHi: 'ताज़ा मांस',           nameMr: 'ताजे मांस',              glyph: 'cut',      order: 60 },
+  { slug: 'medicines',       name: 'Medicines',         nameHi: 'दवाइयाँ',             nameMr: 'औषधे',                   glyph: 'pill',     order: 70 },
+  { slug: 'beverages',       name: 'Beverages',         nameHi: 'पेय पदार्थ',          nameMr: 'पेये',                   glyph: 'cup',      order: 80 },
+  { slug: 'essentials',      name: 'Daily Essentials',  nameHi: 'रोज़मर्रा का सामान',   nameMr: 'दैनंदिन गरजेच्या वस्तू', glyph: 'box',      order: 90 },
 ] as const;
 
 const VENDORS = [
@@ -117,7 +121,7 @@ async function main() {
     await prisma.category.upsert({
       where: { slug: c.slug },
       create: c,
-      update: { name: c.name, glyph: c.glyph, order: c.order },
+      update: { name: c.name, nameHi: c.nameHi, nameMr: c.nameMr, glyph: c.glyph, order: c.order },
     });
   }
   console.log(`  ✓ ${CATEGORIES.length} categories`);

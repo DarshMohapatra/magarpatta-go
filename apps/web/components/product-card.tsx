@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart, type CartProduct } from '@/lib/cart';
+import { pickName, type Locale } from '@/lib/i18n';
 import { ProductGlyph } from './product-glyph';
 import { VendorSwitchDialog } from './vendor-switch-dialog';
 import { cn } from '@/lib/utils';
@@ -10,12 +11,18 @@ import { cn } from '@/lib/utils';
 export interface ProductCardData {
   id: string;
   name: string;
+  nameHi?: string | null;
+  nameMr?: string | null;
   description?: string | null;
   priceInr: number;
   mrpInr?: number | null;
   unit?: string | null;
   isVeg: boolean;
   isRegulated: boolean;
+  /** Loose-produce flag — when true the priceInr/mrpInr shown is an estimate
+   *  tied to estimatedGrams; vendor reconciles before delivery. */
+  soldByWeight?: boolean;
+  estimatedGrams?: number | null;
   accent?: string | null;
   glyph?: string | null;
   tagline?: string | null;
@@ -56,6 +63,7 @@ const ACCENT_BG: Record<string, string> = {
 export function ProductCard({
   product,
   viewShopOnAdd = false,
+  locale = 'en',
 }: {
   product: ProductCardData;
   /**
@@ -65,7 +73,11 @@ export function ProductCard({
    * other things from the same vendor.
    */
   viewShopOnAdd?: boolean;
+  /** Customer's chosen display language. Comes from getServerLocale() at
+   *  the page level; defaults to English. */
+  locale?: Locale;
 }) {
+  const displayName = pickName(product, locale);
   const router = useRouter();
   const item = useCart((s) => s.items.find((i) => i.id === product.id));
   const add = useCart((s) => s.add);
@@ -78,6 +90,8 @@ export function ProductCard({
   const cartProduct: CartProduct = {
     id: product.id,
     name: product.name,
+    nameHi: product.nameHi ?? null,
+    nameMr: product.nameMr ?? null,
     priceInr: product.priceInr,
     mrpInr: product.mrpInr ?? product.priceInr,
     isRegulated: product.isRegulated,
@@ -91,6 +105,8 @@ export function ProductCard({
     originalMrpInr: product.originalMrpInr ?? null,
     campaignTitle: product.campaignTitle ?? null,
     campaignType: product.campaignType ?? null,
+    soldByWeight: product.soldByWeight ?? false,
+    estimatedGrams: product.estimatedGrams ?? null,
   };
 
   function gotoShop() {
@@ -164,7 +180,7 @@ export function ProductCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.imageUrl!}
-            alt={product.name}
+            alt={displayName}
             loading="lazy"
             onError={() => setImgError(true)}
             className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-[1.03] transition-transform duration-500"
@@ -212,7 +228,7 @@ export function ProductCard({
 
       <div className="p-2.5 sm:p-4 min-w-0">
         <h3 className="font-serif text-[14px] sm:text-[17px] leading-tight text-[color:var(--color-ink)] line-clamp-2 break-words">
-          {product.name}
+          {displayName}
         </h3>
         <p className="mt-0.5 text-[11px] sm:text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">
           {product.unit ?? product.vendor.name}
@@ -226,6 +242,14 @@ export function ProductCard({
             {onSale && (
               <span className="text-[11px] text-[color:var(--color-ink-soft)]/55 line-through">
                 ₹{product.originalMrpInr}
+              </span>
+            )}
+            {/* Soft pill for loose-produce items so the customer knows the
+                price they see is an estimate that the vendor reconciles
+                against actual weight before delivery. */}
+            {product.soldByWeight && product.estimatedGrams && (
+              <span className="ml-0.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-forest-dark)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium whitespace-nowrap">
+                approx · {product.estimatedGrams}g
               </span>
             )}
           </div>

@@ -27,11 +27,16 @@ const getMenuCategoriesRaw = unstable_cache(
       id: true,
       slug: true,
       name: true,
+      // i18n columns surface to the customer-facing section headers / pills.
+      nameHi: true,
+      nameMr: true,
       glyph: true,
       _count: { select: { products: { where: { inStock: true } } } },
     },
   }),
-  ['menu-categories'],
+  // v2 bump after adding nameHi/nameMr to the projected shape — old payloads
+  // would be missing the i18n columns.
+  ['menu-categories-v2'],
   { revalidate: TTL, tags: ['menu', 'categories'] },
 );
 
@@ -103,7 +108,9 @@ const getRestaurantIndexRaw = unstable_cache(
       _count: { select: { products: { where: { inStock: true } } } },
     },
   }),
-  ['restaurant-index-v3'],
+  // v4 bump: Category + Product gained i18n + weight columns. Old cached
+  // payloads don't carry nameHi/nameMr/soldByWeight/estimatedGrams.
+  ['restaurant-index-v4'],
   { revalidate: TTL, tags: ['menu', 'vendors'] },
 );
 

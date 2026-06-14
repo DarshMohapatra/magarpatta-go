@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles, type JoinPlanIntent } from '@/lib/cart';
+import { useClientLocale } from '@/lib/locale-client';
+import { pickName } from '@/lib/i18n';
 import { ProductGlyph } from '@/components/product-glyph';
 import { cn } from '@/lib/utils';
 import {
@@ -113,6 +115,7 @@ export function CheckoutClient({
   const decrement = useCart((s) => s.decrement);
   const remove = useCart((s) => s.remove);
   const clear = useCart((s) => s.clear);
+  const locale = useClientLocale();
 
   const [step, setStep] = useState<Step>('cart');
   const [notes, setNotes] = useState('');
@@ -687,6 +690,7 @@ export function CheckoutClient({
                   blockedReason={minOrderBlockers.length > 0
                     ? `Cart is below ${minOrderBlockers[0].vendorName}'s minimum (₹${minOrderBlockers[0].requiredMin}).`
                     : null}
+                  locale={locale}
                 />
               )}
 
@@ -915,13 +919,14 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-function CartStep({ items, increment, decrement, remove, onNext, blockedReason }: {
+function CartStep({ items, increment, decrement, remove, onNext, blockedReason, locale }: {
   items: ReturnType<typeof useCart.getState>['items'];
   increment: (id: string) => void;
   decrement: (id: string) => void;
   remove: (id: string) => void;
   onNext: () => void;
   blockedReason: string | null;
+  locale: ReturnType<typeof useClientLocale>;
 }) {
   return (
     <>
@@ -933,7 +938,7 @@ function CartStep({ items, increment, decrement, remove, onNext, blockedReason }
                 style={{ backgroundColor: `color-mix(in srgb, var(--color-${it.accent ?? 'forest'}) 12%, transparent)` }}>
                 {it.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.imageUrl} alt={it.name} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={it.imageUrl} alt={pickName(it, locale)} className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
                   <div className="h-full w-full flex items-center justify-center scale-[0.45]">
                     <ProductGlyph glyph={it.glyph} accent={it.accent} />
@@ -941,10 +946,15 @@ function CartStep({ items, increment, decrement, remove, onNext, blockedReason }
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-[14.5px] truncate">{it.name}</div>
+                <div className="font-medium text-[14.5px] truncate">{pickName(it, locale)}</div>
                 <div className="text-[12px] text-[color:var(--color-ink-soft)] truncate">
                   {it.vendorName}
                   {it.unit && <span> · {it.unit}</span>}
+                  {it.soldByWeight && it.estimatedGrams && (
+                    <span className="ml-1.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-forest-dark)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium">
+                      approx · {it.estimatedGrams}g
+                    </span>
+                  )}
                 </div>
                 <div className="mt-2 flex items-center gap-3">
                   <div className="inline-flex items-center rounded-full border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)]">

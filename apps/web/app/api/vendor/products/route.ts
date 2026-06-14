@@ -3,6 +3,8 @@ import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { logActivity } from '@/lib/activity-log';
+import { translateMenuName } from '@/lib/gemini';
+import { asLocale } from '@/lib/i18n';
 
 export async function GET() {
   const s = await getVendorSession();
@@ -27,12 +29,19 @@ export async function GET() {
 
 interface CreateBody {
   name?: string;
+  // 'en' | 'hi' | 'mr' — the language the vendor typed `name` in. Server
+  // translates to the other two via Gemini.
+  nameSourceLang?: string;
   description?: string;
   categorySlug?: string;
   mrpInr?: number;
   priceInr?: number;
   isRegulated?: boolean;
   isVeg?: boolean;
+  // For loose produce sold by weight: priceInr is then the estimated price
+  // tied to estimatedGrams. Vendor reconciles actual weight before delivery.
+  soldByWeight?: boolean;
+  estimatedGrams?: number;
   unit?: string;
   imageUrl?: string;
   accent?: string;
@@ -58,10 +67,10 @@ export async function POST(req: Request) {
   }
 
   const b = (await req.json()) as CreateBody;
-  const name = (b.name ?? '').trim();
+  const typedName = (b.name ?? '').trim();
   const mrp = Math.max(0, Math.floor(b.mrpInr ?? 0));
   const categorySlug = (b.categorySlug ?? '').trim();
-  if (!name || mrp <= 0 || !categorySlug) {
+  if (!typedName || mrp <= 0 || !categorySlug) {
     return NextResponse.json({ ok: false, error: 'Name, MRP, and category are required.' }, { status: 400 });
   }
 
@@ -70,17 +79,36 @@ export async function POST(req: Request) {
 
   const isRegulated = b.isRegulated ?? true;
   const priceInr = isRegulated ? mrp : (b.priceInr && b.priceInr > mrp ? Math.floor(b.priceInr) : mrp + 1);
+  const soldByWeight = b.soldByWeight === true;
+  // Estimated grams is only meaningful when the item sells by weight. We
+  // accept it even when soldByWeight=false (vendor toggled and re-toggled),
+  // but null it out on save to keep the column clean.
+  const estimatedGrams = soldByWeight && b.estimatedGrams && b.estimatedGrams > 0
+    ? Math.floor(b.estimatedGrams)
+    : null;
+
+  // Auto-translate the typed name into all three languages. If Gemini is
+  // unreachable or the API key is missing, the helper returns the source
+  // text in every slot — the row is still valid and the customer renderer
+  // falls back to `name` (English column).
+  const nameSourceLang = asLocale(b.nameSourceLang);
+  const translated = await translateMenuName(typedName, nameSourceLang);
 
   const product = await prisma.product.create({
     data: {
       vendorId: s.vendorId,
       categoryId: category.id,
-      name,
+      name: translated.en,
+      nameHi: translated.hi,
+      nameMr: translated.mr,
+      nameSourceLang,
       description: b.description?.trim() || null,
       priceInr,
       mrpInr: mrp,
       isRegulated,
       isVeg: b.isVeg ?? true,
+      soldByWeight,
+      estimatedGrams,
       unit: b.unit?.trim() || null,
       imageUrl: b.imageUrl?.trim() || null,
       accent: b.accent?.trim() || 'forest',
@@ -98,9 +126,13 @@ export async function POST(req: Request) {
     actorId: s.vendorId,
     actorName: s.shopName,
     action: 'PRODUCT_CREATE',
-    summary: `${s.shopName} added item "${name}" (live)`,
-    metadata: { productId: product.id, name, instant: true },
+    summary: `${s.shopName} added item "${translated.en}" (live)`,
+    metadata: { productId: product.id, name: translated.en, nameSourceLang, instant: true },
   });
 
-  return NextResponse.json({ ok: true, productId: product.id });
+  return NextResponse.json({
+    ok: true,
+    productId: product.id,
+    translated: { en: translated.en, hi: translated.hi, mr: translated.mr },
+  });
 }

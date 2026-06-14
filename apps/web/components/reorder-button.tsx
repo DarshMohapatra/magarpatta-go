@@ -7,6 +7,8 @@ import { useCart } from '@/lib/cart';
 export interface ReorderItem {
   productId: string;
   name: string;
+  nameHi: string | null;
+  nameMr: string | null;
   vendorName: string;
   unit: string | null;
   priceInr: number;
@@ -16,6 +18,8 @@ export interface ReorderItem {
   accent: string | null;
   glyph: string | null;
   imageUrl: string | null;
+  soldByWeight: boolean;
+  estimatedGrams: number | null;
 }
 
 export function ReorderButton({
@@ -41,6 +45,8 @@ export function ReorderButton({
         cartAdd({
           id: it.productId,
           name: it.name,
+          nameHi: it.nameHi,
+          nameMr: it.nameMr,
           priceInr: it.priceInr,
           mrpInr: it.mrpInr ?? it.priceInr,
           isRegulated: it.isRegulated,
@@ -49,6 +55,8 @@ export function ReorderButton({
           glyph: it.glyph,
           imageUrl: it.imageUrl,
           vendorName: it.vendorName,
+          soldByWeight: it.soldByWeight,
+          estimatedGrams: it.estimatedGrams,
         });
       }
     }

@@ -5,8 +5,11 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { CartButton } from './cart-button';
 import { AccountMenu } from './account-menu';
+import { LocalePicker } from './locale-picker';
+import { NotificationBell } from './notification-bell';
 import { siteConfig } from '@/lib/site-config';
 import type { SessionUser } from '@/lib/session';
+import type { Locale } from '@/lib/i18n';
 
 const LINKS = [
   { href: '/menu', label: 'Menu' },
@@ -17,9 +20,10 @@ const LINKS = [
 
 interface NavbarProps {
   initialSession?: SessionUser | null;
+  initialLocale?: Locale;
 }
 
-export function Navbar({ initialSession = null }: NavbarProps) {
+export function Navbar({ initialSession = null, initialLocale = 'en' }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -68,7 +72,9 @@ export function Navbar({ initialSession = null }: NavbarProps) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
+            <LocalePicker initial={initialLocale} />
+            <NotificationBell signedIn={!!initialSession} />
             <CartButton />
             <div className="hidden sm:flex items-center gap-1">
               <AccountMenu initialSession={initialSession} />

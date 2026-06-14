@@ -57,6 +57,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             id: i.id,
             productId: i.productId,
             name: i.name,
+            nameHi: i.nameHi,
+            nameMr: i.nameMr,
             vendorName: i.vendorName,
             unit: i.unit,
             priceInr: i.priceInr,
@@ -66,6 +68,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             accent: i.accent,
             glyph: i.glyph,
             imageUrl: i.imageUrl,
+            soldByWeight: i.soldByWeight,
+            estimatedGrams: i.estimatedGrams,
+            actualGrams: i.actualGrams,
+            actualPriceInr: i.actualPriceInr,
+            reconcileNote: i.reconcileNote,
+            reconciledAt: i.reconciledAt?.toISOString() ?? null,
           })),
         }}
       />

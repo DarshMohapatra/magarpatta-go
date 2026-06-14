@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors, cartCampaignSavings, cartCampaignTitles, type JoinPlanIntent } from '@/lib/cart';
+import { useClientLocale } from '@/lib/locale-client';
+import { pickName } from '@/lib/i18n';
 import { ProductGlyph } from './product-glyph';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +31,7 @@ export function CartDrawer() {
   const joinPlan = useCart((s) => s.joinPlan);
   const addPlanToCart = useCart((s) => s.addPlanToCart);
   const removePlanFromCart = useCart((s) => s.removePlanFromCart);
+  const locale = useClientLocale();
 
   const [ctx, setCtx] = useState<CartContext | null>(null);
 
@@ -153,7 +156,7 @@ export function CartDrawer() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={it.imageUrl}
-                        alt={it.name}
+                        alt={pickName(it, locale)}
                         loading="lazy"
                         className="absolute inset-0 h-full w-full object-cover"
                       />
@@ -165,11 +168,16 @@ export function CartDrawer() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif text-[17px] leading-tight text-[color:var(--color-ink)] truncate">
-                      {it.name}
+                      {pickName(it, locale)}
                     </h3>
                     <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/75">
                       {it.vendorName}
                       {it.unit && <span> · {it.unit}</span>}
+                      {it.soldByWeight && it.estimatedGrams && (
+                        <span className="ml-1.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-forest-dark)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium">
+                          approx · {it.estimatedGrams}g
+                        </span>
+                      )}
                     </p>
                     <div className="mt-2 flex items-center justify-between gap-3">
                       <div className="inline-flex items-center rounded-full border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)]">

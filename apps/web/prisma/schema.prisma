@@ -8,25 +8,30 @@ datasource db {
 }
 
 model User {
-  id          String        @id @default(cuid())
-  phone       String        @unique // 10-digit Indian mobile, no +91 prefix
+  id                 String                 @id @default(cuid())
+  phone              String                 @unique // 10-digit Indian mobile, no +91 prefix
   // Optional email — populated when a customer files a ticket from email,
   // or during account settings update. Used to thread inbound email tickets
   // back to the right user.
-  email       String?       @unique
-  firebaseUid String?       @unique
-  name        String?
+  email              String?                @unique
+  firebaseUid        String?                @unique
+  name               String?
+  // Preferred display language for catalog names. 'en' (default) | 'hi' | 'mr'.
+  // localStorage is the source of truth on the device; this column mirrors
+  // the choice so it follows the customer across devices on next sign-in.
+  locale             String                 @default("en")
   // COD trust: a customer earns COD by completing N successful prepaid orders.
   // Admin can override this and pre-approve a customer (corporate accounts,
   // known regulars, etc.) by flipping codApprovedByAdmin true.
-  codApprovedByAdmin Boolean   @default(false)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  addresses   UserAddress[]
-  orders      Order[]
-  feedback    OrderFeedback[]
-  tickets     SupportTicket[]
-  subscriptions Subscription[]
+  codApprovedByAdmin Boolean                @default(false)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  addresses          UserAddress[]
+  orders             Order[]
+  feedback           OrderFeedback[]
+  tickets            SupportTicket[]
+  subscriptions      Subscription[]
+  notifications      CustomerNotification[]
 
   @@index([phone])
 }
@@ -110,7 +115,7 @@ model Vendor {
   description String?
   accent      String?
   vendorType  String    @default("restaurant") // restaurant | cafe | bakery | sweets | grocery | meat | pharmacy
-  tags        String[]  @default([])            // cuisines or subcategories
+  tags        String[]  @default([]) // cuisines or subcategories
   rating      Float?
   etaMinutes  Int       @default(25)
   costForTwo  Int?
@@ -126,15 +131,15 @@ model Vendor {
 
   // Owner login / KYC
   ownerName         String?
-  ownerPhone        String?  @unique
+  ownerPhone        String? @unique
   ownerEmail        String?
-  ownerPasswordHash String?   // sha256 hex — dev-only, replace with bcrypt in prod
+  ownerPasswordHash String? // sha256 hex — dev-only, replace with bcrypt in prod
 
   // KYC docs
-  gstin       String?
-  fssaiNumber String?
-  drugLicense String?
-  panNumber   String?
+  gstin        String?
+  fssaiNumber  String?
+  drugLicense  String?
+  panNumber    String?
   aadhaarLast4 String?
 
   // Address + geo
@@ -151,7 +156,7 @@ model Vendor {
   bankIfsc          String?
   bankAccountName   String?
   upiId             String?
-  commissionPct     Int    @default(15)
+  commissionPct     Int     @default(15)
 
   // Fulfilment model
   supportsSelfDelivery  Boolean @default(false)
@@ -173,8 +178,8 @@ model Vendor {
   // amount the trip isn't worth dispatching.
   minOrderInr Int?
 
-  orders   Order[]
-  feedback OrderFeedback[]
+  orders         Order[]
+  feedback       OrderFeedback[]
   campaigns      Campaign[]
   pendingChanges PendingChange[]
   menuImports    MenuImportJob[]
@@ -224,34 +229,59 @@ model VendorSettlement {
 }
 
 model Category {
-  id        String    @id @default(cuid())
-  slug      String    @unique
-  name      String    @unique
-  glyph     String?
-  order     Int       @default(0)
-  products  Product[]
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  // Same i18n shape as Product. Categories are admin-seeded, so source lang
+  // is almost always 'en' here — the column is kept for symmetry with Product
+  // and to support vernacular vendor-suggested categories down the line.
+  name           String    @unique // English (also the universal fallback)
+  nameHi         String?
+  nameMr         String?
+  nameSourceLang String    @default("en") // 'en' | 'hi' | 'mr'
+  glyph          String?
+  order          Int       @default(0)
+  products       Product[]
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  vendorId    String
-  categoryId  String
-  name        String
-  description String?
-  priceInr    Int
-  mrpInr      Int?
-  unit        String?
-  isVeg       Boolean     @default(true)
-  isRegulated Boolean     @default(true)
-  inStock     Boolean     @default(true)
-  accent      String?
-  glyph       String?
-  tagline     String?
-  imageUrl    String?
-  createdAt   DateTime    @default(now())
-  vendor      Vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  orderItems  OrderItem[]
+  id             String                 @id @default(cuid())
+  vendorId       String
+  categoryId     String
+  // Three translations of the item name. `name` is the English column and
+  // doubles as the universal fallback (renderer always falls back to it).
+  // The vendor types in ONE language (any of the three); on save we call
+  // Gemini and fill the other two automatically. nameSourceLang tracks which
+  // column holds the vendor's ground-truth text so subsequent re-translates
+  // don't overwrite it. If Gemini fails, the source column has the typed
+  // text and the others are left null — customer renderer falls back to
+  // `name` (which we always populate even when the source is hi/mr).
+  name           String // English (also the universal fallback)
+  nameHi         String?
+  nameMr         String?
+  nameSourceLang String                 @default("en") // 'en' | 'hi' | 'mr'
+  description    String?
+  priceInr       Int
+  mrpInr         Int?
+  unit           String?
+  isVeg          Boolean                @default(true)
+  isRegulated    Boolean                @default(true)
+  inStock        Boolean                @default(true)
+  // Sold-by-weight items (loose vegetables, fruit picked from a heap) carry
+  // an *estimated* gram count on the listing — what the customer pays at
+  // checkout is the estimated price, but the vendor reweighs at fulfilment
+  // and the order total is reconciled on-delivery. estimatedGrams is the
+  // gram count the priceInr is anchored to (e.g. priceInr = ₹40 for 250 g
+  // → ₹/g = 0.16). Non-weight items leave both at the defaults.
+  soldByWeight   Boolean                @default(false)
+  estimatedGrams Int?
+  accent         String?
+  glyph          String?
+  tagline        String?
+  imageUrl       String?
+  createdAt      DateTime               @default(now())
+  vendor         Vendor                 @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category       Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems     OrderItem[]
   dailyOverrides ProductDailyOverride[]
 
   @@index([vendorId])
@@ -264,18 +294,18 @@ model Product {
 /// most recent prior row, then falls back to the master Product fields.
 /// Vendor can edit at any time; updates are live immediately.
 model ProductDailyOverride {
-  id          String   @id @default(cuid())
-  productId   String
-  vendorId    String       // denormalised — vendors authorise edits by ownership
-  forDate     DateTime     // truncated to UTC midnight; one row per product per date
-  priceInr    Int?
-  mrpInr      Int?
-  inStock     Boolean?
-  note        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  productId String
+  vendorId  String // denormalised — vendors authorise edits by ownership
+  forDate   DateTime // truncated to UTC midnight; one row per product per date
+  priceInr  Int?
+  mrpInr    Int?
+  inStock   Boolean?
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, forDate])
   @@index([vendorId, forDate])
@@ -300,9 +330,9 @@ enum PaymentMethod {
 }
 
 enum OrderFulfilmentMode {
-  PLATFORM_RIDER              // vendor is on the platform, accepts + marks ready; rider picks up
-  VENDOR_SELF                 // vendor's own delivery staff takes it to the customer
-  PLATFORM_RIDER_CONCIERGE    // vendor not aware (off-platform, or their team busy); rider walks in, orders in person, brings back
+  PLATFORM_RIDER // vendor is on the platform, accepts + marks ready; rider picks up
+  VENDOR_SELF // vendor's own delivery staff takes it to the customer
+  PLATFORM_RIDER_CONCIERGE // vendor not aware (off-platform, or their team busy); rider walks in, orders in person, brings back
 }
 
 enum DeliveryWindow {
@@ -335,30 +365,30 @@ model Coupon {
 }
 
 model Order {
-  id             String        @id @default(cuid())
-  userId         String
-  vendorId       String?
-  status         OrderStatus   @default(PLACED)
-  paymentMethod  PaymentMethod @default(COD)
+  id            String        @id @default(cuid())
+  userId        String
+  vendorId      String?
+  status        OrderStatus   @default(PLACED)
+  paymentMethod PaymentMethod @default(COD)
 
   // Address snapshot
-  society        String
-  building       String
-  flat           String
+  society  String
+  building String
+  flat     String
 
   // Rupee totals
-  subtotalInr      Int
-  convenienceInr   Int          @default(0)
-  taxInr           Int          @default(0)
-  addOnsInr        Int          @default(0)
-  deliveryFeeInr   Int
-  discountInr      Int          @default(0)
-  couponCode       String?
-  totalInr         Int
+  subtotalInr    Int
+  convenienceInr Int     @default(0)
+  taxInr         Int     @default(0)
+  addOnsInr      Int     @default(0)
+  deliveryFeeInr Int
+  discountInr    Int     @default(0)
+  couponCode     String?
+  totalInr       Int
 
-  giftWrap       Boolean       @default(false)
-  insurance      Boolean       @default(false)
-  deliveryMode   String        @default("standard")
+  giftWrap     Boolean @default(false)
+  insurance    Boolean @default(false)
+  deliveryMode String  @default("standard")
 
   // Customer-chosen window. ORDER_NOW = the legacy ASAP path; SLOTTED = an
   // admin-defined slot (id snapshotted in deliverySlotId; start/end stored as
@@ -376,34 +406,34 @@ model Order {
   // post-included ₹12 fee or a non-member's standard fee).
   // membershipFeeInr is non-zero only when this order ALSO activated a
   // new plan — the customer paid the food bill + the plan in one payment.
-  subscriptionId      String?
-  deliveryCreditUsed  Boolean   @default(false)
-  membershipFeeInr    Int       @default(0)
+  subscriptionId     String?
+  deliveryCreditUsed Boolean @default(false)
+  membershipFeeInr   Int     @default(0)
 
   // Vendor snapshot
-  vendorName     String?
-  vendorHub      String?
+  vendorName String?
+  vendorHub  String?
 
   // Fulfilment
   hub            String?
   fulfilmentMode OrderFulfilmentMode @default(PLATFORM_RIDER)
 
   // Rider assignment
-  riderPhone     String?
-  riderName      String?
+  riderPhone String?
+  riderName  String?
 
-  notes          String?
+  notes String?
 
   // Timeline timestamps — populated by real actors
-  placedAt          DateTime  @default(now())
-  vendorAcceptedAt  DateTime?
-  vendorReadyAt     DateTime?
-  riderAssignedAt   DateTime?
-  acceptedAt        DateTime?   // legacy — mirrored to vendorAcceptedAt
-  pickedUpAt        DateTime?
-  deliveredAt       DateTime?
-  cancelledAt       DateTime?
-  cancelReason      String?
+  placedAt         DateTime  @default(now())
+  vendorAcceptedAt DateTime?
+  vendorReadyAt    DateTime?
+  riderAssignedAt  DateTime?
+  acceptedAt       DateTime? // legacy — mirrored to vendorAcceptedAt
+  pickedUpAt       DateTime?
+  deliveredAt      DateTime?
+  cancelledAt      DateTime?
+  cancelReason     String?
 
   // Geofencing — snapshot of the rider's hub at accept time, and the total
   // ground distance the rider covered (sum of haversine deltas between
@@ -411,9 +441,9 @@ model Order {
   hubIdAtAccept    String?
   distanceCoveredM Int?
 
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vendor         Vendor?       @relation(fields: [vendorId], references: [id], onDelete: SetNull)
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor         Vendor?               @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  subscription   Subscription?         @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
   items          OrderItem[]
   feedback       OrderFeedback?
   tickets        SupportTicket[]
@@ -436,34 +466,50 @@ model OrderItem {
   id          String  @id @default(cuid())
   orderId     String
   productId   String
-  name        String
+  name        String // English snapshot — what was on the listing at order time
+  nameHi      String? // Hindi snapshot (if the product had a translation when ordered)
+  nameMr      String? // Marathi snapshot
   vendorName  String
   unit        String?
-  priceInr    Int
+  priceInr    Int // For soldByWeight items, this is the ESTIMATED price; replaced
+  // by actualPriceInr after the vendor confirms actual weight.
   mrpInr      Int?
   isRegulated Boolean @default(true)
   quantity    Int
   accent      String?
   glyph       String?
   imageUrl    String?
-  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  // Weight reconciliation. Set on order create if the source Product was
+  // soldByWeight; nulled out otherwise. actualGrams + actualPriceInr +
+  // reconciledAt are filled by the vendor's "confirm weight" step before
+  // the order moves to PICKED_UP. reconcileNote is required when the price
+  // difference is >15% of the estimate.
+  soldByWeight   Boolean   @default(false)
+  estimatedGrams Int?
+  actualGrams    Int?
+  actualPriceInr Int?
+  reconcileNote  String?
+  reconciledAt   DateTime?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
 }
 
 model OrderFeedback {
-  id               String   @id @default(cuid())
-  orderId          String   @unique
-  userId           String
-  vendorId         String?
-  riderPhone       String?
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  userId          String
+  vendorId        String?
+  riderPhone      String?
   // 1–5 stars, null = skipped
-  foodRating       Int?
-  foodComment      String?
-  deliveryRating   Int?
-  deliveryComment  String?
-  createdAt        DateTime @default(now())
+  foodRating      Int?
+  foodComment     String?
+  deliveryRating  Int?
+  deliveryComment String?
+  createdAt       DateTime @default(now())
 
   order  Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -487,7 +533,7 @@ model RiderProfile {
   email          String?
   aadhaarNumber  String?
   dlNumber       String?
-  vehicleType    String?             // bicycle | scooter | motorcycle
+  vehicleType    String? // bicycle | scooter | motorcycle
   vehicleNumber  String?
   approvalStatus RiderApprovalStatus @default(PENDING)
   approvalNote   String?
@@ -498,11 +544,11 @@ model RiderProfile {
 
   // Geofencing — every rider belongs to exactly one hub. Allowed corridor
   // for an order is anchored at this hub's lat/lng and radius.
-  hubId          String?
-  hub            Hub?                @relation(fields: [hubId], references: [id], onDelete: SetNull)
+  hubId String?
+  hub   Hub?    @relation(fields: [hubId], references: [id], onDelete: SetNull)
 
-  pings          RiderLocationPing[]
-  deviations     RiderDeviationAlert[]
+  pings      RiderLocationPing[]
+  deviations RiderDeviationAlert[]
 
   @@index([approvalStatus])
   @@index([hubId])
@@ -521,7 +567,7 @@ model Hub {
   radiusM   Int      @default(150)
   createdAt DateTime @default(now())
 
-  riders    RiderProfile[]
+  riders RiderProfile[]
 }
 
 enum AdminRole {
@@ -537,7 +583,7 @@ model Admin {
   email        String?
   name         String
   role         AdminRole @default(OPS)
-  passwordHash String    // legacy — retained for audit; OTP is the live signin path
+  passwordHash String // legacy — retained for audit; OTP is the live signin path
   createdAt    DateTime  @default(now())
 }
 
@@ -587,32 +633,32 @@ enum CampaignApprovalStatus {
 }
 
 model Campaign {
-  id             String                  @id @default(cuid())
-  vendorId       String
-  type           CampaignType
-  title          String
-  body           String
-  ctaLabel       String?
+  id               String                 @id @default(cuid())
+  vendorId         String
+  type             CampaignType
+  title            String
+  body             String
+  ctaLabel         String?
   // appliesToAll = true → discount applies to every product the vendor sells
   // (productIds is ignored). false → only the items in productIds.
-  appliesToAll   Boolean                 @default(true)
-  productIds     String[]                @default([])
+  appliesToAll     Boolean                @default(true)
+  productIds       String[]               @default([])
   // Exactly one of discountPct / discountFlatInr is set when a discount applies.
-  discountPct    Int?
-  discountFlatInr Int?
-  startsAt       DateTime
-  endsAt         DateTime
-  active         Boolean                 @default(true)
-  approvalStatus CampaignApprovalStatus  @default(PENDING)
-  approvalNote   String?
-  submittedAt    DateTime                @default(now())
-  approvedAt     DateTime?
-  approvedBy     String?
+  discountPct      Int?
+  discountFlatInr  Int?
+  startsAt         DateTime
+  endsAt           DateTime
+  active           Boolean                @default(true)
+  approvalStatus   CampaignApprovalStatus @default(PENDING)
+  approvalNote     String?
+  submittedAt      DateTime               @default(now())
+  approvedAt       DateTime?
+  approvedBy       String?
   // Vendor has requested removal — admin reviews on the campaigns tab.
-  pendingRemoval   Boolean   @default(false)
+  pendingRemoval   Boolean                @default(false)
   pendingRemovalAt DateTime?
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @updatedAt
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
 
   vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
@@ -678,18 +724,18 @@ enum MenuImportStatus {
 }
 
 model MenuImportJob {
-  id            String            @id @default(cuid())
-  vendorId      String
-  categorySlug  String
-  source        String            // 'photo' | 'qr' | 'url' | 'paste'
-  items         Json              // ParsedItem[] with edits made by the curator
-  status        MenuImportStatus  @default(PENDING_CURATOR)
-  curatorNote   String?
-  curatedBy     String?
-  curatedAt     DateTime?
-  submittedAt   DateTime          @default(now())
+  id           String           @id @default(cuid())
+  vendorId     String
+  categorySlug String
+  source       String // 'photo' | 'qr' | 'url' | 'paste'
+  items        Json // ParsedItem[] with edits made by the curator
+  status       MenuImportStatus @default(PENDING_CURATOR)
+  curatorNote  String?
+  curatedBy    String?
+  curatedAt    DateTime?
+  submittedAt  DateTime         @default(now())
 
-  vendor Vendor              @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendor Vendor            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   images MenuImportImage[]
 
   @@index([status])
@@ -722,14 +768,14 @@ enum ActorRole {
 }
 
 model ActivityLog {
-  id        String     @id @default(cuid())
+  id        String    @id @default(cuid())
   actorRole ActorRole
   actorId   String?
   actorName String
-  action    String     // verb-y key: 'CAMPAIGN_CREATE', 'ORDER_ACCEPT', 'MENU_IMPORT_APPROVE'
-  summary   String     // human-readable line
+  action    String // verb-y key: 'CAMPAIGN_CREATE', 'ORDER_ACCEPT', 'MENU_IMPORT_APPROVE'
+  summary   String // human-readable line
   metadata  Json?
-  createdAt DateTime   @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([actorRole, actorId])
   @@index([createdAt])
@@ -741,7 +787,7 @@ model ActivityLog {
 model OtpCode {
   id         String    @id @default(cuid())
   phone      String
-  purpose    String    // CUSTOMER_SIGNIN | VENDOR_SIGNIN | VENDOR_REGISTER | RIDER_SIGNIN | RIDER_REGISTER | ADMIN_SIGNIN | CURATOR_SIGNIN
+  purpose    String // CUSTOMER_SIGNIN | VENDOR_SIGNIN | VENDOR_REGISTER | RIDER_SIGNIN | RIDER_REGISTER | ADMIN_SIGNIN | CURATOR_SIGNIN
   codeHash   String
   expiresAt  DateTime
   attempts   Int       @default(0)
@@ -767,11 +813,11 @@ enum TicketCategory {
 }
 
 enum TicketStatus {
-  OPEN                // Customer just filed, no admin has touched it
-  IN_REVIEW           // Admin has acknowledged / is investigating
-  AWAITING_CUSTOMER   // Admin replied, ball is in customer's court
-  RESOLVED            // Admin marked resolved (customer can re-open by replying)
-  CLOSED              // Final state — no further replies accepted
+  OPEN // Customer just filed, no admin has touched it
+  IN_REVIEW // Admin has acknowledged / is investigating
+  AWAITING_CUSTOMER // Admin replied, ball is in customer's court
+  RESOLVED // Admin marked resolved (customer can re-open by replying)
+  CLOSED // Final state — no further replies accepted
 }
 
 enum TicketPriority {
@@ -787,51 +833,51 @@ enum TicketAuthor {
 }
 
 model SupportTicket {
-  id              String                 @id @default(cuid())
-  shortCode       String                 @unique          // T-XXXXXX, what the customer sees
+  id              String         @id @default(cuid())
+  shortCode       String         @unique // T-XXXXXX, what the customer sees
   userId          String
-  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   orderId         String?
-  order           Order?                 @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  order           Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
   category        TicketCategory
-  subject         String                                  // 1-line headline from customer
-  status          TicketStatus           @default(OPEN)
-  priority        TicketPriority         @default(NORMAL)
-  assignedAgentId String?                                 // SupportAgent who owns the ticket
-  assignedAgent   SupportAgent?          @relation(fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  subject         String // 1-line headline from customer
+  status          TicketStatus   @default(OPEN)
+  priority        TicketPriority @default(NORMAL)
+  assignedAgentId String? // SupportAgent who owns the ticket
+  assignedAgent   SupportAgent?  @relation(fields: [assignedAgentId], references: [id], onDelete: SetNull)
 
   // Channel + thread key (email Message-ID / WA conversation ID) so inbound
   // webhooks can reply onto the same ticket.
-  channel         TicketChannel          @default(IN_APP)
+  channel           TicketChannel @default(IN_APP)
   externalThreadKey String?
 
   // Routing — which team currently owns the ticket (separate from individual
   // agent ownership). Reassigning a team triggers re-evaluation.
-  team            SupportTeam            @default(GENERAL)
+  team SupportTeam @default(GENERAL)
 
   // SLA — populated at create-time from the matched policy. firstResponseAt
   // is set the first time HELPDESK posts a message; the breached flags are
   // sticky once tripped (used for analytics).
-  slaPolicyId            String?
-  slaPolicy              SupportSlaPolicy? @relation(fields: [slaPolicyId], references: [id], onDelete: SetNull)
-  firstResponseAt        DateTime?
-  firstResponseDueAt     DateTime?
-  resolveDueAt           DateTime?
-  firstResponseBreached  Boolean         @default(false)
-  resolveBreached        Boolean         @default(false)
+  slaPolicyId           String?
+  slaPolicy             SupportSlaPolicy? @relation(fields: [slaPolicyId], references: [id], onDelete: SetNull)
+  firstResponseAt       DateTime?
+  firstResponseDueAt    DateTime?
+  resolveDueAt          DateTime?
+  firstResponseBreached Boolean           @default(false)
+  resolveBreached       Boolean           @default(false)
 
   // Escalation depth — incremented each time an escalation rule fires.
-  escalationLevel        Int             @default(0)
+  escalationLevel Int       @default(0)
   // Set whenever a customer reply re-opens a RESOLVED ticket.
-  lastReopenedAt         DateTime?
+  lastReopenedAt  DateTime?
 
-  resolvedAt      DateTime?
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
-  messages        SupportTicketMessage[]
+  resolvedAt       DateTime?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  messages         SupportTicketMessage[]
   escalationEvents SupportEscalationEvent[]
-  incomingEvents  IncomingChannelEvent[]
-  kbViews         KbArticleView[]
+  incomingEvents   IncomingChannelEvent[]
+  kbViews          KbArticleView[]
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
@@ -843,13 +889,13 @@ model SupportTicket {
 }
 
 model SupportTicketMessage {
-  id         String         @id @default(cuid())
+  id         String        @id @default(cuid())
   ticketId   String
-  ticket     SupportTicket  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   author     TicketAuthor
-  authorName String                                    // snapshot — admin/customer name at time of write
-  body       String                                    // free-form, plain text
-  createdAt  DateTime       @default(now())
+  authorName String // snapshot — admin/customer name at time of write
+  body       String // free-form, plain text
+  createdAt  DateTime      @default(now())
 
   @@index([ticketId, createdAt])
 }
@@ -865,7 +911,7 @@ model RiderLocationPing {
   order     Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
   latitude  Float
   longitude Float
-  accuracyM Int?                              // GPS accuracy from the browser, meters
+  accuracyM Int? // GPS accuracy from the browser, meters
   createdAt DateTime     @default(now())
 
   @@index([riderId, createdAt])
@@ -879,42 +925,42 @@ enum DeviationSeverity {
 }
 
 enum DeviationAlertStatus {
-  OPEN                // Just detected, no human has touched it
-  AWAITING_RIDER      // Admin requested an explanation, rider hasn't replied yet
-  UNDER_REVIEW        // Rider explained, admin reviewing
-  RESOLVED            // Admin closed with a verdict
-  DISMISSED           // Admin closed as a false positive
+  OPEN // Just detected, no human has touched it
+  AWAITING_RIDER // Admin requested an explanation, rider hasn't replied yet
+  UNDER_REVIEW // Rider explained, admin reviewing
+  RESOLVED // Admin closed with a verdict
+  DISMISSED // Admin closed as a false positive
 }
 
 /// Fired when a rider's location stays outside the allowed corridor for
 /// the current order phase (or while idle, when far from their hub) for
 /// longer than the debounce window. Routed to admin for adjudication.
 model RiderDeviationAlert {
-  id                     String                @id @default(cuid())
-  riderId                String
-  rider                  RiderProfile          @relation(fields: [riderId], references: [id], onDelete: Cascade)
-  orderId                String?
-  order                  Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  id      String       @id @default(cuid())
+  riderId String
+  rider   RiderProfile @relation(fields: [riderId], references: [id], onDelete: Cascade)
+  orderId String?
+  order   Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
-  detectedAt             DateTime              @default(now())
+  detectedAt            DateTime             @default(now())
   // Snapshot of position + corridor distance at the moment of detection.
-  lastLatitude           Float
-  lastLongitude          Float
-  distanceFromCorridorM  Int                   // how far off path, meters
-  durationOutsideS       Int                   // how long they were outside before we fired
-  severity               DeviationSeverity     @default(MEDIUM)
-  status                 DeviationAlertStatus  @default(OPEN)
+  lastLatitude          Float
+  lastLongitude         Float
+  distanceFromCorridorM Int // how far off path, meters
+  durationOutsideS      Int // how long they were outside before we fired
+  severity              DeviationSeverity    @default(MEDIUM)
+  status                DeviationAlertStatus @default(OPEN)
 
   // Admin → rider explanation request loop
   explanationRequestedAt DateTime?
-  explanationRequestedBy String?               // adminId
+  explanationRequestedBy String? // adminId
   riderExplanation       String?
   riderExplainedAt       DateTime?
 
   // Resolution
-  resolvedBy             String?               // adminId
-  resolvedAt             DateTime?
-  resolution             String?               // free-form admin note: dismissed / warned / fined etc.
+  resolvedBy String? // adminId
+  resolvedAt DateTime?
+  resolution String? // free-form admin note: dismissed / warned / fined etc.
 
   @@index([status, detectedAt])
   @@index([riderId, detectedAt])
@@ -931,38 +977,38 @@ enum TicketChannel {
   IN_APP
   EMAIL
   WHATSAPP
-  PHONE       // reserved — Phase 2
-  SOCIAL      // reserved — Phase 2
+  PHONE // reserved — Phase 2
+  SOCIAL // reserved — Phase 2
 }
 
 enum SupportTeam {
-  GENERAL      // first line — anything generic
-  BILLING      // payments, refunds
-  RIDER_OPS    // rider / delivery issues
-  VENDOR_OPS   // vendor / order issues
-  ESCALATIONS  // tier 2
+  GENERAL // first line — anything generic
+  BILLING // payments, refunds
+  RIDER_OPS // rider / delivery issues
+  VENDOR_OPS // vendor / order issues
+  ESCALATIONS // tier 2
 }
 
 /// SLA policy — picks the response/resolution targets a ticket must meet.
 /// Resolution priority: most-specific match wins (priority + team + site
 /// > priority + team > priority > catch-all). The matcher lives in lib/sla.ts.
 model SupportSlaPolicy {
-  id                       String         @id @default(cuid())
-  name                     String
+  id                   String          @id @default(cuid())
+  name                 String
   // Optional match criteria — all combine with AND. Most-specific match wins.
-  priority                 TicketPriority?
-  team                     SupportTeam?
+  priority             TicketPriority?
+  team                 SupportTeam?
   // Targets, in minutes from createdAt. firstResponseMinutes drives the
   // first-response SLA; resolveMinutes drives the resolution SLA.
-  firstResponseMinutes     Int
-  resolveMinutes           Int
+  firstResponseMinutes Int
+  resolveMinutes       Int
   // Phase 1: simple boolean. Phase 2 will introduce a calendar.
-  businessHoursOnly        Boolean        @default(false)
-  active                   Boolean        @default(true)
-  createdAt                DateTime       @default(now())
-  updatedAt                DateTime       @updatedAt
+  businessHoursOnly    Boolean         @default(false)
+  active               Boolean         @default(true)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
 
-  tickets                  SupportTicket[]
+  tickets SupportTicket[]
 
   @@index([active, priority, team])
 }
@@ -972,14 +1018,14 @@ model SupportSlaPolicy {
 /// match  = { category?, channel?, hasOrder?, keywordsAny? }
 /// action = { team?, agentId?, strategy? }    strategy ∈ ROUND_ROBIN | LEAST_BUSY
 model SupportRoutingRule {
-  id          String   @id @default(cuid())
-  name        String
-  priority    Int      @default(100)
-  match       Json
-  action      Json
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  priority  Int      @default(100)
+  match     Json
+  action    Json
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([active, priority])
 }
@@ -988,46 +1034,46 @@ enum EscalationTrigger {
   FIRST_RESPONSE_OVERDUE
   RESOLVE_OVERDUE
   CUSTOMER_REOPEN
-  INACTIVE_TICKET             // no message in N hours
+  INACTIVE_TICKET // no message in N hours
 }
 
 /// Escalation rule — fires when its trigger condition is met. Mutates the
 /// ticket (priority bump, team reassign) and records a SupportEscalationEvent.
 model SupportEscalationRule {
-  id                String                  @id @default(cuid())
-  name              String
-  trigger           EscalationTrigger
+  id               String            @id @default(cuid())
+  name             String
+  trigger          EscalationTrigger
   // For overdue triggers: minutes past breach before firing. For
   // INACTIVE_TICKET: minutes of message silence required.
-  thresholdMinutes  Int                     @default(0)
+  thresholdMinutes Int               @default(0)
   // Optional priority bump: ticket priority becomes max(current, this).
-  bumpToPriority    TicketPriority?
+  bumpToPriority   TicketPriority?
   // Optional team reassign on fire.
-  reassignToTeam    SupportTeam?
+  reassignToTeam   SupportTeam?
   // Agent IDs to notify (Phase 1: surfaced in alerts; Phase 2: email/WA push).
-  notifyAgentIds    String[]                @default([])
-  active            Boolean                 @default(true)
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
+  notifyAgentIds   String[]          @default([])
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  events            SupportEscalationEvent[]
+  events SupportEscalationEvent[]
 
   @@index([active, trigger])
 }
 
 model SupportEscalationEvent {
-  id            String                 @id @default(cuid())
-  ticketId      String
-  ticket        SupportTicket          @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  ruleId        String?
-  rule          SupportEscalationRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
-  trigger       EscalationTrigger
-  oldPriority   TicketPriority
-  newPriority   TicketPriority
-  oldTeam       SupportTeam?
-  newTeam       SupportTeam?
-  reason        String                 // human-readable summary shown in audit
-  occurredAt    DateTime               @default(now())
+  id          String                 @id @default(cuid())
+  ticketId    String
+  ticket      SupportTicket          @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ruleId      String?
+  rule        SupportEscalationRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  trigger     EscalationTrigger
+  oldPriority TicketPriority
+  newPriority TicketPriority
+  oldTeam     SupportTeam?
+  newTeam     SupportTeam?
+  reason      String // human-readable summary shown in audit
+  occurredAt  DateTime               @default(now())
 
   @@index([ticketId, occurredAt])
 }
@@ -1038,7 +1084,7 @@ model KbArticle {
   id              String          @id @default(cuid())
   slug            String          @unique
   title           String
-  body            String          // Markdown
+  body            String // Markdown
   category        TicketCategory?
   tags            String[]        @default([])
   isPublic        Boolean         @default(true)
@@ -1048,7 +1094,7 @@ model KbArticle {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  views           KbArticleView[]
+  views KbArticleView[]
 
   @@index([archived, isPublic])
   @@index([category])
@@ -1058,16 +1104,16 @@ model KbArticle {
 /// actually help?") and de-duplication ("don't re-suggest articles already
 /// surfaced on this ticket").
 model KbArticleView {
-  id          String         @id @default(cuid())
-  articleId   String
-  article     KbArticle      @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  ticketId    String?
-  ticket      SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  id        String         @id @default(cuid())
+  articleId String
+  article   KbArticle      @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  ticket    SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
   // SUGGESTED = system surfaced it on a ticket
   // OPENED    = agent clicked through from a ticket
   // PUBLIC    = customer/anonymous read on /help/[slug]
-  kind        String
-  createdAt   DateTime       @default(now())
+  kind      String
+  createdAt DateTime       @default(now())
 
   @@index([ticketId])
   @@index([articleId, createdAt])
@@ -1076,17 +1122,17 @@ model KbArticleView {
 /// Raw inbound webhook payload. Dedupe key (channel, externalId) keeps
 /// retries idempotent; stored payload allows audit / replay.
 model IncomingChannelEvent {
-  id          String         @id @default(cuid())
-  channel     TicketChannel
-  externalId  String                                 // provider message ID
-  fromAddr    String?                                // email-from / phone E.164
-  toAddr      String?                                // inbox / WA business number
-  subject     String?
-  bodyText    String                                 // plaintext body extracted by the webhook
-  rawPayload  Json                                   // full provider payload — kept for audit
-  ticketId    String?
-  ticket      SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
-  receivedAt  DateTime       @default(now())
+  id         String         @id @default(cuid())
+  channel    TicketChannel
+  externalId String // provider message ID
+  fromAddr   String? // email-from / phone E.164
+  toAddr     String? // inbox / WA business number
+  subject    String?
+  bodyText   String // plaintext body extracted by the webhook
+  rawPayload Json // full provider payload — kept for audit
+  ticketId   String?
+  ticket     SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  receivedAt DateTime       @default(now())
 
   @@unique([channel, externalId])
   @@index([ticketId])
@@ -1108,18 +1154,18 @@ model SiteSetting {
 /// edits don't rewrite history.
 model MembershipPlan {
   id                 String   @id @default(cuid())
-  name               String   // e.g. "Saver 30"
+  name               String // e.g. "Saver 30"
   description        String?
   priceInr           Int
   cycleDays          Int      @default(30)
-  includedDeliveries Int      // e.g. 20
-  postIncludedFeeInr Int      // delivery fee after credits exhausted, e.g. 12
+  includedDeliveries Int // e.g. 20
+  postIncludedFeeInr Int // delivery fee after credits exhausted, e.g. 12
   active             Boolean  @default(true)
   sortOrder          Int      @default(0)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  subscriptions      Subscription[]
+  subscriptions Subscription[]
 
   @@index([active, sortOrder])
 }
@@ -1131,40 +1177,40 @@ enum SubscriptionStatus {
 }
 
 model Subscription {
-  id                          String             @id @default(cuid())
-  userId                      String
-  planId                      String
-  status                      SubscriptionStatus @default(ACTIVE)
-  cycleStart                  DateTime           @default(now())
-  cycleEnd                    DateTime
-  autoRenew                   Boolean            @default(false)
+  id         String             @id @default(cuid())
+  userId     String
+  planId     String
+  status     SubscriptionStatus @default(ACTIVE)
+  cycleStart DateTime           @default(now())
+  cycleEnd   DateTime
+  autoRenew  Boolean            @default(false)
 
   // Plan snapshot — frozen at purchase so cycle math is stable even if the
   // admin edits the plan tomorrow.
-  planNameSnapshot            String
-  priceInrSnapshot            Int
-  cycleDaysSnapshot           Int
-  includedDeliveriesSnapshot  Int
-  postIncludedFeeInrSnapshot  Int
+  planNameSnapshot           String
+  priceInrSnapshot           Int
+  cycleDaysSnapshot          Int
+  includedDeliveriesSnapshot Int
+  postIncludedFeeInrSnapshot Int
 
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user                        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan                        MembershipPlan    @relation(fields: [planId], references: [id], onDelete: Restrict)
-  ledger                      SubscriptionLedger[]
-  orders                      Order[]
+  user   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan   MembershipPlan       @relation(fields: [planId], references: [id], onDelete: Restrict)
+  ledger SubscriptionLedger[]
+  orders Order[]
 
   @@index([userId, status])
   @@index([cycleEnd])
 }
 
 enum SubscriptionLedgerType {
-  GRANT      // initial credits at purchase
-  DEBIT      // one credit consumed by an order
-  TOPUP      // recharge added more credits without extending cycle
-  EXPIRE     // cycle ended; remaining credits forfeited (event-only)
-  REFUND     // admin refund / order-cancel restoration
+  GRANT // initial credits at purchase
+  DEBIT // one credit consumed by an order
+  TOPUP // recharge added more credits without extending cycle
+  EXPIRE // cycle ended; remaining credits forfeited (event-only)
+  REFUND // admin refund / order-cancel restoration
 }
 
 model SubscriptionLedger {
@@ -1172,13 +1218,13 @@ model SubscriptionLedger {
   subscriptionId  String
   type            SubscriptionLedgerType
   deltaDeliveries Int                    @default(0)
-  orderId         String?                // present on DEBIT, REFUND
-  topUpId         String?                // present on TOPUP
+  orderId         String? // present on DEBIT, REFUND
+  topUpId         String? // present on TOPUP
   note            String?
   createdAt       DateTime               @default(now())
 
-  subscription    Subscription           @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  order           Order?                 @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  order        Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@index([subscriptionId, createdAt])
   @@index([orderId])
@@ -1198,22 +1244,53 @@ model OrderDeliveryProof {
   note           String?
   createdAt      DateTime  @default(now())
 
-  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId, createdAt])
+}
+
+/// Customer-facing in-app notification (the bell icon's drawer feed).
+/// Kept separate from SupportTicket — these are vendor/system → customer
+/// pushes that don't need a thread. kind drives the renderer + icon.
+///   - WEIGHT_RECONCILED — vendor weighed a soldByWeight item, total changed
+///   - ORDER_STATUS      — placed / accepted / ready / out / delivered
+///   - CAMPAIGN          — new sale / flash drop the customer might care about
+/// In Phase 1 the bell drawer is the only surface; WhatsApp/email fan-out
+/// is fired alongside the row insert in lib/notify.ts.
+enum CustomerNotificationKind {
+  WEIGHT_RECONCILED
+  ORDER_STATUS
+  CAMPAIGN
+}
+
+model CustomerNotification {
+  id        String                   @id @default(cuid())
+  userId    String
+  kind      CustomerNotificationKind
+  title     String // 1-line headline, e.g. "Order #1234 weight updated"
+  body      String // free-form, plain text — multi-line OK
+  orderId   String? // links the bell drawer item to the order page
+  metadata  Json? // kind-specific extras (e.g. weight delta)
+  readAt    DateTime?
+  createdAt DateTime                 @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
 }
 
 /// Recharge SKUs. Admin edits this catalog; customers buy one to add credits
 /// to their active subscription without extending cycleEnd.
 model MembershipTopUp {
-  id               String   @id @default(cuid())
-  name             String   // e.g. "+10 deliveries"
-  priceInr         Int
-  addedDeliveries  Int
-  active           Boolean  @default(true)
-  sortOrder        Int      @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String // e.g. "+10 deliveries"
+  priceInr        Int
+  addedDeliveries Int
+  active          Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([active, sortOrder])
 }
