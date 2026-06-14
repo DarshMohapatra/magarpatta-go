@@ -362,6 +362,11 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
         </p>
       </section>
 
+      {/* One-shot translate-existing-catalog. Runs every Product/Category
+         that's still missing a Hindi/Marathi translation through Gemini.
+         Idempotent — already-translated rows are skipped. */}
+      <BackfillTranslationsSection canEdit={canEdit} />
+
       {/* Platform-wide minimum slot cutoff — acts as a floor over each
          slot's own cutoffMinutesBefore so slots disappear well before
          their start time even when individual slot rows have cutoff=0. */}
@@ -599,6 +604,71 @@ function SeedDefaultsButton() {
             <li key={k}><strong>{k}:</strong> {v}</li>
           ))}
         </ul>
+      )}
+    </section>
+  );
+}
+
+/**
+ * One-shot Gemini backfill for the existing catalog. Runs in batches of 50
+ * so we stay well under Vercel's request timeout; the endpoint returns
+ * productsRemaining=1 when more work is left, and we loop until 0.
+ *
+ * Idempotent — already-translated rows are skipped. Safe to click again
+ * if it errors out partway through.
+ */
+function BackfillTranslationsSection({ canEdit }: { canEdit: boolean }) {
+  const [running, setRunning] = useState(false);
+  const [translated, setTranslated] = useState(0);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function run() {
+    setRunning(true);
+    setErr(null);
+    setTranslated(0);
+    setDone(false);
+    try {
+      let total = 0;
+      // Loop in batches until the endpoint says nothing's left.
+      for (let i = 0; i < 30; i++) {
+        const r = await fetch('/api/admin/backfill-translations?limit=50', { method: 'POST' });
+        const j = await r.json();
+        if (!j.ok) { setErr(j.error ?? 'Backfill failed'); return; }
+        total += (j.productsTranslated ?? 0) + (j.categoriesTranslated ?? 0);
+        setTranslated(total);
+        if (!j.productsRemaining) break;
+      }
+      setDone(true);
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+      <h2 className="font-serif text-[22px]">Translate existing catalog</h2>
+      <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
+        Runs every product + category that still lacks a Hindi or Marathi
+        translation through Gemini. New items added from now on translate
+        automatically — this is for the catalog that was already in the
+        database before the i18n feature shipped. Safe to click again any
+        time; already-translated rows are skipped.
+      </p>
+      <button
+        onClick={run}
+        disabled={running || !canEdit}
+        className="mt-3 rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:bg-[color:var(--color-forest-dark)]"
+      >
+        {running ? `Translating… ${translated} done` : done ? `Translated ${translated} ✓ — click to re-run` : 'Translate existing catalog now'}
+      </button>
+      {err && <p className="mt-2 text-[12px] text-[color:var(--color-terracotta)]">{err}</p>}
+      {done && !err && (
+        <p className="mt-2 text-[12px] text-[color:var(--color-forest)]">
+          Done — open /menu, switch to हिं or मरा, every item should now show its translation.
+        </p>
       )}
     </section>
   );

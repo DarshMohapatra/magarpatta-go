@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { translateMenuName } from '@/lib/gemini';
 import { asLocale } from '@/lib/i18n';
+import { getAdminSession } from '@/lib/admin-session';
 
 /**
  * One-shot backfill: walk every Product (and Category) that lacks a Hindi
@@ -11,23 +12,25 @@ import { asLocale } from '@/lib/i18n';
  * API key is missing; once the key is configured, re-running picks those
  * up too).
  *
- * Auth: requires the CRON_SECRET bearer token. Same pattern as the nightly
- * settlement cron — no admin session juggling needed; curl from anywhere.
- *
- * Usage:
- *   curl -X POST \
- *     -H "Authorization: Bearer $CRON_SECRET" \
- *     https://<your-domain>/api/admin/backfill-translations
+ * Auth (either works):
+ *   - signed-in admin (SUPER_ADMIN or OPS) — fires from the admin settings UI
+ *   - Bearer CRON_SECRET — for curl / scheduled runs
  *
  * Optional query param:
  *   ?limit=N — process at most N products in this call. Default 200 (well
- *   under a 60s Hobby timeout at ~1.5s per Gemini call). If you have more
- *   products than that, just hit the endpoint again — already-translated
- *   rows are skipped.
+ *   under a 60s Hobby timeout at ~1.5s per Gemini call). If there are more
+ *   products than that, the response carries productsRemaining: 1 and the
+ *   UI calls again until it's 0.
  */
 export async function POST(req: Request) {
   const auth = req.headers.get('authorization');
-  if (!auth || auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronOk = process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`;
+  let sessionOk = false;
+  if (!cronOk) {
+    const admin = await getAdminSession();
+    sessionOk = !!admin && (admin.role === 'SUPER_ADMIN' || admin.role === 'OPS');
+  }
+  if (!cronOk && !sessionOk) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
   if (!process.env.GEMINI_API_KEY) {
