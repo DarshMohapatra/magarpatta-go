@@ -3,7 +3,7 @@ import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { queueChange, pickFields } from '@/lib/pending-change';
-import { translateMenuName } from '@/lib/gemini';
+import { translateMenuName } from '@/lib/translate';
 import { asLocale } from '@/lib/i18n';
 
 interface PatchBody {

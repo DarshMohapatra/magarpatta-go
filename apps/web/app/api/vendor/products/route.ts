@@ -3,7 +3,7 @@ import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getVendorSession } from '@/lib/vendor-session';
 import { logActivity } from '@/lib/activity-log';
-import { translateMenuName } from '@/lib/gemini';
+import { translateMenuName } from '@/lib/translate';
 import { asLocale } from '@/lib/i18n';
 
 export async function GET() {

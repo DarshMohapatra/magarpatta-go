@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { translateMenuName } from '@/lib/gemini';
+import { translateMenuName } from '@/lib/translate';
 import { asLocale } from '@/lib/i18n';
 import { getAdminSession } from '@/lib/admin-session';
 
@@ -37,20 +37,19 @@ export async function POST(req: Request) {
   if (!cronOk && !sessionOk) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
-  if (!process.env.GEMINI_API_KEY) {
+  if (!process.env.AZURE_TRANSLATOR_KEY || !process.env.AZURE_TRANSLATOR_REGION) {
     return NextResponse.json(
-      { ok: false, error: 'GEMINI_API_KEY not set — nothing to backfill against.' },
+      { ok: false, error: 'Translator env not set (AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION required).' },
       { status: 500 },
     );
   }
 
   const url = new URL(req.url);
-  // Default 20 per batch: stays under gemini-2.0-flash's 15 RPM ceiling
-  // once we factor in the 4.5s throttle between calls (20 calls × 4.5s
-  // ≈ 90s, fits the maxDuration below). Smaller batches return more
-  // often, so the admin UI can show steady progress.
-  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit') ?? 20)));
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  // Azure Translator F0 free tier is generous (2M chars/month). 50 items per
+  // batch is comfortable — no per-call throttle needed since we'd burn through
+  // a typical 1-3 word translation in well under the rate cap. Returns often
+  // enough for the admin UI to show steady progress.
+  const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') ?? 50)));
 
   // Pick up anything missing a translation OR where every column holds the
   // same English text (the Gemini-fallback case we want to retry).
@@ -68,22 +67,17 @@ export async function POST(req: Request) {
   });
 
   let productsTranslated = 0;
-  for (let i = 0; i < products.length; i++) {
-    const p = products[i];
+  for (const p of products) {
     const sourceLang = asLocale(p.nameSourceLang);
     const tx = await translateMenuName(p.name, sourceLang);
-    // Skip if Gemini gave us back the same English in every slot — that
-    // means the call failed and we don't want to overwrite with junk.
+    // Skip if the helper returned the same text in every slot — that's the
+    // fallback shape on a failed call and we don't want to lock in junk.
     if (tx.hi === tx.en && tx.mr === tx.en && tx.en === p.name) continue;
     await prisma.product.update({
       where: { id: p.id },
       data: { name: tx.en, nameHi: tx.hi, nameMr: tx.mr },
     });
     productsTranslated++;
-    // Throttle: gemini-2.0-flash free tier is ~15 RPM, so 1 call every
-    // ~4.5s keeps us safely under the ceiling. Skip the sleep after the
-    // last item — no point delaying the response.
-    if (i < products.length - 1) await sleep(4500);
   }
 
   // Same treatment for categories — seeded ones are already in Hindi/Marathi,
