@@ -77,10 +77,21 @@ export async function translateMenuName(
     return fallback(text);
   }
 
+  // Google AI Studio currently issues keys in two formats:
+  //   - Classic API keys: AIzaSy… — auth via ?key=… query param
+  //   - Newer scoped tokens (rolled out late 2025+): AQ.… — auth via
+  //     Authorization: Bearer header, query param fails with 403
+  // Auto-detect by prefix so the same code path works for either, and
+  // operators can swap one for the other without a code change.
+  const isClassicApiKey = apiKey.startsWith('AIza');
+  const url = isClassicApiKey ? `${ENDPOINT}?key=${apiKey}` : ENDPOINT;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (!isClassicApiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
   try {
-    const resp = await fetch(`${ENDPOINT}?key=${apiKey}`, {
+    const resp = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: buildPrompt(text, sourceLang) }] }],
         generationConfig: {
@@ -94,7 +105,7 @@ export async function translateMenuName(
     });
 
     if (!resp.ok) {
-      console.error('[gemini] http error', resp.status, await resp.text().catch(() => ''));
+      console.error('[gemini] http error', resp.status, 'auth=', isClassicApiKey ? 'query-key' : 'bearer', await resp.text().catch(() => ''));
       return fallback(text);
     }
 
