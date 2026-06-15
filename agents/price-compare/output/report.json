@@ -1,0 +1,792 @@
+{
+  "generatedAt": "2026-06-15T05:55:50.853Z",
+  "items": [
+    {
+      "item": {
+        "name": "Onions",
+        "unit": "1 kg",
+        "priceInr": 35,
+        "pricePerKgInr": 35,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 42
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 44
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 39
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 38
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 43
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 41,
+        "medianCompetitorInr": 42,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 38
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 44
+        },
+        "savingsInr": 6,
+        "savingsPct": 15,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹3."
+    },
+    {
+      "item": {
+        "name": "Potatoes",
+        "unit": "1 kg",
+        "priceInr": 28,
+        "pricePerKgInr": 28,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 35
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 36
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 32
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 30
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 34
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 33,
+        "medianCompetitorInr": 34,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 30
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 36
+        },
+        "savingsInr": 5,
+        "savingsPct": 15,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹2."
+    },
+    {
+      "item": {
+        "name": "Tomatoes",
+        "unit": "1 kg",
+        "priceInr": 24,
+        "pricePerKgInr": 24,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 40,
+          "note": "Volatile commodity — Blinkit surge-priced this week."
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 38
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 32
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 30
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 39
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 36,
+        "medianCompetitorInr": 38,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 30
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 40,
+          "note": "Volatile commodity — Blinkit surge-priced this week."
+        },
+        "savingsInr": 12,
+        "savingsPct": 33,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹6."
+    },
+    {
+      "item": {
+        "name": "Green Chillies",
+        "unit": "100 g",
+        "priceInr": 12,
+        "pricePerKgInr": 120,
+        "category": "leaf"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 16
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 18
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 14
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 14
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 17
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 16,
+        "medianCompetitorInr": 16,
+        "cheapestCompetitor": {
+          "source": "BigBasket",
+          "priceInr": 14
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 18
+        },
+        "savingsInr": 4,
+        "savingsPct": 25,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating BigBasket by ₹2."
+    },
+    {
+      "item": {
+        "name": "Coriander",
+        "unit": "100 g",
+        "priceInr": 18,
+        "pricePerKgInr": 180,
+        "category": "leaf"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 24
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 25
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 22
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 20
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 25
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 23,
+        "medianCompetitorInr": 24,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 20
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 25
+        },
+        "savingsInr": 5,
+        "savingsPct": 22,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹2."
+    },
+    {
+      "item": {
+        "name": "Baby Spinach",
+        "unit": "250 g",
+        "priceInr": 48,
+        "pricePerKgInr": 192,
+        "category": "leaf"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 65
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 68,
+          "note": "Premium organic pack — repriced to 250 g."
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 55
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 52
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 62
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 60,
+        "medianCompetitorInr": 62,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 52
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 68,
+          "note": "Premium organic pack — repriced to 250 g."
+        },
+        "savingsInr": 12,
+        "savingsPct": 20,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹4."
+    },
+    {
+      "item": {
+        "name": "Capsicum",
+        "unit": "500 g",
+        "priceInr": 55,
+        "pricePerKgInr": 110,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 72
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 70
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 65
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 60
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 68
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 67,
+        "medianCompetitorInr": 68,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 60
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 72
+        },
+        "savingsInr": 12,
+        "savingsPct": 18,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹5."
+    },
+    {
+      "item": {
+        "name": "Lemons",
+        "unit": "500 g",
+        "priceInr": 32,
+        "pricePerKgInr": 64,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 48
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 50
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 42
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 38
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 45
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 45,
+        "medianCompetitorInr": 45,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 38
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 50
+        },
+        "savingsInr": 13,
+        "savingsPct": 29,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹6."
+    },
+    {
+      "item": {
+        "name": "Bananas",
+        "unit": "1 dozen",
+        "priceInr": 58,
+        "pricePerKgInr": 48,
+        "category": "fruit"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 75
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 78
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 65
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 60
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 72
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 70,
+        "medianCompetitorInr": 72,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 60
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 78
+        },
+        "savingsInr": 12,
+        "savingsPct": 17,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹2."
+    },
+    {
+      "item": {
+        "name": "Apples",
+        "unit": "1 kg",
+        "priceInr": 165,
+        "pricePerKgInr": 165,
+        "category": "fruit"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 225,
+          "note": "Premium grade Royal Delicious."
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 220
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 200
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 185
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 215
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 209,
+        "medianCompetitorInr": 215,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 185
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 225,
+          "note": "Premium grade Royal Delicious."
+        },
+        "savingsInr": 44,
+        "savingsPct": 21,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹20."
+    },
+    {
+      "item": {
+        "name": "Watermelon",
+        "unit": "1 whole 3kg",
+        "priceInr": 95,
+        "pricePerKgInr": 32,
+        "category": "fruit"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 130,
+          "note": "Sold per piece, ~3kg."
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 125
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 110
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 105
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 128
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 120,
+        "medianCompetitorInr": 125,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 105
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 130,
+          "note": "Sold per piece, ~3kg."
+        },
+        "savingsInr": 25,
+        "savingsPct": 21,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹10."
+    },
+    {
+      "item": {
+        "name": "Pomegranate",
+        "unit": "1 kg",
+        "priceInr": 145,
+        "pricePerKgInr": 145,
+        "category": "fruit"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 195
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 185
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 175
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 160
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 190
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 181,
+        "medianCompetitorInr": 185,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 160
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 195
+        },
+        "savingsInr": 36,
+        "savingsPct": 20,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹15."
+    },
+    {
+      "item": {
+        "name": "Pineapple",
+        "unit": "1 whole",
+        "priceInr": 90,
+        "pricePerKgInr": 60,
+        "category": "fruit"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 120
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 125
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 105
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 99
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 115
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 113,
+        "medianCompetitorInr": 115,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 99
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 125
+        },
+        "savingsInr": 23,
+        "savingsPct": 20,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹9."
+    },
+    {
+      "item": {
+        "name": "Alphonso Mangoes",
+        "unit": "1 dozen",
+        "priceInr": 599,
+        "pricePerKgInr": 250,
+        "category": "specialty"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 799
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 749
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 699
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 649
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 775
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 734,
+        "medianCompetitorInr": 749,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 649
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 799
+        },
+        "savingsInr": 135,
+        "savingsPct": 18,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹50."
+    }
+  ],
+  "rollup": {
+    "itemsCompared": 14,
+    "avgSavingsPct": 21,
+    "bestSaver": {
+      "item": {
+        "name": "Tomatoes",
+        "unit": "1 kg",
+        "priceInr": 24,
+        "pricePerKgInr": 24,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 40,
+          "note": "Volatile commodity — Blinkit surge-priced this week."
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 38
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 32
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 30
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 39
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 36,
+        "medianCompetitorInr": 38,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 30
+        },
+        "priciestCompetitor": {
+          "source": "Blinkit",
+          "priceInr": 40,
+          "note": "Volatile commodity — Blinkit surge-priced this week."
+        },
+        "savingsInr": 12,
+        "savingsPct": 33,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹6."
+    },
+    "weakestSaver": {
+      "item": {
+        "name": "Onions",
+        "unit": "1 kg",
+        "priceInr": 35,
+        "pricePerKgInr": 35,
+        "category": "staple"
+      },
+      "competitors": [
+        {
+          "source": "Blinkit",
+          "priceInr": 42
+        },
+        {
+          "source": "Zepto",
+          "priceInr": 44
+        },
+        {
+          "source": "BigBasket",
+          "priceInr": 39
+        },
+        {
+          "source": "JioMart",
+          "priceInr": 38
+        },
+        {
+          "source": "Swiggy Instamart",
+          "priceInr": 43
+        }
+      ],
+      "stats": {
+        "avgCompetitorInr": 41,
+        "medianCompetitorInr": 42,
+        "cheapestCompetitor": {
+          "source": "JioMart",
+          "priceInr": 38
+        },
+        "priciestCompetitor": {
+          "source": "Zepto",
+          "priceInr": 44
+        },
+        "savingsInr": 6,
+        "savingsPct": 15,
+        "magarpattaRank": 1
+      },
+      "highlight": "Cheapest of 6 sources. Beating JioMart by ₹3."
+    },
+    "totalAvgBasketInr": 1748,
+    "magarpattaBasketInr": 1404,
+    "basketSavingsInr": 344,
+    "basketSavingsPct": 20,
+    "insights": [
+      "Cheaper than the average competitor on 14 of 14 items.",
+      "Outright cheapest source on: Tomatoes (-33%), Lemons (-29%), Green Chillies (-25%), Coriander (-22%), Apples (-21%) and 9 more.",
+      "Surge-pricing flagged on Tomatoes — useful tagline for the launch banner.",
+      "Biggest gap vs. Blinkit: Alphonso Mangoes, ₹200 cheaper per unit."
+    ]
+  },
+  "meta": {
+    "llmEnrichmentUsed": false,
+    "competitorCount": 5,
+    "competitorSources": [
+      "BigBasket",
+      "Blinkit",
+      "JioMart",
+      "Swiggy Instamart",
+      "Zepto"
+    ]
+  }
+}

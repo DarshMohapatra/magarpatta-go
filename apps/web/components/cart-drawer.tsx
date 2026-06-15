@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors, cartCampaignSavings, cartCampaignTitles, type JoinPlanIntent } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartHub, cartVendors, cartCampaignSavings, cartCampaignTitles, cartCompetitorSavings, type JoinPlanIntent } from '@/lib/cart';
 import { useClientLocale } from '@/lib/locale-client';
 import { pickName } from '@/lib/i18n';
 import { ProductGlyph } from './product-glyph';
@@ -65,6 +65,10 @@ export function CartDrawer() {
   const convenience = cartConvenience(items);
   const campaignSavings = cartCampaignSavings(items);
   const campaignTitles = cartCampaignTitles(items);
+  // Total ₹ saved across the basket vs. the average quick-commerce price
+  // (snapshotted into each item at add-time). Surfaces as a small green
+  // reassurance line above the delivery fee.
+  const competitorSavings = cartCompetitorSavings(items);
 
   // Delivery fee: zero if member with credits, zero if plan-being-purchased
   // (member benefit kicks in this order), else the user-effective fee.
@@ -293,6 +297,15 @@ export function CartDrawer() {
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-[color:var(--color-ink-soft)]">Convenience fee</span>
                 <span className="text-[color:var(--color-ink)]">₹{convenience}</span>
+              </div>
+            )}
+            {competitorSavings > 0 && (
+              <div className="flex items-center justify-between text-[12.5px] text-[color:var(--color-forest-dark)]">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-forest)]" />
+                  Saving vs typical quick-commerce
+                </span>
+                <span className="font-medium">−₹{competitorSavings}</span>
               </div>
             )}
             <div className="flex items-center justify-between text-[13px]">

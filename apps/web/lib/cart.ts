@@ -32,6 +32,12 @@ export interface CartProduct {
    *  cart shows an "Approx · final by weight" pill on these items. */
   soldByWeight?: boolean;
   estimatedGrams?: number | null;
+  /** At-add snapshot of the average price across tracked quick-commerce
+   *  competitors (Blinkit, Zepto, BigBasket, JioMart, Swiggy Instamart).
+   *  Null when we don't have competitor data for this item. Used by the
+   *  cart drawer + checkout to compute "you're saving ₹X vs typical
+   *  quick-commerce price" without an extra API call. */
+  competitorAvgInr?: number | null;
 }
 
 export interface CartItem extends CartProduct {
@@ -227,4 +233,20 @@ export function cartCampaignTitles(items: CartItem[]): string[] {
     if (i.campaignTitle && !out.includes(i.campaignTitle)) out.push(i.campaignTitle);
   }
   return out;
+}
+
+/**
+ * Total ₹ saved across the cart compared with the average quick-commerce
+ * competitor price (snapshotted on each item at add-time). Only counts
+ * items where Magarpatta is strictly cheaper; items where we're not
+ * cheaper or have no competitor data contribute 0.
+ */
+export function cartCompetitorSavings(items: CartItem[]): number {
+  let total = 0;
+  for (const i of items) {
+    if (i.competitorAvgInr == null) continue;
+    const diff = i.competitorAvgInr - i.mrpInr;
+    if (diff > 0) total += diff * i.qty;
+  }
+  return total;
 }

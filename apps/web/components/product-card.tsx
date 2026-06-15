@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart, type CartProduct } from '@/lib/cart';
 import { pickName, type Locale } from '@/lib/i18n';
+import type { SavingsRow } from '@/lib/competitor-prices';
 import { ProductGlyph } from './product-glyph';
+import { PriceCompareBadge } from './price-compare-badge';
 import { VendorSwitchDialog } from './vendor-switch-dialog';
 import { cn } from '@/lib/utils';
 
@@ -42,6 +44,14 @@ export interface ProductCardData {
    *  (only set when it was edited today). Used to render the "Updated X
    *  mins ago" freshness badge. */
   priceUpdatedAt?: string | null;
+  /** Pre-computed competitor savings rows. Each row is one source we're
+   *  cheaper than (sources we're not cheaper than have been filtered
+   *  upstream per the "skip" rule). Empty array means no badge to show. */
+  savingsRows?: SavingsRow[];
+  /** Average competitor price across all tracked sources — snapshotted
+   *  into the cart at add time so cart drawer / checkout can show a
+   *  total-savings line without an extra fetch. */
+  competitorAvgInr?: number | null;
 }
 
 function relativeMinutes(iso: string): string {
@@ -86,6 +96,12 @@ export function ProductCard({
   const decrement = useCart((s) => s.decrement);
   const [imgError, setImgError] = useState(false);
   const [conflict, setConflict] = useState<{ currentHub: string; nextHub: string; currentVendorName: string; nextVendorName: string } | null>(null);
+  // Compare badge is hidden by default and only appears on hover (desktop)
+  // or sustained focus (keyboard). Touch devices toggle via tap on the
+  // dedicated handle below — kept off main card tap so it doesn't fight
+  // with "Add to cart".
+  const [compareOpen, setCompareOpen] = useState(false);
+  const savingsRows = product.savingsRows ?? [];
 
   const cartProduct: CartProduct = {
     id: product.id,
@@ -107,6 +123,7 @@ export function ProductCard({
     campaignType: product.campaignType ?? null,
     soldByWeight: product.soldByWeight ?? false,
     estimatedGrams: product.estimatedGrams ?? null,
+    competitorAvgInr: product.competitorAvgInr ?? null,
   };
 
   function gotoShop() {
@@ -148,6 +165,10 @@ export function ProductCard({
   return (
     <article
       onClick={handleCardClick}
+      onMouseEnter={() => savingsRows.length > 0 && setCompareOpen(true)}
+      onMouseLeave={() => setCompareOpen(false)}
+      onFocus={() => savingsRows.length > 0 && setCompareOpen(true)}
+      onBlur={() => setCompareOpen(false)}
       className={cn(
         // w-full + min-w-0: pin the card to its grid track on every breakpoint.
         // Without min-w-0 a child with intrinsic size (the product img, the
@@ -158,6 +179,22 @@ export function ProductCard({
         viewShopOnAdd && 'cursor-pointer',
       )}
     >
+      {savingsRows.length > 0 && (
+        <PriceCompareBadge visible={compareOpen} rows={savingsRows} />
+      )}
+      {savingsRows.length > 0 && (
+        // Touch-friendly affordance: tiny "vs" pill in the top-right
+        // corner that toggles the compare overlay on tap. Hidden on
+        // desktop where hover handles it.
+        <button
+          type="button"
+          aria-label="Compare to other platforms"
+          onClick={(e) => { e.stopPropagation(); setCompareOpen((v) => !v); }}
+          className="sm:hidden absolute top-2 right-2 z-10 rounded-full bg-[color:var(--color-forest)]/90 text-[color:var(--color-cream)] px-2 py-0.5 text-[9.5px] font-medium tracking-[0.1em] uppercase shadow"
+        >
+          vs others
+        </button>
+      )}
       <div
         className={cn(
           // Explicit fixed height (not aspect-square) so the column track

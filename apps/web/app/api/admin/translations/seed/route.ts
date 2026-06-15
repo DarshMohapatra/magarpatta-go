@@ -37,6 +37,7 @@ const SEED: Record<string, { hi: string; mr: string }> = {
   'Apples':           { hi: 'सेब',           mr: 'सफरचंद' },
   'Watermelon':       { hi: 'तरबूज',         mr: 'कलिंगड' },
   'Pomegranate':      { hi: 'अनार',          mr: 'डाळिंब' },
+  'Pineapple':        { hi: 'अनानास',        mr: 'अननस' },
 };
 
 export async function POST() {

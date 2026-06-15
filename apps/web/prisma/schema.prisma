@@ -243,10 +243,30 @@ model Category {
   products       Product[]
 }
 
+/// Snapshot of one competitor's price for a single Product, in ₹ per the
+/// Product's display unit. Used by the customer-facing "vs Blinkit, save
+/// X%" badge that hovers over each product card. Hand-curated weekly via
+/// /admin/competitor-prices for now; a future cron + LLM/scraper can
+/// overwrite the same rows. One row per (product × source).
+model CompetitorPriceSnapshot {
+  id         String   @id @default(cuid())
+  productId  String
+  source     String // 'Blinkit' | 'Zepto' | 'BigBasket' | 'JioMart' | 'Swiggy Instamart'
+  priceInr   Int
+  note       String?
+  capturedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, source])
+  @@index([productId])
+}
+
 model Product {
-  id             String                 @id @default(cuid())
-  vendorId       String
-  categoryId     String
+  id                  String                    @id @default(cuid())
+  vendorId            String
+  categoryId          String
   // Three translations of the item name. `name` is the English column and
   // doubles as the universal fallback (renderer always falls back to it).
   // The vendor types in ONE language (any of the three); on save we call
@@ -255,34 +275,35 @@ model Product {
   // don't overwrite it. If Gemini fails, the source column has the typed
   // text and the others are left null — customer renderer falls back to
   // `name` (which we always populate even when the source is hi/mr).
-  name           String // English (also the universal fallback)
-  nameHi         String?
-  nameMr         String?
-  nameSourceLang String                 @default("en") // 'en' | 'hi' | 'mr'
-  description    String?
-  priceInr       Int
-  mrpInr         Int?
-  unit           String?
-  isVeg          Boolean                @default(true)
-  isRegulated    Boolean                @default(true)
-  inStock        Boolean                @default(true)
+  name                String // English (also the universal fallback)
+  nameHi              String?
+  nameMr              String?
+  nameSourceLang      String                    @default("en") // 'en' | 'hi' | 'mr'
+  description         String?
+  priceInr            Int
+  mrpInr              Int?
+  unit                String?
+  isVeg               Boolean                   @default(true)
+  isRegulated         Boolean                   @default(true)
+  inStock             Boolean                   @default(true)
   // Sold-by-weight items (loose vegetables, fruit picked from a heap) carry
   // an *estimated* gram count on the listing — what the customer pays at
   // checkout is the estimated price, but the vendor reweighs at fulfilment
   // and the order total is reconciled on-delivery. estimatedGrams is the
   // gram count the priceInr is anchored to (e.g. priceInr = ₹40 for 250 g
   // → ₹/g = 0.16). Non-weight items leave both at the defaults.
-  soldByWeight   Boolean                @default(false)
-  estimatedGrams Int?
-  accent         String?
-  glyph          String?
-  tagline        String?
-  imageUrl       String?
-  createdAt      DateTime               @default(now())
-  vendor         Vendor                 @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  category       Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  orderItems     OrderItem[]
-  dailyOverrides ProductDailyOverride[]
+  soldByWeight        Boolean                   @default(false)
+  estimatedGrams      Int?
+  accent              String?
+  glyph               String?
+  tagline             String?
+  imageUrl            String?
+  createdAt           DateTime                  @default(now())
+  vendor              Vendor                    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category            Category                  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems          OrderItem[]
+  dailyOverrides      ProductDailyOverride[]
+  competitorSnapshots CompetitorPriceSnapshot[]
 
   @@index([vendorId])
   @@index([categoryId])

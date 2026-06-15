@@ -11,6 +11,7 @@ import { getVendorBySlug, getVendorProducts } from '@/lib/menu-cache';
 import { getWholesaleOnlyMode } from '@/lib/settings';
 import { getServerLocale } from '@/lib/locale';
 import { pickName } from '@/lib/i18n';
+import { buildSavingsRows, avgCompetitorPrice, COMPETITOR_SOURCES, type CompetitorPriceLite, type CompetitorSource } from '@/lib/competitor-prices';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -136,6 +137,22 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
     bySlug.get(slug)!.items.push(p);
   }
 
+  // Same one-shot competitor fetch as the /menu page so the rotating
+  // savings badge shows on vendor shop pages too.
+  const competitorRowsByProduct = new Map<string, CompetitorPriceLite[]>();
+  if (products.length > 0) {
+    const snapshots = await prisma.competitorPriceSnapshot.findMany({
+      where: { productId: { in: products.map((p) => p.id) } },
+      select: { productId: true, source: true, priceInr: true, note: true },
+    });
+    for (const s of snapshots) {
+      if (!(COMPETITOR_SOURCES as readonly string[]).includes(s.source)) continue;
+      const arr = competitorRowsByProduct.get(s.productId) ?? [];
+      arr.push({ source: s.source as CompetitorSource, priceInr: s.priceInr, note: s.note });
+      competitorRowsByProduct.set(s.productId, arr);
+    }
+  }
+
   return (
     <section className="py-12">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
@@ -190,6 +207,8 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
                     tagline: p.tagline,
                     imageUrl: p.imageUrl,
                     vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
+                    savingsRows: buildSavingsRows(priced.mrpInr ?? priced.priceInr, competitorRowsByProduct.get(p.id) ?? []),
+                    competitorAvgInr: avgCompetitorPrice(competitorRowsByProduct.get(p.id) ?? []),
                   };
                   return (
                     <div key={p.id} id={`product-${p.id}`} className="rounded-2xl scroll-mt-32">

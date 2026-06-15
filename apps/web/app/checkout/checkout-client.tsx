@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles, type JoinPlanIntent } from '@/lib/cart';
+import { useCart, cartSubtotalMrp, cartConvenience, cartCampaignSavings, cartHasCampaignDiscount, cartCampaignTitles, cartCompetitorSavings, type JoinPlanIntent } from '@/lib/cart';
 import { useClientLocale } from '@/lib/locale-client';
 import { pickName } from '@/lib/i18n';
 import { ProductGlyph } from '@/components/product-glyph';
@@ -256,6 +256,7 @@ export function CheckoutClient({
 
   const subtotal = useMemo(() => cartSubtotalMrp(items), [items]);
   const convenience = useMemo(() => cartConvenience(items), [items]);
+  const competitorSavings = useMemo(() => cartCompetitorSavings(items), [items]);
   const campaignSavings = useMemo(() => cartCampaignSavings(items), [items]);
   const hasCampaign = useMemo(() => cartHasCampaignDiscount(items), [items]);
   const campaignTitles = useMemo(() => cartCampaignTitles(items), [items]);
@@ -734,6 +735,7 @@ export function CheckoutClient({
                   onBack={() => setStep('address')}
                   onSubmit={placeOrder}
                   total={total}
+                  competitorSavings={competitorSavings}
                 />
               )}
             </div>
@@ -1151,6 +1153,9 @@ function PaymentStep(props: {
   onBack: () => void;
   onSubmit: () => void;
   total: number;
+  /** Total ₹ saved across the cart vs typical quick-commerce price.
+   *  When > 0, renders a green callout above the Place order button. */
+  competitorSavings: number;
 }) {
   const { payMethod, setPayMethod, codAvailable } = props;
   return (
@@ -1279,6 +1284,20 @@ function PaymentStep(props: {
       {props.error && (
         <div className="rounded-xl bg-[color:var(--color-terracotta)]/10 border border-[color:var(--color-terracotta)]/25 px-4 py-3 text-[13px] text-[color:var(--color-terracotta-dark)]">
           {props.error}
+        </div>
+      )}
+
+      {props.competitorSavings > 0 && (
+        <div className="rounded-2xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/8 px-5 py-4 flex items-start gap-3">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[11px] mt-0.5 shrink-0">₹</span>
+          <div>
+            <div className="font-serif text-[16px] leading-tight text-[color:var(--color-forest-dark)]">
+              You&apos;re saving ₹{props.competitorSavings} on this order.
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-ink-soft)]">
+              Compared with the average price across Blinkit, Zepto, BigBasket, JioMart and Swiggy Instamart on these same items.
+            </div>
+          </div>
         </div>
       )}
 

@@ -10,6 +10,7 @@ import { getActiveDiscounts, getAllInStockProducts, getMenuCategories } from '@/
 import { resolveAvailability } from '@/lib/product-availability';
 import { getWholesaleOnlyMode } from '@/lib/settings';
 import { getServerLocale } from '@/lib/locale';
+import { buildSavingsRows, avgCompetitorPrice, COMPETITOR_SOURCES, type CompetitorPriceLite, type CompetitorSource } from '@/lib/competitor-prices';
 import type { ProductCardData } from '@/components/product-card';
 
 export const dynamic = 'force-dynamic';
@@ -92,6 +93,23 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
 
   const visibleProducts = wholesaleScoped.filter((p) => availability.get(p.id)?.inStock ?? p.inStock);
 
+  // Batch-fetch competitor snapshots for every visible product in ONE query
+  // and group by productId. Cheaper than threading the relation through the
+  // menu cache, and the hover badge only needs the price + source.
+  const competitorRowsByProduct = new Map<string, CompetitorPriceLite[]>();
+  if (visibleProducts.length > 0) {
+    const snapshots = await prisma.competitorPriceSnapshot.findMany({
+      where: { productId: { in: visibleProducts.map((p) => p.id) } },
+      select: { productId: true, source: true, priceInr: true, note: true },
+    });
+    for (const s of snapshots) {
+      if (!(COMPETITOR_SOURCES as readonly string[]).includes(s.source)) continue;
+      const arr = competitorRowsByProduct.get(s.productId) ?? [];
+      arr.push({ source: s.source as CompetitorSource, priceInr: s.priceInr, note: s.note });
+      competitorRowsByProduct.set(s.productId, arr);
+    }
+  }
+
   const productData: ProductCardData[] = visibleProducts.map((p) => {
     const eff = availability.get(p.id)!;
     const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: eff.priceInr, mrpInr: eff.mrpInr }, discounts);
@@ -120,6 +138,8 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
       imageUrl: p.imageUrl,
       vendor: { slug: p.vendor.slug, name: p.vendor.name, hub: p.vendor.hub },
       priceUpdatedAt: eff.sourceLabel === 'today' && eff.updatedAt ? eff.updatedAt.toISOString() : null,
+      savingsRows: buildSavingsRows(priced.mrpInr ?? priced.priceInr, competitorRowsByProduct.get(p.id) ?? []),
+      competitorAvgInr: avgCompetitorPrice(competitorRowsByProduct.get(p.id) ?? []),
     };
   });
 
