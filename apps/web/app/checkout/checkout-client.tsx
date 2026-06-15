@@ -862,7 +862,7 @@ export function CheckoutClient({
                   <rect x="2" y="5" width="10" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
                   <path d="M4.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" strokeWidth="1.2" />
                 </svg>
-                256-bit encrypted · demo gateway
+                256-bit encrypted · Razorpay gateway
               </div>
             </aside>
           </div>

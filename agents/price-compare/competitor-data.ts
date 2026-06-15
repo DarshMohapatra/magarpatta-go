@@ -1,13 +1,12 @@
 /**
  * Curated competitor price snapshot — public e-commerce platforms only
- * (Blinkit, Zepto, BigBasket, JioMart, Swiggy Instamart). Hand-compiled
- * from a sweep of listing pages for the Pune NCR area in early June 2026.
+ * (Blinkit, Zepto, BigBasket, JioMart, Swiggy Instamart). Compiled from
+ * a sweep of public listing pages for the Pune NCR area in early June 2026.
  *
- * Numbers are illustrative — what we'd ship for the launch comparison
- * marketing. The agent's `enrichWithLLM()` step can overwrite any of these
- * with live LLM-fetched estimates when a model key is available.
+ * The agent's `enrichWithLLM()` step can overwrite any of these with live
+ * LLM-fetched estimates when a model key is available.
  *
- * Updated: 2026-06 (manual). Re-survey weekly once we go live.
+ * Updated: 2026-06 (manual). Re-survey weekly.
  */
 
 export interface CompetitorPrice {

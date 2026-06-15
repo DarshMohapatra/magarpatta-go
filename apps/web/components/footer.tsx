@@ -128,7 +128,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span>Made with care in {siteConfig.siteName}</span>
             <span className="hidden sm:inline-block h-4 w-px bg-[color:var(--color-cream)]/20" />
-            <span>v0.1.0 · Phase 1 · MVP</span>
+            <span>v0.1.0</span>
           </div>
         </div>
       </div>

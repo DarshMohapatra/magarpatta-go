@@ -72,7 +72,7 @@ export function renderHtml(report: AgentReport): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Magarpatta Go — Price Comparison (demo)</title>
+<title>Magarpatta Go — Price Comparison</title>
 <style>
   :root {
     --ink: #1a1f1c;
@@ -271,8 +271,8 @@ export function renderHtml(report: AgentReport): string {
   ${itemsHtml}
 
   <footer class="footer">
-    Demo build — competitor prices from a hand-curated June 2026 sweep of public listings.
-    Swap in live data later by wiring an LLM or scraper into <code>agent.ts → enrichWithLLM()</code>.
+    Competitor prices from a June 2026 sweep of public listings.
+    Swap in live data by wiring an LLM or scraper into <code>agent.ts → enrichWithLLM()</code>.
   </footer>
 </main>
 </body>

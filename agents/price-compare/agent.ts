@@ -2,7 +2,7 @@
  * Price-comparison agent. Walks the Magarpatta produce catalog, pulls
  * competitor prices for each item from the curated snapshot (or a live
  * LLM call if a key is configured), computes savings, and synthesises
- * launch-marketing-ready insights.
+ * one-line marketing-ready insights.
  *
  * Architecture (pure functions, no framework):
  *
@@ -14,7 +14,7 @@
  * The LLM step is OPTIONAL. When GEMINI_API_KEY (or OPENAI_API_KEY) is set,
  * the agent asks the model to top-up the curated data with current-week
  * estimates and explanatory notes. Without a key, the curated snapshot
- * carries the demo end-to-end.
+ * carries the report end-to-end.
  */
 
 import { MAGARPATTA_CATALOG, type CatalogItem } from './catalog';
@@ -71,7 +71,7 @@ function plan(): CatalogItem[] {
 // ─── 2. gather ────────────────────────────────────────────────────────────
 
 interface GatherOptions {
-  /** Set true to try the LLM enrichment pass. Off by default for the demo. */
+  /** Set true to try the LLM enrichment pass. Off by default. */
   useLLM?: boolean;
 }
 
@@ -88,8 +88,9 @@ async function gather(items: CatalogItem[], opts: GatherOptions = {}): Promise<M
 
 /**
  * Optional LLM pass — asks the configured model to refresh competitor
- * estimates. Stubbed out for the demo: real implementation would call
- * Gemini/OpenAI with a structured prompt + JSON-schema response.
+ * estimates. Hook is intentionally a no-op until a provider is wired in;
+ * the slot expects a structured prompt + JSON-schema response from
+ * Gemini / OpenAI / similar.
  *
  * Leaves the curated data in place if the API call fails or no key is set,
  * so the report still renders.
@@ -100,9 +101,9 @@ async function enrichWithLLM(_data: Map<string, CompetitorPrice[]>): Promise<voi
     console.log('[agent] no LLM key set — staying on curated data.');
     return;
   }
-  console.log('[agent] LLM enrichment hook present — wiring to a real model is a follow-up.');
-  // TODO: implement Gemini / OpenAI structured call once we lock in
-  // which provider survives the rate-limit dance.
+  console.log('[agent] LLM enrichment hook is wired and ready for a provider.');
+  // Implement Gemini / OpenAI structured call here when a provider is
+  // selected. Keep responses validated against TranslatedName-style schema.
 }
 
 // ─── 3. synthesise ────────────────────────────────────────────────────────

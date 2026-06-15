@@ -7,10 +7,10 @@
  * web app does.)
  *
  * Writes two artefacts into `agents/price-compare/output/`:
- *   - report.json — structured agent output for downstream tooling
- *   - demo.html   — self-contained marketing-style comparison page
+ *   - report.json            — structured agent output for downstream tooling
+ *   - ai_agent_report.html   — self-contained comparison report
  *
- * Open demo.html in any browser. No server, no DB, no Vercel deploy.
+ * Open the HTML in any browser. No server, no DB.
  */
 
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -24,7 +24,9 @@ const OUT_DIR = join(HERE, 'output');
 
 async function main() {
   console.log('[run] starting price-compare agent…');
-  // useLLM is off for the demo — flip true once we wire a model in.
+  // useLLM is opt-in — flip true once a model provider is wired into
+  // enrichWithLLM(). Curated competitor data carries the report on its own
+  // until then.
   const report = await runAgent({ useLLM: false });
 
   mkdirSync(OUT_DIR, { recursive: true });

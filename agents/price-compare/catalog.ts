@@ -3,9 +3,9 @@
  * prices they sell at (matches prisma/seed-wholesale.ts + the Alphonso
  * row from prisma/seed-catalog.ts).
  *
- * Keeping this as a flat array (not pulled from DB) so the demo runs
- * anywhere — no DATABASE_URL needed, no network — and the comparison
- * stays reproducible week-to-week even as the live DB shifts.
+ * Kept as a flat array (not pulled from DB) so the report runs anywhere
+ * — no DATABASE_URL needed, no network — and stays reproducible
+ * week-to-week even as the live DB shifts.
  */
 
 export interface CatalogItem {
@@ -17,7 +17,7 @@ export interface CatalogItem {
   /**
    * Normalized price per kilogram (₹/kg). Lets us compare apples to
    * apples when competitor packs differ ("1 dozen", "500g", "1 whole").
-   * Hand-derived per row so the demo doesn't have to guess unit math.
+   * Authored per row so unit math is explicit rather than inferred.
    */
   pricePerKgInr: number;
   /** Short tag for the report's "best deal" / "worst deal" callouts. */

@@ -16,9 +16,9 @@ export const dynamic = 'force-dynamic';
  * Each product is a row with three inline inputs (EN / HI / MR); rows
  * autosave on blur via PATCH /api/admin/translations/[id].
  *
- * Top of page has a "Apply seed translations" button — one-shot POST that
- * fills launch-catalog items from a hardcoded dictionary so admin can
- * test the customer language toggle without typing each row manually.
+ * Top of page has an "Apply seed translations" button — one-shot POST
+ * that fills launch-catalog items from a curated dictionary so admin can
+ * verify the customer language toggle without typing each row manually.
  */
 export default async function AdminTranslationsPage() {
   const admin = await getAdminSession();
