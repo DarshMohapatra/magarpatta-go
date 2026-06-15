@@ -4,74 +4,74 @@ import { useEffect, useState } from 'react';
 import type { SavingsRow } from '@/lib/competitor-prices';
 
 /**
- * Rotating "vs Blinkit, save X%" overlay that sits absolutely-positioned
- * on the product card. Hidden by default; visible only when the customer
- * hovers the card (desktop) or taps it (mobile). While visible, cycles
- * through the savings rows every 3.5 s with a crossfade.
+ * Inline price-compare ticker. Sits directly below the product price (NOT
+ * absolutely positioned over the card) so it never hides the price, and
+ * stays visible at all times — no hover or tap needed.
  *
- * Sources where we're NOT cheaper have been filtered out upstream by
- * buildSavingsRows() — this component only ever sees winning comparisons.
- * If the list is empty (we're not cheaper than anyone), the component
- * renders nothing and the card is unaffected.
+ * The text cycles every 4 s between two formats:
+ *   - "Our app: X% lower than {source}"    — celebratory, headline form
+ *   - "Other apps: ₹{min}–₹{max}"           — informational range form
+ * …per the reference screenshots. Skipping sources where we're not
+ * cheaper is enforced upstream by buildSavingsRows().
  *
- * Hover detection is left to the parent — this component just listens
- * for a `visible` prop. The parent product card sets visible=true on
- * mouseenter/focus/pointerdown.
+ * When rows is empty (no data OR we don't beat anyone) the component
+ * renders nothing and the card layout is unaffected.
  */
-export function PriceCompareBadge({
-  visible,
-  rows,
-}: {
-  visible: boolean;
-  rows: SavingsRow[];
-}) {
+export function PriceCompareBadge({ rows }: { rows: SavingsRow[] }) {
+  // Build the rotation: one entry per "winning" source (with the
+  // competitor's name AND their actual price AND the % saved) plus a
+  // summary "Other apps: ₹X-Y" entry at the end. Customer sees something
+  // fresh every few seconds without it feeling spammy.
+  const messages: string[] = [];
+  for (const r of rows) {
+    messages.push(`${r.source} ₹${r.theirPriceInr} — save ${r.savingsPct}%`);
+  }
+  if (rows.length > 1) {
+    const prices = rows.map((r) => r.theirPriceInr).sort((a, b) => a - b);
+    const lo = prices[0];
+    const hi = prices[prices.length - 1];
+    messages.push(lo === hi ? `Other apps: ₹${lo}` : `Other apps: ₹${lo}–₹${hi}`);
+  }
+
   const [idx, setIdx] = useState(0);
   const [fading, setFading] = useState(false);
 
-  // Reset to the biggest win each time the overlay re-shows. Customer
-  // sees the most impressive comparison first.
+  // Cycle. Skip the timer if there's only one message.
   useEffect(() => {
-    if (visible) setIdx(0);
-  }, [visible]);
-
-  // Cycle while visible. Crossfade by toggling opacity 250 ms before the
-  // index swap.
-  useEffect(() => {
-    if (!visible || rows.length <= 1) return;
-    const fadeOut = setTimeout(() => setFading(true), 3250);
+    if (messages.length <= 1) return;
+    const fadeOut = setTimeout(() => setFading(true), 3700);
     const swap = setTimeout(() => {
-      setIdx((i) => (i + 1) % rows.length);
+      setIdx((i) => (i + 1) % messages.length);
       setFading(false);
-    }, 3500);
+    }, 4000);
     return () => { clearTimeout(fadeOut); clearTimeout(swap); };
-  }, [visible, idx, rows.length]);
+  }, [idx, messages.length]);
 
-  if (rows.length === 0) return null;
-  const current = rows[idx];
+  if (messages.length === 0) return null;
+  const current = messages[idx] ?? messages[0];
 
   return (
     <div
       aria-live="polite"
-      className={
-        'absolute left-2 right-2 bottom-2 z-10 pointer-events-none ' +
-        'rounded-lg bg-[color:var(--color-forest)] text-[color:var(--color-cream)] ' +
-        'px-2.5 py-1.5 text-[11px] leading-tight shadow-lg ' +
-        'transition-all duration-300 ease-out ' +
-        (visible
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-1 pointer-events-none')
-      }
+      className="mt-1 flex items-center gap-1.5 text-[10.5px] sm:text-[11px] leading-tight text-[color:var(--color-forest-dark)] min-h-[14px]"
     >
-      <span className={'block transition-opacity duration-200 ' + (fading ? 'opacity-0' : 'opacity-100')}>
-        <span className="font-medium">{current.source}</span>
-        <span className="opacity-80"> ₹{current.theirPriceInr}</span>
-        <span className="mx-1.5 opacity-50">·</span>
-        <span className="font-semibold">save {current.savingsPct}%</span>
-        {rows.length > 1 && (
-          <span className="ml-1.5 opacity-60 text-[9.5px] tabular-nums">
-            {idx + 1}/{rows.length}
-          </span>
-        )}
+      {/* infinity / loop icon — matches the reference style */}
+      <svg
+        viewBox="0 0 24 12"
+        width="14"
+        height="8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        className="shrink-0 opacity-80"
+      >
+        <path d="M5 6c0-2 2-3.5 4-3.5s3 1.5 4 3.5 2 3.5 4 3.5 4-1.5 4-3.5-2-3.5-4-3.5-3 1.5-4 3.5-2 3.5-4 3.5-4-1.5-4-3.5z" />
+      </svg>
+      <span
+        className={'truncate font-medium transition-opacity duration-200 ' + (fading ? 'opacity-0' : 'opacity-100')}
+      >
+        {current}
       </span>
     </div>
   );

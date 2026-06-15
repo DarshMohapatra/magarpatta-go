@@ -33,7 +33,7 @@ async function main() {
   writeFileSync(jsonPath, JSON.stringify(report, null, 2));
   console.log(`[run] JSON written: ${jsonPath}`);
 
-  const htmlPath = join(OUT_DIR, 'demo.html');
+  const htmlPath = join(OUT_DIR, 'ai_agent_report.html');
   writeFileSync(htmlPath, renderHtml(report));
   console.log(`[run] HTML written: ${htmlPath}`);
   console.log(`[run] open it: file://${htmlPath.replace(/\\/g, '/')}`);

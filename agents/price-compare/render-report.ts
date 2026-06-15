@@ -225,7 +225,6 @@ export function renderHtml(report: AgentReport): string {
 <main class="page">
 
   <header class="hero">
-    <p class="hero__kicker">Magarpatta Go · Price Compare Agent · DEMO</p>
     <h1 class="hero__title">
       Same produce. <em>Lower bill.</em>
     </h1>
@@ -235,7 +234,7 @@ export function renderHtml(report: AgentReport): string {
       competing platforms across Pune.
     </p>
     <p class="hero__meta">
-      Generated ${generatedAt} IST · curated price snapshot June 2026 · LLM enrichment ${report.meta.llmEnrichmentUsed ? 'on' : 'off (demo mode)'}
+      Generated ${generatedAt} IST · curated price snapshot June 2026
     </p>
     <div class="chip-row">${sourcesHtml}</div>
   </header>

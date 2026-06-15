@@ -96,11 +96,6 @@ export function ProductCard({
   const decrement = useCart((s) => s.decrement);
   const [imgError, setImgError] = useState(false);
   const [conflict, setConflict] = useState<{ currentHub: string; nextHub: string; currentVendorName: string; nextVendorName: string } | null>(null);
-  // Compare badge is hidden by default and only appears on hover (desktop)
-  // or sustained focus (keyboard). Touch devices toggle via tap on the
-  // dedicated handle below — kept off main card tap so it doesn't fight
-  // with "Add to cart".
-  const [compareOpen, setCompareOpen] = useState(false);
   const savingsRows = product.savingsRows ?? [];
 
   const cartProduct: CartProduct = {
@@ -165,10 +160,6 @@ export function ProductCard({
   return (
     <article
       onClick={handleCardClick}
-      onMouseEnter={() => savingsRows.length > 0 && setCompareOpen(true)}
-      onMouseLeave={() => setCompareOpen(false)}
-      onFocus={() => savingsRows.length > 0 && setCompareOpen(true)}
-      onBlur={() => setCompareOpen(false)}
       className={cn(
         // w-full + min-w-0: pin the card to its grid track on every breakpoint.
         // Without min-w-0 a child with intrinsic size (the product img, the
@@ -179,22 +170,6 @@ export function ProductCard({
         viewShopOnAdd && 'cursor-pointer',
       )}
     >
-      {savingsRows.length > 0 && (
-        <PriceCompareBadge visible={compareOpen} rows={savingsRows} />
-      )}
-      {savingsRows.length > 0 && (
-        // Touch-friendly affordance: tiny "vs" pill in the top-right
-        // corner that toggles the compare overlay on tap. Hidden on
-        // desktop where hover handles it.
-        <button
-          type="button"
-          aria-label="Compare to other platforms"
-          onClick={(e) => { e.stopPropagation(); setCompareOpen((v) => !v); }}
-          className="sm:hidden absolute top-2 right-2 z-10 rounded-full bg-[color:var(--color-forest)]/90 text-[color:var(--color-cream)] px-2 py-0.5 text-[9.5px] font-medium tracking-[0.1em] uppercase shadow"
-        >
-          vs others
-        </button>
-      )}
       <div
         className={cn(
           // Explicit fixed height (not aspect-square) so the column track
@@ -318,6 +293,10 @@ export function ProductCard({
             </button>
           )}
         </div>
+
+        {savingsRows.length > 0 && (
+          <PriceCompareBadge rows={savingsRows} />
+        )}
       </div>
 
       {conflict && (
