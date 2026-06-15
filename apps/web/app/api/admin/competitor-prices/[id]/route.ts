@@ -8,11 +8,17 @@ import { COMPETITOR_SOURCES, type CompetitorSource } from '@/lib/competitor-pric
 interface Body {
   /** Map of source → price ₹. Missing keys are left untouched; null clears. */
   prices?: Partial<Record<CompetitorSource, number | null>>;
+  /** Magarpatta's own selling price. When provided, bypasses the vendor
+   *  PendingChange queue — admin overrides are direct. priceInr is kept
+   *  in sync with isRegulated: equal to mrpInr for regulated items, mrpInr+1
+   *  for non-regulated (the ₹1 hyper-local markup). */
+  ourPriceInr?: number;
 }
 
 /**
- * Save a row of competitor prices for one product. Used by the
- * /admin/competitor-prices editor — admin types into each input cell and
+ * Save a row of competitor prices for one product — and optionally update
+ * Magarpatta's own price in the same call. Used by the
+ * /admin/competitor-prices editor: admin types into each input cell and
  * the row autosaves on blur with the whole row's current state.
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -22,7 +28,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   const { id } = await params;
-  const product = await prisma.product.findUnique({ where: { id }, select: { id: true, name: true } });
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: { id: true, name: true, isRegulated: true, mrpInr: true, priceInr: true },
+  });
   if (!product) return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
 
   const body = (await req.json().catch(() => ({}))) as Body;
@@ -48,6 +57,23 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       );
     }
   }
+
+  // Direct price override — admin is the approver, so no PendingChange.
+  let ourPriceChanged = false;
+  if (typeof body.ourPriceInr === 'number' && body.ourPriceInr > 0) {
+    const newMrp = Math.floor(body.ourPriceInr);
+    const newPrice = product.isRegulated ? newMrp : newMrp + 1;
+    if (newMrp !== product.mrpInr || newPrice !== product.priceInr) {
+      ops.push(
+        prisma.product.update({
+          where: { id },
+          data: { mrpInr: newMrp, priceInr: newPrice },
+        }),
+      );
+      ourPriceChanged = true;
+    }
+  }
+
   await Promise.all(ops);
   revalidateTag('menu');
 
@@ -55,9 +81,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     actorRole: 'ADMIN',
     actorId: admin.id,
     actorName: admin.name,
-    action: 'COMPETITOR_PRICES_EDIT',
-    summary: `${admin.name} edited competitor prices on "${product.name}"`,
-    metadata: { productId: id, sources: Object.keys(prices) },
+    action: ourPriceChanged ? 'PRODUCT_PRICE_OVERRIDE' : 'COMPETITOR_PRICES_EDIT',
+    summary: ourPriceChanged
+      ? `${admin.name} set "${product.name}" price + edited competitor row`
+      : `${admin.name} edited competitor prices on "${product.name}"`,
+    metadata: { productId: id, sources: Object.keys(prices), ourPriceChanged },
   });
 
   return NextResponse.json({ ok: true });

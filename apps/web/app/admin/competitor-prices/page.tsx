@@ -5,6 +5,7 @@ import { getAllowedCategorySlugs } from '@/lib/settings';
 import { AdminShell } from '@/components/admin/admin-shell';
 import { CompetitorPricesClient, type ProductRow } from './client';
 import { COMPETITOR_SOURCES, type CompetitorSource } from '@/lib/competitor-prices';
+import { ensureCompetitorPricesSeeded } from '@/lib/competitor-seed';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,10 @@ export const dynamic = 'force-dynamic';
 export default async function AdminCompetitorPricesPage() {
   const admin = await getAdminSession();
   if (!admin) redirect('/admin/signin');
+
+  // Lazy bootstrap so admin lands on a populated table the first time
+  // they visit, instead of an empty grid that needs a manual click.
+  await ensureCompetitorPricesSeeded();
 
   const allowedSlugs = await getAllowedCategorySlugs();
   const products = await prisma.product.findMany({

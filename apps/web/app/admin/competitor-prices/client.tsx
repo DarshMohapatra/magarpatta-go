@@ -17,6 +17,9 @@ export interface ProductRow {
 
 interface Draft {
   prices: Partial<Record<CompetitorSource, string>>;
+  /** Editable copy of Magarpatta's own price, kept as string so empty / mid-
+   *  typing state doesn't fight the controlled input. */
+  ourPriceInr: string;
   saving: boolean;
   savedAt: number | null;
   err: string | null;
@@ -41,7 +44,7 @@ export function CompetitorPricesClient({
       for (const s of sources) {
         prices[s] = r.priceBySource[s] ? String(r.priceBySource[s]) : '';
       }
-      out[r.id] = { prices, saving: false, savedAt: null, err: null };
+      out[r.id] = { prices, ourPriceInr: String(r.ourPriceInr), saving: false, savedAt: null, err: null };
     }
     return out;
   });
@@ -60,6 +63,7 @@ export function CompetitorPricesClient({
     const d = drafts[id];
     if (!d || !canEdit) return;
     setDrafts((s) => ({ ...s, [id]: { ...s[id], saving: true, err: null } }));
+    const ourPrice = Number(d.ourPriceInr);
     const body = {
       prices: Object.fromEntries(
         sources.map((src) => {
@@ -69,6 +73,7 @@ export function CompetitorPricesClient({
           return [src, Number.isFinite(n) && n > 0 ? n : null];
         }),
       ),
+      ourPriceInr: Number.isFinite(ourPrice) && ourPrice > 0 ? ourPrice : undefined,
     };
     try {
       const r = await fetch(`/api/admin/competitor-prices/${id}`, {
@@ -155,7 +160,7 @@ export function CompetitorPricesClient({
             <thead className="bg-[color:var(--color-cream)]/60">
               <tr className="text-left">
                 <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">Product</th>
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)] text-right">Our ₹</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-forest)] text-right">Our ₹ (edit)</th>
                 {sources.map((s) => (
                   <th key={s} className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)] text-right">{s}</th>
                 ))}
@@ -173,7 +178,21 @@ export function CompetitorPricesClient({
                       <div className="font-medium text-[13px]">{r.name}</div>
                       <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/70">{r.unit} · {r.vendorName}</div>
                     </td>
-                    <td className="px-3 py-2 text-right text-[13px] font-medium">₹{r.ourPriceInr}</td>
+                    <td className="px-2 py-2">
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        value={d.ourPriceInr}
+                        disabled={!canEdit}
+                        onChange={(e) => setDrafts((st) => ({
+                          ...st,
+                          [r.id]: { ...st[r.id], ourPriceInr: e.target.value },
+                        }))}
+                        onBlur={() => save(r.id)}
+                        className="w-20 text-right rounded-md border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/4 px-2 py-1 font-medium text-[color:var(--color-forest-dark)] disabled:bg-[color:var(--color-cream)]/40"
+                      />
+                    </td>
                     {sources.map((s) => (
                       <td key={s} className="px-2 py-2">
                         <input

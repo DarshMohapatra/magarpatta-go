@@ -11,6 +11,7 @@ import { resolveAvailability } from '@/lib/product-availability';
 import { getWholesaleOnlyMode } from '@/lib/settings';
 import { getServerLocale } from '@/lib/locale';
 import { buildSavingsRows, avgCompetitorPrice, COMPETITOR_SOURCES, type CompetitorPriceLite, type CompetitorSource } from '@/lib/competitor-prices';
+import { ensureCompetitorPricesSeeded } from '@/lib/competitor-seed';
 import type { ProductCardData } from '@/components/product-card';
 
 export const dynamic = 'force-dynamic';
@@ -92,6 +93,12 @@ async function MenuData({ activeSlug, q, vegOnly }: { activeSlug: string | null;
   );
 
   const visibleProducts = wholesaleScoped.filter((p) => availability.get(p.id)?.inStock ?? p.inStock);
+
+  // Auto-seed competitor snapshots if the DB is empty (first deploy /
+  // freshly-pushed schema). Idempotent — once seeded, this is a single
+  // cheap COUNT query. Means we never ship a launch with an empty
+  // comparison table just because admin forgot to click the button.
+  await ensureCompetitorPricesSeeded();
 
   // Batch-fetch competitor snapshots for every visible product in ONE query
   // and group by productId. Cheaper than threading the relation through the
