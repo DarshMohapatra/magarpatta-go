@@ -15,11 +15,11 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Landing() {
-  // Signed-in users bypass the pre-auth landing and go straight to the app.
-  // Their mg_session cookie (30-day maxAge) means tab close + reopen lands
-  // them back on /menu, not this page.
+  // Signed-in users bypass the pre-auth landing and go straight to the
+  // redesigned discovery home. Their mg_session cookie (30-day maxAge)
+  // means tab close + reopen lands them back on /home, not this page.
   const session = await getServerSession();
-  if (session) redirect('/menu');
+  if (session) redirect('/home');
 
   const [itemCount, vendorCount, societyCount] = await Promise.all([
     prisma.product.count({ where: { inStock: true } }),
