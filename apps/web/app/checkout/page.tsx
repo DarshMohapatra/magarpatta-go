@@ -4,9 +4,10 @@ import { getCodEligibility } from '@/lib/cod';
 import { getDeliveryFeeInr, getSlotDefinitions, getSlotBypassConfig } from '@/lib/settings';
 import { getMembershipState, resolveDeliveryFee, listActiveTopUps, listActivePlans } from '@/lib/membership';
 import { isoToday, isoTomorrow } from '@/lib/slots';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { CheckoutClient } from './checkout-client';
 
 export const dynamic = 'force-dynamic';
@@ -27,10 +28,11 @@ export default async function CheckoutPage() {
 
   const feeCtx = resolveDeliveryFee(membership, standardFeeInr);
   const offer = !membership.isActive && plans[0] ? plans[0] : null;
+  const session = await getServerSession();
 
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
       <CheckoutClient
         session={{
           phone: scope.session.phone,
@@ -71,8 +73,8 @@ export default async function CheckoutPage() {
         }}
         slotBypass={slotBypass}
       />
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

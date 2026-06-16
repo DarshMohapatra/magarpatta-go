@@ -1,8 +1,9 @@
 import { notFound, redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { OrderDetailClient } from './order-detail-client';
 
 export const dynamic = 'force-dynamic';
@@ -20,9 +21,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   });
   if (!order) notFound();
 
+  const session = await getServerSession();
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
       <OrderDetailClient
         order={{
           id: order.id,
@@ -78,8 +80,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           })),
         }}
       />
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

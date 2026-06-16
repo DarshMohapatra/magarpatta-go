@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { statusLabel } from '@/lib/orders';
 import { ProductGlyph } from '@/components/product-glyph';
 import { ReorderButton } from '@/components/reorder-button';
 import { getServerLocale } from '@/lib/locale';
+import { getServerSession } from '@/lib/session';
 import { pickName } from '@/lib/i18n';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,20 +18,20 @@ export default async function OrdersPage() {
   if (!scope) redirect('/signin');
 
   // Wrapper auto-applies userId — empty where is safe.
-  const [orders, locale] = await Promise.all([
+  const [orders, locale, session] = await Promise.all([
     scope.db.order.findMany({
       orderBy: { placedAt: 'desc' },
       include: { items: true },
     }),
     getServerLocale(),
+    getServerSession(),
   ]);
 
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-
-      <section className="pt-24 pb-20">
-        <div className="mx-auto max-w-[1080px] px-6 lg:px-10">
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
+      <section className="pt-4 pb-12">
+        <div className="px-4 lg:px-8 max-w-[1080px] mx-auto">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your orders</div>
           <h1 className="mt-3 font-display text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
             Every drop-off, <span className="italic text-[color:var(--color-primary)]">on record.</span>
@@ -155,9 +156,8 @@ export default async function OrdersPage() {
           )}
         </div>
       </section>
-
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

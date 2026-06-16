@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
 import { getMembershipState, listActivePlans, listActiveTopUps } from '@/lib/membership';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { MembershipClient } from './membership-client';
 
 export const dynamic = 'force-dynamic';
@@ -12,16 +13,17 @@ export default async function MembershipPage() {
   const scope = await getCustomerScope();
   if (!scope) redirect('/signin');
 
-  const [state, plans, topUps] = await Promise.all([
+  const [state, plans, topUps, session] = await Promise.all([
     getMembershipState(scope.userId),
     listActivePlans(),
     listActiveTopUps(),
+    getServerSession(),
   ]);
 
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-      <div className="mx-auto max-w-[960px] px-4 sm:px-6 py-12">
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
+      <div className="mx-auto max-w-[960px] px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your membership</div>
         <h1 className="mt-2 font-display text-[40px] sm:text-[52px] leading-[1.02] tracking-[-0.02em]">
           Deliveries on a <span className="italic text-[color:var(--color-primary)]">subscription.</span>
@@ -64,8 +66,8 @@ export default async function MembershipPage() {
           }))}
         />
       </div>
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

@@ -15,16 +15,18 @@ export function AuthShell({
   children: ReactNode;
 }) {
   return (
-    <main className="min-h-screen grid lg:grid-cols-[1.1fr_1fr]">
-      {/* Left — editorial panel */}
-      <section className="relative hidden lg:flex flex-col justify-between bg-[color:var(--color-primary)] text-[color:var(--color-background)] p-12 overflow-hidden">
+    <main className="font-display min-h-screen grid lg:grid-cols-[1.1fr_1fr] bg-[color:var(--color-background)]">
+      {/* Left — editorial panel, Lovable gradient-warm */}
+      <section className="relative hidden lg:flex flex-col justify-between gradient-warm text-white p-12 overflow-hidden">
         <div
-          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          className="absolute inset-0 opacity-[0.12] pointer-events-none"
           style={{
             backgroundImage:
-              'radial-gradient(circle at 20% 15%, var(--color-saffron), transparent 55%), radial-gradient(circle at 80% 85%, var(--color-terracotta), transparent 55%)',
+              'radial-gradient(circle at 20% 15%, var(--color-saffron), transparent 55%), radial-gradient(circle at 80% 85%, var(--color-accent), transparent 55%)',
           }}
         />
+        <div className="absolute -right-24 top-1/3 h-72 w-72 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+        <div className="absolute -left-16 bottom-12 h-56 w-56 rounded-full bg-white/8 blur-2xl pointer-events-none" />
 
         <Link href="/" className="relative inline-flex items-center gap-2.5 w-max">
           <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />

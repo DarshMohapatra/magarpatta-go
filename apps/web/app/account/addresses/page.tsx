@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { MAGARPATTA_SOCIETIES } from '@/lib/societies';
 import { AddressesClient } from './addresses-client';
 
@@ -37,12 +38,13 @@ export default async function AddressesPage({ searchParams }: { searchParams: Pr
     buildings: s.buildings.map((b) => ({ name: b.name, floors: b.floors, flatsPerFloor: b.flatsPerFloor })),
   }));
 
+  const session = await getServerSession();
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
       <AddressesClient initial={initial} societies={societies} returnTo={returnTo} />
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { NewTicketForm } from './new-ticket-form';
 
 export const dynamic = 'force-dynamic';
@@ -22,10 +23,11 @@ export default async function NewTicketPage({ searchParams }: { searchParams: Pr
   // If the URL pre-selected an order, validate ownership before passing in.
   const preselectedOrderId = orderId && orders.some((o) => o.id === orderId) ? orderId : null;
 
+  const session = await getServerSession();
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-      <section className="pt-24 pb-20">
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
+      <section className="pt-6 pb-20">
         <div className="mx-auto max-w-[720px] px-6 lg:px-10">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">New ticket</div>
           <h1 className="mt-3 font-display text-[40px] lg:text-[52px] leading-[1.0] tracking-[-0.02em]">
@@ -46,8 +48,8 @@ export default async function NewTicketPage({ searchParams }: { searchParams: Pr
           </div>
         </div>
       </section>
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

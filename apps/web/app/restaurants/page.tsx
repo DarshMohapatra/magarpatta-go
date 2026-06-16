@@ -1,23 +1,25 @@
 import { Suspense } from 'react';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { RestaurantsClient, type VendorRow } from './restaurants-client';
 import { getRestaurantIndex } from '@/lib/menu-cache';
 import { getWholesaleOnlyMode } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
 
-export default function RestaurantsPage() {
+export default async function RestaurantsPage() {
+  const session = await getServerSession();
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
       <Suspense fallback={<RestaurantsSkeleton />}>
         <RestaurantsList />
       </Suspense>
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }
 

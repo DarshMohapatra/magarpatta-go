@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
 import { prisma } from '@/lib/prisma';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { TICKET_CATEGORY_LABEL, TICKET_STATUS_LABEL } from '@/lib/support-tickets';
 
 export const dynamic = 'force-dynamic';
@@ -22,11 +23,11 @@ export default async function SupportPage() {
     },
   });
 
+  const session = await getServerSession();
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-
-      <section className="pt-24 pb-20">
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
+      <section className="pt-6 pb-20">
         <div className="mx-auto max-w-[1080px] px-6 lg:px-10">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
@@ -94,9 +95,8 @@ export default async function SupportPage() {
           )}
         </div>
       </section>
-
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }

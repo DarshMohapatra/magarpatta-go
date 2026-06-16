@@ -95,29 +95,33 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="font-display min-h-screen bg-[color:var(--color-background)]">
       <LocationTracker />
       <DeviationPrompt />
-      {/* Header strip */}
-      <header className="border-b border-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)]">
-        <div className="mx-auto max-w-[1080px] px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+      {/* Header strip — Lovable saffron pill */}
+      <header className="sticky top-0 z-40 border-b border-[color:var(--color-foreground)]/8 bg-[color:var(--color-background)]/85 backdrop-blur-md">
+        <div className="mx-auto max-w-[1080px] px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
-            <span className="text-[14px] tracking-tight font-medium">
-              {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
-              <span className="ml-1.5 text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full gradient-warm text-white text-[15px] font-display">
+              {(rider.name || 'R').charAt(0).toUpperCase()}
             </span>
+            <div className="leading-tight">
+              <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">On shift</div>
+              <div className="text-[13.5px] font-medium">{rider.name}</div>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/rider/feedback" className="text-[12px] text-[color:var(--color-primary)] hover:underline">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/rider/feedback"
+              className="rounded-full border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-1.5 text-[12px] hover:border-[color:var(--color-primary)]/40 transition-colors"
+            >
               Feedback
             </Link>
-            <div className="text-right leading-tight hidden sm:block">
-              <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-saffron)]">On shift</div>
-              <div className="text-[13px] font-medium">{rider.name}</div>
-            </div>
-            <button onClick={signOut} disabled={signingOut}
-              className="text-[12px] text-[color:var(--color-terracotta)] hover:underline">
+            <button
+              onClick={signOut}
+              disabled={signingOut}
+              className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-terracotta)]"
+            >
               {signingOut ? 'Signing out…' : 'Sign out'}
             </button>
           </div>
@@ -125,17 +129,20 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
       </header>
 
       <section className="mx-auto max-w-[1080px] px-4 sm:px-6 py-6 space-y-8">
-        {/* Earnings strip */}
-        <div className="rounded-2xl bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-moss)] text-[color:var(--color-background)] p-5 sm:p-6 flex items-center justify-between gap-4">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.16em] opacity-80">Today</div>
-            <div className="mt-1 font-display text-[32px] leading-none">₹{data?.todayEarningsInr ?? 0}</div>
-            <div className="mt-1 text-[12.5px] opacity-85">
-              {data?.todayDrops ?? 0} drop{(data?.todayDrops ?? 0) === 1 ? '' : 's'} · ₹{rider.perDropInr} per delivery
+        {/* Earnings strip — Lovable gradient-warm */}
+        <div className="relative overflow-hidden rounded-3xl gradient-warm p-6 sm:p-8 text-white">
+          <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative flex items-end justify-between gap-4">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.18em] opacity-85">Today</div>
+              <div className="mt-1 font-display text-[44px] leading-none tracking-[-0.02em]">₹{data?.todayEarningsInr ?? 0}</div>
+              <div className="mt-2 text-[13px] opacity-90">
+                {data?.todayDrops ?? 0} drop{(data?.todayDrops ?? 0) === 1 ? '' : 's'} · ₹{rider.perDropInr} per delivery · {siteConfig.platformName}
+              </div>
             </div>
-          </div>
-          <div className="text-right text-[11px] uppercase tracking-[0.14em] opacity-80">
-            Auto-refresh · 5s
+            <div className="text-right text-[11px] uppercase tracking-[0.16em] opacity-85">
+              Auto-refresh · 5s
+            </div>
           </div>
         </div>
 

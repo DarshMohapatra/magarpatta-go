@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
 import { prisma } from '@/lib/prisma';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { TICKET_CATEGORY_LABEL, TICKET_STATUS_LABEL } from '@/lib/support-tickets';
 import { TicketReplyForm } from './reply-form';
 
@@ -26,11 +27,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   if (!ticket) notFound();
 
   const isClosed = ticket.status === 'CLOSED';
+  const session = await getServerSession();
 
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-      <section className="pt-24 pb-20">
+    <>
+    <MobileShell topBar={<TopBar session={session} />}>
+      <section className="pt-6 pb-20">
         <div className="mx-auto max-w-[820px] px-6 lg:px-10">
           <Link href="/support" className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">← All tickets</Link>
 
@@ -96,8 +98,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           )}
         </div>
       </section>
-      <Footer />
-      <CartDrawer />
-    </main>
+    </MobileShell>
+    <CartDrawer />
+    </>
   );
 }
