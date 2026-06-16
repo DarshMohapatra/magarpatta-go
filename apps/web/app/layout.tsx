@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Instrument_Serif } from 'next/font/google';
+import { Inter, Instrument_Serif, Plus_Jakarta_Sans } from 'next/font/google';
 import { siteConfig } from '@/lib/site-config';
 import './globals.css';
 
@@ -14,6 +14,14 @@ const instrument = Instrument_Serif({
   weight: '400',
   style: ['normal', 'italic'],
   variable: '--font-instrument',
+  display: 'swap',
+});
+
+// Lovable redesign typography — drives the new mobile surfaces and the
+// partner portals. Existing pages stay on Inter via --font-sans.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-jakarta',
   display: 'swap',
 });
 
@@ -53,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrument.variable}`}>
+    <html lang="en" className={`${inter.variable} ${instrument.variable} ${jakarta.variable}`}>
       <body className="noise relative">{children}</body>
     </html>
   );

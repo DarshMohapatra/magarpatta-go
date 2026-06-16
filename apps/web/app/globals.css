@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Neutrals */
+  /* ─── Legacy tokens (forest-green era — kept so existing pages render unchanged) */
   --color-ink: #14110c;
   --color-ink-soft: #3a3530;
   --color-paper: #fffdf7;
@@ -9,13 +9,11 @@
   --color-cream-soft: #eee3ce;
   --color-bone: #e1d4bc;
 
-  /* Brand primary — deeper, richer forest */
   --color-forest: #0d4a2e;
   --color-forest-dark: #06311c;
   --color-moss: #2d6b48;
   --color-sage: #5a7a63;
 
-  /* Accents — amped up */
   --color-saffron: #e68a17;
   --color-saffron-soft: #f4b564;
   --color-gold: #c79321;
@@ -27,12 +25,69 @@
   --color-teal: #0e6b5c;
   --color-coral: #e85d3d;
 
+  /* ─── Lovable redesign tokens (warm cream + saffron + emerald) — opt-in
+     via the `bg-primary`, `text-foreground` etc. utilities. Existing pages
+     still reference the legacy `--color-forest` set above. */
+  --color-primary: oklch(0.685 0.185 42);
+  --color-primary-soft: oklch(0.96 0.04 60);
+  --color-primary-foreground: oklch(0.99 0.005 80);
+  --color-accent: oklch(0.62 0.13 165);
+  --color-accent-soft: oklch(0.94 0.05 165);
+  --color-success: oklch(0.66 0.14 155);
+  --color-warning: oklch(0.78 0.14 75);
+  --color-danger: oklch(0.62 0.20 25);
+
+  --color-background: oklch(0.992 0.006 80);
+  --color-surface: oklch(0.998 0.003 80);
+  --color-surface-2: oklch(0.97 0.012 80);
+  --color-foreground: oklch(0.20 0.02 50);
+  --color-muted: oklch(0.55 0.02 50);
+  --color-border: oklch(0.90 0.012 80);
+
+  --radius: 0.875rem;
+  --radius-sm: 0.475rem;
+  --radius-md: 0.675rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.375rem;
+  --radius-3xl: 1.625rem;
+  --radius-4xl: 1.875rem;
+
+  --shadow-soft: 0 1px 2px rgba(15, 15, 14, 0.04), 0 2px 8px rgba(15, 15, 14, 0.04);
+  --shadow-elev: 0 4px 12px rgba(15, 15, 14, 0.06), 0 12px 32px rgba(15, 15, 14, 0.06);
+  --shadow-glow: 0 8px 32px rgba(230, 138, 23, 0.22);
+
+  /* Fonts — Inter + Instrument stay for legacy pages; Plus Jakarta Sans
+     drives the redesigned surfaces. Loaded by `next/font` in layout.tsx. */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-instrument), 'Times New Roman', serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   color-scheme: light;
+}
+
+/* Dark-mode overrides for the redesigned tokens only. Opted into by the
+   PartnerShell which sets `class="dark"` on its outer container — keeps the
+   customer side light, matches Lovable's spec. */
+.dark {
+  color-scheme: dark;
+  --color-primary: oklch(0.72 0.18 45);
+  --color-primary-soft: oklch(0.30 0.05 50);
+  --color-primary-foreground: oklch(0.15 0.02 50);
+  --color-accent: oklch(0.68 0.14 165);
+  --color-accent-soft: oklch(0.28 0.04 165);
+  --color-success: oklch(0.7 0.14 155);
+  --color-warning: oklch(0.8 0.14 75);
+  --color-danger: oklch(0.7 0.18 25);
+
+  --color-background: oklch(0.16 0.015 260);
+  --color-surface: oklch(0.19 0.018 260);
+  --color-surface-2: oklch(0.22 0.02 260);
+  --color-foreground: oklch(0.96 0.005 80);
+  --color-muted: oklch(0.70 0.012 260);
+  --color-border: oklch(0.30 0.02 260);
 }
 
 html, body {
@@ -115,6 +170,28 @@ body {
   height: 1px;
   width: 100%;
 }
+
+/* ─── Lovable custom utilities ──────────────────────────────────────── */
+
+/* Saffron → coral diagonal — hero badges, promo banner, ETA card. */
+.gradient-warm {
+  background: linear-gradient(135deg, oklch(0.685 0.185 42) 0%, oklch(0.68 0.18 30) 100%);
+}
+
+/* Soft 3-stop radial mesh for the home hero background. */
+.gradient-mesh {
+  background-image:
+    radial-gradient(800px 400px at 10% 10%, oklch(0.96 0.04 60), transparent 60%),
+    radial-gradient(700px 400px at 90% 0%, oklch(0.94 0.05 165), transparent 60%),
+    radial-gradient(600px 400px at 50% 100%, oklch(0.95 0.03 30), transparent 60%);
+}
+
+/* Hide scrollbars on horizontal product / vendor rails. */
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* Headings on redesigned pages — tighter tracking matches Lovable spec. */
+.font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
 
 /* Smooth scrolling */
 html { scroll-behavior: smooth; }
