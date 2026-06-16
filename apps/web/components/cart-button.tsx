@@ -15,18 +15,13 @@ export function CartButton() {
   return (
     <button
       onClick={open}
-      className="relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-foreground)]/5 transition-colors"
+      className="relative inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary-soft)] text-[color:var(--color-primary)] px-3 py-1.5 sm:px-3.5 sm:py-2 text-[12.5px] font-semibold transition-colors hover:opacity-90"
       aria-label={`Cart — ${count} items`}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M4 6h2l2 12h11M8 18a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4zM8 10h14l-1.5 7H10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span className="hidden sm:inline">Cart</span>
-      {count > 0 && (
-        <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)] text-[10.5px] font-medium px-1">
-          {count}
-        </span>
-      )}
+      <span>Cart{count > 0 ? ` · ${count}` : ''}</span>
     </button>
   );
 }

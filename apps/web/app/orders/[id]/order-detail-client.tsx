@@ -50,6 +50,7 @@ interface OrderData {
   deliveredAt: string | null;
   cancelledAt: string | null;
   riderName: string | null;
+  riderPhone: string | null;
   subtotalInr: number;
   convenienceInr: number;
   taxInr: number;
@@ -213,19 +214,57 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           </div>
         )}
         {(order.fulfilmentMode === 'PLATFORM_RIDER' || order.fulfilmentMode === 'PLATFORM_RIDER_CONCIERGE') && order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
-          <div className="mt-6 rounded-2xl border border-[color:var(--color-terracotta)]/25 bg-[color:var(--color-terracotta)]/5 p-5 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-background)] flex items-center justify-center text-[14px] font-medium">
-              {order.riderName[0]}
-            </div>
-            <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">Your personal shopper</div>
-              <div className="mt-0.5 font-display text-[18px] leading-tight">
-                {order.riderName} is picking this up for you.
+          <div className="mt-6 rounded-[var(--radius-xl)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5 shadow-[var(--shadow-soft)]">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] flex items-center justify-center text-[16px] font-bold shrink-0">
+                {order.riderName[0]}
               </div>
-              <p className="text-[12px] text-[color:var(--color-muted)]/80">
-                A neighbour&apos;s walking into {order.vendorName ?? 'the shop'}, placing your order at the counter,
-                and bringing it over. They&apos;ll ask for the OTP below on drop.
-              </p>
+              <div className="min-w-0 flex-1">
+                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] font-semibold">
+                  Your delivery partner
+                </div>
+                <div className="mt-0.5 font-display text-[18px] leading-tight font-bold">
+                  {order.riderName}
+                </div>
+                <div className="text-[12px] text-[color:var(--color-muted)]">
+                  On the way · ask for the OTP below
+                </div>
+              </div>
+              {/* Call + Chat buttons. tel: triggers native dialer when a
+                  phone exists on the order; sms: opens the messaging app
+                  with the rider's number pre-filled. */}
+              <div className="flex items-center gap-2 shrink-0">
+                {order.riderPhone ? (
+                  <a
+                    href={`tel:+91${order.riderPhone}`}
+                    aria-label={`Call ${order.riderName}`}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-success)] text-white shadow-[var(--shadow-soft)] hover:opacity-90"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
+                    </svg>
+                  </a>
+                ) : (
+                  <button
+                    disabled
+                    aria-label="Call unavailable"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-surface-2)] text-[color:var(--color-muted)] opacity-50"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
+                    </svg>
+                  </button>
+                )}
+                <a
+                  href={`/support/new?orderId=${order.id}`}
+                  aria-label="Chat about this order"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] shadow-[var(--shadow-soft)] hover:opacity-90"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12a8 8 0 11-15-3.7L4 21l5.7-2A8 8 0 0121 12z" />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         )}

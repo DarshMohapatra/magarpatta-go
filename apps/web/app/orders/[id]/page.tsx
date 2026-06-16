@@ -35,6 +35,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           deliveredAt: order.deliveredAt?.toISOString() ?? null,
           cancelledAt: order.cancelledAt?.toISOString() ?? null,
           riderName: order.riderName,
+          riderPhone: order.riderPhone,
           fulfilmentMode: order.fulfilmentMode,
           subtotalInr: order.subtotalInr,
           convenienceInr: order.convenienceInr,

@@ -12,10 +12,10 @@ import type { SessionUser } from '@/lib/session';
 import type { Locale } from '@/lib/i18n';
 
 const LINKS = [
-  { href: '/menu', label: 'Menu' },
-  { href: '/restaurants', label: 'Vendors' },
-  { href: '/home#how', label: 'How it works' },
-  { href: '/home#why', label: 'Why us' },
+  { href: '/home', label: 'Home' },
+  { href: '/menu', label: 'Search' },
+  { href: '/orders', label: 'Orders' },
+  { href: '/account/addresses', label: 'Profile' },
 ];
 
 interface NavbarProps {

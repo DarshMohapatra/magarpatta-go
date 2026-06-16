@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ProductCard, type ProductCardData } from '@/components/product-card';
@@ -59,6 +59,20 @@ export function MenuClient({
       router.push(`/menu${qs ? `?${qs}` : ''}`);
     });
   }
+
+  // Live search — debounce 300 ms after the user stops typing so we don't
+  // fire a router.push on every keystroke. Lovable parity: results update
+  // as you type, no Enter required.
+  const lastDispatched = useRef(initialQuery);
+  useEffect(() => {
+    if (q === lastDispatched.current) return;
+    const t = setTimeout(() => {
+      lastDispatched.current = q;
+      updateQuery({ q });
+    }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
 
   const activeCategory = categories.find((c) => c.slug === activeSlug);
   const activeCategoryName = activeCategory ? pickName(activeCategory, locale) : null;
