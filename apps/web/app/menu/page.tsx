@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
 import { prisma } from '@/lib/prisma';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { CampaignBanner } from '@/components/campaign-banner';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
+import { getServerSession } from '@/lib/session';
 import { MenuClient } from './menu-client';
 import { applyDiscount, discountFor } from '@/lib/active-discounts';
 import { getActiveDiscounts, getAllInStockProducts, getMenuCategories } from '@/lib/menu-cache';
@@ -26,16 +27,17 @@ export default async function MenuPage({
   const q = params.q ?? '';
   const vegOnly = params.veg === '1';
 
+  const session = await getServerSession();
   return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-      <div className="pt-20"><CampaignBanner /></div>
-      <Suspense key={`${activeSlug ?? ''}|${q}|${vegOnly}`} fallback={<MenuSkeleton />}>
-        <MenuData activeSlug={activeSlug} q={q} vegOnly={vegOnly} />
-      </Suspense>
-      <Footer />
+    <>
+      <MobileShell topBar={<TopBar session={session} />}>
+        <CampaignBanner />
+        <Suspense key={`${activeSlug ?? ''}|${q}|${vegOnly}`} fallback={<MenuSkeleton />}>
+          <MenuData activeSlug={activeSlug} q={q} vegOnly={vegOnly} />
+        </Suspense>
+      </MobileShell>
       <CartDrawer />
-    </main>
+    </>
   );
 }
 

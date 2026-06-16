@@ -1,26 +1,21 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { NavbarWithSession } from '@/components/navbar-with-session';
-import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { ProductCard, type ProductCardData } from '@/components/product-card';
 import { HighlightOnMount } from '@/components/highlight-on-mount';
+import { MobileShell } from '@/components/customer/mobile-shell';
+import { TopBar } from '@/components/customer/top-bar';
 import { applyDiscount, discountFor, getActiveDiscounts } from '@/lib/active-discounts';
 import { getVendorBySlug, getVendorProducts } from '@/lib/menu-cache';
 import { getWholesaleOnlyMode } from '@/lib/settings';
 import { getServerLocale } from '@/lib/locale';
+import { getServerSession } from '@/lib/session';
 import { pickName } from '@/lib/i18n';
 import { buildSavingsRows, avgCompetitorPrice, COMPETITOR_SOURCES, type CompetitorPriceLite, type CompetitorSource } from '@/lib/competitor-prices';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
-
-const ACCENT_GRAD: Record<string, string> = {
-  saffron:    'from-[color:var(--color-saffron)]/20 to-[color:var(--color-saffron)]/4',
-  forest:     'from-[color:var(--color-forest)]/18 to-[color:var(--color-forest)]/4',
-  terracotta: 'from-[color:var(--color-terracotta)]/18 to-[color:var(--color-terracotta)]/4',
-};
 
 export default async function RestaurantPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -41,79 +36,105 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
     if (!flag?.isWholesale) notFound();
   }
 
-  return (
-    <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
+  const session = await getServerSession();
 
-      <section className={`pt-24 pb-10 bg-gradient-to-br ${ACCENT_GRAD[vendor.accent ?? 'forest'] ?? ACCENT_GRAD.forest} border-b border-[color:var(--color-ink)]/8`}>
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-          <Link href="/restaurants" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] mb-6">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+  return (
+    <>
+      <MobileShell topBar={<TopBar session={session} />}>
+        {/* Gradient hero with vendor info */}
+        <section className="relative gradient-warm text-white px-4 pt-5 pb-6 overflow-hidden">
+          <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
+          <Link
+            href="/restaurants"
+            className="relative inline-flex items-center gap-1 text-[12px] font-semibold text-white/90 hover:text-white mb-3"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             All vendors
           </Link>
-
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-            <div>
-              <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/75">
-                {vendor.hub}
-              </div>
-              <h1 className="mt-2 font-serif text-[40px] sm:text-[56px] leading-[0.96] tracking-[-0.025em]">
-                {vendor.name}
-              </h1>
-              {vendor.tags.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {vendor.tags.map((t) => (
-                    <span key={t} className="px-2.5 py-1 rounded-full bg-[color:var(--color-paper)]/80 border border-[color:var(--color-ink)]/10 text-[11px] text-[color:var(--color-ink-soft)]">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {vendor.description && (
-                <p className="mt-4 max-w-2xl text-[14.5px] leading-[1.55] text-[color:var(--color-ink-soft)]">
-                  {vendor.description}
-                </p>
-              )}
+          <div className="relative">
+            <div className="text-[10.5px] uppercase tracking-[0.16em] text-white/80 font-semibold">
+              {vendor.hub}
             </div>
-
-            <div className="flex sm:flex-col gap-3 sm:gap-4 sm:text-right">
-              {vendor.rating && (
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[14px] font-semibold">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.4L6 8.8l-3.1 1.6.7-3.4-2.6-2.4 3.5-.4z" /></svg>
-                    {vendor.rating.toFixed(1)}
-                  </div>
-                  <div className="mt-1 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">Rating</div>
-                </div>
-              )}
-              <div>
-                <div className="font-serif text-[22px] text-[color:var(--color-ink)]">{vendor.etaMinutes} min</div>
-                <div className="mt-1 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">Delivery</div>
+            <h1 className="mt-1 font-display text-[28px] font-bold leading-tight tracking-tight">
+              {vendor.name}
+            </h1>
+            {vendor.description && (
+              <p className="mt-2 text-[13px] leading-snug text-white/85 max-w-md">
+                {vendor.description}
+              </p>
+            )}
+            {vendor.tags.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {vendor.tags.map((t) => (
+                  <span key={t} className="px-2 py-0.5 rounded-full bg-white/15 backdrop-blur text-[10.5px] font-semibold text-white">
+                    {t}
+                  </span>
+                ))}
               </div>
-              {vendor.costForTwo && (
-                <div>
-                  <div className="font-serif text-[22px] text-[color:var(--color-ink)]">₹{vendor.costForTwo}</div>
-                  <div className="mt-1 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">For two</div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <Suspense fallback={<MenuSkeleton />}>
-        <VendorMenu vendorId={vendor.id} vendorAccent={vendor.accent} />
-      </Suspense>
+        {/* Rating / ETA / for-two strip — sits below the hero */}
+        <section className="px-4 -mt-4">
+          <div className="grid grid-cols-3 rounded-[var(--radius-xl)] bg-[color:var(--color-surface)] border border-[color:var(--color-border)]/60 shadow-[var(--shadow-soft)] divide-x divide-[color:var(--color-border)]/40">
+            <Stat
+              icon={(
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor" className="text-[color:var(--color-success)]">
+                  <path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.4L6 8.8l-3.1 1.6.7-3.4-2.6-2.4 3.5-.4z" />
+                </svg>
+              )}
+              value={vendor.rating ? vendor.rating.toFixed(1) : '—'}
+              label="Rating"
+            />
+            <Stat
+              icon={(
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+              )}
+              value={`${vendor.etaMinutes} min`}
+              label="Delivery"
+            />
+            <Stat
+              icon={(
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9h18M5 9V6h14v3M5 9v9h14V9" />
+                </svg>
+              )}
+              value={vendor.costForTwo ? `₹${vendor.costForTwo}` : '—'}
+              label="For two"
+            />
+          </div>
+        </section>
 
-      <Suspense fallback={null}>
-        <HighlightOnMount />
-      </Suspense>
+        <Suspense fallback={<MenuSkeleton />}>
+          <VendorMenu vendorId={vendor.id} vendorAccent={vendor.accent} />
+        </Suspense>
 
-      <Footer />
+        <Suspense fallback={null}>
+          <HighlightOnMount />
+        </Suspense>
+      </MobileShell>
       <CartDrawer />
-    </main>
+    </>
+  );
+}
+
+function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+  return (
+    <div className="py-3 px-2 flex flex-col items-center gap-0.5">
+      <div className="flex items-center gap-1 text-[14px] font-bold text-[color:var(--color-foreground)] tabular-nums">
+        {icon}
+        {value}
+      </div>
+      <div className="text-[9.5px] uppercase tracking-[0.12em] font-semibold text-[color:var(--color-muted)]">
+        {label}
+      </div>
+    </div>
   );
 }
 
@@ -154,33 +175,37 @@ async function VendorMenu({ vendorId, vendorAccent }: { vendorId: string; vendor
   }
 
   return (
-    <section className="py-12">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
+    <section className="pt-6 pb-6">
+      <div className="px-4">
         {bySlug.size > 1 && (
-          <div className="hidden lg:block sticky top-16 bg-[color:var(--color-cream)]/85 backdrop-blur-md -mx-10 px-10 py-3 border-y border-[color:var(--color-ink)]/8 z-20 mb-8">
-            <nav className="flex items-center gap-5 overflow-x-auto">
+          <div className="sticky top-0 -mx-4 px-4 py-2 bg-[color:var(--color-background)]/95 backdrop-blur-md border-b border-[color:var(--color-border)]/40 z-10 mb-4">
+            <nav className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
               {[...bySlug.values()].map(({ category, items }) => (
-                <a key={category.slug} href={`#${category.slug}`} className="shrink-0 text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] whitespace-nowrap">
+                <a
+                  key={category.slug}
+                  href={`#${category.slug}`}
+                  className="shrink-0 rounded-full bg-[color:var(--color-surface)] border border-[color:var(--color-border)]/60 px-3 py-1 text-[12px] font-semibold text-[color:var(--color-foreground)] hover:border-[color:var(--color-primary)]/40"
+                >
                   {pickName(category, locale)}
-                  <span className="ml-1.5 text-[11px] text-[color:var(--color-ink-soft)]/50">
-                    ({items.length})
-                  </span>
+                  <span className="ml-1 text-[10.5px] text-[color:var(--color-muted)]">({items.length})</span>
                 </a>
               ))}
             </nav>
           </div>
         )}
 
-        <div className="space-y-12">
+        <div className="space-y-8">
           {[...bySlug.values()].map(({ category, items }) => (
-            <section key={category.slug} id={category.slug}>
-              <div className="flex items-baseline justify-between mb-4">
-                <h2 className="font-serif text-[28px] sm:text-[32px] leading-tight">{pickName(category, locale)}</h2>
-                <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+            <section key={category.slug} id={category.slug} className="scroll-mt-24">
+              <div className="flex items-baseline justify-between mb-3">
+                <h2 className="font-display text-[19px] font-bold tracking-tight text-[color:var(--color-foreground)]">
+                  {pickName(category, locale)}
+                </h2>
+                <span className="text-[11px] font-semibold text-[color:var(--color-muted)]">
                   {items.length} item{items.length === 1 ? '' : 's'}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+              <div className="grid grid-cols-2 gap-3">
                 {items.map((p) => {
                   const match = discountFor({ id: p.id, vendorId: p.vendor.id, isRegulated: p.isRegulated, priceInr: p.priceInr, mrpInr: p.mrpInr }, discounts);
                   const priced = applyDiscount({ priceInr: p.priceInr, mrpInr: p.mrpInr, isRegulated: p.isRegulated }, match.saving, match.campaign);
