@@ -69,7 +69,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed bottom-0 inset-x-0 z-30 mx-auto max-w-md border-t border-[color:var(--color-border)]/60 bg-[color:var(--color-surface)]/95 backdrop-blur-md pb-[env(safe-area-inset-bottom,0px)]"
+      className="fixed bottom-0 inset-x-0 z-30 mx-auto max-w-md border-t border-[color:var(--color-border)]/60 bg-[color:var(--color-surface)]/95 backdrop-blur-md pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
     >
       <ul className="grid grid-cols-4 px-2 py-2">
         {TABS.map((t) => {

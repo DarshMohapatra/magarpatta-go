@@ -102,7 +102,7 @@ export default async function HomePage() {
               See all
             </Link>
           </div>
-          <div className="grid grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-4 lg:grid-cols-8 gap-2.5 lg:gap-4">
             {categories.slice(0, 8).map((c) => (
               <Link
                 key={c.slug}
@@ -137,10 +137,10 @@ export default async function HomePage() {
 
         {/* Full vendor list */}
         <section className="px-4 pt-6">
-          <h2 className="font-display text-[17px] font-bold tracking-tight mb-3">
+          <h2 className="font-display text-[17px] lg:text-[22px] font-bold tracking-tight mb-3">
             All vendors in {siteConfig.siteName}
           </h2>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
             {liveVendors.map((v) => (
               <VendorCard key={v.slug} vendor={v} variant="wide" />
             ))}

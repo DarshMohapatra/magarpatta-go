@@ -167,7 +167,7 @@ export function MenuClient({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-5">
             {products.map((p) => (
               <ProductCard key={p.id} product={p} viewShopOnAdd locale={locale} />
             ))}
