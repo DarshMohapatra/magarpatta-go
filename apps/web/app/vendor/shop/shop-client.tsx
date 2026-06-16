@@ -90,7 +90,7 @@ export function VendorShopClient() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Shop details</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">{shop.name}</h1>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">{shop.name}</h1>
           <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
             Slug <code className="text-[color:var(--color-ink)]">{shop.slug}</code> · Commission {shop.commissionPct}%
           </p>
@@ -101,7 +101,7 @@ export function VendorShopClient() {
             className={`rounded-full px-5 py-2.5 text-[13px] font-medium ${
               shop.active
                 ? 'border border-[color:var(--color-terracotta)]/40 text-[color:var(--color-terracotta)] hover:bg-[color:var(--color-terracotta)]/8'
-                : 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]'
+                : 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-primary)]'
             }`}
           >
             {shop.active ? 'Pause shop' : 'Go live'}
@@ -178,7 +178,7 @@ export function VendorShopClient() {
               type="checkbox"
               checked={Boolean(form.supportsSelfDelivery)}
               onChange={(e) => setForm({ ...form, supportsSelfDelivery: e.target.checked })}
-              className="mt-1 h-4 w-4 accent-[color:var(--color-forest)]"
+              className="mt-1 h-4 w-4 accent-[color:var(--color-primary)]"
             />
             <span>
               <span className="text-[13.5px] font-medium">I deliver my own orders</span>
@@ -212,8 +212,8 @@ export function VendorShopClient() {
       </Card>
 
       <div className="flex items-center justify-end gap-3">
-        {msg && <span className="text-[12.5px] text-[color:var(--color-forest)]">{msg}</span>}
-        <button disabled={saving} onClick={save} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-6 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+        {msg && <span className="text-[12.5px] text-[color:var(--color-primary)]">{msg}</span>}
+        <button disabled={saving} onClick={save} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-6 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
           {saving ? 'Saving…' : 'Save changes'}
         </button>
       </div>
@@ -221,12 +221,12 @@ export function VendorShopClient() {
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
-      <h2 className="font-serif text-[18px] mb-4">{title}</h2>
+      <h2 className="font-display text-[18px] mb-4">{title}</h2>
       {children}
     </section>
   );

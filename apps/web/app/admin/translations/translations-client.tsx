@@ -111,8 +111,8 @@ export function TranslationsClient({
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Catalog translations</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            हिंदी &amp; <span className="italic text-[color:var(--color-forest)]">मराठी</span> for the menu.
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            हिंदी &amp; <span className="italic text-[color:var(--color-primary)]">मराठी</span> for the menu.
           </h1>
           <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
             Every product needs all three names so the customer language toggle works. Edits autosave as you click out of each input.
@@ -135,7 +135,7 @@ export function TranslationsClient({
             {seedRunning ? 'Applying…' : 'Apply seed translations'}
           </button>
           {seedReport && (
-            <p className="text-[11.5px] text-[color:var(--color-forest)] max-w-[280px]">{seedReport}</p>
+            <p className="text-[11.5px] text-[color:var(--color-primary)] max-w-[280px]">{seedReport}</p>
           )}
         </div>
       </div>
@@ -150,13 +150,13 @@ export function TranslationsClient({
         <div className="inline-flex rounded-full border border-[color:var(--color-ink)]/15 overflow-hidden">
           <button
             onClick={() => setFilter('missing')}
-            className={`px-3 py-1.5 text-[12px] ${filter === 'missing' ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+            className={`px-3 py-1.5 text-[12px] ${filter === 'missing' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
           >
             Missing only ({missingCount})
           </button>
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 text-[12px] ${filter === 'all' ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+            className={`px-3 py-1.5 text-[12px] ${filter === 'all' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
           >
             All ({rows.length})
           </button>
@@ -186,7 +186,7 @@ export function TranslationsClient({
               {filtered.map((r) => {
                 const d = drafts[r.id]!;
                 const stateLabel = d.saving ? 'Saving…' : d.err ? d.err : d.savedAt ? '✓ saved' : '';
-                const stateClass = d.err ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-forest)]';
+                const stateClass = d.err ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-primary)]';
                 return (
                   <tr key={r.id} className="align-middle">
                     <td className="px-3 py-2">

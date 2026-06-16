@@ -36,7 +36,7 @@ const LABEL_CHIP: Record<Label, string> = {
 };
 
 const inp =
-  'w-full rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-forest)] placeholder:text-[color:var(--color-ink-soft)]/50';
+  'w-full rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-primary)] placeholder:text-[color:var(--color-muted)]/50';
 
 export function AddressesClient({ initial, societies, returnTo }: Props) {
   const router = useRouter();
@@ -79,12 +79,12 @@ export function AddressesClient({ initial, societies, returnTo }: Props) {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Saved addresses</div>
-            <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-              Where to drop off, <span className="italic text-[color:var(--color-forest)]">your call.</span>
+            <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+              Where to drop off, <span className="italic text-[color:var(--color-primary)]">your call.</span>
             </h1>
           </div>
           {returnTo && (
-            <Link href={returnTo} className="text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">
+            <Link href={returnTo} className="text-[13px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
               ← Back to checkout
             </Link>
           )}
@@ -96,34 +96,34 @@ export function AddressesClient({ initial, societies, returnTo }: Props) {
               <li
                 key={a.id}
                 className={cn(
-                  'rounded-2xl border p-4 sm:p-5 bg-[color:var(--color-paper)] flex items-start justify-between gap-4 flex-wrap',
+                  'rounded-2xl border p-4 sm:p-5 bg-[color:var(--color-surface)] flex items-start justify-between gap-4 flex-wrap',
                   a.isDefault
-                    ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5'
-                    : 'border-[color:var(--color-ink)]/10',
+                    ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5'
+                    : 'border-[color:var(--color-foreground)]/10',
                 )}
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="rounded-full bg-[color:var(--color-ink)]/8 px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium text-[color:var(--color-ink-soft)]">
+                    <span className="rounded-full bg-[color:var(--color-foreground)]/8 px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium text-[color:var(--color-muted)]">
                       {LABEL_CHIP[a.label]}
                     </span>
                     {a.isDefault && (
-                      <span className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium">
+                      <span className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium">
                         Default
                       </span>
                     )}
                   </div>
-                  <div className="mt-2 text-[15px] font-medium text-[color:var(--color-ink)]">
+                  <div className="mt-2 text-[15px] font-medium text-[color:var(--color-foreground)]">
                     Flat {a.flat}, {a.building}
                   </div>
-                  <div className="text-[13.5px] text-[color:var(--color-ink-soft)]">{a.society}</div>
+                  <div className="text-[13.5px] text-[color:var(--color-muted)]">{a.society}</div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {!a.isDefault && (
                     <button
                       disabled={busy === a.id}
                       onClick={() => handleSetDefault(a.id)}
-                      className="text-[12.5px] text-[color:var(--color-forest)] hover:underline disabled:opacity-50"
+                      className="text-[12.5px] text-[color:var(--color-primary)] hover:underline disabled:opacity-50"
                     >
                       Set as default
                     </button>
@@ -157,7 +157,7 @@ export function AddressesClient({ initial, societies, returnTo }: Props) {
           ) : (
             <button
               onClick={() => setAdding(true)}
-              className="rounded-full border border-[color:var(--color-forest)]/30 px-5 py-2.5 text-[13.5px] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/8"
+              className="rounded-full border border-[color:var(--color-primary)]/30 px-5 py-2.5 text-[13.5px] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/8"
             >
               + Add another address
             </button>
@@ -220,11 +220,11 @@ function AddAddressForm({
   }
 
   return (
-    <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 sm:p-6 space-y-4">
+    <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div className="text-[14px] font-semibold">Add a new address</div>
         {hasExisting && (
-          <button onClick={onCancel} className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">
+          <button onClick={onCancel} className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">
             Cancel
           </button>
         )}
@@ -232,7 +232,7 @@ function AddAddressForm({
 
       {/* Label radio */}
       <div>
-        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75 mb-2">Label</div>
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75 mb-2">Label</div>
         <div className="flex gap-2 flex-wrap">
           {(['HOME', 'WORK', 'OTHER'] as Label[]).map((l) => (
             <button
@@ -242,8 +242,8 @@ function AddAddressForm({
               className={cn(
                 'px-4 py-1.5 rounded-full text-[12.5px] border transition-colors',
                 label === l
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                  : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                  : 'border-[color:var(--color-foreground)]/15 hover:border-[color:var(--color-primary)]/40',
               )}
             >
               {LABEL_CHIP[l]}
@@ -254,7 +254,7 @@ function AddAddressForm({
 
       {/* Directory vs office mode */}
       <div>
-        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75 mb-2">Address type</div>
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75 mb-2">Address type</div>
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -262,12 +262,12 @@ function AddAddressForm({
             className={cn(
               'rounded-xl border p-3 text-left transition-colors',
               mode === 'directory'
-                ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5'
-                : 'border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40',
+                ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5'
+                : 'border-[color:var(--color-foreground)]/12 hover:border-[color:var(--color-primary)]/40',
             )}
           >
             <div className="text-[13px] font-medium">{siteConfig.siteName} society</div>
-            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-ink-soft)]">Pick from the directory</div>
+            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-muted)]">Pick from the directory</div>
           </button>
           <button
             type="button"
@@ -275,12 +275,12 @@ function AddAddressForm({
             className={cn(
               'rounded-xl border p-3 text-left transition-colors',
               mode === 'office'
-                ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5'
-                : 'border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40',
+                ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5'
+                : 'border-[color:var(--color-foreground)]/12 hover:border-[color:var(--color-primary)]/40',
             )}
           >
             <div className="text-[13px] font-medium">Office tower / other</div>
-            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-ink-soft)]">Type the building name</div>
+            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-muted)]">Type the building name</div>
           </button>
         </div>
       </div>
@@ -289,7 +289,7 @@ function AddAddressForm({
       {mode === 'directory' ? (
         <>
           <label className="block">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Society</span>
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Society</span>
             <select
               value={society}
               onChange={(e) => { setSociety(e.target.value); setBuilding(''); }}
@@ -303,7 +303,7 @@ function AddAddressForm({
           </label>
 
           <label className="block">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Building</span>
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Building</span>
             <select
               disabled={!society}
               value={building}
@@ -320,7 +320,7 @@ function AddAddressForm({
       ) : (
         <>
           <label className="block">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Cluster / area</span>
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Cluster / area</span>
             <input
               value={society}
               onChange={(e) => setSociety(e.target.value)}
@@ -329,7 +329,7 @@ function AddAddressForm({
             />
           </label>
           <label className="block">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Tower / building name</span>
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Tower / building name</span>
             <input
               value={building}
               onChange={(e) => setBuilding(e.target.value)}
@@ -341,7 +341,7 @@ function AddAddressForm({
       )}
 
       <label className="block">
-        <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">
+        <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">
           {mode === 'office' ? 'Floor / unit' : 'Flat number'}
         </span>
         <input
@@ -358,7 +358,7 @@ function AddAddressForm({
             type="checkbox"
             checked={setAsDefault}
             onChange={(e) => setSetAsDefault(e.target.checked)}
-            className="accent-[color:var(--color-forest)]"
+            className="accent-[color:var(--color-primary)]"
           />
           Set as default address
         </label>
@@ -370,12 +370,12 @@ function AddAddressForm({
         <button
           disabled={submitting}
           onClick={submit}
-          className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+          className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
         >
           {submitting ? 'Saving…' : 'Save address'}
         </button>
         {hasExisting && (
-          <button onClick={onCancel} className="rounded-full border border-[color:var(--color-ink)]/15 px-5 py-2.5 text-[13.5px] hover:bg-[color:var(--color-ink)]/5">
+          <button onClick={onCancel} className="rounded-full border border-[color:var(--color-foreground)]/15 px-5 py-2.5 text-[13.5px] hover:bg-[color:var(--color-foreground)]/5">
             Cancel
           </button>
         )}

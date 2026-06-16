@@ -83,7 +83,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
   if (approvalStatus !== 'APPROVED') {
     return (
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
-        <h2 className="font-serif text-[22px]">Orders go live after approval</h2>
+        <h2 className="font-display text-[22px]">Orders go live after approval</h2>
         <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
           Once the {siteConfig.platformName} team approves your shop, incoming orders will appear here in real time.
         </p>
@@ -96,13 +96,13 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Live orders</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            The counter, <span className="italic text-[color:var(--color-forest)]">live.</span>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            The counter, <span className="italic text-[color:var(--color-primary)]">live.</span>
           </h1>
         </div>
         <div className="text-right">
           <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Today</div>
-          <div className="font-serif text-[22px] text-[color:var(--color-forest)]">₹{(data?.todaySalesInr ?? 0).toLocaleString('en-IN')}</div>
+          <div className="font-display text-[22px] text-[color:var(--color-primary)]">₹{(data?.todaySalesInr ?? 0).toLocaleString('en-IN')}</div>
           <div className="text-[11px] text-[color:var(--color-ink-soft)]/60">{data?.todayOrders ?? 0} delivered · auto-refresh 5s</div>
         </div>
       </div>
@@ -120,7 +120,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
               <button
                 disabled={busy === o.id + ':accept'}
                 onClick={() => act(o.id, 'accept')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
               >
                 Accept
               </button>
@@ -165,7 +165,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                   <button
                     disabled={busy === o.id + ':out-for-delivery' || needsWeights}
                     onClick={() => act(o.id, 'out-for-delivery')}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
                   >
                     Head out now →
                   </button>
@@ -184,7 +184,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                 <button
                   disabled={busy === o.id + ':out-for-delivery'}
                   onClick={() => act(o.id, 'out-for-delivery')}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
                 >
                   Head out now →
                 </button>
@@ -205,7 +205,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                     if (!otp) return;
                     act(o.id, 'delivered', { otp });
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
                 >
                   Mark delivered (OTP)
                 </button>
@@ -226,7 +226,7 @@ function Section({ title, count, accent, children }: { title: string; count: num
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-serif text-[22px]">{title}</h2>
+        <h2 className="font-display text-[22px]">{title}</h2>
         <span className={`text-[11px] uppercase tracking-[0.14em] ${accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-ink-soft)]/70'}`}>
           {count}
         </span>
@@ -313,8 +313,8 @@ function WeightReconcileForm({
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/6 p-3.5 space-y-3">
-      <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] font-medium">
+    <div className="mt-3 rounded-xl border border-[color:var(--color-primary)]/25 bg-[color:var(--color-primary)]/6 p-3.5 space-y-3">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)] font-medium">
         Confirm actual weights
       </div>
       <ul className="space-y-2.5">
@@ -344,7 +344,7 @@ function WeightReconcileForm({
               />
               <div className="space-y-1">
                 {proj && (
-                  <div className={`text-[11px] ${proj.deltaPct > 15 ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-forest)]'}`}>
+                  <div className={`text-[11px] ${proj.deltaPct > 15 ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-primary)]'}`}>
                     → ₹{proj.newInr} ({proj.deltaPct > 0 ? proj.deltaPct.toFixed(0) : 0}% {proj.newInr > it.priceInr ? 'up' : 'down'})
                   </div>
                 )}
@@ -368,7 +368,7 @@ function WeightReconcileForm({
       <button
         disabled={busy || items.some((it) => !draft[it.id]?.grams)}
         onClick={submit}
-        className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+        className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
       >
         {busy ? 'Confirming…' : 'Confirm weights · notify customer'}
       </button>
@@ -388,14 +388,14 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] flex-wrap">
-            <span className={accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-forest)]'}>
+            <span className={accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-primary)]'}>
               {o.status.replace('_', ' ')}
             </span>
             <span className="text-[color:var(--color-ink-soft)]/50">· #{o.id.slice(-6)}</span>
             <span className="text-[color:var(--color-ink-soft)]/50">· {placed} IST</span>
             <span className={`rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] ${
               o.fulfilmentMode === 'VENDOR_SELF'
-                ? 'bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]'
+                ? 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]'
                 : 'bg-[color:var(--color-terracotta)]/10 text-[color:var(--color-terracotta)]'
             }`}>
               {o.fulfilmentMode === 'VENDOR_SELF' ? 'You deliver' : 'Rider pickup'}
@@ -405,7 +405,7 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
             Order #{o.id.slice(-6).toUpperCase()}
           </div>
           {(o.deliverySlotStart || o.deliverySlotLabel) && (
-            <div className="mt-0.5 text-[12.5px] text-[color:var(--color-forest)] font-medium">
+            <div className="mt-0.5 text-[12.5px] text-[color:var(--color-primary)] font-medium">
               Deliver {o.deliverySlotStart ? formatDeliveryDay(o.deliverySlotStart) : ''}{o.deliverySlotStart && o.deliverySlotLabel ? ' · ' : ''}{o.deliverySlotLabel ?? ''}
             </div>
           )}
@@ -414,13 +414,13 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
           </div>
         </div>
         <div className="text-right shrink-0">
-          <div className="font-serif text-[18px]">₹{o.subtotalInr}</div>
+          <div className="font-display text-[18px]">₹{o.subtotalInr}</div>
           <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">your share</div>
         </div>
       </div>
       {children}
       <details className="mt-3 group">
-        <summary className="cursor-pointer text-[11.5px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] hover:underline list-none">
+        <summary className="cursor-pointer text-[11.5px] uppercase tracking-[0.14em] text-[color:var(--color-primary)] hover:underline list-none">
           <span className="group-open:hidden">📷 Add / view delivery photo</span>
           <span className="hidden group-open:inline">▾ Delivery photo</span>
         </summary>

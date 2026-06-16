@@ -179,7 +179,7 @@ export function TodayClient() {
                 onChange={(e) => patchDraft(r.productId, { priceInr: e.target.value })}
                 placeholder={String(r.effective.priceInr)}
                 min={0}
-                className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+                className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
               />
             </div>
 
@@ -191,7 +191,7 @@ export function TodayClient() {
                 onChange={(e) => patchDraft(r.productId, { mrpInr: e.target.value })}
                 placeholder={String(r.effective.mrpInr)}
                 min={0}
-                className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+                className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
               />
             </div>
 
@@ -207,12 +207,12 @@ export function TodayClient() {
             <div className="col-span-2 flex items-center justify-end gap-2">
               {d.error && <span className="text-[11px] text-[color:var(--color-terracotta)]">{d.error}</span>}
               {recentlySaved && !d.error && (
-                <span className="text-[11px] text-[color:var(--color-forest)]">Saved</span>
+                <span className="text-[11px] text-[color:var(--color-primary)]">Saved</span>
               )}
               <button
                 onClick={() => save(r.productId)}
                 disabled={d.saving}
-                className="rounded-md bg-[color:var(--color-forest)] text-white px-3 py-1.5 text-[12px] disabled:opacity-50 hover:opacity-90"
+                className="rounded-md bg-[color:var(--color-primary)] text-white px-3 py-1.5 text-[12px] disabled:opacity-50 hover:opacity-90"
               >
                 {d.saving ? '…' : 'Save'}
               </button>

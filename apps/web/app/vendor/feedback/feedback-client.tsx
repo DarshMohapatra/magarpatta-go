@@ -38,9 +38,9 @@ export function VendorFeedbackClient() {
     <div>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Customer feedback</div>
-        <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
           What neighbours{' '}
-          <span className="italic text-[color:var(--color-forest)]">said.</span>
+          <span className="italic text-[color:var(--color-primary)]">said.</span>
         </h1>
         <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
           Food rating only — delivery goes to the rider (or to you, if you self-deliver).
@@ -48,10 +48,10 @@ export function VendorFeedbackClient() {
       </div>
 
       <div className="mt-6 grid sm:grid-cols-[1fr_1.6fr] gap-5">
-        <div className="rounded-2xl border border-[color:var(--color-forest)]/25 bg-gradient-to-br from-[color:var(--color-forest)]/8 to-[color:var(--color-moss)]/4 p-6">
+        <div className="rounded-2xl border border-[color:var(--color-primary)]/25 bg-gradient-to-br from-[color:var(--color-primary)]/8 to-[color:var(--color-moss)]/4 p-6">
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70">Avg food rating</div>
           <div className="mt-2 flex items-end gap-2">
-            <span className="font-serif text-[54px] leading-none text-[color:var(--color-forest)]">{data.stats.avg.toFixed(1)}</span>
+            <span className="font-display text-[54px] leading-none text-[color:var(--color-primary)]">{data.stats.avg.toFixed(1)}</span>
             <span className="text-[color:var(--color-saffron)] text-[18px]">★</span>
           </div>
           <div className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/80">
@@ -64,7 +64,7 @@ export function VendorFeedbackClient() {
             <div key={d.star} className="flex items-center gap-2 text-[12px]">
               <span className="w-12 text-[color:var(--color-ink-soft)]">{d.star} ★</span>
               <div className="flex-1 h-1.5 rounded-full bg-[color:var(--color-ink)]/8 overflow-hidden">
-                <div className="h-full bg-[color:var(--color-forest)]" style={{ width: `${(d.count / max) * 100}%` }} />
+                <div className="h-full bg-[color:var(--color-primary)]" style={{ width: `${(d.count / max) * 100}%` }} />
               </div>
               <span className="w-8 text-right tabular-nums">{d.count}</span>
             </div>

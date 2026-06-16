@@ -118,11 +118,11 @@ export function VendorRegisterClient() {
     return (
       <section className="min-h-screen flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-[520px] text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-forest)]/10 text-[color:var(--color-forest)]">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
-          <h1 className="font-serif text-[36px] leading-[1.02] tracking-[-0.02em]">
-            Thanks, <span className="italic text-[color:var(--color-forest)]">neighbour.</span>
+          <h1 className="font-display text-[36px] leading-[1.02] tracking-[-0.02em]">
+            Thanks, <span className="italic text-[color:var(--color-primary)]">neighbour.</span>
           </h1>
           <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
             Your application is with the {siteConfig.platformName} team. We usually approve in under 24 hours. You&apos;ll get a call on
@@ -131,7 +131,7 @@ export function VendorRegisterClient() {
           </p>
           <button
             onClick={() => router.push('/vendor/signin')}
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-6 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-6 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]"
           >
             Go to sign in
           </button>
@@ -145,7 +145,7 @@ export function VendorRegisterClient() {
   return (
     <section className="min-h-screen px-4 py-10">
       <div className="mx-auto max-w-[640px]">
-        <Link href="/vendor/signin" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">
+        <Link href="/vendor/signin" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-primary)]">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back to sign in
         </Link>
@@ -153,15 +153,15 @@ export function VendorRegisterClient() {
         <div className="mt-4 inline-flex items-center gap-2.5">
           <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Vendor onboarding</span>
         </div>
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Put your shop on <span className="italic text-[color:var(--color-forest)]">{siteConfig.platformName}.</span>
+        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+          Put your shop on <span className="italic text-[color:var(--color-primary)]">{siteConfig.platformName}.</span>
         </h1>
 
         <ol className="mt-8 flex items-center gap-2">
           {[1, 2, 3, 4].map((n) => (
             <li key={n} className="flex-1 flex items-center gap-2">
               <div className={`h-6 w-6 rounded-full text-[11px] font-medium flex items-center justify-center ${
-                typeof step === 'number' && step >= n ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/60'
+                typeof step === 'number' && step >= n ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/60'
               }`}>
                 {n}
               </div>
@@ -265,7 +265,7 @@ export function VendorRegisterClient() {
             <div className="space-y-4">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Verify phone</div>
-                <h2 className="mt-1 font-serif text-[22px] leading-tight">One 6-digit code.</h2>
+                <h2 className="mt-1 font-display text-[22px] leading-tight">One 6-digit code.</h2>
                 <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
                   We&apos;ll text a code to <span className="font-medium text-[color:var(--color-ink)]">+91 {form.ownerPhone}</span>.
                   That phone becomes your signin identity — no password to set.
@@ -276,7 +276,7 @@ export function VendorRegisterClient() {
                   type="button"
                   disabled={busy || resendIn > 0}
                   onClick={sendOtp}
-                  className="rounded-full border border-[color:var(--color-forest)]/35 text-[color:var(--color-forest)] px-4 py-2 text-[12.5px] hover:bg-[color:var(--color-forest)]/8 disabled:opacity-50"
+                  className="rounded-full border border-[color:var(--color-primary)]/35 text-[color:var(--color-primary)] px-4 py-2 text-[12.5px] hover:bg-[color:var(--color-primary)]/8 disabled:opacity-50"
                 >
                   {resendIn > 0 ? `Resend in ${resendIn}s` : otpSentMsg ? 'Resend code' : 'Send OTP'}
                 </button>
@@ -291,7 +291,7 @@ export function VendorRegisterClient() {
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="••••••"
-                  className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-forest)]"
+                  className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-primary)]"
                 />
               </Row>
             </div>
@@ -308,7 +308,7 @@ export function VendorRegisterClient() {
               type="button"
               onClick={() => setStep((s) => (s === 1 ? 1 : ((s as number) - 1) as Step))}
               disabled={step === 1}
-              className="text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] disabled:opacity-40"
+              className="text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-primary)] disabled:opacity-40"
             >
               ← Back
             </button>
@@ -321,7 +321,7 @@ export function VendorRegisterClient() {
                   setStep(next);
                   if (next === 4 && !otpSentMsg) setTimeout(sendOtp, 150);
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
               >
                 Continue →
               </button>
@@ -330,7 +330,7 @@ export function VendorRegisterClient() {
                 type="button"
                 disabled={otpCode.length !== 6 || busy}
                 onClick={submit}
-                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
               >
                 {busy ? 'Submitting…' : 'Verify & submit'}
               </button>
@@ -342,7 +342,7 @@ export function VendorRegisterClient() {
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (

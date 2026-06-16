@@ -32,21 +32,21 @@ export default async function OrdersPage() {
       <section className="pt-24 pb-20">
         <div className="mx-auto max-w-[1080px] px-6 lg:px-10">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your orders</div>
-          <h1 className="mt-3 font-serif text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
-            Every drop-off, <span className="italic text-[color:var(--color-forest)]">on record.</span>
+          <h1 className="mt-3 font-display text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
+            Every drop-off, <span className="italic text-[color:var(--color-primary)]">on record.</span>
           </h1>
 
           {orders.length === 0 ? (
-            <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
-              <p className="font-serif text-[26px] leading-tight">
+            <div className="mt-10 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
+              <p className="font-display text-[26px] leading-tight">
                 Nothing yet.
               </p>
-              <p className="mt-2 text-[14px] text-[color:var(--color-ink-soft)]">
+              <p className="mt-2 text-[14px] text-[color:var(--color-muted)]">
                 Your first order lands here the moment you place it.
               </p>
               <Link
                 href="/menu"
-                className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[13.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]"
+                className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[13.5px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]"
               >
                 Browse the menu
               </Link>
@@ -77,7 +77,7 @@ export default async function OrdersPage() {
                 }));
 
                 return (
-                  <li key={o.id} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] hover:border-[color:var(--color-forest)]/30 transition-colors overflow-hidden">
+                  <li key={o.id} className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] hover:border-[color:var(--color-primary)]/30 transition-colors overflow-hidden">
                     <Link
                       href={`/orders/${o.id}`}
                       className="block p-6"
@@ -89,26 +89,26 @@ export default async function OrdersPage() {
                               className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
                                 isLive
                                   ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring'
-                                  : 'bg-[color:var(--color-forest)]'
+                                  : 'bg-[color:var(--color-primary)]'
                               }`}
                             />
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/80">
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/80">
                               {label}
                             </span>
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/50">
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/50">
                               · #{o.id.slice(-6)}
                             </span>
                           </div>
-                          <div className="font-serif text-[22px] leading-tight text-[color:var(--color-ink)]">
+                          <div className="font-display text-[22px] leading-tight text-[color:var(--color-foreground)]">
                             {o.items.slice(0, 2).map((i) => pickName(i, locale)).join(', ')}
                             {o.items.length > 2 && (
-                              <span className="text-[color:var(--color-ink-soft)]"> · +{o.items.length - 2} more</span>
+                              <span className="text-[color:var(--color-muted)]"> · +{o.items.length - 2} more</span>
                             )}
                           </div>
-                          <div className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]/80">
+                          <div className="mt-1 text-[13px] text-[color:var(--color-muted)]/80">
                             Flat {o.flat}, {o.building} · {o.society}
                           </div>
-                          <div className="mt-2 text-[12px] text-[color:var(--color-ink-soft)]/60">
+                          <div className="mt-2 text-[12px] text-[color:var(--color-muted)]/60">
                             {new Date(o.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
                           </div>
                         </div>
@@ -118,8 +118,8 @@ export default async function OrdersPage() {
                           {o.items.slice(0, 3).map((i) => (
                             <div
                               key={i.id}
-                              className="h-10 w-10 rounded-full border-2 border-[color:var(--color-paper)] flex items-center justify-center overflow-hidden relative"
-                              style={{ backgroundColor: `color-mix(in srgb, var(--color-${i.accent ?? 'forest'}) 14%, var(--color-paper))` }}
+                              className="h-10 w-10 rounded-full border-2 border-[color:var(--color-surface)] flex items-center justify-center overflow-hidden relative"
+                              style={{ backgroundColor: `color-mix(in srgb, var(--color-${i.accent ?? 'forest'}) 14%, var(--color-surface))` }}
                             >
                               {i.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
@@ -132,17 +132,17 @@ export default async function OrdersPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <div className="font-serif text-[22px] text-[color:var(--color-forest)]">₹{o.totalInr}</div>
-                          <div className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/60">
+                          <div className="font-display text-[22px] text-[color:var(--color-primary)]">₹{o.totalInr}</div>
+                          <div className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/60">
                             {o.items.reduce((s, i) => s + i.quantity, 0)} item{o.items.reduce((s, i) => s + i.quantity, 0) === 1 ? '' : 's'}
                           </div>
                         </div>
                       </div>
                     </Link>
-                    <div className="flex items-center justify-between gap-3 px-6 py-3 border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-cream)]/40">
+                    <div className="flex items-center justify-between gap-3 px-6 py-3 border-t border-[color:var(--color-foreground)]/8 bg-[color:var(--color-background)]/40">
                       <Link
                         href={`/orders/${o.id}`}
-                        className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]"
+                        className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]"
                       >
                         View details →
                       </Link>

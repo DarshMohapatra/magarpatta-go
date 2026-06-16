@@ -89,8 +89,8 @@ export function AdminOrdersClient() {
     <div>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Orders</div>
-        <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          The whole <span className="italic text-[color:var(--color-forest)]">board.</span>
+        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+          The whole <span className="italic text-[color:var(--color-primary)]">board.</span>
         </h1>
       </div>
 
@@ -99,8 +99,8 @@ export function AdminOrdersClient() {
           <button key={t.key} onClick={() => setScope(t.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
               scope === t.key
-                ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-forest)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-[color:var(--color-primary)]'
+                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-primary)]'
             }`}>
             {t.label}
             {t.countKey && <span className="ml-1.5 opacity-70">{counts[t.countKey]}</span>}
@@ -121,7 +121,7 @@ export function AdminOrdersClient() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] flex-wrap">
                   <span className={
-                    o.status === 'DELIVERED' ? 'text-[color:var(--color-forest)]' :
+                    o.status === 'DELIVERED' ? 'text-[color:var(--color-primary)]' :
                     o.status === 'CANCELLED' ? 'text-[color:var(--color-terracotta)]' :
                     'text-[color:var(--color-saffron)]'
                   }>
@@ -130,14 +130,14 @@ export function AdminOrdersClient() {
                   <span className="text-[color:var(--color-ink-soft)]/50">· #{o.id.slice(-6)}</span>
                   <span className="text-[color:var(--color-ink-soft)]/50">· placed {new Date(o.placedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</span>
                   {o.deliveredAt && (
-                    <span className="text-[color:var(--color-forest)]/70">· delivered {new Date(o.deliveredAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
+                    <span className="text-[color:var(--color-primary)]/70">· delivered {new Date(o.deliveredAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
                   )}
                   {o.cancelledAt && (
                     <span className="text-[color:var(--color-terracotta)]/70">· cancelled {new Date(o.cancelledAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
                   )}
                   <span className={`rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] ${
                     o.fulfilmentMode === 'VENDOR_SELF'
-                      ? 'bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]'
+                      ? 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]'
                       : 'bg-[color:var(--color-terracotta)]/10 text-[color:var(--color-terracotta)]'
                   }`}>
                     {o.fulfilmentMode === 'VENDOR_SELF' ? 'Vendor delivers' : 'Rider pickup'}
@@ -157,7 +157,7 @@ export function AdminOrdersClient() {
                 )}
               </div>
               <div className="text-right shrink-0">
-                <div className="font-serif text-[18px] text-[color:var(--color-forest)]">₹{o.totalInr}</div>
+                <div className="font-display text-[18px] text-[color:var(--color-primary)]">₹{o.totalInr}</div>
               </div>
             </div>
 
@@ -173,7 +173,7 @@ export function AdminOrdersClient() {
                     const sel = document.getElementById(`sel-${o.id}`) as HTMLSelectElement;
                     reassign(o.id, sel.value || null);
                   }}
-                  className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px] font-medium">
+                  className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px] font-medium">
                   Save
                 </button>
                 <button onClick={() => setReassignFor(null)} className="text-[12px] text-[color:var(--color-ink-soft)]">Cancel</button>
@@ -181,7 +181,7 @@ export function AdminOrdersClient() {
             ) : (
               !['DELIVERED', 'CANCELLED'].includes(o.status) && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button onClick={() => setReassignFor(o.id)} className="rounded-full border border-[color:var(--color-forest)]/35 text-[color:var(--color-forest)] px-3.5 py-1.5 text-[12px] hover:bg-[color:var(--color-forest)]/8">
+                  <button onClick={() => setReassignFor(o.id)} className="rounded-full border border-[color:var(--color-primary)]/35 text-[color:var(--color-primary)] px-3.5 py-1.5 text-[12px] hover:bg-[color:var(--color-primary)]/8">
                     {o.riderName ? 'Reassign rider' : 'Assign rider'}
                   </button>
                   <button onClick={() => cancel(o.id)} className="rounded-full border border-[color:var(--color-terracotta)]/40 text-[color:var(--color-terracotta)] px-3.5 py-1.5 text-[12px] hover:bg-[color:var(--color-terracotta)]/8">
@@ -191,7 +191,7 @@ export function AdminOrdersClient() {
               )
             )}
             <details className="mt-3 group">
-              <summary className="cursor-pointer text-[11.5px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] hover:underline list-none">
+              <summary className="cursor-pointer text-[11.5px] uppercase tracking-[0.14em] text-[color:var(--color-primary)] hover:underline list-none">
                 <span className="group-open:hidden">📷 Delivery photo</span>
                 <span className="hidden group-open:inline">▾ Delivery photo</span>
               </summary>

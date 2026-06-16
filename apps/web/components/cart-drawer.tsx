@@ -93,18 +93,18 @@ export function CartDrawer() {
       />
       <aside
         className={cn(
-          'fixed top-0 right-0 bottom-0 z-[70] w-full sm:w-[420px] bg-[color:var(--color-cream)] border-l border-[color:var(--color-ink)]/10 shadow-[-24px_0_60px_-24px_rgba(15,15,14,0.3)] transition-transform duration-300 ease-out flex flex-col',
+          'fixed top-0 right-0 bottom-0 z-[70] w-full sm:w-[420px] bg-[color:var(--color-background)] border-l border-[color:var(--color-border)]/10 shadow-[-24px_0_60px_-24px_rgba(15,15,14,0.3)] transition-transform duration-300 ease-out flex flex-col',
           open ? 'translate-x-0' : 'translate-x-full',
         )}
         aria-hidden={!open}
         aria-label="Cart"
       >
-        <header className="flex items-center justify-between px-6 py-5 border-b border-[color:var(--color-ink)]/8">
+        <header className="flex items-center justify-between px-6 py-5 border-b border-[color:var(--color-border)]/8">
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
               {cartHub(items) ? `From ${cartHub(items)}` : 'Your cart'}
             </div>
-            <h2 className="mt-1 font-serif text-[26px] leading-tight text-[color:var(--color-ink)]">
+            <h2 className="mt-1 font-display text-[26px] leading-tight text-[color:var(--color-foreground)]">
               {items.length === 0
                 ? 'Nothing here yet.'
                 : items.length === 1
@@ -112,7 +112,7 @@ export function CartDrawer() {
                   : `${items.length} things lined up`}
             </h2>
             {cartVendors(items).length > 1 && (
-              <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75 truncate">
+              <p className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/75 truncate">
                 {cartVendors(items).join(' + ')} · one hub, one trip
               </p>
             )}
@@ -136,12 +136,12 @@ export function CartDrawer() {
                   <path d="M4 6h2l2 12h11M8 18a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4zM8 10h14l-1.5 7H10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <p className="font-serif text-[22px] leading-tight text-[color:var(--color-ink)] max-w-xs">
+              <p className="font-display text-[22px] leading-tight text-[color:var(--color-foreground)] max-w-xs">
                 Pick something from the menu and it lands here.
               </p>
               <button
                 onClick={close}
-                className="mt-6 text-[13px] font-medium text-[color:var(--color-forest)] hover:underline underline-offset-4"
+                className="mt-6 text-[13px] font-medium text-[color:var(--color-primary)] hover:underline underline-offset-4"
               >
                 Back to menu →
               </button>
@@ -171,10 +171,10 @@ export function CartDrawer() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-[17px] leading-tight text-[color:var(--color-ink)] truncate">
+                    <h3 className="font-display text-[17px] leading-tight text-[color:var(--color-foreground)] truncate">
                       {pickName(it, locale)}
                     </h3>
-                    <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/75">
+                    <p className="text-[11.5px] text-[color:var(--color-muted)]/75">
                       {it.vendorName}
                       {it.unit && <span> · {it.unit}</span>}
                       {it.soldByWeight && it.estimatedGrams && (
@@ -184,27 +184,27 @@ export function CartDrawer() {
                       )}
                     </p>
                     <div className="mt-2 flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center rounded-full border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)]">
-                        <button onClick={() => decrement(it.id)} className="h-7 w-7 text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">
+                      <div className="inline-flex items-center rounded-full border border-[color:var(--color-border)]/15 bg-[color:var(--color-surface)]">
+                        <button onClick={() => decrement(it.id)} className="h-7 w-7 text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">
                           −
                         </button>
                         <span className="w-6 text-center text-[12.5px] font-medium">{it.qty}</span>
-                        <button onClick={() => increment(it.id)} className="h-7 w-7 text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">
+                        <button onClick={() => increment(it.id)} className="h-7 w-7 text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">
                           +
                         </button>
                       </div>
                       <div className="text-right">
-                        <div className={cn('font-serif text-[17px]', it.originalMrpInr ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink)]')}>
+                        <div className={cn('font-display text-[17px]', it.originalMrpInr ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-foreground)]')}>
                           ₹{it.mrpInr * it.qty}
                         </div>
                         {it.originalMrpInr && it.originalMrpInr > it.mrpInr && (
-                          <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/55 line-through">
+                          <div className="text-[10.5px] text-[color:var(--color-muted)]/55 line-through">
                             ₹{it.originalMrpInr * it.qty}
                           </div>
                         )}
                         <button
                           onClick={() => remove(it.id)}
-                          className="text-[11px] text-[color:var(--color-ink-soft)]/65 hover:text-[color:var(--color-terracotta)] underline underline-offset-2"
+                          className="text-[11px] text-[color:var(--color-muted)]/65 hover:text-[color:var(--color-terracotta)] underline underline-offset-2"
                         >
                           remove
                         </button>
@@ -216,28 +216,28 @@ export function CartDrawer() {
 
               {/* Plan in cart (line item) */}
               {joinPlan && (
-                <li className="flex gap-4 px-6 py-4 bg-[color:var(--color-forest)]/5">
-                  <div className="h-16 w-16 shrink-0 rounded-xl flex items-center justify-center bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]">
+                <li className="flex gap-4 px-6 py-4 bg-[color:var(--color-primary)]/5">
+                  <div className="h-16 w-16 shrink-0 rounded-xl flex items-center justify-center bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                       <path d="M12 2l2.5 7H22l-6 4.5 2.3 7.5L12 16.5 5.7 21 8 13.5 2 9h7.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-[17px] leading-tight text-[color:var(--color-ink)] truncate">
+                    <h3 className="font-display text-[17px] leading-tight text-[color:var(--color-foreground)] truncate">
                       {joinPlan.name}
                     </h3>
-                    <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/85">
+                    <p className="text-[11.5px] text-[color:var(--color-muted)]/85">
                       Activates with this order · {joinPlan.includedDeliveries} free deliveries · {joinPlan.cycleDays}-day cycle
                     </p>
                     <div className="mt-2 flex items-center justify-between gap-3">
-                      <span className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-forest)] font-medium">
+                      <span className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-primary)] font-medium">
                         Membership
                       </span>
                       <div className="text-right">
-                        <div className="font-serif text-[17px] text-[color:var(--color-ink)]">₹{joinPlan.priceInr}</div>
+                        <div className="font-display text-[17px] text-[color:var(--color-foreground)]">₹{joinPlan.priceInr}</div>
                         <button
                           onClick={removePlanFromCart}
-                          className="text-[11px] text-[color:var(--color-ink-soft)]/65 hover:text-[color:var(--color-terracotta)] underline underline-offset-2"
+                          className="text-[11px] text-[color:var(--color-muted)]/65 hover:text-[color:var(--color-terracotta)] underline underline-offset-2"
                         >
                           remove
                         </button>
@@ -252,12 +252,12 @@ export function CartDrawer() {
           {/* Plan offer (only when there's something to deliver AND user isn't
               already a member AND plan isn't already in cart). */}
           {items.length > 0 && !joinPlan && ctx?.planOffer && !ctx.membership && (
-            <div className="mx-6 my-4 rounded-2xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/5 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Save on every delivery</div>
-              <div className="mt-1 font-serif text-[18px] leading-tight">
+            <div className="mx-6 my-4 rounded-2xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-primary)]/5 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)]">Save on every delivery</div>
+              <div className="mt-1 font-display text-[18px] leading-tight">
                 Add {ctx.planOffer.name} for ₹{ctx.planOffer.priceInr}
               </div>
-              <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
+              <p className="mt-1 text-[12px] text-[color:var(--color-muted)]">
                 Includes {ctx.planOffer.includedDeliveries} free deliveries — starting with this one. ₹{ctx.planOffer.postIncludedFeeInr} per delivery after that.
               </p>
               <button
@@ -268,7 +268,7 @@ export function CartDrawer() {
                   includedDeliveries: ctx.planOffer!.includedDeliveries,
                   cycleDays: ctx.planOffer!.cycleDays,
                 })}
-                className="mt-3 w-full rounded-lg bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium hover:opacity-90"
+                className="mt-3 w-full rounded-lg bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] px-4 py-2 text-[13px] font-medium hover:opacity-90"
               >
                 Add to this order
               </button>
@@ -277,15 +277,15 @@ export function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <footer className="border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]/60 px-6 py-5 space-y-3 pwa-safe-bottom">
+          <footer className="border-t border-[color:var(--color-border)]/8 bg-[color:var(--color-surface)]/60 px-6 py-5 space-y-3 pwa-safe-bottom">
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[color:var(--color-ink-soft)]">Subtotal (MRP)</span>
-              <span className="text-[color:var(--color-ink)]">₹{subtotal + campaignSavings}</span>
+              <span className="text-[color:var(--color-muted)]">Subtotal (MRP)</span>
+              <span className="text-[color:var(--color-foreground)]">₹{subtotal + campaignSavings}</span>
             </div>
             {campaignSavings > 0 && (
-              <div className="flex items-center justify-between text-[13px] text-[color:var(--color-forest)]">
+              <div className="flex items-center justify-between text-[13px] text-[color:var(--color-primary)]">
                 <span className="inline-flex items-center gap-2 min-w-0">
-                  <span className="rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold shrink-0">
+                  <span className="rounded-md bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold shrink-0">
                     Sale
                   </span>
                   <span className="truncate">{campaignTitles.join(' · ') || 'Campaign'}</span>
@@ -295,30 +295,30 @@ export function CartDrawer() {
             )}
             {convenience > 0 && (
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[color:var(--color-ink-soft)]">Convenience fee</span>
-                <span className="text-[color:var(--color-ink)]">₹{convenience}</span>
+                <span className="text-[color:var(--color-muted)]">Convenience fee</span>
+                <span className="text-[color:var(--color-foreground)]">₹{convenience}</span>
               </div>
             )}
             {competitorSavings > 0 && (
               <div className="flex items-center justify-between text-[12.5px] text-[color:var(--color-forest-dark)]">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-forest)]" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-primary)]" />
                   Saving vs typical quick-commerce
                 </span>
                 <span className="font-medium">−₹{competitorSavings}</span>
               </div>
             )}
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[color:var(--color-ink-soft)]">
+              <span className="text-[color:var(--color-muted)]">
                 Delivery fee
                 {(planInCart || ctx?.membership) && (
-                  <span className="ml-1.5 text-[10px] uppercase tracking-[0.14em] text-[color:var(--color-forest)] font-medium">Member</span>
+                  <span className="ml-1.5 text-[10px] uppercase tracking-[0.14em] text-[color:var(--color-primary)] font-medium">Member</span>
                 )}
               </span>
-              <span className="text-[color:var(--color-ink)]">
+              <span className="text-[color:var(--color-foreground)]">
                 {deliveryFee === 0 && ctx ? (
                   <>
-                    <span className="line-through text-[color:var(--color-ink-soft)]/60 mr-1">₹{ctx.standardFeeInr}</span>
+                    <span className="line-through text-[color:var(--color-muted)]/60 mr-1">₹{ctx.standardFeeInr}</span>
                     ₹0
                   </>
                 ) : (
@@ -328,26 +328,26 @@ export function CartDrawer() {
             </div>
             {membershipFee > 0 && joinPlan && (
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[color:var(--color-ink-soft)]">{joinPlan.name}</span>
-                <span className="text-[color:var(--color-ink)]">₹{membershipFee}</span>
+                <span className="text-[color:var(--color-muted)]">{joinPlan.name}</span>
+                <span className="text-[color:var(--color-foreground)]">₹{membershipFee}</span>
               </div>
             )}
-            <div className="flex items-center justify-between pt-3 border-t border-[color:var(--color-ink)]/8">
-              <span className="font-serif text-[18px] text-[color:var(--color-ink)]">Total</span>
-              <span className="font-serif text-[22px] text-[color:var(--color-forest)]">₹{total}</span>
+            <div className="flex items-center justify-between pt-3 border-t border-[color:var(--color-border)]/8">
+              <span className="font-display text-[18px] text-[color:var(--color-foreground)]">Total</span>
+              <span className="font-display text-[22px] text-[color:var(--color-primary)]">₹{total}</span>
             </div>
 
             <Link
               href="/checkout"
               onClick={close}
-              className="mt-2 w-full rounded-2xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] px-5 py-4 font-medium text-[14px] transition-colors flex items-center justify-center gap-2"
+              className="mt-2 w-full rounded-2xl bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] hover:bg-[color:var(--color-primary)] hover:opacity-90 px-5 py-4 font-medium text-[14px] transition-colors flex items-center justify-center gap-2"
             >
               Checkout · ₹{total}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M2 6h8m0 0L6.5 2.5M10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Link>
-            <p className="text-[11.5px] text-center text-[color:var(--color-ink-soft)]/70">
+            <p className="text-[11.5px] text-center text-[color:var(--color-muted)]/70">
               Cash on delivery · UPI &amp; card arrive with Razorpay.
             </p>
           </footer>

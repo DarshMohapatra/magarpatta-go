@@ -41,8 +41,8 @@ export function AdminKbClient() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Knowledge base</div>
-          <h1 className="mt-2 font-serif text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Articles, <span className="italic text-[color:var(--color-forest)]">canon.</span>
+          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
+            Articles, <span className="italic text-[color:var(--color-primary)]">canon.</span>
           </h1>
           <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
             Helpdesk agents see suggestions on every ticket. Public articles are also published at <code className="text-[12px]">/help</code>.
@@ -53,7 +53,7 @@ export function AdminKbClient() {
             onClick={() => setIncludeArchived((v) => !v)}
             className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
               includeArchived
-                ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-transparent'
                 : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
             }`}
           >
@@ -61,7 +61,7 @@ export function AdminKbClient() {
           </button>
           <Link
             href="/admin/kb/new"
-            className="px-4 py-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] transition-colors"
+            className="px-4 py-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] transition-colors"
           >
             New article
           </Link>
@@ -73,7 +73,7 @@ export function AdminKbClient() {
 
       {!loading && rows.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
-          <p className="font-serif text-[24px]">Empty shelf.</p>
+          <p className="font-display text-[24px]">Empty shelf.</p>
           <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
             Write the first article — agents will get it as a suggestion the moment a related ticket comes in.
           </p>

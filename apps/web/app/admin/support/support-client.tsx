@@ -50,8 +50,8 @@ export function AdminSupportClient() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Support queue</div>
-          <h1 className="mt-2 font-serif text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Customer <span className="italic text-[color:var(--color-forest)]">complaints.</span>
+          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
+            Customer <span className="italic text-[color:var(--color-primary)]">complaints.</span>
           </h1>
         </div>
         <div className="flex gap-2">
@@ -61,7 +61,7 @@ export function AdminSupportClient() {
               onClick={() => setScope(s)}
               className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
                 scope === s
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-transparent'
                   : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
               }`}
             >
@@ -77,7 +77,7 @@ export function AdminSupportClient() {
 
       {!loading && tickets.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
-          <p className="font-serif text-[24px]">Empty queue.</p>
+          <p className="font-display text-[24px]">Empty queue.</p>
           <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">Nothing in this scope right now.</p>
         </div>
       ) : null}

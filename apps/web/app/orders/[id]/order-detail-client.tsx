@@ -138,7 +138,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
   return (
     <section className="pt-24 pb-20">
       <div className="mx-auto max-w-[1080px] px-6 lg:px-10">
-        <Link href="/orders" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] mb-6">
+        <Link href="/orders" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)] mb-6">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -150,21 +150,21 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
             <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
               Order #{order.id.slice(-6)}
             </div>
-            <h1 className="mt-3 font-serif text-[32px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.02em]">
+            <h1 className="mt-3 font-display text-[32px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.02em]">
               {live.status === 'DELIVERED' ? (
-                <>Delivered. <span className="italic text-[color:var(--color-forest)]">Enjoy.</span></>
+                <>Delivered. <span className="italic text-[color:var(--color-primary)]">Enjoy.</span></>
               ) : (
-                <>Your order is <span className="italic text-[color:var(--color-forest)]">on the way.</span></>
+                <>Your order is <span className="italic text-[color:var(--color-primary)]">on the way.</span></>
               )}
             </h1>
-            <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+            <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
               Placed {placedDate.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
             </p>
           </div>
           <div className="shrink-0 flex items-center gap-2 flex-wrap justify-end">
             <button
               onClick={reorder}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-forest)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)] hover:text-[color:var(--color-cream)] transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-primary)]/40 bg-[color:var(--color-surface)] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-[color:var(--color-background)] transition-colors"
               title="Re-add these items to your cart"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -174,7 +174,7 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
             </button>
             <a
               href={`/support/new?orderId=${order.id}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-terracotta)] hover:bg-[color:var(--color-terracotta)] hover:text-[color:var(--color-cream)] transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-surface)] text-[color:var(--color-terracotta)] hover:bg-[color:var(--color-terracotta)] hover:text-[color:var(--color-background)] transition-colors"
               title="File a complaint about this order"
             >
               Report an issue
@@ -197,16 +197,16 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
 
         {/* Rider / vendor-courier assignment card */}
         {order.fulfilmentMode === 'VENDOR_SELF' && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
-          <div className="mt-6 rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-forest)]/5 p-5 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
+          <div className="mt-6 rounded-2xl border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/5 p-5 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] flex items-center justify-center text-[14px] font-medium">
               {(order.vendorName ?? 'S')[0]}
             </div>
             <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Vendor-direct delivery</div>
-              <div className="mt-0.5 font-serif text-[18px] leading-tight">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)]">Vendor-direct delivery</div>
+              <div className="mt-0.5 font-display text-[18px] leading-tight">
                 {order.vendorName} is handling this one themselves.
               </div>
-              <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
+              <p className="text-[12px] text-[color:var(--color-muted)]/80">
                 No middle-rider — someone from the shop is bringing it over. They&apos;ll ask for the OTP below on drop.
               </p>
             </div>
@@ -214,15 +214,15 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
         )}
         {(order.fulfilmentMode === 'PLATFORM_RIDER' || order.fulfilmentMode === 'PLATFORM_RIDER_CONCIERGE') && order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
           <div className="mt-6 rounded-2xl border border-[color:var(--color-terracotta)]/25 bg-[color:var(--color-terracotta)]/5 p-5 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] flex items-center justify-center text-[14px] font-medium">
+            <div className="h-10 w-10 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-background)] flex items-center justify-center text-[14px] font-medium">
               {order.riderName[0]}
             </div>
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">Your personal shopper</div>
-              <div className="mt-0.5 font-serif text-[18px] leading-tight">
+              <div className="mt-0.5 font-display text-[18px] leading-tight">
                 {order.riderName} is picking this up for you.
               </div>
-              <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
+              <p className="text-[12px] text-[color:var(--color-muted)]/80">
                 A neighbour&apos;s walking into {order.vendorName ?? 'the shop'}, placing your order at the counter,
                 and bringing it over. They&apos;ll ask for the OTP below on drop.
               </p>
@@ -250,14 +250,14 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           <div className="mt-6 rounded-2xl border border-[color:var(--color-saffron)]/30 bg-gradient-to-br from-[color:var(--color-saffron)]/10 to-[color:var(--color-gold)]/8 p-5 flex items-center justify-between gap-4 flex-wrap">
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Delivery OTP</div>
-              <div className="mt-1 font-serif text-[20px] leading-tight">Read this to the rider on drop.</div>
-              <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/80">
+              <div className="mt-1 font-display text-[20px] leading-tight">Read this to the rider on drop.</div>
+              <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]/80">
                 The rider will ask for this 4-digit code before handing over your order.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 font-mono text-[32px] font-semibold tracking-[0.25em] text-[color:var(--color-ink)]">
+            <div className="inline-flex items-center gap-2 font-mono text-[32px] font-semibold tracking-[0.25em] text-[color:var(--color-foreground)]">
               {deliveryOtp(order.id).split('').map((d, i) => (
-                <span key={i} className="inline-flex h-12 w-10 items-center justify-center rounded-lg bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/12 shadow-sm">
+                <span key={i} className="inline-flex h-12 w-10 items-center justify-center rounded-lg bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/12 shadow-sm">
                   {d}
                 </span>
               ))}
@@ -267,11 +267,11 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
 
         <div className="mt-8 grid lg:grid-cols-[1.4fr_1fr] gap-8">
           {/* Left — items */}
-          <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[color:var(--color-ink)]/8 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
+          <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
+            <div className="px-6 py-4 border-b border-[color:var(--color-foreground)]/8 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
               {order.items.length} item{order.items.length === 1 ? '' : 's'}
             </div>
-            <ul className="divide-y divide-[color:var(--color-ink)]/8">
+            <ul className="divide-y divide-[color:var(--color-foreground)]/8">
               {order.items.map((it) => (
                 <li key={it.id} className="flex items-center gap-4 px-6 py-4">
                   <div
@@ -286,8 +286,8 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-serif text-[17px] leading-tight truncate">{pickName(it, locale)}</div>
-                    <div className="text-[12px] text-[color:var(--color-ink-soft)]/75 truncate">
+                    <div className="font-display text-[17px] leading-tight truncate">{pickName(it, locale)}</div>
+                    <div className="text-[12px] text-[color:var(--color-muted)]/75 truncate">
                       {it.vendorName}
                       {it.unit && <span> · {it.unit}</span>}
                     </div>
@@ -297,12 +297,12 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                     {it.soldByWeight && (
                       <div className="mt-1.5 text-[11.5px] leading-snug">
                         {it.reconciledAt && it.actualGrams && it.actualPriceInr != null ? (
-                          <span className="text-[color:var(--color-forest)]">
+                          <span className="text-[color:var(--color-primary)]">
                             Estimated {it.estimatedGrams}g · vendor confirmed {it.actualGrams}g · ₹{it.actualPriceInr}
-                            {it.reconcileNote && <span className="block text-[color:var(--color-ink-soft)]/70 italic">“{it.reconcileNote}”</span>}
+                            {it.reconcileNote && <span className="block text-[color:var(--color-muted)]/70 italic">“{it.reconcileNote}”</span>}
                           </span>
                         ) : (
-                          <span className="text-[color:var(--color-ink-soft)]/75">
+                          <span className="text-[color:var(--color-muted)]/75">
                             Approx · ~{it.estimatedGrams}g — vendor confirms before delivery
                           </span>
                         )}
@@ -310,59 +310,59 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-serif text-[17px]">₹{(it.actualPriceInr ?? it.mrpInr ?? it.priceInr) * it.quantity}</div>
-                    <div className="text-[11px] text-[color:var(--color-ink-soft)]/70">× {it.quantity}</div>
+                    <div className="font-display text-[17px]">₹{(it.actualPriceInr ?? it.mrpInr ?? it.priceInr) * it.quantity}</div>
+                    <div className="text-[11px] text-[color:var(--color-muted)]/70">× {it.quantity}</div>
                   </div>
                 </li>
               ))}
             </ul>
 
             {order.notes && (
-              <div className="px-6 py-4 border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-cream)]/60">
-                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70 mb-1">
+              <div className="px-6 py-4 border-t border-[color:var(--color-foreground)]/8 bg-[color:var(--color-background)]/60">
+                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70 mb-1">
                   Delivery note
                 </div>
-                <p className="text-[13.5px] text-[color:var(--color-ink)]">{order.notes}</p>
+                <p className="text-[13.5px] text-[color:var(--color-foreground)]">{order.notes}</p>
               </div>
             )}
           </div>
 
           {/* Right — address + totals */}
           <aside className="space-y-5">
-            <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
+            <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Delivering to</div>
-              <div className="mt-2 font-serif text-[20px] leading-tight">
+              <div className="mt-2 font-display text-[20px] leading-tight">
                 Flat {order.flat}, {order.building}
               </div>
-              <div className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/80">{order.society}</div>
+              <div className="mt-1 text-[12.5px] text-[color:var(--color-muted)]/80">{order.society}</div>
             </div>
 
-            <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 space-y-2">
+            <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 space-y-2">
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[color:var(--color-ink-soft)]">Subtotal (MRP)</span>
+                <span className="text-[color:var(--color-muted)]">Subtotal (MRP)</span>
                 <span>₹{order.subtotalInr}</span>
               </div>
               {order.convenienceInr > 0 && (
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[color:var(--color-ink-soft)]">Convenience fee</span>
+                  <span className="text-[color:var(--color-muted)]">Convenience fee</span>
                   <span>₹{order.convenienceInr}</span>
                 </div>
               )}
               {order.taxInr > 0 && (
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[color:var(--color-ink-soft)]">Tax (5%)</span>
+                  <span className="text-[color:var(--color-muted)]">Tax (5%)</span>
                   <span>₹{order.taxInr}</span>
                 </div>
               )}
               {order.giftWrap && (
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[color:var(--color-ink-soft)]">Gift wrap</span>
+                  <span className="text-[color:var(--color-muted)]">Gift wrap</span>
                   <span>₹{GIFT_WRAP_FEE}</span>
                 </div>
               )}
               {order.insurance && (
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[color:var(--color-ink-soft)]">Insurance</span>
+                  <span className="text-[color:var(--color-muted)]">Insurance</span>
                   <span>₹{INSURANCE_FEE}</span>
                 </div>
               )}
@@ -370,26 +370,26 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                 const tip = order.addOnsInr - (order.giftWrap ? GIFT_WRAP_FEE : 0) - (order.insurance ? INSURANCE_FEE : 0);
                 return tip > 0 ? (
                   <div className="flex items-center justify-between text-[13px]">
-                    <span className="text-[color:var(--color-ink-soft)]">Rider tip</span>
+                    <span className="text-[color:var(--color-muted)]">Rider tip</span>
                     <span>₹{tip}</span>
                   </div>
                 ) : null;
               })()}
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[color:var(--color-ink-soft)]">Delivery fee</span>
+                <span className="text-[color:var(--color-muted)]">Delivery fee</span>
                 <span>{order.deliveryFeeInr === 0 ? 'FREE' : `₹${order.deliveryFeeInr}`}</span>
               </div>
               {order.discountInr > 0 && order.couponCode && (
-                <div className="flex items-center justify-between text-[13px] text-[color:var(--color-forest)]">
+                <div className="flex items-center justify-between text-[13px] text-[color:var(--color-primary)]">
                   <span>{order.couponCode} discount</span>
                   <span>−₹{order.discountInr}</span>
                 </div>
               )}
-              <div className="pt-2 border-t border-[color:var(--color-ink)]/8 flex items-center justify-between">
-                <span className="font-serif text-[17px]">Total</span>
-                <span className="font-serif text-[24px] text-[color:var(--color-forest)]">₹{order.totalInr}</span>
+              <div className="pt-2 border-t border-[color:var(--color-foreground)]/8 flex items-center justify-between">
+                <span className="font-display text-[17px]">Total</span>
+                <span className="font-display text-[24px] text-[color:var(--color-primary)]">₹{order.totalInr}</span>
               </div>
-              <div className="pt-2 text-[11.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">
+              <div className="pt-2 text-[11.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/65">
                 Paid via {paymentLabel(order.paymentMethod)}
               </div>
             </div>

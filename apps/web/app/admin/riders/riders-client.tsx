@@ -97,11 +97,11 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Riders</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Neighbours on <span className="italic text-[color:var(--color-forest)]">duty.</span>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            Neighbours on <span className="italic text-[color:var(--color-primary)]">duty.</span>
           </h1>
         </div>
-        <button onClick={() => setShowAdd(true)} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+        <button onClick={() => setShowAdd(true)} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
           + Onboard rider
         </button>
       </div>
@@ -111,7 +111,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
               tab === t.key
-                ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-[color:var(--color-primary)]'
                 : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12'
             }`}>
             {t.label}
@@ -144,7 +144,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
                   </div>
                   <div className="col-span-1 text-right tabular-nums">{r.dropsToday}</div>
                   <div className="col-span-1 text-right tabular-nums">{r.drops30}</div>
-                  <div className="col-span-2 text-right font-serif text-[color:var(--color-forest)]">₹{r.earnings30Inr.toLocaleString('en-IN')}</div>
+                  <div className="col-span-2 text-right font-display text-[color:var(--color-primary)]">₹{r.earnings30Inr.toLocaleString('en-IN')}</div>
                   <div className="col-span-2 text-right">
                     {r.avgDeliverMin ? `${r.avgDeliverMin} min` : <span className="text-[color:var(--color-ink-soft)]/50">—</span>}
                   </div>
@@ -154,7 +154,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
                     ) : (
                       <>
                         <span className="text-[color:var(--color-saffron)]">★</span>{' '}
-                        <span className="font-serif text-[15px]">{r.avgRating.toFixed(1)}</span>
+                        <span className="font-display text-[15px]">{r.avgRating.toFixed(1)}</span>
                         <span className="text-[11px] text-[color:var(--color-ink-soft)]/70"> · {r.ratingCount}</span>
                       </>
                     )}
@@ -177,7 +177,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
           <li key={r.id} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-serif text-[18px] leading-tight truncate">{r.name}</div>
+                <div className="font-display text-[18px] leading-tight truncate">{r.name}</div>
                 <div className="text-[12px] text-[color:var(--color-ink-soft)]/75 truncate">
                   +91 {r.phone} · {r.vehicleType ?? '—'} {r.vehicleNumber ? `(${r.vehicleNumber})` : ''}
                 </div>
@@ -187,7 +187,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
               </div>
               <div className="text-right shrink-0 text-[11px] uppercase tracking-[0.12em]">
                 <span className={
-                  r.approvalStatus === 'APPROVED' ? 'text-[color:var(--color-forest)]' :
+                  r.approvalStatus === 'APPROVED' ? 'text-[color:var(--color-primary)]' :
                   r.approvalStatus === 'PENDING' ? 'text-[color:var(--color-saffron)]' :
                   'text-[color:var(--color-terracotta)]'
                 }>{r.approvalStatus.toLowerCase()}</span>
@@ -201,13 +201,13 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
                 placeholder="Note (for reject / suspend)"
                 value={note[r.id] ?? ''}
                 onChange={(e) => setNote({ ...note, [r.id]: e.target.value })}
-                className="mt-3 w-full rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-1.5 text-[12.5px] outline-none focus:border-[color:var(--color-forest)]"
+                className="mt-3 w-full rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-1.5 text-[12.5px] outline-none focus:border-[color:var(--color-primary)]"
               />
             )}
             <div className="mt-3 flex flex-wrap gap-2">
               {r.approvalStatus !== 'APPROVED' && (
                 <button disabled={busy} onClick={() => act(r.id, 'approve')}
-                  className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+                  className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px] font-medium hover:bg-[color:var(--color-primary)]">
                   Approve
                 </button>
               )}
@@ -225,7 +225,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
               )}
               {r.approvalStatus === 'SUSPENDED' && (
                 <button disabled={busy} onClick={() => act(r.id, 'suspend', { unsuspend: true })}
-                  className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px]">
+                  className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px]">
                   Lift
                 </button>
               )}
@@ -239,7 +239,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[color:var(--color-ink)]/40 backdrop-blur-sm">
           <div className="w-full max-w-[520px] rounded-t-3xl sm:rounded-3xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-6 space-y-4 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif text-[22px]">Onboard a rider</h2>
+              <h2 className="font-display text-[22px]">Onboard a rider</h2>
               <button onClick={() => setShowAdd(false)} className="text-[12px] text-[color:var(--color-ink-soft)]">Close</button>
             </div>
             <Field label="Full name"><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inp} /></Field>
@@ -263,7 +263,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-[13px] text-[color:var(--color-ink-soft)]">Cancel</button>
               <button disabled={busy || form.phone.length !== 10 || !form.name} onClick={createRider}
-                className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+                className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
                 {busy ? 'Creating…' : 'Create (pending review)'}
               </button>
             </div>
@@ -274,7 +274,7 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

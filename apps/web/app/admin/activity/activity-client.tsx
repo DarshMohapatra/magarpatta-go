@@ -24,7 +24,7 @@ const ROLES: Array<{ key: string; label: string }> = [
 
 const ROLE_TONE: Record<string, string> = {
   VENDOR: 'bg-[color:var(--color-saffron)]/15 text-[color:var(--color-saffron)]',
-  RIDER: 'bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]',
+  RIDER: 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]',
   CURATOR: 'bg-[color:var(--color-gold)]/18 text-[color:var(--color-gold)]',
   ADMIN: 'bg-[color:var(--color-terracotta)]/12 text-[color:var(--color-terracotta)]',
   CUSTOMER: 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]',
@@ -58,8 +58,8 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
     <div>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Activity feed</div>
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Who did what, <span className="italic text-[color:var(--color-forest)]">when.</span>
+        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+          Who did what, <span className="italic text-[color:var(--color-primary)]">when.</span>
         </h1>
         <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] max-w-xl">
           Cross-portal audit trail — every meaningful action by vendors, riders, curators, and admins. Operational fluff (page views, OTP fetches) is excluded.
@@ -73,8 +73,8 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
             onClick={() => setRole(r.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
               role === r.key
-                ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-forest)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-[color:var(--color-primary)]'
+                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-primary)]'
             }`}
           >
             {r.label} <span className="ml-1.5 opacity-70">{r.key === '' ? Object.values(perRole).reduce((a, b) => a + b, 0) : (perRole[r.key] ?? 0)}</span>
@@ -88,11 +88,11 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
           onChange={(e) => setActor(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') load(); }}
           placeholder="Filter by name (e.g. Kalika Sweets, Aman)…"
-          className="flex-1 rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+          className="flex-1 rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
         />
         <button
           onClick={load}
-          className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)]"
+          className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
         >Search</button>
       </div>
 

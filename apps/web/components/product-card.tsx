@@ -65,7 +65,7 @@ function relativeMinutes(iso: string): string {
 
 const ACCENT_BG: Record<string, string> = {
   saffron: 'bg-[color:var(--color-saffron)]/10',
-  forest: 'bg-[color:var(--color-forest)]/8',
+  forest: 'bg-[color:var(--color-primary)]/8',
   terracotta: 'bg-[color:var(--color-terracotta)]/10',
   sage: 'bg-[color:var(--color-sage)]/12',
 };
@@ -166,7 +166,7 @@ export function ProductCard({
         // shrink-0 Add button) can force the grid column wider than the
         // viewport on small phones — caused the "one card per row, second
         // card clipped" bug in earlier builds.
-        'group relative w-full min-w-0 overflow-hidden rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
+        'group relative w-full min-w-0 overflow-hidden rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(15,15,14,0.22)]',
         viewShopOnAdd && 'cursor-pointer',
       )}
     >
@@ -179,7 +179,7 @@ export function ProductCard({
           // pushing each card to ~70% viewport width on Android WebView and
           // clipping the second column. Flat height = stable Blinkit-style
           // compact rows.
-          'relative h-28 sm:h-36 lg:h-40 border-b border-[color:var(--color-ink)]/8 flex items-center justify-center overflow-hidden',
+          'relative h-28 sm:h-36 lg:h-40 border-b border-[color:var(--color-foreground)]/8 flex items-center justify-center overflow-hidden',
           ACCENT_BG[product.accent ?? 'forest'] ?? ACCENT_BG.forest,
         )}
       >
@@ -208,51 +208,51 @@ export function ProductCard({
             className={cn(
               'inline-flex h-4 w-4 items-center justify-center rounded-sm border',
               product.isVeg
-                ? 'border-[color:var(--color-forest)]/60'
+                ? 'border-[color:var(--color-primary)]/60'
                 : 'border-[color:var(--color-terracotta)]/70',
             )}
           >
             <span
               className={cn(
                 'h-2 w-2 rounded-full',
-                product.isVeg ? 'bg-[color:var(--color-forest)]' : 'bg-[color:var(--color-terracotta)]',
+                product.isVeg ? 'bg-[color:var(--color-primary)]' : 'bg-[color:var(--color-terracotta)]',
               )}
             />
           </span>
           {product.tagline && (
-            <span className="rounded-full bg-[color:var(--color-paper)]/90 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]">
+            <span className="rounded-full bg-[color:var(--color-surface)]/90 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]">
               {product.tagline}
             </span>
           )}
           {product.priceUpdatedAt && (
-            <span className="rounded-full bg-[color:var(--color-forest)]/12 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-forest)] font-medium">
+            <span className="rounded-full bg-[color:var(--color-primary)]/12 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-primary)] font-medium">
               Updated {relativeMinutes(product.priceUpdatedAt)}
             </span>
           )}
         </div>
 
         {onSale && saleBadge && (
-          <span className="absolute top-2.5 right-2.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.12em] font-medium shadow-[0_4px_14px_-6px_rgba(15,15,14,0.4)]">
+          <span className="absolute top-2.5 right-2.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-background)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.12em] font-medium shadow-[0_4px_14px_-6px_rgba(15,15,14,0.4)]">
             {saleBadge}
           </span>
         )}
       </div>
 
       <div className="p-2.5 sm:p-4 min-w-0">
-        <h3 className="font-serif text-[14px] sm:text-[17px] leading-tight text-[color:var(--color-ink)] line-clamp-2 break-words">
+        <h3 className="font-display text-[14px] sm:text-[17px] leading-tight text-[color:var(--color-foreground)] line-clamp-2 break-words">
           {displayName}
         </h3>
-        <p className="mt-0.5 text-[11px] sm:text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">
+        <p className="mt-0.5 text-[11px] sm:text-[12px] text-[color:var(--color-muted)]/80 truncate">
           {product.unit ?? product.vendor.name}
         </p>
 
         <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1.5 min-w-0">
-            <span className={cn('font-serif text-[17px] sm:text-[20px]', onSale ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink)]')}>
+            <span className={cn('font-display text-[17px] sm:text-[20px]', onSale ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-foreground)]')}>
               ₹{displayPrice}
             </span>
             {onSale && (
-              <span className="text-[11px] text-[color:var(--color-ink-soft)]/55 line-through">
+              <span className="text-[11px] text-[color:var(--color-muted)]/55 line-through">
                 ₹{product.originalMrpInr}
               </span>
             )}
@@ -260,17 +260,17 @@ export function ProductCard({
                 price they see is an estimate that the vendor reconciles
                 against actual weight before delivery. */}
             {product.soldByWeight && product.estimatedGrams && (
-              <span className="ml-0.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-forest-dark)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium whitespace-nowrap">
+              <span className="ml-0.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-primary)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium whitespace-nowrap">
                 approx · {product.estimatedGrams}g
               </span>
             )}
           </div>
 
           {item ? (
-            <div className="inline-flex items-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
+            <div className="inline-flex items-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] shrink-0">
               <button
                 onClick={() => decrement(product.id)}
-                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:bg-[color:var(--color-forest-dark)] rounded-l-full"
+                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:bg-[color:var(--color-primary)] rounded-l-full"
                 aria-label="Decrease quantity"
               >
                 −
@@ -278,7 +278,7 @@ export function ProductCard({
               <span className="w-5 sm:w-6 text-center text-[12.5px] font-medium">{item.qty}</span>
               <button
                 onClick={() => increment(product.id)}
-                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:bg-[color:var(--color-forest-dark)] rounded-r-full"
+                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:bg-[color:var(--color-primary)] rounded-r-full"
                 aria-label="Increase quantity"
               >
                 +
@@ -287,7 +287,7 @@ export function ProductCard({
           ) : (
             <button
               onClick={handleAdd}
-              className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-forest)] hover:bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)] px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-medium transition-colors shrink-0"
+              className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-medium transition-colors shrink-0"
             >
               Add
             </button>

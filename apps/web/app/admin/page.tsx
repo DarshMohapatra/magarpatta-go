@@ -39,8 +39,8 @@ export default async function AdminHome() {
     <AdminShell name={admin.name} role={admin.role}>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Ops overview</div>
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          {siteConfig.platformName}, <span className="italic text-[color:var(--color-forest)]">under your watch.</span>
+        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+          {siteConfig.platformName}, <span className="italic text-[color:var(--color-primary)]">under your watch.</span>
         </h1>
       </div>
 
@@ -63,7 +63,7 @@ export default async function AdminHome() {
       </div>
 
       <div className="mt-10">
-        <h2 className="font-serif text-[22px] mb-3">Quick actions</h2>
+        <h2 className="font-display text-[22px] mb-3">Quick actions</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <Tile href="/admin/vendors?status=PENDING" title="Review vendor applications" body="Approve or reject new shops waiting to go live." />
           <Tile href="/admin/riders?status=PENDING" title="Review rider applications" body="Verify DL, Aadhaar, vehicle RC before approval." />
@@ -82,9 +82,9 @@ function Stat({ label, value, note, accent, href }: { label: string; value: stri
     ? 'border-[color:var(--color-saffron)]/40 bg-[color:var(--color-saffron)]/8'
     : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]';
   return (
-    <Link href={href} className={`block rounded-2xl border p-5 hover:border-[color:var(--color-forest)]/40 transition-colors ${cls}`}>
+    <Link href={href} className={`block rounded-2xl border p-5 hover:border-[color:var(--color-primary)]/40 transition-colors ${cls}`}>
       <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70">{label}</div>
-      <div className="mt-1.5 font-serif text-[30px] leading-none">{value}</div>
+      <div className="mt-1.5 font-display text-[30px] leading-none">{value}</div>
       {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-ink-soft)]/70">{note}</div>}
     </Link>
   );
@@ -92,16 +92,16 @@ function Stat({ label, value, note, accent, href }: { label: string; value: stri
 
 function MiniStat({ label, value, href }: { label: string; value: string; href: string }) {
   return (
-    <Link href={href} className="block rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4 hover:border-[color:var(--color-forest)]/30">
+    <Link href={href} className="block rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4 hover:border-[color:var(--color-primary)]/30">
       <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">{label}</div>
-      <div className="mt-1 font-serif text-[22px]">{value}</div>
+      <div className="mt-1 font-display text-[22px]">{value}</div>
     </Link>
   );
 }
 
 function Tile({ href, title, body }: { href: string; title: string; body: string }) {
   return (
-    <Link href={href} className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 hover:border-[color:var(--color-forest)]/40 transition-colors">
+    <Link href={href} className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 hover:border-[color:var(--color-primary)]/40 transition-colors">
       <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">{title}</div>
       <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">{body}</p>
     </Link>

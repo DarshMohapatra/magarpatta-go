@@ -90,26 +90,26 @@ export function MembershipClient({
   return (
     <div className="mt-10 space-y-10">
       {sub && (
-        <section className="rounded-3xl border border-[color:var(--color-forest)]/30 bg-gradient-to-br from-[color:var(--color-forest)]/5 to-[color:var(--color-cream)] p-8">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-forest)]">Active plan</div>
-          <h2 className="mt-2 font-serif text-[32px] leading-tight">
+        <section className="rounded-3xl border border-[color:var(--color-primary)]/30 bg-gradient-to-br from-[color:var(--color-primary)]/5 to-[color:var(--color-background)] p-8">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-primary)]">Active plan</div>
+          <h2 className="mt-2 font-display text-[32px] leading-tight">
             {sub.planName}
           </h2>
           <div className="mt-6 grid sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">Free deliveries left</div>
-              <div className="mt-1 font-serif text-[40px] leading-none">{initialState.creditsLeft}</div>
-              <div className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">of {initialState.creditsGranted} this cycle</div>
+            <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">Free deliveries left</div>
+              <div className="mt-1 font-display text-[40px] leading-none">{initialState.creditsLeft}</div>
+              <div className="mt-1 text-[12px] text-[color:var(--color-muted)]">of {initialState.creditsGranted} this cycle</div>
             </div>
-            <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">Days remaining</div>
-              <div className="mt-1 font-serif text-[40px] leading-none">{daysUntil(sub.cycleEnd)}</div>
-              <div className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">cycle ends {new Date(sub.cycleEnd).toLocaleDateString('en-IN')}</div>
+            <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">Days remaining</div>
+              <div className="mt-1 font-display text-[40px] leading-none">{daysUntil(sub.cycleEnd)}</div>
+              <div className="mt-1 text-[12px] text-[color:var(--color-muted)]">cycle ends {new Date(sub.cycleEnd).toLocaleDateString('en-IN')}</div>
             </div>
-            <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">After free deliveries</div>
-              <div className="mt-1 font-serif text-[40px] leading-none">₹{sub.postIncludedFeeInr}</div>
-              <div className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">per delivery, or recharge below</div>
+            <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">After free deliveries</div>
+              <div className="mt-1 font-display text-[40px] leading-none">₹{sub.postIncludedFeeInr}</div>
+              <div className="mt-1 text-[12px] text-[color:var(--color-muted)]">per delivery, or recharge below</div>
             </div>
           </div>
         </section>
@@ -117,22 +117,22 @@ export function MembershipClient({
 
       {!sub && (
         <section>
-          <h2 className="font-serif text-[26px]">Pick a plan</h2>
-          <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
+          <h2 className="font-display text-[26px]">Pick a plan</h2>
+          <p className="mt-1 text-[13px] text-[color:var(--color-muted)]">
             One purchase covers your first {plans[0]?.includedDeliveries ?? 20} deliveries this cycle.
           </p>
           <div className="mt-5 grid sm:grid-cols-2 gap-4">
             {plans.length === 0 && (
-              <p className="text-[13px] text-[color:var(--color-ink-soft)] italic col-span-2">
+              <p className="text-[13px] text-[color:var(--color-muted)] italic col-span-2">
                 No plans available right now. Check back later.
               </p>
             )}
             {plans.map((p) => (
-              <div key={p.id} className="rounded-2xl border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] p-6 flex flex-col">
+              <div key={p.id} className="rounded-2xl border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)] p-6 flex flex-col">
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Plan</div>
-                <h3 className="mt-1 font-serif text-[22px]">{p.name}</h3>
-                {p.description && <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">{p.description}</p>}
-                <div className="mt-4 font-serif text-[40px] leading-none">₹{p.priceInr}</div>
+                <h3 className="mt-1 font-display text-[22px]">{p.name}</h3>
+                {p.description && <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">{p.description}</p>}
+                <div className="mt-4 font-display text-[40px] leading-none">₹{p.priceInr}</div>
                 <ul className="mt-4 space-y-1.5 text-[13px]">
                   <li>✓ {p.includedDeliveries} free deliveries</li>
                   <li>✓ {p.cycleDays}-day cycle</li>
@@ -140,11 +140,11 @@ export function MembershipClient({
                 </ul>
                 <button
                   onClick={() => startPlanFlow(p)}
-                  className="mt-6 rounded-full bg-[color:var(--color-forest)] text-white px-5 py-2.5 text-[13.5px] font-medium hover:opacity-90"
+                  className="mt-6 rounded-full bg-[color:var(--color-primary)] text-white px-5 py-2.5 text-[13.5px] font-medium hover:opacity-90"
                 >
                   Add to my next order →
                 </button>
-                <p className="mt-2 text-[11px] text-[color:var(--color-ink-soft)]">
+                <p className="mt-2 text-[11px] text-[color:var(--color-muted)]">
                   Activates with your next order — pay food + plan together.
                 </p>
               </div>
@@ -155,15 +155,15 @@ export function MembershipClient({
 
       {sub && topUps.length > 0 && (
         <section>
-          <h2 className="font-serif text-[26px]">Recharge</h2>
-          <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
+          <h2 className="font-display text-[26px]">Recharge</h2>
+          <p className="mt-1 text-[13px] text-[color:var(--color-muted)]">
             Add credits to this cycle. Cycle end date doesn't move — credits expire when the cycle does.
           </p>
           <div className="mt-5 grid sm:grid-cols-3 gap-4">
             {topUps.map((t) => (
-              <div key={t.id} className="rounded-2xl border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] p-5">
-                <div className="font-serif text-[20px]">{t.name}</div>
-                <div className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">+{t.addedDeliveries} deliveries</div>
+              <div key={t.id} className="rounded-2xl border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)] p-5">
+                <div className="font-display text-[20px]">{t.name}</div>
+                <div className="mt-1 text-[12px] text-[color:var(--color-muted)]">+{t.addedDeliveries} deliveries</div>
                 <div className="mt-3 font-medium text-[18px]">₹{t.priceInr}</div>
                 <button
                   onClick={() =>
@@ -175,7 +175,7 @@ export function MembershipClient({
                       subtitle: `+${t.addedDeliveries} deliveries on your current cycle`,
                     })
                   }
-                  className="mt-4 w-full rounded-md bg-[color:var(--color-forest)]/95 text-white px-3 py-2 text-[13px] hover:opacity-90"
+                  className="mt-4 w-full rounded-md bg-[color:var(--color-primary)]/95 text-white px-3 py-2 text-[13px] hover:opacity-90"
                 >
                   Recharge
                 </button>
@@ -278,26 +278,26 @@ function PaymentDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[color:var(--color-ink)]/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div className="w-full max-w-[520px] rounded-3xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[color:var(--color-foreground)]/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div className="w-full max-w-[520px] rounded-3xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 shadow-2xl overflow-hidden">
         {processing ? (
           <div className="px-6 py-12 text-center">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-forest)]/10">
-              <span className="inline-block h-3 w-3 rounded-full bg-[color:var(--color-forest)] animate-pulse" />
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-primary)]/10">
+              <span className="inline-block h-3 w-3 rounded-full bg-[color:var(--color-primary)] animate-pulse" />
             </div>
-            <h3 className="mt-4 font-serif text-[22px]">Processing your payment</h3>
-            <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] min-h-[1.2em]">{processingLine}</p>
-            <div className="mt-4 text-[11px] text-[color:var(--color-ink-soft)]/70">₹{intent.amount} via {method.replace('_', ' ')}</div>
+            <h3 className="mt-4 font-display text-[22px]">Processing your payment</h3>
+            <p className="mt-2 text-[13px] text-[color:var(--color-muted)] min-h-[1.2em]">{processingLine}</p>
+            <div className="mt-4 text-[11px] text-[color:var(--color-muted)]/70">₹{intent.amount} via {method.replace('_', ' ')}</div>
           </div>
         ) : (
           <>
-            <div className="px-6 pt-6 pb-4 border-b border-[color:var(--color-ink)]/8">
+            <div className="px-6 pt-6 pb-4 border-b border-[color:var(--color-foreground)]/8">
               <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Secure payment</div>
-              <h3 className="mt-1 font-serif text-[24px] leading-tight">{intent.title}</h3>
-              <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">{intent.subtitle}</p>
-              <div className="mt-3 inline-flex items-baseline gap-1.5 rounded-full bg-[color:var(--color-forest)]/8 px-3 py-1.5">
-                <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Total</span>
-                <span className="font-serif text-[20px]">₹{intent.amount}</span>
+              <h3 className="mt-1 font-display text-[24px] leading-tight">{intent.title}</h3>
+              <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">{intent.subtitle}</p>
+              <div className="mt-3 inline-flex items-baseline gap-1.5 rounded-full bg-[color:var(--color-primary)]/8 px-3 py-1.5">
+                <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)]">Total</span>
+                <span className="font-display text-[20px]">₹{intent.amount}</span>
               </div>
             </div>
 
@@ -310,8 +310,8 @@ function PaymentDialog({
                     className={
                       'rounded-lg border px-3 py-2 text-[12px] ' +
                       (method === m
-                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/8 text-[color:var(--color-forest)]'
-                        : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40')
+                        ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/8 text-[color:var(--color-primary)]'
+                        : 'border-[color:var(--color-foreground)]/15 hover:border-[color:var(--color-primary)]/40')
                     }
                   >
                     {m === 'CARD' ? 'Card' : m === 'UPI' ? 'UPI' : 'Net banking'}
@@ -326,7 +326,7 @@ function PaymentDialog({
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value.replace(/[^0-9 ]/g, '').slice(0, 19))}
                     placeholder="Card number"
-                    className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                    className="w-full rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -334,14 +334,14 @@ function PaymentDialog({
                       value={cardExpiry}
                       onChange={(e) => setCardExpiry(e.target.value.replace(/[^0-9/]/g, '').slice(0, 5))}
                       placeholder="MM/YY"
-                      className="rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                      className="rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                     />
                     <input
                       type="text"
                       value={cardCvv}
                       onChange={(e) => setCardCvv(e.target.value.replace(/[^0-9]/g, '').slice(0, 3))}
                       placeholder="CVV"
-                      className="rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                      className="rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                     />
                   </div>
                   <input
@@ -349,7 +349,7 @@ function PaymentDialog({
                     value={cardName}
                     onChange={(e) => setCardName(e.target.value)}
                     placeholder="Name on card"
-                    className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                    className="w-full rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                   />
                 </div>
               )}
@@ -360,7 +360,7 @@ function PaymentDialog({
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   placeholder="you@okhdfc"
-                  className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                  className="w-full rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                 />
               )}
 
@@ -368,7 +368,7 @@ function PaymentDialog({
                 <select
                   value={bank}
                   onChange={(e) => setBank(e.target.value)}
-                  className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                  className="w-full rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                 >
                   {BANKS.map((b) => (
                     <option key={b} value={b}>{b} Bank</option>
@@ -380,12 +380,12 @@ function PaymentDialog({
             </div>
 
             <div className="px-6 pb-6 flex items-center justify-between gap-3">
-              <button onClick={onClose} className="text-[13px] text-[color:var(--color-ink-soft)] hover:underline">
+              <button onClick={onClose} className="text-[13px] text-[color:var(--color-muted)] hover:underline">
                 Cancel
               </button>
               <button
                 onClick={pay}
-                className="rounded-full bg-[color:var(--color-forest)] text-white px-5 py-2.5 text-[13.5px] font-medium hover:opacity-90"
+                className="rounded-full bg-[color:var(--color-primary)] text-white px-5 py-2.5 text-[13.5px] font-medium hover:opacity-90"
               >
                 Pay ₹{intent.amount}
               </button>

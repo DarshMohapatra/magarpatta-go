@@ -420,10 +420,10 @@ export function CheckoutClient({
       <section className="pt-28 pb-24 min-h-[60vh]">
         <div className="mx-auto max-w-[720px] px-6 text-center">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Checkout</div>
-          <h1 className="mt-4 font-serif text-[40px] sm:text-[52px] leading-[0.98] tracking-[-0.02em]">
-            Your cart is <span className="italic text-[color:var(--color-forest)]">empty.</span>
+          <h1 className="mt-4 font-display text-[40px] sm:text-[52px] leading-[0.98] tracking-[-0.02em]">
+            Your cart is <span className="italic text-[color:var(--color-primary)]">empty.</span>
           </h1>
-          <Link href="/menu" className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]">
+          <Link href="/menu" className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]">
             Browse the menu
           </Link>
         </div>
@@ -449,14 +449,14 @@ export function CheckoutClient({
                 </svg>
                 Secure Checkout
               </div>
-              <h1 className="mt-2 font-serif text-[32px] sm:text-[42px] leading-[1.02] tracking-[-0.02em]">
+              <h1 className="mt-2 font-display text-[32px] sm:text-[42px] leading-[1.02] tracking-[-0.02em]">
                 Almost there,{' '}
-                <span className="italic text-[color:var(--color-forest)]">
+                <span className="italic text-[color:var(--color-primary)]">
                   {session.name?.split(' ')[0] ?? 'neighbour'}.
                 </span>
               </h1>
             </div>
-            <div className="text-right text-[12px] text-[color:var(--color-ink-soft)]">
+            <div className="text-right text-[12px] text-[color:var(--color-muted)]">
               Step {currentIdx + 1} of 3
             </div>
           </div>
@@ -482,14 +482,14 @@ export function CheckoutClient({
           {minOrderBlockers.length > 0 && (
             <div className="mt-4 rounded-xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/8 px-4 py-3 text-[13px]">
               <div className="font-medium text-[color:var(--color-terracotta-dark)]">Add more before you can check out</div>
-              <ul className="mt-1.5 list-disc pl-5 text-[color:var(--color-ink)]">
+              <ul className="mt-1.5 list-disc pl-5 text-[color:var(--color-foreground)]">
                 {minOrderBlockers.map((b) => (
                   <li key={b.vendorName}>
                     <strong>{b.vendorName}</strong> has a minimum of ₹{b.requiredMin}. You have ₹{b.currentSpend} — add <strong>₹{b.shortBy} more</strong>.
                   </li>
                 ))}
               </ul>
-              <Link href="/menu" className="mt-2 inline-block text-[12.5px] text-[color:var(--color-forest)] hover:underline">
+              <Link href="/menu" className="mt-2 inline-block text-[12.5px] text-[color:var(--color-primary)] hover:underline">
                 Back to menu →
               </Link>
             </div>
@@ -497,7 +497,7 @@ export function CheckoutClient({
 
           {/* Membership status banner */}
           {membership && feeSource === 'free' && (
-            <div className="mt-4 rounded-xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/8 px-4 py-3 text-[13px]">
+            <div className="mt-4 rounded-xl border border-[color:var(--color-primary)]/30 bg-[color:var(--color-primary)]/8 px-4 py-3 text-[13px]">
               <strong>{membership.planName}</strong> — delivery free on this order. {membership.creditsLeft} of {membership.creditsGranted} credits left this cycle.
             </div>
           )}
@@ -507,12 +507,12 @@ export function CheckoutClient({
                 <strong>{membership.planName}</strong> — you've used all free deliveries. This order is ₹{membership.postIncludedFeeInr}.
               </span>
               {topUpsAvailable && (
-                <Link href="/account/membership" className="underline text-[color:var(--color-forest)]">Recharge to keep saving →</Link>
+                <Link href="/account/membership" className="underline text-[color:var(--color-primary)]">Recharge to keep saving →</Link>
               )}
             </div>
           )}
           {!membership && joiningPlan && (
-            <div className="mt-4 rounded-xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/8 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-3">
+            <div className="mt-4 rounded-xl border border-[color:var(--color-primary)]/30 bg-[color:var(--color-primary)]/8 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-3">
               <span>
                 <strong>{joiningPlan.name}</strong> added to this order — delivery free starting now. {joiningPlan.includedDeliveries - 1} free deliveries left after this one.
               </span>
@@ -525,7 +525,7 @@ export function CheckoutClient({
             </div>
           )}
           {!membership && !joiningPlan && planOffer && (
-            <div className="mt-4 rounded-xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/5 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-3">
+            <div className="mt-4 rounded-xl border border-[color:var(--color-primary)]/25 bg-[color:var(--color-primary)]/5 px-4 py-3 text-[13px] flex flex-wrap items-center justify-between gap-3">
               <span>
                 Add <strong>{planOffer.name}</strong> (₹{planOffer.priceInr}) to this order — {planOffer.includedDeliveries} free deliveries including this one.
               </span>
@@ -537,14 +537,14 @@ export function CheckoutClient({
                   includedDeliveries: planOffer.includedDeliveries,
                   cycleDays: planOffer.cycleDays,
                 })}
-                className="rounded-md bg-[color:var(--color-forest)] text-white px-3 py-1.5 text-[12.5px] font-medium hover:opacity-90"
+                className="rounded-md bg-[color:var(--color-primary)] text-white px-3 py-1.5 text-[12.5px] font-medium hover:opacity-90"
               >
                 Add to order
               </button>
             </div>
           )}
           {!membership && !planOffer && (
-            <div className="mt-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 text-[13px]">
+            <div className="mt-4 rounded-xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] px-4 py-3 text-[13px]">
               Delivery fee on this order: <strong>₹{standardFeeInr}</strong>.
             </div>
           )}
@@ -558,22 +558,22 @@ export function CheckoutClient({
             <div className={cn(
               'mt-5 rounded-2xl border p-5 transition-colors',
               deliveryWindow === 'ORDER_NOW'
-                ? 'border-[color:var(--color-forest)]/40 bg-[color:var(--color-forest)]/8 shadow-[0_8px_24px_-12px_rgba(13,74,46,0.18)]'
-                : 'border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/4',
+                ? 'border-[color:var(--color-primary)]/40 bg-[color:var(--color-primary)]/8 shadow-[0_8px_24px_-12px_rgba(13,74,46,0.18)]'
+                : 'border-[color:var(--color-primary)]/25 bg-[color:var(--color-primary)]/4',
             )}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] font-medium">
                     <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
                       <path d="M6 1.5v4.5l3 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                       <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
                     </svg>
                     In 10 – 30 mins
                   </div>
-                  <h3 className="mt-2 font-serif text-[22px] sm:text-[24px] leading-tight tracking-[-0.01em]">
-                    Get it <span className="italic text-[color:var(--color-forest)]">straight away.</span>
+                  <h3 className="mt-2 font-display text-[22px] sm:text-[24px] leading-tight tracking-[-0.01em]">
+                    Get it <span className="italic text-[color:var(--color-primary)]">straight away.</span>
                   </h3>
-                  <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
+                  <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
                     Cart over ₹{slotBypass.thresholdInr.toLocaleString('en-IN')} qualifies for express dispatch — your rider leaves the moment you pay.
                   </p>
                 </div>
@@ -584,8 +584,8 @@ export function CheckoutClient({
                   className={cn(
                     'rounded-full px-5 py-2.5 text-[13.5px] font-medium border transition-all shrink-0',
                     deliveryWindow === 'ORDER_NOW'
-                      ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
-                      : 'border-[color:var(--color-forest)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/10',
+                      ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-[color:var(--color-background)]'
+                      : 'border-[color:var(--color-primary)] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10',
                   )}
                 >
                   {deliveryWindow === 'ORDER_NOW' ? 'Express selected ✓' : 'Deliver now →'}
@@ -597,8 +597,8 @@ export function CheckoutClient({
                 className={cn(
                   'mt-3 text-[12px] underline underline-offset-4 transition-colors',
                   deliveryWindow === 'SLOTTED'
-                    ? 'text-[color:var(--color-ink)] font-medium'
-                    : 'text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]',
+                    ? 'text-[color:var(--color-foreground)] font-medium'
+                    : 'text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]',
                 )}
               >
                 Or pick a delivery slot instead
@@ -608,14 +608,14 @@ export function CheckoutClient({
 
           {/* Delivery slot picker — hidden when Express is chosen. */}
           {items.length > 0 && deliveryWindow === 'SLOTTED' && (
-            <div className="mt-5 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
+            <div className="mt-5 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5">
               <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Pick a delivery slot</div>
-              <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
+              <p className="mt-1 text-[12px] text-[color:var(--color-muted)]">
                 Choose any day this week. Each slot closes a few hours before it starts — if today's are gone, pick a later day.
               </p>
 
               {slotOptions.definitions.length === 0 ? (
-                <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)] italic">
+                <p className="mt-4 text-[12.5px] text-[color:var(--color-muted)] italic">
                   No delivery slots configured yet. Please contact support.
                 </p>
               ) : (
@@ -629,8 +629,8 @@ export function CheckoutClient({
                         className={cn(
                           'rounded-md px-3 py-1.5 text-[12px] border whitespace-nowrap shrink-0',
                           slotDate === d.iso
-                            ? 'bg-[color:var(--color-forest)] text-white border-[color:var(--color-forest)]'
-                            : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                            ? 'bg-[color:var(--color-primary)] text-white border-[color:var(--color-primary)]'
+                            : 'border-[color:var(--color-foreground)]/15 hover:border-[color:var(--color-primary)]/40',
                         )}
                       >
                         {d.label}
@@ -640,12 +640,12 @@ export function CheckoutClient({
 
                   {/* Slot row */}
                   {slotLoading ? (
-                    <p className="text-[12px] text-[color:var(--color-ink-soft)]">Loading slots…</p>
+                    <p className="text-[12px] text-[color:var(--color-muted)]">Loading slots…</p>
                   ) : (() => {
                     const usable = slotAvailability.filter((s) => !s.expired);
                     if (usable.length === 0) {
                       return (
-                        <p className="text-[12.5px] text-[color:var(--color-ink-soft)] italic">
+                        <p className="text-[12.5px] text-[color:var(--color-muted)] italic">
                           All slots for this day have closed. Pick a later date above.
                         </p>
                       );
@@ -659,8 +659,8 @@ export function CheckoutClient({
                             className={cn(
                               'rounded-lg px-3 py-2.5 text-left border text-[13px]',
                               slotId === s.id
-                                ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/8'
-                                : 'border-[color:var(--color-ink)]/15 hover:border-[color:var(--color-forest)]/40',
+                                ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/8'
+                                : 'border-[color:var(--color-foreground)]/15 hover:border-[color:var(--color-primary)]/40',
                             )}
                           >
                             {s.label}
@@ -741,14 +741,14 @@ export function CheckoutClient({
             </div>
 
             {/* Sticky totals sidebar */}
-            <aside className="lg:sticky lg:top-24 lg:self-start rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 sm:p-6 shadow-[0_12px_40px_-20px_rgba(13,74,46,0.16)]">
+            <aside className="lg:sticky lg:top-24 lg:self-start rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 sm:p-6 shadow-[0_12px_40px_-20px_rgba(13,74,46,0.16)]">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Order total</div>
               <div className="mt-3 space-y-1.5 text-[13px]">
                 <Row label="Subtotal (MRP)" value={`₹${subtotal + campaignSavings}`} />
                 {campaignSavings > 0 && (
-                  <div className="flex items-center justify-between text-[color:var(--color-forest)]">
+                  <div className="flex items-center justify-between text-[color:var(--color-primary)]">
                     <span className="inline-flex items-center gap-2 min-w-0">
-                      <span className="rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold shrink-0">
+                      <span className="rounded-md bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold shrink-0">
                         Sale
                       </span>
                       <span className="truncate">{campaignTitles.join(' · ') || 'Campaign discount'}</span>
@@ -771,40 +771,40 @@ export function CheckoutClient({
                   <Row label={joiningPlan.name} value={`₹${joiningPlan.priceInr}`} />
                 )}
                 {discount > 0 && (
-                  <div className="flex items-center justify-between text-[color:var(--color-forest)]">
+                  <div className="flex items-center justify-between text-[color:var(--color-primary)]">
                     <span>{coupon?.code} discount</span>
                     <span>−₹{discount}</span>
                   </div>
                 )}
               </div>
-              <div className="mt-3 pt-3 border-t border-[color:var(--color-ink)]/10 flex items-center justify-between">
-                <span className="font-serif text-[18px]">Total</span>
-                <span className="font-serif text-[30px] leading-none text-[color:var(--color-forest)]">₹{total}</span>
+              <div className="mt-3 pt-3 border-t border-[color:var(--color-foreground)]/10 flex items-center justify-between">
+                <span className="font-display text-[18px]">Total</span>
+                <span className="font-display text-[30px] leading-none text-[color:var(--color-primary)]">₹{total}</span>
               </div>
 
               {/* Coupon input */}
-              <div className="mt-4 pt-4 border-t border-[color:var(--color-ink)]/8">
+              <div className="mt-4 pt-4 border-t border-[color:var(--color-foreground)]/8">
                 {hasCampaign ? (
-                  <div className="rounded-xl bg-[color:var(--color-forest)]/5 border border-[color:var(--color-forest)]/20 p-3">
-                    <div className="text-[12.5px] text-[color:var(--color-forest)] font-medium">
+                  <div className="rounded-xl bg-[color:var(--color-primary)]/5 border border-[color:var(--color-primary)]/20 p-3">
+                    <div className="text-[12.5px] text-[color:var(--color-primary)] font-medium">
                       Already saving with {campaignTitles[0] ?? 'a campaign'}
                     </div>
-                    <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]">
+                    <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]">
                       Coupon codes can&apos;t stack on top of an active sale. Save ₹{campaignSavings} this order.
                     </div>
                   </div>
                 ) : coupon ? (
-                  <div className="rounded-xl bg-[color:var(--color-forest)]/5 border border-[color:var(--color-forest)]/20 p-3 flex items-start gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] shrink-0">
+                  <div className="rounded-xl bg-[color:var(--color-primary)]/5 border border-[color:var(--color-primary)]/20 p-3 flex items-start gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] shrink-0">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                         <path d="M2.5 6.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-semibold text-[color:var(--color-forest)]">{coupon.code}</div>
-                      <div className="text-[11.5px] text-[color:var(--color-ink-soft)] truncate">{coupon.description}</div>
+                      <div className="text-[13px] font-semibold text-[color:var(--color-primary)]">{coupon.code}</div>
+                      <div className="text-[11.5px] text-[color:var(--color-muted)] truncate">{coupon.description}</div>
                     </div>
-                    <button onClick={removeCoupon} className="text-[11px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-terracotta)] underline underline-offset-2 shrink-0">
+                    <button onClick={removeCoupon} className="text-[11px] text-[color:var(--color-muted)] hover:text-[color:var(--color-terracotta)] underline underline-offset-2 shrink-0">
                       Remove
                     </button>
                   </div>
@@ -816,7 +816,7 @@ export function CheckoutClient({
                         onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
                         onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
                         placeholder="Enter coupon code"
-                        className="flex-1 rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-cream)] px-3 py-2 text-[13px] uppercase outline-none focus:border-[color:var(--color-forest)] placeholder:text-[color:var(--color-ink-soft)]/55"
+                        className="flex-1 rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-background)] px-3 py-2 text-[13px] uppercase outline-none focus:border-[color:var(--color-primary)] placeholder:text-[color:var(--color-muted)]/55"
                       />
                       <button
                         onClick={applyCoupon}
@@ -824,16 +824,16 @@ export function CheckoutClient({
                         className={cn(
                           'rounded-lg px-4 text-[13px] font-medium transition-colors',
                           couponInput && !couponLoading
-                            ? 'bg-[color:var(--color-ink)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest)]'
-                            : 'bg-[color:var(--color-ink)]/10 text-[color:var(--color-ink-soft)]/50 cursor-not-allowed',
+                            ? 'bg-[color:var(--color-foreground)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]'
+                            : 'bg-[color:var(--color-foreground)]/10 text-[color:var(--color-muted)]/50 cursor-not-allowed',
                         )}
                       >
                         {couponLoading ? '…' : 'Apply'}
                       </button>
                     </div>
                     {couponError && <p className="mt-2 text-[11.5px] text-[color:var(--color-terracotta-dark)]">{couponError}</p>}
-                    <details className="mt-3 text-[11.5px] text-[color:var(--color-ink-soft)]/70">
-                      <summary className="cursor-pointer hover:text-[color:var(--color-forest)]">Try one · tap to copy</summary>
+                    <details className="mt-3 text-[11.5px] text-[color:var(--color-muted)]/70">
+                      <summary className="cursor-pointer hover:text-[color:var(--color-primary)]">Try one · tap to copy</summary>
                       <div className="mt-2 space-y-1.5 pl-2">
                         {[
                           { c: 'WELCOME10', d: '10% off · max ₹60' },
@@ -846,9 +846,9 @@ export function CheckoutClient({
                             key={x.c}
                             type="button"
                             onClick={() => { setCouponInput(x.c); setCouponError(null); }}
-                            className="block text-left font-mono text-[color:var(--color-forest)] hover:underline"
+                            className="block text-left font-mono text-[color:var(--color-primary)] hover:underline"
                           >
-                            {x.c} <span className="font-sans text-[color:var(--color-ink-soft)]/75">· {x.d}</span>
+                            {x.c} <span className="font-sans text-[color:var(--color-muted)]/75">· {x.d}</span>
                           </button>
                         ))}
                       </div>
@@ -857,7 +857,7 @@ export function CheckoutClient({
                 )}
               </div>
 
-              <div className="mt-4 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+              <div className="mt-4 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">
                 <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
                   <rect x="2" y="5" width="10" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
                   <path d="M4.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" strokeWidth="1.2" />
@@ -887,10 +887,10 @@ function StepIndicator({ current }: { current: number }) {
                 className={cn(
                   'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11.5px] font-semibold transition-colors',
                   done
-                    ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
+                    ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]'
                     : active
-                      ? 'bg-[color:var(--color-gold)] text-[color:var(--color-ink)]'
-                      : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/55',
+                      ? 'bg-[color:var(--color-gold)] text-[color:var(--color-foreground)]'
+                      : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/55',
                 )}
               >
                 {done ? (
@@ -903,7 +903,7 @@ function StepIndicator({ current }: { current: number }) {
               </div>
               <span className={cn(
                 'text-[12px] sm:text-[13px] font-medium uppercase tracking-[0.06em] truncate',
-                active ? 'text-[color:var(--color-ink)]' : done ? 'text-[color:var(--color-ink-soft)]' : 'text-[color:var(--color-ink-soft)]/50',
+                active ? 'text-[color:var(--color-foreground)]' : done ? 'text-[color:var(--color-muted)]' : 'text-[color:var(--color-muted)]/50',
               )}>
                 {STEP_LABEL[s]}
               </span>
@@ -911,7 +911,7 @@ function StepIndicator({ current }: { current: number }) {
             {i < STEPS.length - 1 && (
               <div className={cn(
                 'flex-1 h-px min-w-4',
-                done ? 'bg-[color:var(--color-forest)]/35' : 'bg-[color:var(--color-ink)]/10',
+                done ? 'bg-[color:var(--color-primary)]/35' : 'bg-[color:var(--color-foreground)]/10',
               )} />
             )}
           </div>
@@ -933,7 +933,7 @@ function CartStep({ items, increment, decrement, remove, onNext, blockedReason, 
   return (
     <>
       <Card label="Your cart">
-        <ul className="divide-y divide-[color:var(--color-ink)]/8">
+        <ul className="divide-y divide-[color:var(--color-foreground)]/8">
           {items.map((it) => (
             <li key={it.id} className="flex items-center gap-3 sm:gap-4 py-3 first:pt-0">
               <div className="h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-xl overflow-hidden relative"
@@ -949,32 +949,32 @@ function CartStep({ items, increment, decrement, remove, onNext, blockedReason, 
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-[14.5px] truncate">{pickName(it, locale)}</div>
-                <div className="text-[12px] text-[color:var(--color-ink-soft)] truncate">
+                <div className="text-[12px] text-[color:var(--color-muted)] truncate">
                   {it.vendorName}
                   {it.unit && <span> · {it.unit}</span>}
                   {it.soldByWeight && it.estimatedGrams && (
-                    <span className="ml-1.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-forest-dark)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium">
+                    <span className="ml-1.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-primary)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium">
                       approx · {it.estimatedGrams}g
                     </span>
                   )}
                 </div>
                 <div className="mt-2 flex items-center gap-3">
-                  <div className="inline-flex items-center rounded-full border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)]">
-                    <button onClick={() => decrement(it.id)} className="h-7 w-7 text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">−</button>
+                  <div className="inline-flex items-center rounded-full border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)]">
+                    <button onClick={() => decrement(it.id)} className="h-7 w-7 text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">−</button>
                     <span className="w-6 text-center text-[12.5px] font-medium">{it.qty}</span>
-                    <button onClick={() => increment(it.id)} className="h-7 w-7 text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">+</button>
+                    <button onClick={() => increment(it.id)} className="h-7 w-7 text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">+</button>
                   </div>
-                  <button onClick={() => remove(it.id)} className="text-[11px] text-[color:var(--color-ink-soft)]/60 hover:text-[color:var(--color-terracotta)] underline underline-offset-2">
+                  <button onClick={() => remove(it.id)} className="text-[11px] text-[color:var(--color-muted)]/60 hover:text-[color:var(--color-terracotta)] underline underline-offset-2">
                     remove
                   </button>
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className={cn('font-serif text-[16px]', it.originalMrpInr ? 'text-[color:var(--color-terracotta)]' : '')}>
+                <div className={cn('font-display text-[16px]', it.originalMrpInr ? 'text-[color:var(--color-terracotta)]' : '')}>
                   ₹{it.mrpInr * it.qty}
                 </div>
                 {it.originalMrpInr && it.originalMrpInr > it.mrpInr && (
-                  <div className="text-[11px] text-[color:var(--color-ink-soft)]/55 line-through">
+                  <div className="text-[11px] text-[color:var(--color-muted)]/55 line-through">
                     ₹{it.originalMrpInr * it.qty}
                   </div>
                 )}
@@ -985,14 +985,14 @@ function CartStep({ items, increment, decrement, remove, onNext, blockedReason, 
       </Card>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-stretch sm:items-center">
-        <Link href="/menu" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 border border-[color:var(--color-ink)]/10">
+        <Link href="/menu" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-foreground)]/5 border border-[color:var(--color-foreground)]/10">
           ← Continue shopping
         </Link>
         <button
           onClick={onNext}
           disabled={Boolean(blockedReason)}
           title={blockedReason ?? undefined}
-          className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[color:var(--color-forest)]"
+          className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[color:var(--color-primary)]"
         >
           {blockedReason ? 'Add more to continue' : 'Continue to address'}
           {!blockedReason && (
@@ -1023,9 +1023,9 @@ function AddressStep({ session, selectedAddressId, setSelectedAddressId, notes, 
           <div className="rounded-xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/5 p-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
             <div>
               <div className="font-medium text-[color:var(--color-terracotta-dark)]">No delivery address yet</div>
-              <div className="text-[13px] text-[color:var(--color-ink-soft)]">Add your first address to continue.</div>
+              <div className="text-[13px] text-[color:var(--color-muted)]">Add your first address to continue.</div>
             </div>
-            <Link href="/account/addresses?return=/checkout" className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+            <Link href="/account/addresses?return=/checkout" className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)]">
               Add address
             </Link>
           </div>
@@ -1041,33 +1041,33 @@ function AddressStep({ session, selectedAddressId, setSelectedAddressId, notes, 
                     className={cn(
                       'w-full text-left rounded-xl border-2 p-4 transition-colors flex items-start justify-between gap-4',
                       active
-                        ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5'
-                        : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] hover:border-[color:var(--color-forest)]/40',
+                        ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5'
+                        : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] hover:border-[color:var(--color-primary)]/40',
                     )}
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="rounded-full bg-[color:var(--color-ink)]/8 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] font-medium text-[color:var(--color-ink-soft)]">
+                        <span className="rounded-full bg-[color:var(--color-foreground)]/8 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] font-medium text-[color:var(--color-muted)]">
                           {a.label === 'HOME' ? 'Home' : a.label === 'WORK' ? 'Work' : 'Other'}
                         </span>
                         {a.isDefault && (
-                          <span className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] font-medium">
+                          <span className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] font-medium">
                             Default
                           </span>
                         )}
                       </div>
-                      <div className="mt-1.5 text-[14px] font-medium text-[color:var(--color-ink)]">
+                      <div className="mt-1.5 text-[14px] font-medium text-[color:var(--color-foreground)]">
                         Flat {a.flat}, {a.building}
                       </div>
-                      <div className="text-[13px] text-[color:var(--color-ink-soft)]">{a.society}</div>
-                      <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75">+91 {session.phone}</div>
+                      <div className="text-[13px] text-[color:var(--color-muted)]">{a.society}</div>
+                      <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/75">+91 {session.phone}</div>
                     </div>
                     <span
                       className={cn(
                         'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
                         active
-                          ? 'bg-[color:var(--color-forest)] border-[color:var(--color-forest)] text-[color:var(--color-cream)]'
-                          : 'border-[color:var(--color-ink)]/20',
+                          ? 'bg-[color:var(--color-primary)] border-[color:var(--color-primary)] text-[color:var(--color-background)]'
+                          : 'border-[color:var(--color-foreground)]/20',
                       )}
                     >
                       {active && (
@@ -1083,7 +1083,7 @@ function AddressStep({ session, selectedAddressId, setSelectedAddressId, notes, 
             <li>
               <Link
                 href="/account/addresses?return=/checkout"
-                className="block rounded-xl border border-dashed border-[color:var(--color-ink)]/20 px-4 py-3 text-[13px] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)]/5 hover:border-[color:var(--color-forest)]/40"
+                className="block rounded-xl border border-dashed border-[color:var(--color-foreground)]/20 px-4 py-3 text-[13px] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/5 hover:border-[color:var(--color-primary)]/40"
               >
                 + Add another address
               </Link>
@@ -1099,12 +1099,12 @@ function AddressStep({ session, selectedAddressId, setSelectedAddressId, notes, 
           placeholder="Gate instructions, preferred entrance, rider notes…"
           rows={3}
           maxLength={280}
-          className="w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-cream)] px-4 py-3 text-[13.5px] outline-none resize-none focus:border-[color:var(--color-forest)] placeholder:text-[color:var(--color-ink-soft)]/55"
+          className="w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-background)] px-4 py-3 text-[13.5px] outline-none resize-none focus:border-[color:var(--color-primary)] placeholder:text-[color:var(--color-muted)]/55"
         />
       </Card>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-stretch sm:items-center">
-        <button onClick={onBack} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 border border-[color:var(--color-ink)]/10">
+        <button onClick={onBack} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-foreground)]/5 border border-[color:var(--color-foreground)]/10">
           ← Back to cart
         </button>
         <button
@@ -1113,8 +1113,8 @@ function AddressStep({ session, selectedAddressId, setSelectedAddressId, notes, 
           className={cn(
             'inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[14.5px] font-medium transition-colors',
             hasAddress
-              ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]'
-              : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/60 cursor-not-allowed',
+              ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]'
+              : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/60 cursor-not-allowed',
           )}
         >
           Continue to payment
@@ -1170,17 +1170,17 @@ function PaymentStep(props: {
           )}
         </div>
 
-        <div className="mt-5 rounded-xl bg-[color:var(--color-cream)] p-4 sm:p-5">
+        <div className="mt-5 rounded-xl bg-[color:var(--color-background)] p-4 sm:p-5">
           {payMethod === 'CARD' && (
             <div className="space-y-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-ink-soft)]/80">Card details</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-muted)]/80">Card details</div>
               <input
                 inputMode="numeric"
                 maxLength={19}
                 value={props.cardNumber}
                 onChange={(e) => props.setCardNumber(formatCard(e.target.value))}
                 placeholder="Card number (16 digits)"
-                className="w-full rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                className="w-full rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
               />
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -1189,7 +1189,7 @@ function PaymentStep(props: {
                   value={props.cardExpiry}
                   onChange={(e) => props.setCardExpiry(formatExpiry(e.target.value))}
                   placeholder="MM/YY"
-                  className="rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                  className="rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                 />
                 <input
                   type="password"
@@ -1198,42 +1198,42 @@ function PaymentStep(props: {
                   value={props.cardCvv}
                   onChange={(e) => props.setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
                   placeholder="•••"
-                  className="rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                  className="rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
                 />
               </div>
               <input
                 value={props.cardName}
                 onChange={(e) => props.setCardName(e.target.value)}
                 placeholder="Cardholder name"
-                className="w-full rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                className="w-full rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
               />
             </div>
           )}
 
           {payMethod === 'UPI' && (
             <div className="space-y-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-ink-soft)]/80">UPI ID</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-muted)]/80">UPI ID</div>
               <input
                 value={props.upiId}
                 onChange={(e) => props.setUpiId(e.target.value)}
                 placeholder="yourname@okhdfcbank"
-                className="w-full rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+                className="w-full rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
               />
-              <p className="text-[11.5px] text-[color:var(--color-ink-soft)]">A collect request goes to your UPI app when you place the order.</p>
+              <p className="text-[11.5px] text-[color:var(--color-muted)]">A collect request goes to your UPI app when you place the order.</p>
             </div>
           )}
 
           {payMethod === 'NET_BANKING' && (
             <div className="space-y-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-ink-soft)]/80">Choose your bank</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-muted)]/80">Choose your bank</div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {BANKS.map((b) => (
                   <button key={b} type="button" onClick={() => props.setBank(b)}
                     className={cn(
                       'rounded-lg px-3 py-2 text-[13px] border transition-colors',
                       props.bank === b
-                        ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                        : 'bg-[color:var(--color-paper)] border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40',
+                        ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                        : 'bg-[color:var(--color-surface)] border-[color:var(--color-foreground)]/12 hover:border-[color:var(--color-primary)]/40',
                     )}>
                     {b}
                   </button>
@@ -1245,7 +1245,7 @@ function PaymentStep(props: {
           {payMethod === 'COD' && (
             <div className="space-y-1.5">
               <div className="text-[14px] font-medium">Pay the rider in cash or UPI on delivery.</div>
-              <p className="text-[12px] text-[color:var(--color-ink-soft)]">No online payment needed. Exact change appreciated.</p>
+              <p className="text-[12px] text-[color:var(--color-muted)]">No online payment needed. Exact change appreciated.</p>
             </div>
           )}
         </div>
@@ -1259,7 +1259,7 @@ function PaymentStep(props: {
       </Card>
 
       <Card label="Tip the rider">
-        <p className="text-[12.5px] text-[color:var(--color-ink-soft)] mb-3">
+        <p className="text-[12.5px] text-[color:var(--color-muted)] mb-3">
           100% goes to your rider. A small tip goes a long way for neighbours cycling through Pune heat.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -1271,8 +1271,8 @@ function PaymentStep(props: {
               className={cn(
                 'px-4 py-2 rounded-full text-[13px] border transition-colors',
                 props.tip === amount
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink)] border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40',
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-foreground)] border-[color:var(--color-foreground)]/12 hover:border-[color:var(--color-primary)]/40',
               )}
             >
               {amount === 0 ? 'No tip' : `₹${amount}`}
@@ -1288,13 +1288,13 @@ function PaymentStep(props: {
       )}
 
       {props.competitorSavings > 0 && (
-        <div className="rounded-2xl border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/8 px-5 py-4 flex items-start gap-3">
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[11px] mt-0.5 shrink-0">₹</span>
+        <div className="rounded-2xl border border-[color:var(--color-primary)]/30 bg-[color:var(--color-primary)]/8 px-5 py-4 flex items-start gap-3">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[11px] mt-0.5 shrink-0">₹</span>
           <div>
-            <div className="font-serif text-[16px] leading-tight text-[color:var(--color-forest-dark)]">
+            <div className="font-display text-[16px] leading-tight text-[color:var(--color-primary)]">
               You&apos;re saving ₹{props.competitorSavings} on this order.
             </div>
-            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-ink-soft)]">
+            <div className="mt-0.5 text-[11.5px] text-[color:var(--color-muted)]">
               Compared with the average price across Blinkit, Zepto, BigBasket, JioMart and Swiggy Instamart on these same items.
             </div>
           </div>
@@ -1302,12 +1302,12 @@ function PaymentStep(props: {
       )}
 
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-stretch sm:items-center">
-        <button onClick={props.onBack} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 border border-[color:var(--color-ink)]/10">
+        <button onClick={props.onBack} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-[13.5px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-foreground)]/5 border border-[color:var(--color-foreground)]/10">
           ← Back
         </button>
         <button
           onClick={props.onSubmit}
-          className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full text-[15px] font-semibold bg-gradient-to-r from-[color:var(--color-forest)] to-[color:var(--color-moss)] text-[color:var(--color-cream)] hover:shadow-[0_12px_24px_-8px_rgba(13,74,46,0.4)] transition-shadow"
+          className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full text-[15px] font-semibold bg-gradient-to-r from-[color:var(--color-primary)] to-[color:var(--color-moss)] text-[color:var(--color-background)] hover:shadow-[0_12px_24px_-8px_rgba(13,74,46,0.4)] transition-shadow"
         >
           Place order · ₹{props.total}
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
@@ -1321,18 +1321,18 @@ function PaymentStep(props: {
 
 function ProcessingOverlay({ line, method }: { line: string | null; method: PaymentMethod }) {
   return (
-    <div className="fixed inset-0 z-[80] bg-[color:var(--color-ink)]/60 backdrop-blur-sm flex items-center justify-center p-6">
-      <div className="bg-[color:var(--color-paper)] rounded-3xl p-10 max-w-md w-full text-center shadow-2xl">
-        <div className="mx-auto h-16 w-16 rounded-full bg-[color:var(--color-forest)]/10 flex items-center justify-center mb-5">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="animate-spin text-[color:var(--color-forest)]">
+    <div className="fixed inset-0 z-[80] bg-[color:var(--color-foreground)]/60 backdrop-blur-sm flex items-center justify-center p-6">
+      <div className="bg-[color:var(--color-surface)] rounded-3xl p-10 max-w-md w-full text-center shadow-2xl">
+        <div className="mx-auto h-16 w-16 rounded-full bg-[color:var(--color-primary)]/10 flex items-center justify-center mb-5">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="animate-spin text-[color:var(--color-primary)]">
             <circle cx="14" cy="14" r="11" stroke="currentColor" strokeWidth="2.5" fill="none" strokeDasharray="52" strokeDashoffset="22" strokeLinecap="round" />
           </svg>
         </div>
-        <p className="font-serif text-[24px] leading-tight text-[color:var(--color-ink)]">
+        <p className="font-display text-[24px] leading-tight text-[color:var(--color-foreground)]">
           {method === 'COD' ? 'Placing your order…' : 'Processing payment…'}
         </p>
-        {line && <p className="mt-3 text-[13.5px] text-[color:var(--color-ink-soft)]">{line}</p>}
-        <p className="mt-6 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/60">
+        {line && <p className="mt-3 text-[13.5px] text-[color:var(--color-muted)]">{line}</p>}
+        <p className="mt-6 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/60">
           Demo gateway · no real charge
         </p>
       </div>
@@ -1342,8 +1342,8 @@ function ProcessingOverlay({ line, method }: { line: string | null; method: Paym
 
 function Card({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 sm:p-6 shadow-[0_6px_20px_-12px_rgba(14,17,12,0.08)]">
-      <div className="text-[14px] font-semibold text-[color:var(--color-ink)] mb-4">{label}</div>
+    <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 sm:p-6 shadow-[0_6px_20px_-12px_rgba(14,17,12,0.08)]">
+      <div className="text-[14px] font-semibold text-[color:var(--color-foreground)] mb-4">{label}</div>
       {children}
     </div>
   );
@@ -1352,8 +1352,8 @@ function Card({ label, children }: { label: string; children: React.ReactNode })
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[color:var(--color-ink-soft)]">{label}</span>
-      <span className="text-[color:var(--color-ink)]">{value}</span>
+      <span className="text-[color:var(--color-muted)]">{label}</span>
+      <span className="text-[color:var(--color-foreground)]">{value}</span>
     </div>
   );
 }
@@ -1363,10 +1363,10 @@ function PayTile({ label, icon, active, onClick }: { label: string; icon: React.
     <button type="button" onClick={onClick}
       className={cn(
         'rounded-xl border-2 px-3 py-3 sm:px-4 sm:py-4 flex flex-col items-center gap-2 transition-all',
-        active ? 'border-[color:var(--color-forest)] bg-[color:var(--color-forest)]/5' : 'border-[color:var(--color-ink)]/10 hover:border-[color:var(--color-forest)]/30',
+        active ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5' : 'border-[color:var(--color-foreground)]/10 hover:border-[color:var(--color-primary)]/30',
       )}>
-      <span className={cn('text-[color:var(--color-forest)]', !active && 'opacity-70')}>{icon}</span>
-      <div className="text-[12.5px] sm:text-[13px] font-medium text-[color:var(--color-ink)]">{label}</div>
+      <span className={cn('text-[color:var(--color-primary)]', !active && 'opacity-70')}>{icon}</span>
+      <div className="text-[12.5px] sm:text-[13px] font-medium text-[color:var(--color-foreground)]">{label}</div>
     </button>
   );
 }
@@ -1375,14 +1375,14 @@ function AddOnCheckbox({ label, sub, checked, onChange, icon }: { label: string;
   return (
     <label className="inline-flex items-center gap-2 cursor-pointer select-none">
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
-      <span className="h-4 w-4 rounded border-2 border-[color:var(--color-ink)]/30 peer-checked:bg-[color:var(--color-forest)] peer-checked:border-[color:var(--color-forest)] flex items-center justify-center transition-colors">
+      <span className="h-4 w-4 rounded border-2 border-[color:var(--color-foreground)]/30 peer-checked:bg-[color:var(--color-primary)] peer-checked:border-[color:var(--color-primary)] flex items-center justify-center transition-colors">
         {checked && (
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="text-[color:var(--color-cream)]">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="text-[color:var(--color-background)]">
             <path d="M2.5 6.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </span>
-      <span className="text-[13px]"><span className="mr-1">{icon}</span>{label}<span className="ml-1 text-[color:var(--color-ink-soft)]">({sub})</span></span>
+      <span className="text-[13px]"><span className="mr-1">{icon}</span>{label}<span className="ml-1 text-[color:var(--color-muted)]">({sub})</span></span>
     </label>
   );
 }

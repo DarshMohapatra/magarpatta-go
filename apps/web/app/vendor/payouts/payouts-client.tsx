@@ -49,8 +49,8 @@ export function VendorPayoutsClient() {
     <div className="space-y-8">
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Settlements</div>
-        <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          Earnings, <span className="italic text-[color:var(--color-forest)]">settled.</span>
+        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+          Earnings, <span className="italic text-[color:var(--color-primary)]">settled.</span>
         </h1>
         <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
           Commission · {data.commissionPct}% · deducted from gross sales. Payouts are reconciled per day and paid out by the platform team.
@@ -106,7 +106,7 @@ export function VendorPayoutsClient() {
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-serif text-[18px] text-[color:var(--color-forest)]">₹{r.payableInr.toLocaleString('en-IN')}</div>
+                  <div className="font-display text-[18px] text-[color:var(--color-primary)]">₹{r.payableInr.toLocaleString('en-IN')}</div>
                   <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">net payable</div>
                 </div>
               </li>
@@ -132,7 +132,7 @@ export function VendorPayoutsClient() {
                     {r.paymentRef && <span> · ref {r.paymentRef}</span>}
                   </div>
                 </div>
-                <div className="font-serif text-[16px] text-[color:var(--color-forest)] shrink-0">₹{r.payableInr.toLocaleString('en-IN')}</div>
+                <div className="font-display text-[16px] text-[color:var(--color-primary)] shrink-0">₹{r.payableInr.toLocaleString('en-IN')}</div>
               </li>
             ))}
           </ul>
@@ -144,9 +144,9 @@ export function VendorPayoutsClient() {
 
 function Stat({ label, value, note, highlight }: { label: string; value: string; note?: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-2xl p-5 border ${highlight ? 'border-[color:var(--color-forest)]/30 bg-gradient-to-br from-[color:var(--color-forest)]/8 to-[color:var(--color-moss)]/4' : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]'}`}>
+    <div className={`rounded-2xl p-5 border ${highlight ? 'border-[color:var(--color-primary)]/30 bg-gradient-to-br from-[color:var(--color-primary)]/8 to-[color:var(--color-moss)]/4' : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]'}`}>
       <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70">{label}</div>
-      <div className="mt-1.5 font-serif text-[28px] leading-none">{value}</div>
+      <div className="mt-1.5 font-display text-[28px] leading-none">{value}</div>
       {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-ink-soft)]/70">{note}</div>}
     </div>
   );

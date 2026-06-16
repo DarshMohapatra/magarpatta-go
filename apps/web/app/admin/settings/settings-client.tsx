@@ -165,7 +165,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
     <div className="mt-10 space-y-10">
       {/* Delivery fee */}
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
-        <h2 className="font-serif text-[22px]">Delivery fee</h2>
+        <h2 className="font-display text-[22px]">Delivery fee</h2>
         <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
           What a non-member pays per delivery. Members on an active plan don't see this fee.
         </p>
@@ -178,7 +178,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             disabled={!canEdit}
             min={0}
             max={500}
-            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-forest)] outline-none disabled:opacity-60"
+            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-primary)] outline-none disabled:opacity-60"
           />
           <span className="text-[12px] text-[color:var(--color-ink-soft)]">per delivery</span>
         </div>
@@ -188,7 +188,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-serif text-[22px]">Delivery slots</h2>
+            <h2 className="font-display text-[22px]">Delivery slots</h2>
             <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
               Customers pick one of these at checkout, or choose "Order now".
               Capacity is a soft cap — overbooking is permitted.
@@ -197,7 +197,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
           {canEdit && (
             <button
               onClick={addSlot}
-              className="rounded-lg bg-[color:var(--color-forest)] text-white px-4 py-2 text-[13px] hover:opacity-90"
+              className="rounded-lg bg-[color:var(--color-primary)] text-white px-4 py-2 text-[13px] hover:opacity-90"
             >
               + Add slot
             </button>
@@ -222,7 +222,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                     onChange={(e) => updateSlot(idx, { label: e.target.value })}
                     disabled={!canEdit}
                     placeholder="e.g. 9 AM – 11 AM"
-                    className="col-span-4 rounded border border-[color:var(--color-ink)]/15 px-2 py-1.5 text-[14px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    className="col-span-4 rounded border border-[color:var(--color-ink)]/15 px-2 py-1.5 text-[14px] outline-none focus:border-[color:var(--color-primary)] disabled:opacity-60"
                   />
                   <div className="col-span-2 flex items-center gap-1">
                     <span className="text-[11px] text-[color:var(--color-ink-soft)]">from</span>
@@ -234,7 +234,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                         if (mins !== null) updateSlot(idx, { startMin: mins });
                       }}
                       disabled={!canEdit}
-                      className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                      className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)] disabled:opacity-60"
                     />
                   </div>
                   <div className="col-span-2 flex items-center gap-1">
@@ -247,7 +247,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                         if (mins !== null) updateSlot(idx, { endMin: mins });
                       }}
                       disabled={!canEdit}
-                      className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                      className="rounded border border-[color:var(--color-ink)]/15 px-1.5 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)] disabled:opacity-60"
                     />
                   </div>
                   <div className="col-span-3 flex items-center gap-1">
@@ -258,7 +258,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                       min={0}
                       onChange={(e) => updateSlot(idx, { capacity: Math.max(0, Number(e.target.value) || 0) })}
                       disabled={!canEdit}
-                      className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                      className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)] disabled:opacity-60"
                     />
                     <span className="text-[11px] text-[color:var(--color-ink-soft)]">orders</span>
                   </div>
@@ -279,10 +279,10 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                     min={0}
                     onChange={(e) => updateSlot(idx, { cutoffMinutesBefore: Math.max(0, Number(e.target.value) || 0) })}
                     disabled={!canEdit}
-                    className="w-24 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[12.5px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+                    className="w-24 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[12.5px] outline-none focus:border-[color:var(--color-primary)] disabled:opacity-60"
                   />
                   <span>minutes before slot start</span>
-                  <span className="ml-auto rounded-full bg-[color:var(--color-forest)]/8 px-2 py-0.5 text-[11px] text-[color:var(--color-forest)] font-medium">
+                  <span className="ml-auto rounded-full bg-[color:var(--color-primary)]/8 px-2 py-0.5 text-[11px] text-[color:var(--color-primary)] font-medium">
                     {cutoffSummary(slot)}
                   </span>
                 </div>
@@ -296,7 +296,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-serif text-[22px]">Wholesale-only mode</h2>
+            <h2 className="font-display text-[22px]">Wholesale-only mode</h2>
             <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[560px]">
               While on, the public catalog only shows products from vendors
               flagged as wholesale. Use this to soft-launch with a curated
@@ -318,7 +318,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
 
       {/* Catalog whitelist — Phase-1 launch keeps only fruit + veg live. */}
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
-        <h2 className="font-serif text-[22px]">Catalog whitelist</h2>
+        <h2 className="font-display text-[22px]">Catalog whitelist</h2>
         <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
           Only checked categories appear in the public catalog. Leave all
           unchecked to show every category (full catalog). Phase-1 default is
@@ -334,7 +334,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                 className={
                   'flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer text-[13px] ' +
                   (checked
-                    ? 'border-[color:var(--color-forest)]/40 bg-[color:var(--color-forest)]/8'
+                    ? 'border-[color:var(--color-primary)]/40 bg-[color:var(--color-primary)]/8'
                     : 'border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] hover:border-[color:var(--color-ink)]/25')
                 }
               >
@@ -366,7 +366,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
          slot's own cutoffMinutesBefore so slots disappear well before
          their start time even when individual slot rows have cutoff=0. */}
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
-        <h2 className="font-serif text-[22px]">Minimum slot cutoff</h2>
+        <h2 className="font-display text-[22px]">Minimum slot cutoff</h2>
         <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
           Every delivery slot stops accepting orders at least this many
           minutes before its start time, even if the slot's own cutoff is
@@ -382,7 +382,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             disabled={!canEdit}
             min={0}
             max={7 * 24 * 60}
-            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-forest)] outline-none disabled:opacity-60"
+            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-primary)] outline-none disabled:opacity-60"
           />
           <span className="text-[12px] text-[color:var(--color-ink-soft)]">minutes before the slot starts</span>
         </div>
@@ -392,7 +392,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-serif text-[22px]">Express orders (slot bypass)</h2>
+            <h2 className="font-display text-[22px]">Express orders (slot bypass)</h2>
             <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[560px]">
               When on, customers with a cart at or above the threshold below
               can place an order outside the regular slot windows. Keep this
@@ -419,7 +419,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             disabled={!canEdit || !bypassEnabled}
             min={0}
             max={100000}
-            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-forest)] outline-none disabled:opacity-50"
+            className="w-32 rounded-lg border border-[color:var(--color-ink)]/15 px-3 py-2 text-[16px] focus:border-[color:var(--color-primary)] outline-none disabled:opacity-50"
           />
           <span className="text-[12px] text-[color:var(--color-ink-soft)]">minimum cart subtotal for express delivery</span>
         </div>
@@ -427,7 +427,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
 
       {/* Customer broadcast notice */}
       <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
-        <h2 className="font-serif text-[22px]">Customer banner</h2>
+        <h2 className="font-display text-[22px]">Customer banner</h2>
         <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)] max-w-[560px]">
           A short notice shown across customer pages. Use it for slot changes
           ("9–11 AM extended to 10 AM today"), holiday hours, or weather delays.
@@ -441,7 +441,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
             rows={2}
             maxLength={280}
             placeholder="e.g. Tomorrow's 9–11 AM slot starts 30 minutes early — please order by 5:30 PM today."
-            className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)] disabled:opacity-60"
+            className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)] disabled:opacity-60"
           />
           <div className="flex flex-wrap items-center gap-4 text-[13px]">
             <label className="inline-flex items-center gap-2">
@@ -450,7 +450,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
                 value={notice.level}
                 onChange={(e) => setNotice({ ...notice, level: e.target.value as 'info' | 'warning' | 'alert' })}
                 disabled={!canEdit}
-                className="rounded-md border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+                className="rounded-md border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
               >
                 <option value="info">Info (green)</option>
                 <option value="warning">Warning (saffron)</option>
@@ -477,7 +477,7 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
               'rounded-lg px-4 py-2.5 text-[13px] ' +
               (notice.level === 'alert' ? 'bg-[color:var(--color-terracotta)]/10 border border-[color:var(--color-terracotta)]/30 text-[color:var(--color-terracotta-dark)]'
                 : notice.level === 'warning' ? 'bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/30'
-                : 'bg-[color:var(--color-forest)]/8 border border-[color:var(--color-forest)]/30 text-[color:var(--color-forest)]')
+                : 'bg-[color:var(--color-primary)]/8 border border-[color:var(--color-primary)]/30 text-[color:var(--color-primary)]')
             }>
               {notice.message}
             </div>
@@ -496,11 +496,11 @@ export function SettingsClient({ initialDeliveryFeeInr, initialSlots, initialWho
       {/* Save bar */}
       <div className="sticky bottom-4 flex items-center justify-end gap-4 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3 shadow-sm">
         {error && <span className="text-[13px] text-[color:var(--color-terracotta)]">{error}</span>}
-        {savedNote && !error && <span className="text-[13px] text-[color:var(--color-forest)]">{savedNote}</span>}
+        {savedNote && !error && <span className="text-[13px] text-[color:var(--color-primary)]">{savedNote}</span>}
         <button
           onClick={save}
           disabled={!canEdit || saving}
-          className="rounded-lg bg-[color:var(--color-forest)] text-white px-5 py-2 text-[14px] disabled:opacity-50 hover:opacity-90"
+          className="rounded-lg bg-[color:var(--color-primary)] text-white px-5 py-2 text-[14px] disabled:opacity-50 hover:opacity-90"
         >
           {saving ? 'Saving…' : 'Save changes'}
         </button>
@@ -532,8 +532,8 @@ function WhatsAppTestButton() {
   }
 
   return (
-    <section className="rounded-2xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-forest)]/5 p-6">
-      <h2 className="font-serif text-[20px]">WhatsApp sandbox test</h2>
+    <section className="rounded-2xl border border-[color:var(--color-primary)]/25 bg-[color:var(--color-primary)]/5 p-6">
+      <h2 className="font-display text-[20px]">WhatsApp sandbox test</h2>
       <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
         Sends a sample order summary to <code>WHATSAPP_TEST_RECIPIENT</code>.
         Requires the four Twilio env vars set on Vercel — without them the
@@ -542,12 +542,12 @@ function WhatsAppTestButton() {
       <button
         onClick={run}
         disabled={running}
-        className="mt-3 rounded-md bg-[color:var(--color-forest)] text-white px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:opacity-90"
+        className="mt-3 rounded-md bg-[color:var(--color-primary)] text-white px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:opacity-90"
       >
         {running ? 'Sending…' : 'Send test WhatsApp'}
       </button>
       {result && (
-        <p className={`mt-2 text-[12.5px] ${result.ok ? 'text-[color:var(--color-forest)]' : 'text-[color:var(--color-terracotta)]'}`}>
+        <p className={`mt-2 text-[12.5px] ${result.ok ? 'text-[color:var(--color-primary)]' : 'text-[color:var(--color-terracotta)]'}`}>
           {result.message}
         </p>
       )}
@@ -581,7 +581,7 @@ function SeedDefaultsButton() {
 
   return (
     <section className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/5 p-6">
-      <h2 className="font-serif text-[20px]">One-shot launch seed</h2>
+      <h2 className="font-display text-[20px]">One-shot launch seed</h2>
       <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">
         Inserts the Saver 30 plan, top-up SKUs, and the default morning/evening slots — only if they're missing. Safe to run more than once.
       </p>

@@ -187,7 +187,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
   if (approvalStatus !== 'APPROVED') {
     return (
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
-        <h2 className="font-serif text-[22px]">Menu editing unlocks after approval</h2>
+        <h2 className="font-display text-[22px]">Menu editing unlocks after approval</h2>
         <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
           You can prepare your menu once your shop is approved by {siteConfig.platformName}.
         </p>
@@ -207,8 +207,8 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Menu</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            {products.length} item{products.length === 1 ? '' : 's'} on the <span className="italic text-[color:var(--color-forest)]">counter.</span>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            {products.length} item{products.length === 1 ? '' : 's'} on the <span className="italic text-[color:var(--color-primary)]">counter.</span>
           </h1>
           <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
             Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
@@ -222,16 +222,16 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/vendor/menu/import" className="rounded-full border border-[color:var(--color-forest)]/40 text-[color:var(--color-forest)] px-4 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-forest)]/8">
+          <Link href="/vendor/menu/import" className="rounded-full border border-[color:var(--color-primary)]/40 text-[color:var(--color-primary)] px-4 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-primary)]/8">
             Import from photo / QR
           </Link>
-          <button onClick={openNew} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
             + Add item
           </button>
         </div>
       </div>
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] shadow-lg">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] shadow-lg">
           {toast}
         </div>
       )}
@@ -241,13 +241,13 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
       <div className="mt-8 space-y-8">
         {[...byCategory.entries()].map(([cat, items]) => (
           <section key={cat}>
-            <h2 className="font-serif text-[20px] mb-3">{cat}</h2>
+            <h2 className="font-display text-[20px] mb-3">{cat}</h2>
             <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
               <ul className="divide-y divide-[color:var(--color-ink)]/8">
                 {items.map((p) => (
                   <li key={p.id} className="px-4 sm:px-5 py-3.5 flex items-center gap-4">
-                    <div className={`h-3 w-3 rounded-sm border ${p.isVeg ? 'border-[color:var(--color-forest)]' : 'border-[color:var(--color-terracotta)]'}`}>
-                      <div className={`h-1 w-1 m-[3px] rounded-full ${p.isVeg ? 'bg-[color:var(--color-forest)]' : 'bg-[color:var(--color-terracotta)]'}`} />
+                    <div className={`h-3 w-3 rounded-sm border ${p.isVeg ? 'border-[color:var(--color-primary)]' : 'border-[color:var(--color-terracotta)]'}`}>
+                      <div className={`h-1 w-1 m-[3px] rounded-full ${p.isVeg ? 'bg-[color:var(--color-primary)]' : 'bg-[color:var(--color-terracotta)]'}`} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-[14.5px] truncate">{p.name}</div>
@@ -258,18 +258,18 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                       </div>
                     </div>
                     <div className="text-right shrink-0 hidden sm:block">
-                      <div className="font-serif text-[15px]">₹{p.priceInr}</div>
+                      <div className="font-display text-[15px]">₹{p.priceInr}</div>
                       {p.mrpInr && p.mrpInr !== p.priceInr && (
                         <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/60 line-through">₹{p.mrpInr}</div>
                       )}
                     </div>
                     <label className="inline-flex items-center gap-2 text-[11.5px] shrink-0">
-                      <input type="checkbox" checked={p.inStock} onChange={(e) => toggleStock(p, e.target.checked)} className="accent-[color:var(--color-forest)]" />
-                      <span className={p.inStock ? 'text-[color:var(--color-forest)]' : 'text-[color:var(--color-ink-soft)]/60'}>
+                      <input type="checkbox" checked={p.inStock} onChange={(e) => toggleStock(p, e.target.checked)} className="accent-[color:var(--color-primary)]" />
+                      <span className={p.inStock ? 'text-[color:var(--color-primary)]' : 'text-[color:var(--color-ink-soft)]/60'}>
                         {p.inStock ? 'In stock' : 'Out'}
                       </span>
                     </label>
-                    <button onClick={() => openEdit(p)} className="text-[12px] text-[color:var(--color-forest)] hover:underline shrink-0">Edit</button>
+                    <button onClick={() => openEdit(p)} className="text-[12px] text-[color:var(--color-primary)] hover:underline shrink-0">Edit</button>
                     <button onClick={() => remove(p)} className="text-[12px] text-[color:var(--color-terracotta)] hover:underline shrink-0">Remove</button>
                   </li>
                 ))}
@@ -280,7 +280,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
 
         {products.length === 0 && (
           <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-8 text-center">
-            <p className="font-serif text-[22px]">Your menu is empty.</p>
+            <p className="font-display text-[22px]">Your menu is empty.</p>
             <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">Add your first item — customers see it instantly once your shop is active.</p>
           </div>
         )}
@@ -292,7 +292,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
             <div className="px-6 py-5 border-b border-[color:var(--color-ink)]/8 flex items-center justify-between sticky top-0 bg-[color:var(--color-paper)]">
               <div>
                 <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">{editingId ? 'Edit item' : 'Add item'}</div>
-                <h2 className="font-serif text-[22px] mt-0.5">{editingId ? form.name || 'Item' : 'New item'}</h2>
+                <h2 className="font-display text-[22px] mt-0.5">{editingId ? form.name || 'Item' : 'New item'}</h2>
               </div>
               <button onClick={() => setDrawerOpen(false)} className="text-[12px] text-[color:var(--color-ink-soft)]">Close</button>
             </div>
@@ -314,7 +314,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                         key={lng}
                         type="button"
                         onClick={() => setForm((f) => ({ ...f, nameSourceLang: lng }))}
-                        className={`px-2.5 py-1 text-[11px] ${form.nameSourceLang === lng ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+                        className={`px-2.5 py-1 text-[11px] ${form.nameSourceLang === lng ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
                       >
                         {LOCALE_LABEL[lng]}
                       </button>
@@ -346,11 +346,11 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
               </div>
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
                 <label className="inline-flex items-center gap-2 text-[12.5px]">
-                  <input type="checkbox" checked={form.isRegulated} onChange={(e) => setForm((f) => ({ ...f, isRegulated: e.target.checked }))} className="accent-[color:var(--color-forest)]" />
+                  <input type="checkbox" checked={form.isRegulated} onChange={(e) => setForm((f) => ({ ...f, isRegulated: e.target.checked }))} className="accent-[color:var(--color-primary)]" />
                   Sells at printed MRP (regulated)
                 </label>
                 <label className="inline-flex items-center gap-2 text-[12.5px]">
-                  <input type="checkbox" checked={form.isVeg} onChange={(e) => setForm((f) => ({ ...f, isVeg: e.target.checked }))} className="accent-[color:var(--color-forest)]" />
+                  <input type="checkbox" checked={form.isVeg} onChange={(e) => setForm((f) => ({ ...f, isVeg: e.target.checked }))} className="accent-[color:var(--color-primary)]" />
                   Vegetarian
                 </label>
                 <label className="inline-flex items-center gap-2 text-[12.5px]">
@@ -358,13 +358,13 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                     type="checkbox"
                     checked={form.soldByWeight}
                     onChange={(e) => setForm((f) => ({ ...f, soldByWeight: e.target.checked, estimatedGrams: e.target.checked ? f.estimatedGrams : '' }))}
-                    className="accent-[color:var(--color-forest)]"
+                    className="accent-[color:var(--color-primary)]"
                   />
                   Sold by weight
                 </label>
               </div>
               {form.soldByWeight && (
-                <div className="rounded-xl bg-[color:var(--color-forest)]/6 border border-[color:var(--color-forest)]/20 p-4 space-y-3">
+                <div className="rounded-xl bg-[color:var(--color-primary)]/6 border border-[color:var(--color-primary)]/20 p-4 space-y-3">
                   <Field label="Estimated weight (grams)">
                     <input
                       type="number"
@@ -394,7 +394,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
               </div>
               <div className="pt-2 flex justify-end gap-3">
                 <button onClick={() => setDrawerOpen(false)} className="px-4 py-2 text-[13px] text-[color:var(--color-ink-soft)]">Cancel</button>
-                <button disabled={saving || !form.name || !form.mrpInr} onClick={save} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+                <button disabled={saving || !form.name || !form.mrpInr} onClick={save} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
                   {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add to menu'}
                 </button>
               </div>
@@ -406,7 +406,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
