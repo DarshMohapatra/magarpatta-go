@@ -89,9 +89,9 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
   return (
     <form onSubmit={submit} className="mt-6 space-y-4">
       <label className="block">
-        <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Phone</span>
-        <div className="mt-1 flex items-center gap-2 rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 focus-within:border-[color:var(--color-forest)]">
-          <span className="text-[13px] text-[color:var(--color-ink-soft)]">+91</span>
+        <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Phone</span>
+        <div className="mt-1 flex items-center gap-2 rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 focus-within:border-[color:var(--color-primary)]">
+          <span className="text-[13px] text-[color:var(--color-muted)]">+91</span>
           <input
             autoFocus
             inputMode="numeric"
@@ -106,18 +106,18 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
             <button
               type="button"
               onClick={() => { setStep('phone'); setCode(''); setMsg(null); setErr(null); }}
-              className="text-[11px] text-[color:var(--color-forest)] hover:underline"
+              className="text-[11px] text-[color:var(--color-primary)] hover:underline"
             >
               edit
             </button>
           )}
         </div>
-        {phoneHelper && <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75">{phoneHelper}</div>}
+        {phoneHelper && <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/75">{phoneHelper}</div>}
       </label>
 
       {step === 'code' && (
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Enter 6-digit code</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Enter 6-digit code</span>
           <input
             autoFocus
             inputMode="numeric"
@@ -126,15 +126,15 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             placeholder="••••••"
-            className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-forest)]"
+            className="mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-primary)]"
           />
           <div className="mt-2 flex items-center justify-between text-[11.5px]">
-            <span className="text-[color:var(--color-ink-soft)]/80">{msg}</span>
+            <span className="text-[color:var(--color-muted)]/80">{msg}</span>
             <button
               type="button"
               disabled={sending || cooldownLeft > 0}
               onClick={sendOtp}
-              className="text-[color:var(--color-forest)] hover:underline disabled:opacity-40 disabled:no-underline"
+              className="text-[color:var(--color-primary)] hover:underline disabled:opacity-40 disabled:no-underline"
             >
               {cooldownLeft > 0 ? `Resend in ${cooldownLeft}s` : sending ? 'Sending…' : 'Resend code'}
             </button>
@@ -149,7 +149,7 @@ export function OtpFlow({ purpose, phone, onChangePhone, busy, submitLabel, onVe
       <button
         type="submit"
         disabled={busy || sending || (step === 'phone' ? phone.length !== 10 : code.length !== 6)}
-        className="w-full rounded-xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-3.5 text-[14.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full rounded-xl bg-[color:var(--color-primary)] text-[color:var(--color-background)] py-3.5 text-[14.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {step === 'phone' ? (sending ? 'Sending OTP…' : 'Send OTP') : (busy ? 'Verifying…' : submitLabel)}
       </button>

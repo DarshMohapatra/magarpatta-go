@@ -23,17 +23,17 @@ export default async function CuratorQueuePage() {
     <CuratorShell name={c.name}>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Curator queue</div>
-        <h1 className="mt-2 font-serif text-[34px] sm:text-[42px] leading-[1.02] tracking-[-0.02em]">
-          Menus waiting for <span className="italic text-[color:var(--color-forest)]">your eyes.</span>
+        <h1 className="mt-2 font-display text-[34px] sm:text-[42px] leading-[1.02] tracking-[-0.02em]">
+          Menus waiting for <span className="italic text-[color:var(--color-primary)]">your eyes.</span>
         </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
           Each row is a vendor&apos;s bulk menu upload. Open one, compare the OCR&apos;d items against the photo, fix what&apos;s wrong, then forward to admin.
         </p>
       </div>
 
       <ul className="mt-7 space-y-3">
         {jobs.length === 0 && (
-          <li className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 p-10 text-center text-[14px] text-[color:var(--color-ink-soft)]/70">
+          <li className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 p-10 text-center text-[14px] text-[color:var(--color-muted)]/70">
             No menus waiting. Beautiful.
           </li>
         )}
@@ -43,23 +43,23 @@ export default async function CuratorQueuePage() {
             <li key={j.id}>
               <Link
                 href={`/curator/${j.id}`}
-                className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 hover:border-[color:var(--color-forest)]/35 transition-colors"
+                className="block rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 hover:border-[color:var(--color-primary)]/35 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
-                    <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+                    <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">
                       {j.source} · {j.categorySlug.replace(/-/g, ' ')}
                     </div>
-                    <div className="font-serif text-[20px] leading-tight">{j.vendor.name}</div>
-                    <div className="text-[12px] text-[color:var(--color-ink-soft)]">
+                    <div className="font-display text-[20px] leading-tight">{j.vendor.name}</div>
+                    <div className="text-[12px] text-[color:var(--color-muted)]">
                       {j.vendor.hub} · {itemCount} item{itemCount === 1 ? '' : 's'} parsed · {j.images.length} photo{j.images.length === 1 ? '' : 's'}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-[11px] text-[color:var(--color-ink-soft)]/60">
+                    <div className="text-[11px] text-[color:var(--color-muted)]/60">
                       Submitted {new Date(j.submittedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </div>
-                    <div className="mt-1 text-[12.5px] font-medium text-[color:var(--color-forest)]">Open →</div>
+                    <div className="mt-1 text-[12.5px] font-medium text-[color:var(--color-primary)]">Open →</div>
                   </div>
                 </div>
               </Link>

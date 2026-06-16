@@ -114,10 +114,10 @@ export function CompetitorPricesClient({
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Competitor prices</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            How we stack up <span className="italic text-[color:var(--color-forest)]">vs the quick-commerce field.</span>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            How we stack up <span className="italic text-[color:var(--color-primary)]">vs the quick-commerce field.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] max-w-[680px]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-[680px]">
             One row per product, one column per competitor. Customers see a small &quot;vs Blinkit, save X%&quot; badge on each card that cycles through whichever sources we&apos;re cheaper than. Sources we&apos;re NOT cheaper than are skipped silently.
           </p>
           {scopedCategorySlugs.length > 0 && (
@@ -130,12 +130,12 @@ export function CompetitorPricesClient({
           <button
             onClick={runSeed}
             disabled={seedRunning || !canEdit}
-            className="rounded-md bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:brightness-95"
+            className="rounded-md bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)] px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:brightness-95"
           >
             {seedRunning ? 'Seeding…' : 'Load from agent seed'}
           </button>
           {seedReport && (
-            <p className="text-[11.5px] text-[color:var(--color-forest)] max-w-[280px]">{seedReport}</p>
+            <p className="text-[11.5px] text-[color:var(--color-primary)] max-w-[280px]">{seedReport}</p>
           )}
         </div>
       </div>
@@ -151,32 +151,32 @@ export function CompetitorPricesClient({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search by name, vendor, category"
-        className="w-full max-w-md rounded-full border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] px-4 py-1.5 text-[12.5px]"
+        className="w-full max-w-md rounded-full border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)] px-4 py-1.5 text-[12.5px]"
       />
 
-      <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
+      <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-[12.5px]">
-            <thead className="bg-[color:var(--color-cream)]/60">
+            <thead className="bg-[color:var(--color-background)]/60">
               <tr className="text-left">
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">Product</th>
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-forest)] text-right">Our ₹ (edit)</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">Product</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-primary)] text-right">Our ₹ (edit)</th>
                 {sources.map((s) => (
-                  <th key={s} className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)] text-right">{s}</th>
+                  <th key={s} className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)] text-right">{s}</th>
                 ))}
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">State</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">State</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[color:var(--color-ink)]/8">
+            <tbody className="divide-y divide-[color:var(--color-foreground)]/8">
               {filtered.map((r) => {
                 const d = drafts[r.id]!;
                 const stateLabel = d.saving ? 'Saving…' : d.err ? d.err : d.savedAt ? '✓ saved' : '';
-                const stateClass = d.err ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-forest)]';
+                const stateClass = d.err ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-primary)]';
                 return (
                   <tr key={r.id} className="align-middle">
                     <td className="px-3 py-2">
                       <div className="font-medium text-[13px]">{r.name}</div>
-                      <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/70">{r.unit} · {r.vendorName}</div>
+                      <div className="text-[10.5px] text-[color:var(--color-muted)]/70">{r.unit} · {r.vendorName}</div>
                     </td>
                     <td className="px-2 py-2">
                       <input
@@ -190,7 +190,7 @@ export function CompetitorPricesClient({
                           [r.id]: { ...st[r.id], ourPriceInr: e.target.value },
                         }))}
                         onBlur={() => save(r.id)}
-                        className="w-20 text-right rounded-md border border-[color:var(--color-forest)]/30 bg-[color:var(--color-forest)]/4 px-2 py-1 font-medium text-[color:var(--color-forest-dark)] disabled:bg-[color:var(--color-cream)]/40"
+                        className="w-20 text-right rounded-md border border-[color:var(--color-primary)]/30 bg-[color:var(--color-primary)]/4 px-2 py-1 font-medium text-[color:var(--color-primary)] disabled:bg-[color:var(--color-background)]/40"
                       />
                     </td>
                     {sources.map((s) => (
@@ -207,7 +207,7 @@ export function CompetitorPricesClient({
                             [r.id]: { ...st[r.id], prices: { ...st[r.id].prices, [s]: e.target.value } },
                           }))}
                           onBlur={() => save(r.id)}
-                          className="w-20 text-right rounded-md border border-[color:var(--color-ink)]/10 px-2 py-1 disabled:bg-[color:var(--color-cream)]/40"
+                          className="w-20 text-right rounded-md border border-[color:var(--color-foreground)]/10 px-2 py-1 disabled:bg-[color:var(--color-background)]/40"
                         />
                       </td>
                     ))}
@@ -217,7 +217,7 @@ export function CompetitorPricesClient({
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={2 + sources.length + 1} className="px-3 py-12 text-center text-[12.5px] text-[color:var(--color-ink-soft)]/70">
+                  <td colSpan={2 + sources.length + 1} className="px-3 py-12 text-center text-[12.5px] text-[color:var(--color-muted)]/70">
                     No products match your search.
                   </td>
                 </tr>

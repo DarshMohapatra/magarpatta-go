@@ -44,20 +44,20 @@ const COL = [
 
 export function Footer() {
   return (
-    <footer className="block w-full bg-[color:var(--color-forest-dark)] text-[color:var(--color-cream)]/80 pt-14 pb-10 mt-0">
+    <footer className="block w-full bg-[color:var(--color-primary)] text-[color:var(--color-background)]/80 pt-14 pb-10 mt-0">
       <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-10">
         {/* Brand block — full-width on mobile, narrower-but-leading on desktop. */}
-        <div className="pb-10 border-b border-[color:var(--color-cream)]/15 lg:border-b-0 lg:pb-0 lg:hidden">
+        <div className="pb-10 border-b border-[color:var(--color-background)]/15 lg:border-b-0 lg:pb-0 lg:hidden">
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
-            <span className="text-[15px] tracking-tight font-medium text-[color:var(--color-cream)]">
-              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
+            <span className="text-[15px] tracking-tight font-medium text-[color:var(--color-background)]">
+              {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-saffron-soft)]">Go</span>
             </span>
           </div>
-          <p className="mt-4 font-serif text-[20px] leading-[1.3] text-[color:var(--color-cream)]">
+          <p className="mt-4 font-display text-[20px] leading-[1.3] text-[color:var(--color-background)]">
             Hyper-local delivery, made only for the residents inside the gates.
           </p>
-          <p className="mt-3 text-[13px] leading-[1.55] text-[color:var(--color-cream)]/60">
+          <p className="mt-3 text-[13px] leading-[1.55] text-[color:var(--color-background)]/60">
             Built in {siteConfig.siteName}, {siteConfig.city}. {SOCIETY_COUNT} societies. Zero borders crossed.
           </p>
         </div>
@@ -74,7 +74,7 @@ export function Footer() {
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      className="text-[13px] text-[color:var(--color-cream)]/70 hover:text-[color:var(--color-cream)] transition-colors"
+                      className="text-[13px] text-[color:var(--color-background)]/70 hover:text-[color:var(--color-background)] transition-colors"
                     >
                       {l.label}
                     </a>
@@ -86,18 +86,18 @@ export function Footer() {
         </div>
 
         {/* Desktop layout: brand wide + four narrow link columns in a row. */}
-        <div className="hidden lg:grid lg:grid-cols-[1.4fr_repeat(4,1fr)] gap-14 pb-12 border-b border-[color:var(--color-cream)]/15">
+        <div className="hidden lg:grid lg:grid-cols-[1.4fr_repeat(4,1fr)] gap-14 pb-12 border-b border-[color:var(--color-background)]/15">
           <div className="max-w-md">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
-              <span className="text-[15px] tracking-tight font-medium text-[color:var(--color-cream)]">
-                {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
+              <span className="text-[15px] tracking-tight font-medium text-[color:var(--color-background)]">
+                {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-saffron-soft)]">Go</span>
               </span>
             </div>
-            <p className="mt-5 font-serif text-[22px] leading-[1.35] text-[color:var(--color-cream)]">
+            <p className="mt-5 font-display text-[22px] leading-[1.35] text-[color:var(--color-background)]">
               Hyper-local delivery, made only for the residents inside the gates.
             </p>
-            <p className="mt-4 text-[13px] leading-[1.6] text-[color:var(--color-cream)]/60">
+            <p className="mt-4 text-[13px] leading-[1.6] text-[color:var(--color-background)]/60">
               Built in {siteConfig.siteName}, {siteConfig.city}. {SOCIETY_COUNT} societies. Zero borders crossed.
             </p>
           </div>
@@ -111,7 +111,7 @@ export function Footer() {
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      className="text-[13.5px] text-[color:var(--color-cream)]/70 hover:text-[color:var(--color-cream)] transition-colors"
+                      className="text-[13.5px] text-[color:var(--color-background)]/70 hover:text-[color:var(--color-background)] transition-colors"
                     >
                       {l.label}
                     </a>
@@ -123,11 +123,11 @@ export function Footer() {
         </div>
 
         {/* Bottom bar — stacks on mobile, single row on desktop. */}
-        <div className="mt-10 pt-6 border-t border-[color:var(--color-cream)]/15 lg:mt-8 lg:border-t-0 lg:pt-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[12px] text-[color:var(--color-cream)]/55">
+        <div className="mt-10 pt-6 border-t border-[color:var(--color-background)]/15 lg:mt-8 lg:border-t-0 lg:pt-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[12px] text-[color:var(--color-background)]/55">
           <div>© 2026 {siteConfig.platformName}. FSSAI pending.</div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span>Made with care in {siteConfig.siteName}</span>
-            <span className="hidden sm:inline-block h-4 w-px bg-[color:var(--color-cream)]/20" />
+            <span className="hidden sm:inline-block h-4 w-px bg-[color:var(--color-background)]/20" />
             <span>v0.1.0</span>
           </div>
         </div>

@@ -102,13 +102,13 @@ export function LocationTracker({ orderId, intervalMs = 30_000 }: Props) {
                               'Starting tracker…';
 
   const tone =
-    status === 'ok'      ? 'bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]' :
+    status === 'ok'      ? 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]' :
     status === 'denied'  ? 'bg-[color:var(--color-terracotta)]/15 text-[color:var(--color-terracotta)]' :
     status === 'offline' ? 'bg-[color:var(--color-saffron)]/15 text-[color:var(--color-gold)]' :
-                           'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]';
+                           'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]';
 
   return (
-    <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-3 py-1.5 rounded-full text-[11.5px] font-medium ${tone} shadow-sm border border-[color:var(--color-ink)]/8`}>
+    <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-3 py-1.5 rounded-full text-[11.5px] font-medium ${tone} shadow-sm border border-[color:var(--color-foreground)]/8`}>
       <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-2" />{label}
     </div>
   );

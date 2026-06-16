@@ -88,9 +88,9 @@ export function CampaignBanner() {
   if (visible.length === 0) {
     return (
       <section className="mx-auto max-w-[1280px] px-6 lg:px-10 mt-2">
-        <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] px-5 py-3 text-[12.5px] text-[color:var(--color-ink-soft)] flex items-center justify-between gap-3">
+        <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)] px-5 py-3 text-[12.5px] text-[color:var(--color-muted)] flex items-center justify-between gap-3">
           <span>{hiddenCount} campaign{hiddenCount === 1 ? '' : 's'} hidden this session.</span>
-          <button onClick={restoreAll} className="text-[color:var(--color-forest)] hover:underline">Show campaigns</button>
+          <button onClick={restoreAll} className="text-[color:var(--color-primary)] hover:underline">Show campaigns</button>
         </div>
       </section>
     );
@@ -108,7 +108,7 @@ export function CampaignBanner() {
   return (
     <>
       <section className="mx-auto max-w-[1280px] px-6 lg:px-10 mt-2">
-        <div className="relative overflow-hidden rounded-3xl border border-[color:var(--color-saffron)]/25 bg-gradient-to-br from-[color:var(--color-saffron)]/10 via-[color:var(--color-paper)] to-[color:var(--color-gold)]/10 p-5 sm:p-6">
+        <div className="relative overflow-hidden rounded-3xl border border-[color:var(--color-saffron)]/25 bg-gradient-to-br from-[color:var(--color-saffron)]/10 via-[color:var(--color-surface)] to-[color:var(--color-gold)]/10 p-5 sm:p-6">
           <div className="flex items-start gap-4">
             <span className="hidden sm:inline-flex h-10 w-10 shrink-0 rounded-full bg-[color:var(--color-saffron)]/15 items-center justify-center">
               <Spark />
@@ -118,8 +118,8 @@ export function CampaignBanner() {
                 <span className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
                   {CAMPAIGN_TYPE_LABELS[current.type] ?? current.type}
                 </span>
-                <span className="text-[color:var(--color-ink-soft)]/30">·</span>
-                <span className="text-[11.5px] text-[color:var(--color-ink-soft)]">
+                <span className="text-[color:var(--color-muted)]/30">·</span>
+                <span className="text-[11.5px] text-[color:var(--color-muted)]">
                   {current.vendor.name} · {current.vendor.hub}
                 </span>
                 {formatDiscount(current) && (
@@ -127,26 +127,26 @@ export function CampaignBanner() {
                     {formatDiscount(current)}
                   </span>
                 )}
-                <span className="ml-auto text-[11px] text-[color:var(--color-ink-soft)]/60">
+                <span className="ml-auto text-[11px] text-[color:var(--color-muted)]/60">
                   Ends {fmtRelative(current.endsAt)}
                 </span>
               </div>
-              <h3 className="mt-1 font-serif text-[22px] sm:text-[26px] leading-tight tracking-[-0.01em]">
+              <h3 className="mt-1 font-display text-[22px] sm:text-[26px] leading-tight tracking-[-0.01em]">
                 {current.title}
               </h3>
-              <p className="mt-1 text-[13.5px] text-[color:var(--color-ink-soft)] leading-relaxed">
+              <p className="mt-1 text-[13.5px] text-[color:var(--color-muted)] leading-relaxed">
                 {current.body}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Link
                   href={`/restaurants/${current.vendor.slug}`}
-                  className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)]"
+                  className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
                 >
                   {current.ctaLabel || 'Open shop →'}
                 </Link>
                 <button
                   onClick={() => dismiss(current.id)}
-                  className="rounded-full border border-[color:var(--color-ink)]/12 px-3 py-2 text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]"
+                  className="rounded-full border border-[color:var(--color-foreground)]/12 px-3 py-2 text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]"
                 >
                   Hide
                 </button>
@@ -156,7 +156,7 @@ export function CampaignBanner() {
                       <button
                         aria-label="Previous campaign"
                         onClick={() => setActiveIdx((i) => (i - 1 + visible.length) % visible.length)}
-                        className="h-7 w-7 inline-flex items-center justify-center rounded-full border border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40 text-[color:var(--color-ink-soft)]"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-full border border-[color:var(--color-foreground)]/12 hover:border-[color:var(--color-primary)]/40 text-[color:var(--color-muted)]"
                       >‹</button>
                       <div className="flex items-center gap-1">
                         {visible.map((_, i) => (
@@ -164,19 +164,19 @@ export function CampaignBanner() {
                             key={i}
                             aria-label={`Show campaign ${i + 1}`}
                             onClick={() => setActiveIdx(i)}
-                            className={`h-1.5 rounded-full transition-all ${i === activeIdx ? 'w-6 bg-[color:var(--color-forest)]' : 'w-1.5 bg-[color:var(--color-ink)]/20'}`}
+                            className={`h-1.5 rounded-full transition-all ${i === activeIdx ? 'w-6 bg-[color:var(--color-primary)]' : 'w-1.5 bg-[color:var(--color-foreground)]/20'}`}
                           />
                         ))}
                       </div>
                       <button
                         aria-label="Next campaign"
                         onClick={() => setActiveIdx((i) => (i + 1) % visible.length)}
-                        className="h-7 w-7 inline-flex items-center justify-center rounded-full border border-[color:var(--color-ink)]/12 hover:border-[color:var(--color-forest)]/40 text-[color:var(--color-ink-soft)]"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-full border border-[color:var(--color-foreground)]/12 hover:border-[color:var(--color-primary)]/40 text-[color:var(--color-muted)]"
                       >›</button>
                     </>
                   )}
                   {hiddenCount > 0 && (
-                    <button onClick={restoreAll} className="text-[11px] text-[color:var(--color-forest)] hover:underline">
+                    <button onClick={restoreAll} className="text-[11px] text-[color:var(--color-primary)] hover:underline">
                       Show {hiddenCount} hidden
                     </button>
                   )}
@@ -188,12 +188,12 @@ export function CampaignBanner() {
       </section>
 
       {toastShown && urgent && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-[340px] rounded-2xl bg-[color:var(--color-ink)] text-[color:var(--color-cream)] shadow-2xl px-4 py-3.5 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed bottom-6 right-6 z-50 max-w-[340px] rounded-2xl bg-[color:var(--color-foreground)] text-[color:var(--color-background)] shadow-2xl px-4 py-3.5 animate-in fade-in slide-in-from-bottom-4">
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
             {CAMPAIGN_TYPE_LABELS[urgent.type] ?? urgent.type}
           </div>
-          <div className="mt-1 font-serif text-[16px] leading-tight">{urgent.title}</div>
-          <div className="mt-1 text-[12px] text-[color:var(--color-cream)]/75">{urgent.vendor.name} · ends {fmtRelative(urgent.endsAt)}</div>
+          <div className="mt-1 font-display text-[16px] leading-tight">{urgent.title}</div>
+          <div className="mt-1 text-[12px] text-[color:var(--color-background)]/75">{urgent.vendor.name} · ends {fmtRelative(urgent.endsAt)}</div>
           <Link href={`/restaurants/${urgent.vendor.slug}`} className="mt-2 inline-block text-[12px] text-[color:var(--color-saffron)] hover:underline">
             Take me there →
           </Link>

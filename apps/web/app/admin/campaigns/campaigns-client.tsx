@@ -77,7 +77,7 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
           <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
             Vendor pitches, <span className="italic text-[color:var(--color-primary)]">curated.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
             Vendors submit promotions — flash sales, festivals, BOGO, late-night deals, tiffin starts. Approve to push to the customer feed.
           </p>
         </div>
@@ -89,8 +89,8 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
               onClick={() => setTab(t.key)}
               className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
                 tab === t.key
-                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-[color:var(--color-primary)]'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-primary)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/12 hover:text-[color:var(--color-primary)]'
               }`}
             >
               {t.label} <span className="ml-1.5 opacity-70">{counts[t.key] ?? 0}</span>
@@ -100,7 +100,7 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
 
         <ul className="mt-5 space-y-3">
           {items.length === 0 && (
-            <li className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+            <li className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-6 text-center text-[13px] text-[color:var(--color-muted)]/70">
               Nothing in this tab.
             </li>
           )}
@@ -111,7 +111,7 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
                 className={`w-full text-left rounded-2xl border p-4 hover:border-[color:var(--color-primary)]/35 transition-colors ${
                   selected?.id === c.id
                     ? 'border-[color:var(--color-primary)]/45 bg-[color:var(--color-primary)]/5'
-                    : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]'
+                    : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -125,8 +125,8 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
                   )}
                 </div>
                 <div className="mt-1 font-display text-[18px] leading-tight">{c.title}</div>
-                <div className="text-[12px] text-[color:var(--color-ink-soft)] truncate">{c.vendor.name} · {c.vendor.hub}</div>
-                <div className="mt-1 text-[11px] text-[color:var(--color-ink-soft)]/65">
+                <div className="text-[12px] text-[color:var(--color-muted)] truncate">{c.vendor.name} · {c.vendor.hub}</div>
+                <div className="mt-1 text-[11px] text-[color:var(--color-muted)]/65">
                   {fmtDate(c.startsAt)} → {fmtDate(c.endsAt)}
                   {c.discountPct ? ` · ${c.discountPct}% off` : c.discountFlatInr ? ` · ₹${c.discountFlatInr} off` : ''}
                   {!c.appliesToAll && c.productIds.length > 0 ? ` · ${c.productIds.length} item${c.productIds.length === 1 ? '' : 's'}` : ''}
@@ -139,15 +139,15 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
 
       <aside className="lg:sticky lg:top-[130px] lg:self-start">
         {!selected ? (
-          <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 p-10 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+          <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 p-10 text-center text-[13px] text-[color:var(--color-muted)]/70">
             Select a campaign to review.
           </div>
         ) : (
-          <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 space-y-4">
+          <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6 space-y-4">
             <div>
               <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">{CAMPAIGN_TYPE_LABELS[selected.type] ?? selected.type}</div>
               <h2 className="mt-1 font-display text-[24px] leading-tight">{selected.title}</h2>
-              <p className="text-[12.5px] text-[color:var(--color-ink-soft)]">{selected.vendor.name} · {selected.vendor.hub}</p>
+              <p className="text-[12.5px] text-[color:var(--color-muted)]">{selected.vendor.name} · {selected.vendor.hub}</p>
             </div>
 
             <p className="text-[13.5px] leading-relaxed">{selected.body}</p>
@@ -177,13 +177,13 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
                   Vendor wants to take this campaign down. The campaign is still live to customers — approving deletes it; rejecting keeps it running.
                 </div>
                 <label className="block pt-1">
-                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Note (sent on reject)</span>
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Note (sent on reject)</span>
                   <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]" />
+                    className="mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]" />
                 </label>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <button disabled={busy} onClick={() => act(selected.id, 'approve')}
-                    className="rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:opacity-90 disabled:opacity-50">
+                    className="rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:opacity-90 disabled:opacity-50">
                     Approve removal · delete
                   </button>
                   <button disabled={busy} onClick={() => act(selected.id, 'reject')}
@@ -195,13 +195,13 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
             ) : selected.approvalStatus === 'PENDING' ? (
               <>
                 <label className="block pt-1">
-                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Note (sent on reject)</span>
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Note (sent on reject)</span>
                   <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]" />
+                    className="mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]" />
                 </label>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <button disabled={busy} onClick={() => act(selected.id, 'approve')}
-                    className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
+                    className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
                     Approve + push live
                   </button>
                   <button disabled={busy} onClick={() => act(selected.id, 'reject')}
@@ -212,7 +212,7 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
               </>
             ) : selected.approvalNote ? (
               <div className="rounded-xl bg-[color:var(--color-terracotta)]/8 border border-[color:var(--color-terracotta)]/20 px-4 py-3 text-[12.5px]">
-                <span className="text-[color:var(--color-ink-soft)]/70">Reviewer note:</span> {selected.approvalNote}
+                <span className="text-[color:var(--color-muted)]/70">Reviewer note:</span> {selected.approvalNote}
               </div>
             ) : null}
           </div>
@@ -225,7 +225,7 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
 function KV({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">{label}</div>
+      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">{label}</div>
       <div className="text-[13px]">{children}</div>
     </div>
   );

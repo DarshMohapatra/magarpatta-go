@@ -51,7 +51,7 @@ export function VendorSignInClient() {
         <h1 className="font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
           Open your <span className="italic text-[color:var(--color-primary)]">counter.</span>
         </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
           Sign in with your registered owner phone. We&apos;ll send a 6-digit OTP. New shop?{' '}
           <Link href="/vendor/register" className="text-[color:var(--color-primary)] underline underline-offset-2">
             Register here
@@ -68,7 +68,7 @@ export function VendorSignInClient() {
           topError={err}
         />
 
-        <details className="mt-8 text-[12px] text-[color:var(--color-ink-soft)]/80">
+        <details className="mt-8 text-[12px] text-[color:var(--color-muted)]/80">
           <summary className="cursor-pointer">Demo vendors · tap to prefill · OTP is 123456</summary>
           <div className="mt-2 space-y-1 font-mono">
             {DEMO_PHONES.map((d) => (
@@ -78,7 +78,7 @@ export function VendorSignInClient() {
                 onClick={() => setPhone(d.phone)}
                 className="block text-left text-[color:var(--color-primary)] hover:underline"
               >
-                {d.phone} · <span className="font-sans text-[color:var(--color-ink)]">{d.label}</span>
+                {d.phone} · <span className="font-sans text-[color:var(--color-foreground)]">{d.label}</span>
               </button>
             ))}
           </div>

@@ -22,10 +22,10 @@ export function SupportConfigClient() {
     <div>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Support config</div>
-        <h1 className="mt-2 font-serif text-[36px] leading-[1.05] tracking-[-0.01em]">
-          Rules, <span className="italic text-[color:var(--color-forest)]">codified.</span>
+        <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
+          Rules, <span className="italic text-[color:var(--color-primary)]">codified.</span>
         </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
           SLA targets, routing, escalation, and the helpdesk roster.
         </p>
       </div>
@@ -37,8 +37,8 @@ export function SupportConfigClient() {
             onClick={() => setTab(k)}
             className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
               tab === k
-                ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
             }`}
           >
             {k === 'sla' ? 'SLA policies' : k === 'routing' ? 'Routing' : k === 'escalation' ? 'Escalation' : 'Agents'}
@@ -137,21 +137,21 @@ function SlaPanel() {
       </Card>
 
       <Card title={`Policies (${items.length})`}>
-        {loading ? <p className="text-[13px] text-[color:var(--color-ink-soft)]">Loading…</p> : null}
-        {!loading && items.length === 0 ? <p className="text-[13px] text-[color:var(--color-ink-soft)]">No policies yet — defaults apply.</p> : null}
-        <ul className="divide-y divide-[color:var(--color-ink)]/8">
+        {loading ? <p className="text-[13px] text-[color:var(--color-muted)]">Loading…</p> : null}
+        {!loading && items.length === 0 ? <p className="text-[13px] text-[color:var(--color-muted)]">No policies yet — defaults apply.</p> : null}
+        <ul className="divide-y divide-[color:var(--color-foreground)]/8">
           {items.map((p) => (
             <li key={p.id} className="grid grid-cols-[1fr_auto] gap-3 py-3">
               <div>
                 <div className="text-[14px] font-medium">{p.name} {!p.active ? <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-terracotta)]">inactive</span> : null}</div>
-                <div className="mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">
+                <div className="mt-0.5 text-[12px] text-[color:var(--color-muted)]">
                   {p.priority ? TICKET_PRIORITY_LABEL[p.priority] : 'Any priority'}{' · '}
                   {p.team ? SUPPORT_TEAM_LABEL[p.team] : 'Any team'}{' · '}
                   FR {p.firstResponseMinutes}m · resolve {p.resolveMinutes}m
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => toggleActive(p)} className="text-[11.5px] text-[color:var(--color-ink-soft)] hover:underline">{p.active ? 'Deactivate' : 'Activate'}</button>
+                <button onClick={() => toggleActive(p)} className="text-[11.5px] text-[color:var(--color-muted)] hover:underline">{p.active ? 'Deactivate' : 'Activate'}</button>
                 <button onClick={() => destroy(p)} className="text-[11.5px] text-[color:var(--color-terracotta)] hover:underline">Delete</button>
               </div>
             </li>
@@ -272,7 +272,7 @@ function RoutingPanel() {
       </Card>
 
       <Card title={`Rules (${items.length})`}>
-        <ul className="divide-y divide-[color:var(--color-ink)]/8">
+        <ul className="divide-y divide-[color:var(--color-foreground)]/8">
           {items.map((r) => {
             const ms: string[] = [];
             if (r.match.category) ms.push(`category=${TICKET_CATEGORY_LABEL[r.match.category]}`);
@@ -286,11 +286,11 @@ function RoutingPanel() {
             return (
               <li key={r.id} className="grid grid-cols-[1fr_auto] gap-3 py-3">
                 <div>
-                  <div className="text-[14px] font-medium">{r.name} <span className="ml-1.5 text-[10.5px] text-[color:var(--color-ink-soft)]">priority {r.priority}</span> {!r.active ? <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-terracotta)]">inactive</span> : null}</div>
-                  <div className="mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">when {ms.length ? ms.join(' & ') : 'anything'} → {ac.length ? ac.join(' · ') : 'team queue'}</div>
+                  <div className="text-[14px] font-medium">{r.name} <span className="ml-1.5 text-[10.5px] text-[color:var(--color-muted)]">priority {r.priority}</span> {!r.active ? <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-terracotta)]">inactive</span> : null}</div>
+                  <div className="mt-0.5 text-[12px] text-[color:var(--color-muted)]">when {ms.length ? ms.join(' & ') : 'anything'} → {ac.length ? ac.join(' · ') : 'team queue'}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => toggle(r)} className="text-[11.5px] text-[color:var(--color-ink-soft)] hover:underline">{r.active ? 'Deactivate' : 'Activate'}</button>
+                  <button onClick={() => toggle(r)} className="text-[11.5px] text-[color:var(--color-muted)] hover:underline">{r.active ? 'Deactivate' : 'Activate'}</button>
                   <button onClick={() => destroy(r)} className="text-[11.5px] text-[color:var(--color-terracotta)] hover:underline">Delete</button>
                 </div>
               </li>
@@ -384,12 +384,12 @@ function EscalationPanel() {
       </Card>
 
       <Card title={`Rules (${items.length})`}>
-        <ul className="divide-y divide-[color:var(--color-ink)]/8">
+        <ul className="divide-y divide-[color:var(--color-foreground)]/8">
           {items.map((r) => (
             <li key={r.id} className="grid grid-cols-[1fr_auto] gap-3 py-3">
               <div>
                 <div className="text-[14px] font-medium">{r.name} {!r.active ? <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-terracotta)]">inactive</span> : null}</div>
-                <div className="mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">
+                <div className="mt-0.5 text-[12px] text-[color:var(--color-muted)]">
                   {r.trigger.toLowerCase().replace(/_/g, ' ')} (+{r.thresholdMinutes}m) →
                   {r.bumpToPriority ? ` bump to ${TICKET_PRIORITY_LABEL[r.bumpToPriority]}` : ''}
                   {r.bumpToPriority && r.reassignToTeam ? ' &' : ''}
@@ -397,7 +397,7 @@ function EscalationPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => toggle(r)} className="text-[11.5px] text-[color:var(--color-ink-soft)] hover:underline">{r.active ? 'Deactivate' : 'Activate'}</button>
+                <button onClick={() => toggle(r)} className="text-[11.5px] text-[color:var(--color-muted)] hover:underline">{r.active ? 'Deactivate' : 'Activate'}</button>
                 <button onClick={() => destroy(r)} className="text-[11.5px] text-[color:var(--color-terracotta)] hover:underline">Delete</button>
               </div>
             </li>
@@ -479,8 +479,8 @@ function AgentsPanel() {
                   onClick={() => toggleTeam(t)}
                   className={`px-2.5 py-1 rounded-full text-[11.5px] border ${
                     teams.includes(t)
-                      ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-                      : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14'
+                      ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                      : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14'
                   }`}
                 >{SUPPORT_TEAM_LABEL[t]}</button>
               ))}
@@ -494,14 +494,14 @@ function AgentsPanel() {
       </Card>
 
       <Card title={`Agents (${items.length})`}>
-        <ul className="divide-y divide-[color:var(--color-ink)]/8">
+        <ul className="divide-y divide-[color:var(--color-foreground)]/8">
           {items.map((a) => (
             <li key={a.id} className="grid grid-cols-[1fr_auto] gap-3 py-3">
               <div>
                 <div className="text-[14px] font-medium">
                   {a.name} {!a.active ? <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-terracotta)]">inactive</span> : null}
                 </div>
-                <div className="mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">
+                <div className="mt-0.5 text-[12px] text-[color:var(--color-muted)]">
                   +91 {a.phone}{a.email ? ` · ${a.email}` : ''}{' · '}
                   {a._count.assignedTickets} open
                 </div>
@@ -514,8 +514,8 @@ function AgentsPanel() {
                         onClick={() => setAgentTeams(a, on ? a.teams.filter((x) => x !== t) : [...a.teams, t])}
                         className={`px-2 py-0.5 rounded-full text-[10.5px] border transition-colors ${
                           on
-                            ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-                            : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14'
+                            ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                            : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14'
                         }`}
                       >{SUPPORT_TEAM_LABEL[t]}</button>
                     );
@@ -523,7 +523,7 @@ function AgentsPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => toggleActive(a)} className="text-[11.5px] text-[color:var(--color-ink-soft)] hover:underline">{a.active ? 'Deactivate' : 'Activate'}</button>
+                <button onClick={() => toggleActive(a)} className="text-[11.5px] text-[color:var(--color-muted)] hover:underline">{a.active ? 'Deactivate' : 'Activate'}</button>
               </div>
             </li>
           ))}
@@ -537,9 +537,9 @@ function AgentsPanel() {
 
 function Card({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
-    <section className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-5">
+    <section className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-5">
       <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)] mb-1">{title}</div>
-      {intro ? <p className="text-[12px] text-[color:var(--color-ink-soft)] mb-3">{intro}</p> : null}
+      {intro ? <p className="text-[12px] text-[color:var(--color-muted)] mb-3">{intro}</p> : null}
       {children}
     </section>
   );
@@ -552,13 +552,13 @@ function Grid({ children }: { children: React.ReactNode }) {
 function Field({ label, wide, children }: { label: string; wide?: boolean; children: React.ReactNode }) {
   return (
     <div className={wide ? 'md:col-span-2' : ''}>
-      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-1">{label}</div>
+      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-1">{label}</div>
       {children}
       <style jsx>{`
         :global(.ip) {
           width: 100%;
-          background: var(--color-cream);
-          border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+          background: var(--color-background);
+          border: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
           border-radius: 12px;
           padding: 0.45rem 0.7rem;
           font-size: 13px;
@@ -567,14 +567,14 @@ function Field({ label, wide, children }: { label: string; wide?: boolean; child
         :global(.btn-primary) {
           padding: 0.625rem 1.25rem;
           border-radius: 9999px;
-          background: var(--color-forest);
-          color: var(--color-cream);
+          background: var(--color-primary);
+          color: var(--color-background);
           font-size: 12.5px;
           font-weight: 500;
           transition: background 0.15s;
         }
         :global(.btn-primary:disabled) { opacity: 0.5; }
-        :global(.btn-primary:hover:not(:disabled)) { background: var(--color-forest-dark); }
+        :global(.btn-primary:hover:not(:disabled)) { background: var(--color-primary); }
       `}</style>
     </div>
   );

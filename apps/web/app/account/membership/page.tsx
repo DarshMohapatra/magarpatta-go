@@ -23,10 +23,10 @@ export default async function MembershipPage() {
       <NavbarWithSession />
       <div className="mx-auto max-w-[960px] px-4 sm:px-6 py-12">
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your membership</div>
-        <h1 className="mt-2 font-serif text-[40px] sm:text-[52px] leading-[1.02] tracking-[-0.02em]">
-          Deliveries on a <span className="italic text-[color:var(--color-forest)]">subscription.</span>
+        <h1 className="mt-2 font-display text-[40px] sm:text-[52px] leading-[1.02] tracking-[-0.02em]">
+          Deliveries on a <span className="italic text-[color:var(--color-primary)]">subscription.</span>
         </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)] max-w-[520px]">
+        <p className="mt-3 text-[14px] text-[color:var(--color-muted)] max-w-[520px]">
           Save on every delivery with a plan. Run out of credits before the
           cycle ends? Pay the lower per-delivery rate or recharge to keep saving.
         </p>

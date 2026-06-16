@@ -67,8 +67,8 @@ export function ReorderButton({
     'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-medium transition-colors shrink-0';
   const cls =
     variant === 'solid'
-      ? `${base} bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]`
-      : `${base} border border-[color:var(--color-forest)]/40 bg-[color:var(--color-paper)] text-[color:var(--color-forest)] hover:bg-[color:var(--color-forest)] hover:text-[color:var(--color-cream)]`;
+      ? `${base} bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]`
+      : `${base} border border-[color:var(--color-primary)]/40 bg-[color:var(--color-surface)] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-[color:var(--color-background)]`;
 
   return (
     <button onClick={go} disabled={busy} className={cls} title="Re-add these items to your cart">

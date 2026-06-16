@@ -61,8 +61,8 @@ export function AdminSupportClient() {
               onClick={() => setScope(s)}
               className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
                 scope === s
-                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-transparent'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -73,18 +73,18 @@ export function AdminSupportClient() {
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
-      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-ink-soft)]">Loading…</div> : null}
+      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-muted)]">Loading…</div> : null}
 
       {!loading && tickets.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
+        <div className="mt-10 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
           <p className="font-display text-[24px]">Empty queue.</p>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">Nothing in this scope right now.</p>
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">Nothing in this scope right now.</p>
         </div>
       ) : null}
 
       {!loading && tickets.length > 0 ? (
-        <div className="mt-6 bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 overflow-hidden">
-          <div className="grid grid-cols-[110px_1fr_140px_110px_100px_90px] gap-3 px-4 py-3 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] border-b border-[color:var(--color-ink)]/10">
+        <div className="mt-6 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 overflow-hidden">
+          <div className="grid grid-cols-[110px_1fr_140px_110px_100px_90px] gap-3 px-4 py-3 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] border-b border-[color:var(--color-foreground)]/10">
             <div>Ticket</div>
             <div>Subject · Customer</div>
             <div>Category</div>
@@ -92,17 +92,17 @@ export function AdminSupportClient() {
             <div>Priority</div>
             <div className="text-right">Filed</div>
           </div>
-          <ul className="divide-y divide-[color:var(--color-ink)]/8">
+          <ul className="divide-y divide-[color:var(--color-foreground)]/8">
             {tickets.map((t) => (
               <li key={t.id}>
                 <Link
                   href={`/admin/support/${t.id}`}
-                  className="grid grid-cols-[110px_1fr_140px_110px_100px_90px] gap-3 px-4 py-3.5 text-[13px] hover:bg-[color:var(--color-cream)] transition-colors"
+                  className="grid grid-cols-[110px_1fr_140px_110px_100px_90px] gap-3 px-4 py-3.5 text-[13px] hover:bg-[color:var(--color-background)] transition-colors"
                 >
-                  <div className="font-mono text-[12px] text-[color:var(--color-ink-soft)] self-center">{t.shortCode}</div>
+                  <div className="font-mono text-[12px] text-[color:var(--color-muted)] self-center">{t.shortCode}</div>
                   <div className="min-w-0 self-center">
                     <div className="font-medium truncate">{t.subject}</div>
-                    <div className="text-[11.5px] text-[color:var(--color-ink-soft)] truncate">
+                    <div className="text-[11.5px] text-[color:var(--color-muted)] truncate">
                       {t.user.name ?? '—'} · +91 {t.user.phone}{t.order ? ` · order #${t.order.id.slice(-6).toUpperCase()}` : ''}
                     </div>
                   </div>
@@ -116,10 +116,10 @@ export function AdminSupportClient() {
                     <span className={`text-[11px] uppercase tracking-[0.12em] font-medium ${
                       t.priority === 'URGENT' ? 'text-[color:var(--color-terracotta)]' :
                       t.priority === 'HIGH'   ? 'text-[color:var(--color-saffron)]' :
-                                                'text-[color:var(--color-ink-soft)]'
+                                                'text-[color:var(--color-muted)]'
                     }`}>{TICKET_PRIORITY_LABEL[t.priority]}</span>
                   </div>
-                  <div className="self-center text-right text-[11.5px] text-[color:var(--color-ink-soft)]">
+                  <div className="self-center text-right text-[11.5px] text-[color:var(--color-muted)]">
                     {new Date(t.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                   </div>
                 </Link>

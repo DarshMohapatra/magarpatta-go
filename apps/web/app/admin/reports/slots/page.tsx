@@ -118,45 +118,45 @@ export default async function SlotReportPage({
     <AdminShell name={admin.name} role={admin.role}>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Reports</div>
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Slot <span className="italic text-[color:var(--color-forest)]">pick list.</span>
+        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+          Slot <span className="italic text-[color:var(--color-primary)]">pick list.</span>
         </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)] max-w-[640px]">
+        <p className="mt-3 text-[14px] text-[color:var(--color-muted)] max-w-[640px]">
           Orders grouped by delivery day + slot with an aggregated item rollup —
           use it as the morning pick list for vendors and the rider plan.
           Cancelled orders are excluded.
         </p>
       </div>
 
-      <form className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4" method="get">
-        <label className="flex flex-col text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
+      <form className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-4" method="get">
+        <label className="flex flex-col text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
           From
           <input
             type="date"
             name="from"
             defaultValue={params.from ?? todayIso}
-            className="mt-1 rounded-md border border-[color:var(--color-ink)]/15 px-3 py-1.5 text-[14px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-forest)]"
+            className="mt-1 rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-1.5 text-[14px] text-[color:var(--color-foreground)] outline-none focus:border-[color:var(--color-primary)]"
           />
         </label>
-        <label className="flex flex-col text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
+        <label className="flex flex-col text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
           To
           <input
             type="date"
             name="to"
             defaultValue={params.to ?? isoLocal(sevenOut)}
-            className="mt-1 rounded-md border border-[color:var(--color-ink)]/15 px-3 py-1.5 text-[14px] text-[color:var(--color-ink)] outline-none focus:border-[color:var(--color-forest)]"
+            className="mt-1 rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-1.5 text-[14px] text-[color:var(--color-foreground)] outline-none focus:border-[color:var(--color-primary)]"
           />
         </label>
-        <button type="submit" className="rounded-md bg-[color:var(--color-forest)] text-white px-4 py-2 text-[13px] font-medium hover:opacity-90">
+        <button type="submit" className="rounded-md bg-[color:var(--color-primary)] text-white px-4 py-2 text-[13px] font-medium hover:opacity-90">
           Refresh
         </button>
-        <div className="ml-auto text-[12.5px] text-[color:var(--color-ink-soft)]">
+        <div className="ml-auto text-[12.5px] text-[color:var(--color-muted)]">
           {totalOrders} order{totalOrders === 1 ? '' : 's'} · ₹{totalRevenue.toLocaleString('en-IN')} in range
         </div>
       </form>
 
       {sortedDays.length === 0 ? (
-        <p className="mt-12 text-[14px] text-[color:var(--color-ink-soft)] italic">
+        <p className="mt-12 text-[14px] text-[color:var(--color-muted)] italic">
           No slotted orders in this range.
         </p>
       ) : (
@@ -166,34 +166,34 @@ export default async function SlotReportPage({
             const dayOrders = Array.from(day.slots.values()).reduce((s, b) => s + b.orders, 0);
             const dayRevenue = Array.from(day.slots.values()).reduce((s, b) => s + b.revenueInr, 0);
             return (
-              <section key={day.dateIso} className="rounded-3xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+              <section key={day.dateIso} className="rounded-3xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6">
                 <div className="flex items-end justify-between gap-4">
-                  <h2 className="font-serif text-[24px]">{dayLabel}</h2>
-                  <div className="text-[12px] text-[color:var(--color-ink-soft)]">{dayOrders} orders · ₹{dayRevenue.toLocaleString('en-IN')}</div>
+                  <h2 className="font-display text-[24px]">{dayLabel}</h2>
+                  <div className="text-[12px] text-[color:var(--color-muted)]">{dayOrders} orders · ₹{dayRevenue.toLocaleString('en-IN')}</div>
                 </div>
 
                 <div className="mt-5 space-y-5">
                   {Array.from(day.slots.values())
                     .sort((a, b) => (a.slotStart?.getTime() ?? 0) - (b.slotStart?.getTime() ?? 0))
                     .map((slot) => (
-                      <div key={slot.slotId ?? slot.slotLabel} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-cream)]/40 p-4">
+                      <div key={slot.slotId ?? slot.slotLabel} className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-background)]/40 p-4">
                         <div className="flex items-baseline justify-between gap-3 flex-wrap">
                           <div>
                             <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">{slot.slotLabel}</div>
-                            <div className="mt-0.5 text-[13px] text-[color:var(--color-ink-soft)]">
+                            <div className="mt-0.5 text-[13px] text-[color:var(--color-muted)]">
                               {slot.orders} order{slot.orders === 1 ? '' : 's'} · ₹{slot.revenueInr.toLocaleString('en-IN')}
                             </div>
                           </div>
                         </div>
                         <div className="mt-3">
-                          <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70 mb-2">Pick list</div>
+                          <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70 mb-2">Pick list</div>
                           <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-[13.5px]">
                             {Array.from(slot.items.values())
                               .sort((a, b) => b.quantity - a.quantity)
                               .map((item) => (
-                                <li key={`${item.name}|${item.unit}`} className="flex items-baseline justify-between gap-3 border-b border-[color:var(--color-ink)]/6 py-1">
+                                <li key={`${item.name}|${item.unit}`} className="flex items-baseline justify-between gap-3 border-b border-[color:var(--color-foreground)]/6 py-1">
                                   <span>{item.name}</span>
-                                  <span className="text-[color:var(--color-ink-soft)] font-medium">
+                                  <span className="text-[color:var(--color-muted)] font-medium">
                                     × {item.quantity}{item.unit ? ` (${item.unit})` : ''}
                                   </span>
                                 </li>

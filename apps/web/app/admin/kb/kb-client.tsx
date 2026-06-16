@@ -44,7 +44,7 @@ export function AdminKbClient() {
           <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
             Articles, <span className="italic text-[color:var(--color-primary)]">canon.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
             Helpdesk agents see suggestions on every ticket. Public articles are also published at <code className="text-[12px]">/help</code>.
           </p>
         </div>
@@ -53,15 +53,15 @@ export function AdminKbClient() {
             onClick={() => setIncludeArchived((v) => !v)}
             className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
               includeArchived
-                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-transparent'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
             }`}
           >
             {includeArchived ? 'Hide archived' : 'Show archived'}
           </button>
           <Link
             href="/admin/kb/new"
-            className="px-4 py-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] transition-colors"
+            className="px-4 py-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] transition-colors"
           >
             New article
           </Link>
@@ -69,33 +69,33 @@ export function AdminKbClient() {
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
-      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-ink-soft)]">Loading…</div> : null}
+      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-muted)]">Loading…</div> : null}
 
       {!loading && rows.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
+        <div className="mt-10 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
           <p className="font-display text-[24px]">Empty shelf.</p>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
             Write the first article — agents will get it as a suggestion the moment a related ticket comes in.
           </p>
         </div>
       ) : null}
 
       {!loading && rows.length > 0 ? (
-        <ul className="mt-6 bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 divide-y divide-[color:var(--color-ink)]/8 overflow-hidden">
+        <ul className="mt-6 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 divide-y divide-[color:var(--color-foreground)]/8 overflow-hidden">
           {rows.map((a) => (
             <li key={a.id}>
-              <Link href={`/admin/kb/${a.id}`} className="block px-5 py-4 hover:bg-[color:var(--color-cream)] transition-colors">
+              <Link href={`/admin/kb/${a.id}`} className="block px-5 py-4 hover:bg-[color:var(--color-background)] transition-colors">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-[14.5px]">{a.title}</span>
                   {a.archived ? <span className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-terracotta)]">archived</span> : null}
                   {!a.isPublic ? <span className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-saffron)]">internal</span> : null}
                 </div>
-                <div className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
+                <div className="mt-1 text-[12px] text-[color:var(--color-muted)]">
                   /{a.slug}
                   {a.category ? ` · ${TICKET_CATEGORY_LABEL[a.category]}` : ''}
                   {a.tags.length ? ` · ${a.tags.join(', ')}` : ''}
                 </div>
-                <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]">
+                <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]">
                   Updated {new Date(a.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                   {' · '}{a.helpfulCount} helpful · {a.notHelpfulCount} not
                 </div>

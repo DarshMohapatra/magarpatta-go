@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useTransition, type ReactNode } from 'react';
 import { siteConfig } from '@/lib/site-config';
 
-interface NavItem {
+export interface NavItem {
   href: string;
   label: string;
   icon: ReactNode;
@@ -26,6 +26,19 @@ const ADMIN_NAV: NavItem[] = [
   { href: '/admin/support',         label: 'Helpdesk',         icon: <IconChat /> },
 ];
 
+// Exported icons so auxiliary shells (rider, curator, helpdesk, super-admin)
+// can compose their own NAV without re-implementing icons.
+export const Icons = {
+  Grid: IconGrid,
+  List: IconList,
+  Box: IconBox,
+  Cash: IconCash,
+  Cog: IconCog,
+  Store: IconStore,
+  Globe: IconGlobe,
+  Chat: IconChat,
+};
+
 /**
  * Dark-mode desktop shell shared by the vendor + admin portals. Replaces
  * the previous top-tab layouts (`components/vendor/vendor-shell.tsx`,
@@ -38,11 +51,23 @@ const ADMIN_NAV: NavItem[] = [
  */
 export function PartnerShell({
   surface,
+  surfaceLabel,
+  navItems,
+  sessionEndpoint: sessionEndpointProp,
+  signinHref: signinHrefProp,
   displayName,
   approvalStatus,
   children,
 }: {
-  surface: 'vendor' | 'admin';
+  surface: 'vendor' | 'admin' | 'rider' | 'curator' | 'helpdesk' | 'super-admin';
+  /** Override the auto-derived label "Vendor portal" etc. */
+  surfaceLabel?: string;
+  /** Custom nav items for auxiliary surfaces (rider, curator, etc.). */
+  navItems?: NavItem[];
+  /** Override the auto-derived sign-out endpoint. */
+  sessionEndpoint?: string;
+  /** Override the auto-derived sign-in redirect. */
+  signinHref?: string;
   displayName: string;
   approvalStatus?: string;
   children: ReactNode;
@@ -52,9 +77,9 @@ export function PartnerShell({
   const [, startTransition] = useTransition();
   const [signingOut, setSigningOut] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const nav = surface === 'vendor' ? VENDOR_NAV : ADMIN_NAV;
-  const sessionEndpoint = surface === 'vendor' ? '/api/vendor/session' : '/api/admin/session';
-  const signinHref = surface === 'vendor' ? '/vendor/signin' : '/admin/signin';
+  const nav = navItems ?? (surface === 'vendor' ? VENDOR_NAV : ADMIN_NAV);
+  const sessionEndpoint = sessionEndpointProp ?? (surface === 'vendor' ? '/api/vendor/session' : '/api/admin/session');
+  const signinHref = signinHrefProp ?? (surface === 'vendor' ? '/vendor/signin' : '/admin/signin');
 
   async function signOut() {
     setSigningOut(true);
@@ -90,7 +115,7 @@ export function PartnerShell({
                 {siteConfig.wordmarkRoot} Go
               </div>
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
-                {surface === 'vendor' ? 'Vendor portal' : 'Admin portal'}
+                {surfaceLabel ?? labelForSurface(surface)}
               </div>
             </div>
           </div>
@@ -207,3 +232,15 @@ function IconMenu()    { return <svg width="18" height="18" viewBox="0 0 24 24" 
 function IconSearch()  { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>; }
 function IconBell()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>; }
 function IconChevron() { return <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>; }
+
+function labelForSurface(s: string): string {
+  switch (s) {
+    case 'vendor':      return 'Vendor portal';
+    case 'admin':       return 'Admin portal';
+    case 'rider':       return 'Rider app';
+    case 'curator':     return 'Curator queue';
+    case 'helpdesk':    return 'Helpdesk';
+    case 'super-admin': return 'Super admin';
+    default:            return 'Portal';
+  }
+}

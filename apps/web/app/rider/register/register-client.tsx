@@ -92,19 +92,19 @@ export function RiderRegisterClient() {
     return (
       <section className="min-h-screen flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-[520px] text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-forest)]/10 text-[color:var(--color-forest)]">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
-          <h1 className="font-serif text-[36px] leading-[1.02] tracking-[-0.02em]">
-            Application in, <span className="italic text-[color:var(--color-forest)]">neighbour.</span>
+          <h1 className="font-display text-[36px] leading-[1.02] tracking-[-0.02em]">
+            Application in, <span className="italic text-[color:var(--color-primary)]">neighbour.</span>
           </h1>
-          <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
-            Ops will call you on <span className="font-medium text-[color:var(--color-ink)]">+91 {form.phone}</span> within a day
+          <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
+            Ops will call you on <span className="font-medium text-[color:var(--color-foreground)]">+91 {form.phone}</span> within a day
             to verify your documents. Once you&apos;re approved you can sign in with your phone number.
           </p>
           <button
             onClick={() => router.push('/rider/signin')}
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-6 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-6 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]"
           >
             Back to sign in
           </button>
@@ -116,22 +116,22 @@ export function RiderRegisterClient() {
   return (
     <section className="min-h-screen px-4 py-10">
       <div className="mx-auto max-w-[560px]">
-        <Link href="/rider/signin" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">
+        <Link href="/rider/signin" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back to sign in
         </Link>
 
         <div className="mt-4 inline-flex items-center gap-2.5">
-          <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-forest)]">Rider application</span>
+          <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-primary)]">Rider application</span>
         </div>
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Put yourself on the <span className="italic text-[color:var(--color-forest)]">roster.</span>
+        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+          Put yourself on the <span className="italic text-[color:var(--color-primary)]">roster.</span>
         </h1>
-        <p className="mt-3 text-[13.5px] text-[color:var(--color-ink-soft)] leading-[1.55]">
+        <p className="mt-3 text-[13.5px] text-[color:var(--color-muted)] leading-[1.55]">
           Ops verifies DL + RC in person before first shift. Expect a 15-minute call within 24 hours of applying.
         </p>
 
-        <form onSubmit={submit} className="mt-8 rounded-3xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 sm:p-8 space-y-5">
+        <form onSubmit={submit} className="mt-8 rounded-3xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6 sm:p-8 space-y-5">
           <Field label="Full name">
             <input required value={form.name} onChange={(e) => set('name', e.target.value)} className={inp} placeholder="e.g. Amit Patil" />
           </Field>
@@ -150,7 +150,7 @@ export function RiderRegisterClient() {
             <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} className={inp} />
           </Field>
 
-          <div className="pt-3 border-t border-[color:var(--color-ink)]/8 grid sm:grid-cols-2 gap-4">
+          <div className="pt-3 border-t border-[color:var(--color-foreground)]/8 grid sm:grid-cols-2 gap-4">
             <Field label="Aadhaar (12-digit)">
               <input
                 inputMode="numeric"
@@ -189,20 +189,20 @@ export function RiderRegisterClient() {
             </Field>
           </div>
 
-          <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/70 leading-[1.55]">
+          <p className="text-[11.5px] text-[color:var(--color-muted)]/70 leading-[1.55]">
             By submitting, you agree to let {siteConfig.platformName} verify your DL and vehicle RC. We never share Aadhaar
             with anyone outside our ops team.
           </p>
 
           {otpStage === 'otp' && (
-            <div className="pt-4 border-t border-[color:var(--color-ink)]/8 space-y-3">
+            <div className="pt-4 border-t border-[color:var(--color-foreground)]/8 space-y-3">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Verify phone</div>
-                <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
-                  We&apos;ll text a 6-digit code to <span className="font-medium text-[color:var(--color-ink)]">+91 {form.phone}</span>.
+                <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
+                  We&apos;ll text a 6-digit code to <span className="font-medium text-[color:var(--color-foreground)]">+91 {form.phone}</span>.
                   That phone becomes your signin identity.
                 </p>
-                {otpSentMsg && <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/80">{otpSentMsg}</p>}
+                {otpSentMsg && <p className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/80">{otpSentMsg}</p>}
               </div>
               <div className="flex items-center justify-between gap-3">
                 <Field label="Enter 6-digit OTP">
@@ -212,7 +212,7 @@ export function RiderRegisterClient() {
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="••••••"
-                    className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-forest)]"
+                    className="mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-primary)]"
                   />
                 </Field>
               </div>
@@ -220,7 +220,7 @@ export function RiderRegisterClient() {
                 <button
                   type="button"
                   onClick={() => { setOtpStage('form'); setOtpCode(''); setOtpSentMsg(null); }}
-                  className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]"
+                  className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]"
                 >
                   ← Edit details
                 </button>
@@ -228,7 +228,7 @@ export function RiderRegisterClient() {
                   type="button"
                   disabled={busy || resendIn > 0}
                   onClick={sendOtp}
-                  className="text-[12px] text-[color:var(--color-forest)] hover:underline disabled:opacity-40 disabled:no-underline"
+                  className="text-[12px] text-[color:var(--color-primary)] hover:underline disabled:opacity-40 disabled:no-underline"
                 >
                   {resendIn > 0 ? `Resend in ${resendIn}s` : 'Resend code'}
                 </button>
@@ -245,7 +245,7 @@ export function RiderRegisterClient() {
           <button
             type="submit"
             disabled={busy || !form.name || form.phone.length !== 10 || (otpStage === 'otp' && otpCode.length !== 6)}
-            className="w-full rounded-xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-3.5 text-[14.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full rounded-xl bg-[color:var(--color-primary)] text-[color:var(--color-background)] py-3.5 text-[14.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {busy
               ? (otpStage === 'form' ? 'Sending OTP…' : 'Submitting…')
@@ -257,12 +257,12 @@ export function RiderRegisterClient() {
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">{label}</span>
+      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">{label}</span>
       {children}
     </label>
   );

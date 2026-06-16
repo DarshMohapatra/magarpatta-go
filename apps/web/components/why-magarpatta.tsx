@@ -29,7 +29,7 @@ const POINTS = [
 
 export function WhyMagarpatta() {
   return (
-    <section id="why" className="relative py-24 lg:py-32 bg-[color:var(--color-forest)] text-[color:var(--color-cream)] overflow-hidden">
+    <section id="why" className="relative py-24 lg:py-32 bg-[color:var(--color-primary)] text-[color:var(--color-background)] overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
@@ -43,12 +43,12 @@ export function WhyMagarpatta() {
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
             Why us · not them
           </div>
-          <h2 className="mt-4 font-serif text-[44px] lg:text-[64px] leading-[0.98] tracking-[-0.02em]">
+          <h2 className="mt-4 font-display text-[44px] lg:text-[64px] leading-[0.98] tracking-[-0.02em]">
             Zomato delivers to {siteConfig.wordmarkRoot}.
             <br />
             <span className="italic text-[color:var(--color-saffron-soft)]">We deliver for it.</span>
           </h2>
-          <p className="mt-6 text-[16px] leading-[1.6] text-[color:var(--color-cream)]/75 max-w-xl">
+          <p className="mt-6 text-[16px] leading-[1.6] text-[color:var(--color-background)]/75 max-w-xl">
             A 400-acre township doesn&apos;t need a national-scale app. It needs a deliberately smaller,
             sharper operation — one that understands its own postcode.
           </p>
@@ -58,14 +58,14 @@ export function WhyMagarpatta() {
           {POINTS.map((p, i) => (
             <div key={p.title} className="relative">
               <div className="flex items-baseline gap-3 mb-3">
-                <span className="font-serif text-[14px] text-[color:var(--color-saffron)]/80">
+                <span className="font-display text-[14px] text-[color:var(--color-saffron)]/80">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <h3 className="font-serif text-[26px] leading-tight text-[color:var(--color-cream)]">
+                <h3 className="font-display text-[26px] leading-tight text-[color:var(--color-background)]">
                   {p.title}
                 </h3>
               </div>
-              <p className="text-[14.5px] leading-[1.65] text-[color:var(--color-cream)]/70 max-w-md">
+              <p className="text-[14.5px] leading-[1.65] text-[color:var(--color-background)]/70 max-w-md">
                 {p.body}
               </p>
             </div>

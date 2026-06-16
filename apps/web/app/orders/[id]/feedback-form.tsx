@@ -64,14 +64,14 @@ export function FeedbackForm({ orderId, vendorName, riderName, hasRider }: { ord
   const alreadySubmitted = Boolean(existing);
 
   return (
-    <section className="mt-8 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
-      <div className="px-6 py-4 border-b border-[color:var(--color-ink)]/8 flex items-center justify-between gap-3">
+    <section className="mt-8 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
+      <div className="px-6 py-4 border-b border-[color:var(--color-foreground)]/8 flex items-center justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">How was it?</div>
-          <h3 className="mt-1 font-serif text-[20px] leading-tight">Rate your order</h3>
+          <h3 className="mt-1 font-display text-[20px] leading-tight">Rate your order</h3>
         </div>
         {alreadySubmitted && (
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Already rated · edit if you like</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)]">Already rated · edit if you like</span>
         )}
       </div>
       <div className="px-6 py-5 space-y-5">
@@ -104,11 +104,11 @@ export function FeedbackForm({ orderId, vendorName, riderName, hasRider }: { ord
           />
         )}
         <div className="flex items-center justify-between gap-3">
-          {msg && <span className="text-[12.5px] text-[color:var(--color-forest)]">{msg}</span>}
+          {msg && <span className="text-[12.5px] text-[color:var(--color-primary)]">{msg}</span>}
           <button
             onClick={submit}
             disabled={saving}
-            className="ml-auto rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50"
+            className="ml-auto rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
           >
             {saving ? 'Saving…' : alreadySubmitted ? 'Update rating' : 'Submit rating'}
           </button>
@@ -128,20 +128,20 @@ function Block({ label, rating, setRating, comment, setComment, placeholder }: {
 }) {
   return (
     <div>
-      <div className="text-[12.5px] font-medium text-[color:var(--color-ink)]">{label}</div>
+      <div className="text-[12.5px] font-medium text-[color:var(--color-foreground)]">{label}</div>
       <div className="mt-2 flex items-center gap-1.5">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => setRating(n === rating ? 0 : n)}
-            className={`text-[24px] leading-none transition-colors ${n <= rating ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-ink)]/20 hover:text-[color:var(--color-saffron)]/60'}`}
+            className={`text-[24px] leading-none transition-colors ${n <= rating ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-foreground)]/20 hover:text-[color:var(--color-saffron)]/60'}`}
             aria-label={`${n} star${n > 1 ? 's' : ''}`}
           >
             ★
           </button>
         ))}
-        <span className="ml-2 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+        <span className="ml-2 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
           {rating ? `${rating} / 5` : 'tap to rate'}
         </span>
       </div>
@@ -150,7 +150,7 @@ function Block({ label, rating, setRating, comment, setComment, placeholder }: {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder={placeholder}
-        className="mt-2 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+        className="mt-2 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
         maxLength={500}
       />
     </div>

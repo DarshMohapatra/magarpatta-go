@@ -36,10 +36,10 @@ export default async function SuperAdminOverview() {
     <SuperShell phone={session.phone}>
       <div>
         <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Cross-instance overview</div>
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Every site, <span className="italic text-[color:var(--color-forest)]">on one screen.</span>
+        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+          Every site, <span className="italic text-[color:var(--color-primary)]">on one screen.</span>
         </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
           Read-only. Each card pulls a live snapshot from that instance&apos;s super-admin endpoint.
           Drill into a site by clicking the card, or jump straight to its admin console with the link.
         </p>
@@ -60,7 +60,7 @@ export default async function SuperAdminOverview() {
 
       {/* Per-site cards */}
       <div className="mt-10">
-        <h2 className="font-serif text-[22px] mb-4">Per-site detail</h2>
+        <h2 className="font-display text-[22px] mb-4">Per-site detail</h2>
         {snapshots.length === 0 ? (
           <div className="rounded-2xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-terracotta)]/5 p-6 text-[13.5px] text-[color:var(--color-terracotta-dark)]">
             No instances configured. Set <code>SUPER_ADMIN_INSTANCES</code> on this deployment as
@@ -79,12 +79,12 @@ export default async function SuperAdminOverview() {
 function SiteCard({ s }: { s: InstanceSnapshot }) {
   if (!s.ok) {
     return (
-      <div className="rounded-2xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-paper)] p-5">
+      <div className="rounded-2xl border border-[color:var(--color-terracotta)]/30 bg-[color:var(--color-surface)] p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">{s.slug}</div>
-            <div className="font-serif text-[20px] mt-1">Snapshot unavailable</div>
-            <div className="text-[12px] text-[color:var(--color-ink-soft)] mt-1">{s.url}</div>
+            <div className="font-display text-[20px] mt-1">Snapshot unavailable</div>
+            <div className="text-[12px] text-[color:var(--color-muted)] mt-1">{s.url}</div>
           </div>
         </div>
         <p className="mt-3 text-[12.5px] text-[color:var(--color-terracotta-dark)]">{s.error}</p>
@@ -95,19 +95,19 @@ function SiteCard({ s }: { s: InstanceSnapshot }) {
   return (
     <Link
       href={`/super-admin/sites/${s.slug}`}
-      className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 hover:border-[color:var(--color-forest)]/40 transition-colors"
+      className="block rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 hover:border-[color:var(--color-primary)]/40 transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">{s.site?.platformName}</div>
-          <div className="font-serif text-[26px] mt-1 leading-tight">{s.site?.siteName}</div>
+          <div className="font-display text-[26px] mt-1 leading-tight">{s.site?.siteName}</div>
         </div>
         <a
           href={`${s.url}/admin`}
           target="_blank"
           rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-[11.5px] text-[color:var(--color-forest)] hover:underline shrink-0 mt-1"
+          className="text-[11.5px] text-[color:var(--color-primary)] hover:underline shrink-0 mt-1"
         >
           Open admin →
         </a>
@@ -124,7 +124,7 @@ function SiteCard({ s }: { s: InstanceSnapshot }) {
         <Row label="Menu/edit reviews" value={String(c.pendingChanges)} accent={c.pendingChanges > 0} />
       </div>
 
-      <div className="mt-4 pt-3 border-t border-[color:var(--color-ink)]/8 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/55">
+      <div className="mt-4 pt-3 border-t border-[color:var(--color-foreground)]/8 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/55">
         {s.capturedAt ? `Snapshot · ${new Date(s.capturedAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })} IST` : ''}
       </div>
     </Link>
@@ -133,15 +133,15 @@ function SiteCard({ s }: { s: InstanceSnapshot }) {
 
 function Tile({ label, value, note, highlight, accent }: { label: string; value: string; note?: string; highlight?: boolean; accent?: boolean }) {
   const cls = highlight
-    ? 'border-[color:var(--color-forest)]/30 bg-gradient-to-br from-[color:var(--color-forest)]/8 to-[color:var(--color-moss)]/4'
+    ? 'border-[color:var(--color-primary)]/30 bg-gradient-to-br from-[color:var(--color-primary)]/8 to-[color:var(--color-moss)]/4'
     : accent
       ? 'border-[color:var(--color-saffron)]/40 bg-[color:var(--color-saffron)]/8'
-      : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]';
+      : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]';
   return (
     <div className={`rounded-2xl border p-5 ${cls}`}>
-      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70">{label}</div>
-      <div className="mt-1.5 font-serif text-[28px] leading-none">{value}</div>
-      {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-ink-soft)]/70">{note}</div>}
+      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]/70">{label}</div>
+      <div className="mt-1.5 font-display text-[28px] leading-none">{value}</div>
+      {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-muted)]/70">{note}</div>}
     </div>
   );
 }
@@ -149,8 +149,8 @@ function Tile({ label, value, note, highlight, accent }: { label: string; value:
 function Row({ label, value, accent, highlight }: { label: string; value: string; accent?: boolean; highlight?: boolean }) {
   return (
     <div>
-      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">{label}</div>
-      <div className={`mt-0.5 font-serif text-[18px] leading-none ${accent ? 'text-[color:var(--color-terracotta)]' : highlight ? 'text-[color:var(--color-forest)]' : ''}`}>
+      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">{label}</div>
+      <div className={`mt-0.5 font-display text-[18px] leading-none ${accent ? 'text-[color:var(--color-terracotta)]' : highlight ? 'text-[color:var(--color-primary)]' : ''}`}>
         {value}
       </div>
     </div>

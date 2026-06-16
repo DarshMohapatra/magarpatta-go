@@ -54,14 +54,14 @@ export function NewTicketForm({ orders, preselectedOrderId }: { orders: OrderOpt
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-6">
+    <form onSubmit={submit} className="space-y-5 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-6">
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-2">Category</label>
+        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-2">Category</label>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as TicketCategory | '')}
           required
-          className="w-full bg-[color:var(--color-cream)] border border-[color:var(--color-ink)]/14 rounded-xl px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+          className="w-full bg-[color:var(--color-background)] border border-[color:var(--color-foreground)]/14 rounded-xl px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
         >
           <option value="">— pick one —</option>
           {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{TICKET_CATEGORY_LABEL[c]}</option>)}
@@ -69,25 +69,25 @@ export function NewTicketForm({ orders, preselectedOrderId }: { orders: OrderOpt
       </div>
 
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-2">Headline</label>
+        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-2">Headline</label>
         <input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           maxLength={120}
           placeholder="One short line, e.g. 'Paneer was cold and packaging leaked'"
           required
-          className="w-full bg-[color:var(--color-cream)] border border-[color:var(--color-ink)]/14 rounded-xl px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+          className="w-full bg-[color:var(--color-background)] border border-[color:var(--color-foreground)]/14 rounded-xl px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
         />
-        <div className="mt-1 text-[11px] text-[color:var(--color-ink-soft)] text-right">{subject.length} / 120</div>
+        <div className="mt-1 text-[11px] text-[color:var(--color-muted)] text-right">{subject.length} / 120</div>
       </div>
 
       {orders.length > 0 ? (
         <div>
-          <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-2">Related order <span className="opacity-50 normal-case tracking-normal">(optional)</span></label>
+          <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-2">Related order <span className="opacity-50 normal-case tracking-normal">(optional)</span></label>
           <select
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
-            className="w-full bg-[color:var(--color-cream)] border border-[color:var(--color-ink)]/14 rounded-xl px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-forest)]"
+            className="w-full bg-[color:var(--color-background)] border border-[color:var(--color-foreground)]/14 rounded-xl px-4 py-3 text-[14px] outline-none focus:border-[color:var(--color-primary)]"
           >
             <option value="">— not about a specific order —</option>
             {orders.map((o) => (
@@ -100,7 +100,7 @@ export function NewTicketForm({ orders, preselectedOrderId }: { orders: OrderOpt
       ) : null}
 
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-2">What happened?</label>
+        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-2">What happened?</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -108,9 +108,9 @@ export function NewTicketForm({ orders, preselectedOrderId }: { orders: OrderOpt
           maxLength={4000}
           placeholder="Walk us through it. What did you order, what arrived, when, who delivered if you remember. The more we know, the faster we fix it."
           required
-          className="w-full bg-[color:var(--color-cream)] border border-[color:var(--color-ink)]/14 rounded-xl px-4 py-3 text-[14px] leading-[1.5] outline-none focus:border-[color:var(--color-forest)] resize-y"
+          className="w-full bg-[color:var(--color-background)] border border-[color:var(--color-foreground)]/14 rounded-xl px-4 py-3 text-[14px] leading-[1.5] outline-none focus:border-[color:var(--color-primary)] resize-y"
         />
-        <div className="mt-1 text-[11px] text-[color:var(--color-ink-soft)] text-right">{description.length} / 4000</div>
+        <div className="mt-1 text-[11px] text-[color:var(--color-muted)] text-right">{description.length} / 4000</div>
       </div>
 
       {err ? <div className="text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
@@ -119,14 +119,14 @@ export function NewTicketForm({ orders, preselectedOrderId }: { orders: OrderOpt
         <button
           type="button"
           onClick={() => router.push('/support')}
-          className="px-5 py-3 rounded-full text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]"
+          className="px-5 py-3 rounded-full text-[13px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={!valid || submitting}
-          className="px-6 py-3 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? 'Filing…' : 'File ticket'}
         </button>

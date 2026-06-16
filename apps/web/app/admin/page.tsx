@@ -80,20 +80,20 @@ export default async function AdminHome() {
 function Stat({ label, value, note, accent, href }: { label: string; value: string; note?: string; accent?: string; href: string }) {
   const cls = accent === 'saffron'
     ? 'border-[color:var(--color-saffron)]/40 bg-[color:var(--color-saffron)]/8'
-    : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]';
+    : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]';
   return (
     <Link href={href} className={`block rounded-2xl border p-5 hover:border-[color:var(--color-primary)]/40 transition-colors ${cls}`}>
-      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70">{label}</div>
+      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]/70">{label}</div>
       <div className="mt-1.5 font-display text-[30px] leading-none">{value}</div>
-      {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-ink-soft)]/70">{note}</div>}
+      {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-muted)]/70">{note}</div>}
     </Link>
   );
 }
 
 function MiniStat({ label, value, href }: { label: string; value: string; href: string }) {
   return (
-    <Link href={href} className="block rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4 hover:border-[color:var(--color-primary)]/30">
-      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">{label}</div>
+    <Link href={href} className="block rounded-xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-4 hover:border-[color:var(--color-primary)]/30">
+      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">{label}</div>
       <div className="mt-1 font-display text-[22px]">{value}</div>
     </Link>
   );
@@ -101,9 +101,9 @@ function MiniStat({ label, value, href }: { label: string; value: string; href: 
 
 function Tile({ href, title, body }: { href: string; title: string; body: string }) {
   return (
-    <Link href={href} className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 hover:border-[color:var(--color-primary)]/40 transition-colors">
+    <Link href={href} className="block rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 hover:border-[color:var(--color-primary)]/40 transition-colors">
       <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">{title}</div>
-      <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">{body}</p>
+      <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">{body}</p>
     </Link>
   );
 }

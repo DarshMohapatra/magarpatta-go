@@ -88,10 +88,10 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Customer queue</div>
-          <h1 className="mt-2 font-serif text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Tickets, <span className="italic text-[color:var(--color-forest)]">live.</span>
+          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
+            Tickets, <span className="italic text-[color:var(--color-primary)]">live.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
             Tickets land here from in-app, email, and WhatsApp. Reply to ask questions, mark resolved when fixed.
           </p>
         </div>
@@ -102,8 +102,8 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
               onClick={() => setScope(s)}
               className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
                 scope === s
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -114,14 +114,14 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
       </div>
 
       <div className="mt-5 flex gap-2 flex-wrap items-center">
-        <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mr-2">Channel</span>
+        <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mr-2">Channel</span>
         <FilterPill active={channel === 'ALL'} onClick={() => setChannel('ALL')} label="All" />
         {CHANNELS.map((c) => (
           <FilterPill key={c} active={channel === c} onClick={() => setChannel(c)} label={TICKET_CHANNEL_LABEL[c]} />
         ))}
       </div>
       <div className="mt-2 flex gap-2 flex-wrap items-center">
-        <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mr-2">Team</span>
+        <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mr-2">Team</span>
         <FilterPill active={team === 'ALL'} onClick={() => setTeam('ALL')} label="All" />
         {TEAMS.map((t) => (
           <FilterPill key={t} active={team === t} onClick={() => setTeam(t)} label={SUPPORT_TEAM_LABEL[t]} />
@@ -129,18 +129,18 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
-      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-ink-soft)]">Loading…</div> : null}
+      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-muted)]">Loading…</div> : null}
 
       {!loading && tickets.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
-          <p className="font-serif text-[24px]">Empty queue.</p>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">Nothing in this scope right now.</p>
+        <div className="mt-10 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
+          <p className="font-display text-[24px]">Empty queue.</p>
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">Nothing in this scope right now.</p>
         </div>
       ) : null}
 
       {!loading && tickets.length > 0 ? (
-        <div className="mt-6 bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 overflow-hidden">
-          <div className="hidden md:grid grid-cols-[100px_1fr_120px_90px_110px_80px_90px] gap-3 px-4 py-3 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] border-b border-[color:var(--color-ink)]/10">
+        <div className="mt-6 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 overflow-hidden">
+          <div className="hidden md:grid grid-cols-[100px_1fr_120px_90px_110px_80px_90px] gap-3 px-4 py-3 text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] border-b border-[color:var(--color-foreground)]/10">
             <div>Ticket</div>
             <div>Subject · Customer</div>
             <div>Channel · Team</div>
@@ -149,7 +149,7 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
             <div>Priority</div>
             <div className="text-right">Filed</div>
           </div>
-          <ul className="divide-y divide-[color:var(--color-ink)]/8">
+          <ul className="divide-y divide-[color:var(--color-foreground)]/8">
             {tickets.map((t) => {
               // For an open ticket we surface the most-pressing SLA window: if
               // first-response hasn't happened yet, show that; otherwise show
@@ -162,17 +162,17 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
                 <li key={t.id}>
                   <Link
                     href={`/helpdesk/${t.id}`}
-                    className="block md:grid md:grid-cols-[100px_1fr_120px_90px_110px_80px_90px] gap-3 px-4 py-3.5 text-[13px] hover:bg-[color:var(--color-cream)] transition-colors"
+                    className="block md:grid md:grid-cols-[100px_1fr_120px_90px_110px_80px_90px] gap-3 px-4 py-3.5 text-[13px] hover:bg-[color:var(--color-background)] transition-colors"
                   >
-                    <div className="font-mono text-[12px] text-[color:var(--color-ink-soft)] md:self-center">{t.shortCode}</div>
+                    <div className="font-mono text-[12px] text-[color:var(--color-muted)] md:self-center">{t.shortCode}</div>
                     <div className="min-w-0 md:self-center">
                       <div className="font-medium truncate">{t.subject}</div>
-                      <div className="text-[11.5px] text-[color:var(--color-ink-soft)] truncate">
+                      <div className="text-[11.5px] text-[color:var(--color-muted)] truncate">
                         {t.user.name ?? '—'} · +91 {t.user.phone}{t.order ? ` · order #${t.order.id.slice(-6).toUpperCase()}` : ''}
                       </div>
                     </div>
-                    <div className="md:self-center text-[11.5px] text-[color:var(--color-ink-soft)]">
-                      <span className="text-[color:var(--color-forest)] font-medium">{TICKET_CHANNEL_LABEL[t.channel]}</span>
+                    <div className="md:self-center text-[11.5px] text-[color:var(--color-muted)]">
+                      <span className="text-[color:var(--color-primary)] font-medium">{TICKET_CHANNEL_LABEL[t.channel]}</span>
                       {' · '}
                       {SUPPORT_TEAM_LABEL[t.team]}
                     </div>
@@ -185,8 +185,8 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
                       <span className={`text-[11.5px] font-medium ${
                         sla.tone === 'late' ? 'text-[color:var(--color-terracotta)]' :
                         sla.tone === 'warn' ? 'text-[color:var(--color-saffron)]' :
-                        sla.tone === 'ok'   ? 'text-[color:var(--color-forest)]' :
-                                              'text-[color:var(--color-ink-soft)]'
+                        sla.tone === 'ok'   ? 'text-[color:var(--color-primary)]' :
+                                              'text-[color:var(--color-muted)]'
                       }`}>
                         {sla.label}{breached ? ' · breach' : ''}
                       </span>
@@ -195,11 +195,11 @@ export function HelpdeskQueueClient({ scope: initialScope }: { scope: Scope }) {
                       <span className={`text-[11px] uppercase tracking-[0.12em] font-medium ${
                         t.priority === 'URGENT' ? 'text-[color:var(--color-terracotta)]' :
                         t.priority === 'HIGH'   ? 'text-[color:var(--color-saffron)]' :
-                                                  'text-[color:var(--color-ink-soft)]'
+                                                  'text-[color:var(--color-muted)]'
                       }`}>{TICKET_PRIORITY_LABEL[t.priority]}</span>
                       {t.escalationLevel > 0 ? <span className="ml-1 text-[10px] text-[color:var(--color-terracotta)]">L{t.escalationLevel}</span> : null}
                     </div>
-                    <div className="md:self-center md:text-right text-[11.5px] text-[color:var(--color-ink-soft)]">
+                    <div className="md:self-center md:text-right text-[11.5px] text-[color:var(--color-muted)]">
                       {new Date(t.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                     </div>
                   </Link>
@@ -219,8 +219,8 @@ function FilterPill({ active, onClick, label }: { active: boolean; onClick: () =
       onClick={onClick}
       className={`px-3 py-1 rounded-full text-[11.5px] border transition-colors ${
         active
-          ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-          : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+          ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+          : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
       }`}
     >{label}</button>
   );

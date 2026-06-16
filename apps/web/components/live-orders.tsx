@@ -34,19 +34,19 @@ export function LiveOrders() {
   return (
     <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-md px-4">
       <div
-        className={`rounded-full border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]/95 backdrop-blur-md shadow-[0_18px_40px_-18px_rgba(15,15,14,0.25)] transition-all duration-300 ${
+        className={`rounded-full border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]/95 backdrop-blur-md shadow-[0_18px_40px_-18px_rgba(15,15,14,0.25)] transition-all duration-300 ${
           visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
           <span className="relative inline-flex h-2 w-2 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-terracotta)] pulse-ring shrink-0" />
           <div className="flex-1 min-w-0 text-[12.5px] truncate">
-            <span className="font-medium text-[color:var(--color-ink)]">{o.who}</span>
-            <span className="text-[color:var(--color-ink-soft)]"> from </span>
-            <span className="font-medium text-[color:var(--color-forest)]">{o.where}</span>
-            <span className="text-[color:var(--color-ink-soft)]"> · {o.what}</span>
+            <span className="font-medium text-[color:var(--color-foreground)]">{o.who}</span>
+            <span className="text-[color:var(--color-muted)]"> from </span>
+            <span className="font-medium text-[color:var(--color-primary)]">{o.where}</span>
+            <span className="text-[color:var(--color-muted)]"> · {o.what}</span>
           </div>
-          <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/60">
+          <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/60">
             live
           </span>
         </div>

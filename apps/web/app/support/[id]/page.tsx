@@ -32,7 +32,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       <NavbarWithSession />
       <section className="pt-24 pb-20">
         <div className="mx-auto max-w-[820px] px-6 lg:px-10">
-          <Link href="/support" className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">← All tickets</Link>
+          <Link href="/support" className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">← All tickets</Link>
 
           <div className="mt-4 flex items-start justify-between gap-3 flex-wrap">
             <div>
@@ -40,10 +40,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 <span className="text-[10.5px] uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-[color:var(--color-saffron)]/15 text-[color:var(--color-gold)] font-medium">
                   {TICKET_STATUS_LABEL[ticket.status]}
                 </span>
-                <span className="text-[11px] font-mono text-[color:var(--color-ink-soft)]">{ticket.shortCode}</span>
+                <span className="text-[11px] font-mono text-[color:var(--color-muted)]">{ticket.shortCode}</span>
               </div>
-              <h1 className="mt-3 font-serif text-[32px] lg:text-[40px] leading-[1.05] tracking-[-0.01em]">{ticket.subject}</h1>
-              <div className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
+              <h1 className="mt-3 font-display text-[32px] lg:text-[40px] leading-[1.05] tracking-[-0.01em]">{ticket.subject}</h1>
+              <div className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
                 {TICKET_CATEGORY_LABEL[ticket.category]}
                 {ticket.assignedAgent ? ` · handled by ${ticket.assignedAgent.name}` : ''}
               </div>
@@ -53,7 +53,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           {ticket.order ? (
             <Link
               href={`/orders/${ticket.order.id}`}
-              className="mt-5 inline-flex items-center gap-3 bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 rounded-xl px-4 py-3 hover:border-[color:var(--color-forest)]/40"
+              className="mt-5 inline-flex items-center gap-3 bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 rounded-xl px-4 py-3 hover:border-[color:var(--color-primary)]/40"
             >
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Linked order</div>
               <div className="text-[13px]">
@@ -68,15 +68,15 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 key={m.id}
                 className={`rounded-2xl border p-4 ${
                   m.author === 'HELPDESK'
-                    ? 'bg-[color:var(--color-forest)]/8 border-[color:var(--color-forest)]/20'
-                    : 'bg-[color:var(--color-paper)] border-[color:var(--color-ink)]/10'
+                    ? 'bg-[color:var(--color-primary)]/8 border-[color:var(--color-primary)]/20'
+                    : 'bg-[color:var(--color-surface)] border-[color:var(--color-foreground)]/10'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-[10.5px] uppercase tracking-[0.14em] font-medium">
-                    {m.author === 'HELPDESK' ? <span className="text-[color:var(--color-forest)]">Magarpatta Go helpdesk · {m.authorName}</span> : <span className="text-[color:var(--color-saffron)]">You · {m.authorName}</span>}
+                    {m.author === 'HELPDESK' ? <span className="text-[color:var(--color-primary)]">Magarpatta Go helpdesk · {m.authorName}</span> : <span className="text-[color:var(--color-saffron)]">You · {m.authorName}</span>}
                   </div>
-                  <div className="text-[10.5px] text-[color:var(--color-ink-soft)]">
+                  <div className="text-[10.5px] text-[color:var(--color-muted)]">
                     {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
                   </div>
                 </div>
@@ -86,8 +86,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           </ul>
 
           {isClosed ? (
-            <div className="mt-8 bg-[color:var(--color-cream-soft)] rounded-2xl p-5 text-center text-[13px] text-[color:var(--color-ink-soft)]">
-              This ticket is closed. <Link href="/support/new" className="text-[color:var(--color-forest)] underline">File a new one →</Link>
+            <div className="mt-8 bg-[color:var(--color-surface-2)] rounded-2xl p-5 text-center text-[13px] text-[color:var(--color-muted)]">
+              This ticket is closed. <Link href="/support/new" className="text-[color:var(--color-primary)] underline">File a new one →</Link>
             </div>
           ) : (
             <div className="mt-8">

@@ -26,7 +26,7 @@ export function ArticleFeedback({ articleId }: { articleId: string }) {
 
   if (submitted) {
     return (
-      <p className="text-[13px] text-[color:var(--color-ink-soft)]">
+      <p className="text-[13px] text-[color:var(--color-muted)]">
         {submitted === 'helpful' ? 'Glad it helped — thanks for letting us know.' : 'Thanks — we\'ll work on improving this article.'}
       </p>
     );
@@ -34,16 +34,16 @@ export function ArticleFeedback({ articleId }: { articleId: string }) {
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
-      <span className="text-[13px] text-[color:var(--color-ink-soft)]">Was this helpful?</span>
+      <span className="text-[13px] text-[color:var(--color-muted)]">Was this helpful?</span>
       <button
         onClick={() => vote(true)}
         disabled={busy}
-        className="px-3.5 py-1.5 rounded-full border border-[color:var(--color-ink)]/14 text-[12.5px] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
+        className="px-3.5 py-1.5 rounded-full border border-[color:var(--color-foreground)]/14 text-[12.5px] hover:bg-[color:var(--color-surface)] disabled:opacity-50"
       >Yes</button>
       <button
         onClick={() => vote(false)}
         disabled={busy}
-        className="px-3.5 py-1.5 rounded-full border border-[color:var(--color-ink)]/14 text-[12.5px] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
+        className="px-3.5 py-1.5 rounded-full border border-[color:var(--color-foreground)]/14 text-[12.5px] hover:bg-[color:var(--color-surface)] disabled:opacity-50"
       >No</button>
     </div>
   );

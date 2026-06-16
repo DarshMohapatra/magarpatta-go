@@ -26,9 +26,9 @@ export default async function RiderOrderPage({ params }: { params: Promise<{ id:
     return (
       <main className="min-h-screen flex items-center justify-center p-6 text-center">
         <div>
-          <h1 className="font-serif text-[28px]">Another rider is on this one.</h1>
-          <p className="mt-2 text-[13.5px] text-[color:var(--color-ink-soft)]">Head back and grab the next available order.</p>
-          <Link href="/rider" className="mt-6 inline-block rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+          <h1 className="font-display text-[28px]">Another rider is on this one.</h1>
+          <p className="mt-2 text-[13.5px] text-[color:var(--color-muted)]">Head back and grab the next available order.</p>
+          <Link href="/rider" className="mt-6 inline-block rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
             Back to dashboard
           </Link>
         </div>

@@ -31,9 +31,9 @@ export function SuperSignInClient() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <label className="block">
-        <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-cream)]/65">Phone</span>
-        <div className="mt-1 flex items-center gap-2 rounded-lg border border-[color:var(--color-cream)]/15 bg-[color:var(--color-forest-dark)] px-3 py-2.5 focus-within:border-[color:var(--color-saffron)]">
-          <span className="text-[13px] text-[color:var(--color-cream)]/55">+91</span>
+        <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-background)]/65">Phone</span>
+        <div className="mt-1 flex items-center gap-2 rounded-lg border border-[color:var(--color-background)]/15 bg-[color:var(--color-primary)] px-3 py-2.5 focus-within:border-[color:var(--color-saffron)]">
+          <span className="text-[13px] text-[color:var(--color-background)]/55">+91</span>
           <input
             autoFocus
             inputMode="numeric"
@@ -41,18 +41,18 @@ export function SuperSignInClient() {
             value={phone}
             onChange={(e) => { setPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); setErr(null); }}
             placeholder="10-digit number"
-            className="flex-1 bg-transparent outline-none text-[15px] tracking-[0.04em] text-[color:var(--color-cream)] placeholder:text-[color:var(--color-cream)]/30"
+            className="flex-1 bg-transparent outline-none text-[15px] tracking-[0.04em] text-[color:var(--color-background)] placeholder:text-[color:var(--color-background)]/30"
           />
         </div>
       </label>
 
       <label className="block">
-        <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-cream)]/65">Password</span>
+        <span className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-background)]/65">Password</span>
         <input
           type="password"
           value={password}
           onChange={(e) => { setPassword(e.target.value); setErr(null); }}
-          className="mt-1 w-full rounded-lg border border-[color:var(--color-cream)]/15 bg-[color:var(--color-forest-dark)] px-3 py-2.5 text-[14px] text-[color:var(--color-cream)] outline-none focus:border-[color:var(--color-saffron)]"
+          className="mt-1 w-full rounded-lg border border-[color:var(--color-background)]/15 bg-[color:var(--color-primary)] px-3 py-2.5 text-[14px] text-[color:var(--color-background)] outline-none focus:border-[color:var(--color-saffron)]"
         />
       </label>
 
@@ -61,7 +61,7 @@ export function SuperSignInClient() {
       <button
         type="submit"
         disabled={busy || phone.length !== 10 || password.length === 0}
-        className="w-full rounded-lg bg-[color:var(--color-saffron)] text-[color:var(--color-forest-dark)] py-3 text-[14px] font-medium hover:bg-[color:var(--color-saffron-soft)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full rounded-lg bg-[color:var(--color-saffron)] text-[color:var(--color-primary)] py-3 text-[14px] font-medium hover:bg-[color:var(--color-saffron-soft)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {busy ? 'Signing in…' : 'Sign in'}
       </button>

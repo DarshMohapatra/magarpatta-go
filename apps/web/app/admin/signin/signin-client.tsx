@@ -41,7 +41,7 @@ export function AdminSignInClient() {
         <h1 className="font-display text-[36px] leading-[1.02] tracking-[-0.02em]">
           Ops <span className="italic text-[color:var(--color-primary)]">console.</span>
         </h1>
-        <p className="mt-3 text-[13.5px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-3 text-[13.5px] text-[color:var(--color-muted)]">
           Restricted access. We&apos;ll text a 6-digit OTP to the registered admin phone. Entry attempts are logged.
         </p>
 
@@ -55,7 +55,7 @@ export function AdminSignInClient() {
           topError={err}
         />
 
-        <p className="mt-8 text-[11.5px] text-[color:var(--color-ink-soft)]/60 font-mono">
+        <p className="mt-8 text-[11.5px] text-[color:var(--color-muted)]/60 font-mono">
           Demo admin · 9999999999 · OTP 123456
         </p>
       </div>

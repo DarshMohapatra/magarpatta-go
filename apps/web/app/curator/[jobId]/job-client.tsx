@@ -28,7 +28,7 @@ interface JobMeta {
 
 interface Category { slug: string; name: string }
 
-const inp = 'w-full rounded-md border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'w-full rounded-md border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]';
 
 export function CuratorJobClient({ job, initialItems, categories }: {
   job: JobMeta;
@@ -100,13 +100,13 @@ export function CuratorJobClient({ job, initialItems, categories }: {
 
   return (
     <div>
-      <Link href="/curator" className="text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">← Queue</Link>
+      <Link href="/curator" className="text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">← Queue</Link>
 
       <div className="mt-3 flex items-end justify-between gap-3 flex-wrap">
         <div>
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">{job.source} import · {job.status.toLowerCase().replace('_', ' ')}</div>
-          <h1 className="mt-1 font-serif text-[30px] sm:text-[36px] leading-[1.05] tracking-[-0.02em]">{job.vendor.name}</h1>
-          <p className="text-[12.5px] text-[color:var(--color-ink-soft)]">{job.vendor.hub} · submitted {new Date(job.submittedAt).toLocaleString('en-IN')}</p>
+          <h1 className="mt-1 font-display text-[30px] sm:text-[36px] leading-[1.05] tracking-[-0.02em]">{job.vendor.name}</h1>
+          <p className="text-[12.5px] text-[color:var(--color-muted)]">{job.vendor.hub} · submitted {new Date(job.submittedAt).toLocaleString('en-IN')}</p>
         </div>
       </div>
 
@@ -114,7 +114,7 @@ export function CuratorJobClient({ job, initialItems, categories }: {
         {/* Image viewer */}
         <div className="lg:sticky lg:top-[120px] space-y-3">
           {job.imageIndices.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 p-10 text-center text-[12.5px] text-[color:var(--color-ink-soft)]/70">
+            <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 p-10 text-center text-[12.5px] text-[color:var(--color-muted)]/70">
               No image attached (source was {job.source}).
             </div>
           ) : (
@@ -123,7 +123,7 @@ export function CuratorJobClient({ job, initialItems, categories }: {
               <img
                 src={`/api/curator/jobs/${job.id}/image/${activeImg}`}
                 alt="Original menu photo"
-                className="w-full rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]"
+                className="w-full rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]"
               />
               {job.imageIndices.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto">
@@ -131,7 +131,7 @@ export function CuratorJobClient({ job, initialItems, categories }: {
                     <button
                       key={i}
                       onClick={() => setActiveImg(i)}
-                      className={`shrink-0 rounded-lg overflow-hidden border-2 ${activeImg === i ? 'border-[color:var(--color-forest)]' : 'border-transparent hover:border-[color:var(--color-ink)]/20'}`}
+                      className={`shrink-0 rounded-lg overflow-hidden border-2 ${activeImg === i ? 'border-[color:var(--color-primary)]' : 'border-transparent hover:border-[color:var(--color-foreground)]/20'}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -151,18 +151,18 @@ export function CuratorJobClient({ job, initialItems, categories }: {
         <div className="space-y-4">
           <div className="flex items-end justify-between gap-3 flex-wrap">
             <label className="block">
-              <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Category</span>
+              <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Category</span>
               <select disabled={readOnly} value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)} className={inp + ' mt-1'}>
                 {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
               </select>
             </label>
-            <span className="text-[12px] text-[color:var(--color-ink-soft)]">{items.length} item{items.length === 1 ? '' : 's'}</span>
+            <span className="text-[12px] text-[color:var(--color-muted)]">{items.length} item{items.length === 1 ? '' : 's'}</span>
           </div>
 
           <div className="overflow-x-auto -mx-2">
             <table className="w-full min-w-[560px] text-[13px]">
               <thead>
-                <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+                <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">
                   <th className="px-2 py-2">Name</th>
                   <th className="px-2 py-2 w-20">MRP ₹</th>
                   <th className="px-2 py-2 w-24">Unit</th>
@@ -171,7 +171,7 @@ export function CuratorJobClient({ job, initialItems, categories }: {
                   <th className="px-2 py-2 w-8"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[color:var(--color-ink)]/8 align-top">
+              <tbody className="divide-y divide-[color:var(--color-foreground)]/8 align-top">
                 {items.map((it, i) => (
                   <tr key={i}>
                     <td className="px-2 py-1.5">
@@ -184,10 +184,10 @@ export function CuratorJobClient({ job, initialItems, categories }: {
                       <input disabled={readOnly} value={it.unit ?? ''} onChange={(e) => update(i, { unit: e.target.value })} placeholder="e.g. half" className={inp} />
                     </td>
                     <td className="px-2 py-1.5 text-center">
-                      <input disabled={readOnly} type="checkbox" checked={it.isVeg} onChange={(e) => update(i, { isVeg: e.target.checked })} className="accent-[color:var(--color-forest)]" />
+                      <input disabled={readOnly} type="checkbox" checked={it.isVeg} onChange={(e) => update(i, { isVeg: e.target.checked })} className="accent-[color:var(--color-primary)]" />
                     </td>
                     <td className="px-2 py-1.5 text-center">
-                      <input disabled={readOnly} type="checkbox" checked={it.isRegulated} onChange={(e) => update(i, { isRegulated: e.target.checked })} className="accent-[color:var(--color-forest)]" />
+                      <input disabled={readOnly} type="checkbox" checked={it.isRegulated} onChange={(e) => update(i, { isRegulated: e.target.checked })} className="accent-[color:var(--color-primary)]" />
                     </td>
                     <td className="px-2 py-1.5">
                       {!readOnly && (
@@ -199,25 +199,25 @@ export function CuratorJobClient({ job, initialItems, categories }: {
               </tbody>
             </table>
           </div>
-          <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/75">
+          <p className="text-[11.5px] text-[color:var(--color-muted)]/75">
             Customer pays MRP on the menu. The platform adds a hidden ₹1 convenience fee at checkout (only on non-MRP-locked items) — you don&apos;t need to set it. Tick &ldquo;MRP-locked&rdquo; for packaged regulated goods (Legal Metrology rule: sells at MRP only).
           </p>
 
           {!readOnly && (
-            <button onClick={addRow} className="text-[12.5px] text-[color:var(--color-forest)] hover:underline">+ Add a missing item</button>
+            <button onClick={addRow} className="text-[12.5px] text-[color:var(--color-primary)] hover:underline">+ Add a missing item</button>
           )}
 
           {!readOnly && (
             <>
               <label className="block pt-2">
-                <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Note (sent to vendor on reject)</span>
+                <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Note (sent to vendor on reject)</span>
                 <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} className={inp + ' mt-1'} />
               </label>
 
               {err && <p className="text-[12.5px] text-[color:var(--color-terracotta)]">{err}</p>}
 
               <div className="flex flex-wrap gap-2 pt-1">
-                <button disabled={busy} onClick={approve} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+                <button disabled={busy} onClick={approve} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
                   {busy ? 'Forwarding…' : `Approve · forward ${items.length} to admin`}
                 </button>
                 <button disabled={busy} onClick={reject} className="rounded-full border border-[color:var(--color-terracotta)]/40 text-[color:var(--color-terracotta)] px-5 py-2.5 text-[13px] hover:bg-[color:var(--color-terracotta)]/8 disabled:opacity-50">
@@ -229,7 +229,7 @@ export function CuratorJobClient({ job, initialItems, categories }: {
 
           {readOnly && job.curatorNote && (
             <div className="rounded-xl bg-[color:var(--color-terracotta)]/8 border border-[color:var(--color-terracotta)]/20 px-4 py-3 text-[12.5px]">
-              <span className="text-[color:var(--color-ink-soft)]/70">Curator note:</span> {job.curatorNote}
+              <span className="text-[color:var(--color-muted)]/70">Curator note:</span> {job.curatorNote}
             </div>
           )}
         </div>

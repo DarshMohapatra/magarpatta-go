@@ -27,8 +27,8 @@ export function HowItWorks() {
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
             How it works
           </div>
-          <h2 className="mt-4 font-serif text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em] text-[color:var(--color-ink)]">
-            Three steps. <span className="italic text-[color:var(--color-forest)]">Nothing more.</span>
+          <h2 className="mt-4 font-display text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em] text-[color:var(--color-foreground)]">
+            Three steps. <span className="italic text-[color:var(--color-primary)]">Nothing more.</span>
           </h2>
         </div>
 
@@ -36,20 +36,20 @@ export function HowItWorks() {
           {STEPS.map((s, idx) => (
             <div key={s.n} className="relative group">
               {idx < STEPS.length - 1 && (
-                <div className="hidden md:block absolute top-6 left-[calc(100%-2rem)] right-0 h-px bg-gradient-to-r from-[color:var(--color-ink)]/20 to-transparent" />
+                <div className="hidden md:block absolute top-6 left-[calc(100%-2rem)] right-0 h-px bg-gradient-to-r from-[color:var(--color-foreground)]/20 to-transparent" />
               )}
 
               <div className="flex items-baseline gap-4">
-                <span className="font-serif text-[44px] text-[color:var(--color-saffron)] leading-none">
+                <span className="font-display text-[44px] text-[color:var(--color-saffron)] leading-none">
                   {s.n}
                 </span>
-                <div className="h-px flex-1 bg-[color:var(--color-ink)]/10 translate-y-[-8px]" />
+                <div className="h-px flex-1 bg-[color:var(--color-foreground)]/10 translate-y-[-8px]" />
               </div>
 
-              <h3 className="mt-6 font-serif text-[28px] leading-tight text-[color:var(--color-ink)]">
+              <h3 className="mt-6 font-display text-[28px] leading-tight text-[color:var(--color-foreground)]">
                 {s.title}
               </h3>
-              <p className="mt-3 text-[15px] leading-[1.6] text-[color:var(--color-ink-soft)]">
+              <p className="mt-3 text-[15px] leading-[1.6] text-[color:var(--color-muted)]">
                 {s.desc}
               </p>
             </div>

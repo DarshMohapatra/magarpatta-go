@@ -74,14 +74,14 @@ export function DeviationPrompt() {
           onChange={(e) => setText(e.target.value)}
           maxLength={2000}
           placeholder="Quick note — traffic detour, wrong address, broke down, etc."
-          className="w-full bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/14 rounded-xl px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-forest)] resize-y"
+          className="w-full bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/14 rounded-xl px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)] resize-y"
         />
         {err ? <div className="mt-2 text-[12px] text-[color:var(--color-terracotta)]">{err}</div> : null}
         <div className="mt-2 flex justify-end">
           <button
             onClick={submit}
             disabled={text.trim().length < 5 || busy}
-            className="px-4 py-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] transition-colors disabled:opacity-50"
           >
             {busy ? 'Sending…' : 'Send explanation'}
           </button>

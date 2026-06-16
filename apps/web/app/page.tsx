@@ -42,9 +42,9 @@ export default async function Landing() {
         >
           <path
             d="M120 180 L240 80 L420 90 L530 200 L540 360 L460 500 L280 530 L130 460 L70 300 Z"
-            stroke="var(--color-forest)"
+            stroke="var(--color-primary)"
             strokeWidth="1.2"
-            fill="var(--color-forest)"
+            fill="var(--color-primary)"
             fillOpacity="0.06"
           />
           <circle cx="300" cy="300" r="5" fill="var(--color-saffron)" />
@@ -56,7 +56,7 @@ export default async function Landing() {
           viewBox="0 0 600 600"
           fill="none"
         >
-          <circle cx="300" cy="300" r="260" stroke="var(--color-forest)" strokeWidth="1" strokeDasharray="2 6" />
+          <circle cx="300" cy="300" r="260" stroke="var(--color-primary)" strokeWidth="1" strokeDasharray="2 6" />
           <circle cx="300" cy="300" r="200" stroke="var(--color-saffron)" strokeWidth="1" strokeDasharray="1 4" />
         </svg>
 
@@ -64,22 +64,22 @@ export default async function Landing() {
           <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-center">
             {/* Left — editorial content */}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)]/60 backdrop-blur-sm px-3 py-1.5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)]/60 backdrop-blur-sm px-3 py-1.5">
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
-                <span className="text-[11px] tracking-[0.16em] uppercase text-[color:var(--color-ink-soft)]">
+                <span className="text-[11px] tracking-[0.16em] uppercase text-[color:var(--color-muted)]">
                   {siteConfig.siteName} · {siteConfig.city} · est. 2026
                 </span>
               </div>
 
-              <h1 className="mt-8 font-serif text-[52px] sm:text-[72px] lg:text-[92px] leading-[0.94] tracking-[-0.025em] text-[color:var(--color-ink)]">
+              <h1 className="mt-8 font-display text-[52px] sm:text-[72px] lg:text-[92px] leading-[0.94] tracking-[-0.025em] text-[color:var(--color-foreground)]">
                 A shop that
                 <br />
-                <span className="italic text-[color:var(--color-forest)]">delivers.</span>
+                <span className="italic text-[color:var(--color-primary)]">delivers.</span>
                 <br />
                 Nothing more.
               </h1>
 
-              <p className="mt-7 max-w-xl text-[16px] lg:text-[18px] leading-[1.5] text-[color:var(--color-ink-soft)]">
+              <p className="mt-7 max-w-xl text-[16px] lg:text-[18px] leading-[1.5] text-[color:var(--color-muted)]">
                 Food, groceries, medicines, fresh meat — sourced only from within {siteConfig.siteName} and
                 delivered in under twenty-five minutes. By neighbours, for neighbours.
               </p>
@@ -87,7 +87,7 @@ export default async function Landing() {
               <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link
                   href="/menu"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[14.5px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)] transition-colors"
                 >
                   Browse the menu
                   <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
@@ -96,7 +96,7 @@ export default async function Landing() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[14.5px] font-medium border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] text-[color:var(--color-ink)] hover:border-[color:var(--color-forest)]/40 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[14.5px] font-medium border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] text-[color:var(--color-foreground)] hover:border-[color:var(--color-primary)]/40 transition-colors"
                 >
                   Create an account
                 </Link>
@@ -104,7 +104,7 @@ export default async function Landing() {
 
               <Link
                 href="/home"
-                className="inline-block mt-5 text-[13.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] underline underline-offset-4"
+                className="inline-block mt-5 text-[13.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)] underline underline-offset-4"
               >
                 Or see how it works →
               </Link>
@@ -115,7 +115,7 @@ export default async function Landing() {
           </div>
 
           {/* Thin stat strip */}
-          <div className="mt-20 lg:mt-24 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-ink)]/10">
+          <div className="mt-20 lg:mt-24 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10 pt-8 border-t border-[color:var(--color-foreground)]/10">
             {[
               { v: String(societyCount), l: 'societies mapped' },
               { v: '25', l: 'min median delivery' },
@@ -123,10 +123,10 @@ export default async function Landing() {
               { v: String(itemCount), l: 'items live' },
             ].map((s) => (
               <div key={s.l}>
-                <div className="font-serif text-5xl lg:text-[56px] leading-none text-[color:var(--color-forest)]">
+                <div className="font-display text-5xl lg:text-[56px] leading-none text-[color:var(--color-primary)]">
                   {s.v}
                 </div>
-                <div className="mt-2 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/80">
+                <div className="mt-2 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/80">
                   {s.l}
                 </div>
               </div>
@@ -136,42 +136,42 @@ export default async function Landing() {
       </section>
 
       {/* Closing note — editorial, minimal */}
-      <section className="relative border-t border-[color:var(--color-ink)]/10 bg-[color:var(--color-cream-soft)]/50 py-20 lg:py-28">
+      <section className="relative border-t border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface-2)]/50 py-20 lg:py-28">
         <div className="relative mx-auto max-w-[1080px] px-6 lg:px-10">
           <div className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-saffron)] mb-6">
             A note from the founders
           </div>
-          <p className="font-serif text-[32px] lg:text-[44px] leading-[1.12] tracking-[-0.015em] max-w-3xl">
+          <p className="font-display text-[32px] lg:text-[44px] leading-[1.12] tracking-[-0.015em] max-w-3xl">
             If you&rsquo;re reading this from inside the gates —{' '}
-            <span className="italic text-[color:var(--color-forest)]">hello.</span>{' '}
+            <span className="italic text-[color:var(--color-primary)]">hello.</span>{' '}
             We built this for you. Not for anyone else.
           </p>
-          <p className="mt-6 max-w-2xl text-[14.5px] leading-[1.6] text-[color:var(--color-ink-soft)]">
+          <p className="mt-6 max-w-2xl text-[14.5px] leading-[1.6] text-[color:var(--color-muted)]">
             No app stores, no billboards, no Bengaluru defaults. Four riders, one postcode, a
             single afternoon to get to know which lift is slow and which dal sells out by 8 PM.
           </p>
-          <p className="mt-8 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">
+          <p className="mt-8 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">
             — The team, {siteConfig.platformName} · launching 2026
           </p>
         </div>
       </section>
 
       {/* Minimal footer */}
-      <footer className="border-t border-[color:var(--color-ink)]/10 bg-[color:var(--color-cream)] py-10">
+      <footer className="border-t border-[color:var(--color-foreground)]/10 bg-[color:var(--color-background)] py-10">
         <div className="mx-auto max-w-[1280px] px-6 lg:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
             <span className="text-[14px] tracking-tight font-medium">
-              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
             </span>
           </div>
-          <nav className="flex items-center gap-6 text-[13px] text-[color:var(--color-ink-soft)]">
-            <Link href="/menu" className="hover:text-[color:var(--color-forest)]">Menu</Link>
-            <Link href="/home" className="hover:text-[color:var(--color-forest)]">How it works</Link>
-            <Link href="/signin" className="hover:text-[color:var(--color-forest)]">Sign in</Link>
-            <Link href="/signup" className="hover:text-[color:var(--color-forest)]">Create account</Link>
+          <nav className="flex items-center gap-6 text-[13px] text-[color:var(--color-muted)]">
+            <Link href="/menu" className="hover:text-[color:var(--color-primary)]">Menu</Link>
+            <Link href="/home" className="hover:text-[color:var(--color-primary)]">How it works</Link>
+            <Link href="/signin" className="hover:text-[color:var(--color-primary)]">Sign in</Link>
+            <Link href="/signup" className="hover:text-[color:var(--color-primary)]">Create account</Link>
           </nav>
-          <div className="text-[12px] text-[color:var(--color-ink-soft)]/60">
+          <div className="text-[12px] text-[color:var(--color-muted)]/60">
             © 2026 · Made in {siteConfig.siteName}
           </div>
         </div>

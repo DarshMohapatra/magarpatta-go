@@ -99,17 +99,17 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
       <LocationTracker />
       <DeviationPrompt />
       {/* Header strip */}
-      <header className="border-b border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]">
+      <header className="border-b border-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)]">
         <div className="mx-auto max-w-[1080px] px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
             <span className="text-[14px] tracking-tight font-medium">
-              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
               <span className="ml-1.5 text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/rider/feedback" className="text-[12px] text-[color:var(--color-forest)] hover:underline">
+            <Link href="/rider/feedback" className="text-[12px] text-[color:var(--color-primary)] hover:underline">
               Feedback
             </Link>
             <div className="text-right leading-tight hidden sm:block">
@@ -126,10 +126,10 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
 
       <section className="mx-auto max-w-[1080px] px-4 sm:px-6 py-6 space-y-8">
         {/* Earnings strip */}
-        <div className="rounded-2xl bg-gradient-to-br from-[color:var(--color-forest)] to-[color:var(--color-moss)] text-[color:var(--color-cream)] p-5 sm:p-6 flex items-center justify-between gap-4">
+        <div className="rounded-2xl bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-moss)] text-[color:var(--color-background)] p-5 sm:p-6 flex items-center justify-between gap-4">
           <div>
             <div className="text-[11px] uppercase tracking-[0.16em] opacity-80">Today</div>
-            <div className="mt-1 font-serif text-[32px] leading-none">₹{data?.todayEarningsInr ?? 0}</div>
+            <div className="mt-1 font-display text-[32px] leading-none">₹{data?.todayEarningsInr ?? 0}</div>
             <div className="mt-1 text-[12.5px] opacity-85">
               {data?.todayDrops ?? 0} drop{(data?.todayDrops ?? 0) === 1 ? '' : 's'} · ₹{rider.perDropInr} per delivery
             </div>
@@ -148,13 +148,13 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
         {/* Active deliveries */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-serif text-[22px]">Your active deliveries</h2>
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+            <h2 className="font-display text-[22px]">Your active deliveries</h2>
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
               {data?.active.length ?? 0}
             </span>
           </div>
           {(data?.active.length ?? 0) === 0 ? (
-            <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]">
+            <div className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-6 text-center text-[13px] text-[color:var(--color-muted)]">
               Nothing in progress. Grab an order below.
             </div>
           ) : (
@@ -162,7 +162,7 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
               {data!.active.map((o) => (
                 <li key={o.id}>
                   <Link href={`/rider/orders/${o.id}`}
-                    className="block rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-forest)]/5 p-4 hover:border-[color:var(--color-forest)]/50 transition-colors">
+                    className="block rounded-2xl border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/5 p-4 hover:border-[color:var(--color-primary)]/50 transition-colors">
                     <OrderRow o={o} accent="active" />
                   </Link>
                 </li>
@@ -174,17 +174,17 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
         {/* Available — every platform-rider order is concierge: walk in + buy */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-serif text-[22px]">Walk in + buy</h2>
+            <h2 className="font-display text-[22px]">Walk in + buy</h2>
             <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-terracotta)]">
               {data?.available.length ?? 0} waiting
             </span>
           </div>
-          <p className="text-[12px] text-[color:var(--color-ink-soft)]/75 mb-3 -mt-1">
+          <p className="text-[12px] text-[color:var(--color-muted)]/75 mb-3 -mt-1">
             The shop hasn&apos;t been pinged — you&apos;re the personal shopper here. Walk in, place the order at the
             counter, pay from your {siteConfig.platformName} float, bring it back to the customer&apos;s door.
           </p>
           {(data?.available.length ?? 0) === 0 ? (
-            <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]">
+            <div className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-6 text-center text-[13px] text-[color:var(--color-muted)]">
               No neighbours waiting yet. Orders land here live.
             </div>
           ) : (
@@ -195,7 +195,7 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
                   <div className="mt-3 flex justify-end">
                     <button
                       onClick={() => accept(o.id)}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] px-4 py-2 text-[13px] font-medium hover:brightness-95"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-background)] px-4 py-2 text-[13px] font-medium hover:brightness-95"
                     >
                       Pick this up →
                     </button>
@@ -209,19 +209,19 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
         {/* Recent history */}
         {(data?.history.length ?? 0) > 0 && (
           <div>
-            <h2 className="font-serif text-[22px] mb-3">Recent drops</h2>
-            <ul className="divide-y divide-[color:var(--color-ink)]/8 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]">
+            <h2 className="font-display text-[22px] mb-3">Recent drops</h2>
+            <ul className="divide-y divide-[color:var(--color-foreground)]/8 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]">
               {data!.history.slice(0, 8).map((h) => (
                 <li key={h.id} className="px-4 py-3 flex items-center justify-between gap-3 text-[13px]">
                   <div className="min-w-0">
                     <div className="font-medium truncate">{h.vendorName ?? 'Order'} → {h.building}</div>
-                    <div className="text-[11.5px] text-[color:var(--color-ink-soft)]/75">
+                    <div className="text-[11.5px] text-[color:var(--color-muted)]/75">
                       {h.deliveredAt
                         ? new Date(h.deliveredAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                         : '—'} IST
                     </div>
                   </div>
-                  <div className="font-serif text-[14px] text-[color:var(--color-forest)]">₹{rider.perDropInr}</div>
+                  <div className="font-display text-[14px] text-[color:var(--color-primary)]">₹{rider.perDropInr}</div>
                 </li>
               ))}
             </ul>
@@ -235,7 +235,7 @@ export function RiderDashboardClient({ rider }: { rider: RiderSession }) {
 function OrderRow({ o, accent }: { o: OrderPreview; accent: 'active' | 'available' | 'concierge' }) {
   const placed = new Date(o.placedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
   const statusColor =
-    accent === 'active' ? 'text-[color:var(--color-forest)]' :
+    accent === 'active' ? 'text-[color:var(--color-primary)]' :
     accent === 'concierge' ? 'text-[color:var(--color-terracotta)]' :
     'text-[color:var(--color-saffron)]';
   return (
@@ -245,21 +245,21 @@ function OrderRow({ o, accent }: { o: OrderPreview; accent: 'active' | 'availabl
           <span className={statusColor}>
             {accent === 'concierge' ? 'Walk-in · concierge' : o.status.replace('_', ' ')}
           </span>
-          <span className="text-[color:var(--color-ink-soft)]/50">· #{o.id.slice(-6)}</span>
+          <span className="text-[color:var(--color-muted)]/50">· #{o.id.slice(-6)}</span>
         </div>
         <div className="mt-1 font-medium text-[14.5px] truncate">
           {o.vendorName ?? 'Shop'} → {o.building}, flat {o.flat}
         </div>
-        <div className="text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">
+        <div className="text-[12px] text-[color:var(--color-muted)]/80 truncate">
           {o.items.map((i) => `${i.name}${i.quantity > 1 ? ` × ${i.quantity}` : ''}`).join(', ')}
         </div>
-        <div className="mt-1 text-[11px] text-[color:var(--color-ink-soft)]/60">
+        <div className="mt-1 text-[11px] text-[color:var(--color-muted)]/60">
           {o.society} · placed {placed} IST
         </div>
       </div>
       <div className="text-right shrink-0">
-        <div className="font-serif text-[18px]">₹{o.totalInr}</div>
-        <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">
+        <div className="font-display text-[18px]">₹{o.totalInr}</div>
+        <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/65">
           order value
         </div>
       </div>

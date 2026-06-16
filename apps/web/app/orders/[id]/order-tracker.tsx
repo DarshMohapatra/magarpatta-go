@@ -67,9 +67,9 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
   const rider = delivered ? { x: HOME.x, y: HOME.y, angle: 0 } : quadAt(travelP);
 
   return (
-    <div className="rounded-3xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden shadow-[0_24px_60px_-28px_rgba(15,15,14,0.18)]">
+    <div className="rounded-3xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden shadow-[0_24px_60px_-28px_rgba(15,15,14,0.18)]">
       {/* Map viewport */}
-      <div className="relative h-[320px] bg-[color:var(--color-forest)]/5 overflow-hidden">
+      <div className="relative h-[320px] bg-[color:var(--color-primary)]/5 overflow-hidden">
         <svg viewBox="0 0 440 320" className="absolute inset-0 w-full h-full">
           <defs>
             <radialGradient id="magarHalo" cx="50%" cy="55%" r="60%">
@@ -83,17 +83,17 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
           {/* Magarpatta polygon */}
           <path
             d="M50 80 L150 40 L310 45 L400 120 L390 240 L300 290 L140 285 L60 220 Z"
-            stroke="var(--color-forest)"
+            stroke="var(--color-primary)"
             strokeWidth="1.2"
             strokeDasharray="3 4"
-            fill="var(--color-forest)"
+            fill="var(--color-primary)"
             fillOpacity="0.05"
           />
 
           {/* Route line from shop to home */}
           <path
             d={`M ${SHOP.x} ${SHOP.y} Q ${CTRL.x} ${CTRL.y} ${HOME.x} ${HOME.y}`}
-            stroke="var(--color-ink)"
+            stroke="var(--color-foreground)"
             strokeOpacity="0.15"
             strokeWidth="1.5"
             strokeDasharray="4 6"
@@ -123,15 +123,15 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                 </>
               )}
             </circle>
-            <text x={SHOP.x} y={SHOP.y - 15} fontSize="10" textAnchor="middle" fill="var(--color-ink-soft)" className="uppercase tracking-wider">
+            <text x={SHOP.x} y={SHOP.y - 15} fontSize="10" textAnchor="middle" fill="var(--color-muted)" className="uppercase tracking-wider">
               {vendorName?.split(' · ')[0] ?? 'Shop'}
             </text>
           </g>
 
           {/* Home marker */}
           <g>
-            <circle cx={HOME.x} cy={HOME.y} r="7" fill="var(--color-forest)" />
-            <circle cx={HOME.x} cy={HOME.y} r="7" fill="var(--color-forest)" opacity="0.3">
+            <circle cx={HOME.x} cy={HOME.y} r="7" fill="var(--color-primary)" />
+            <circle cx={HOME.x} cy={HOME.y} r="7" fill="var(--color-primary)" opacity="0.3">
               {delivered && (
                 <>
                   <animate attributeName="r" values="7;18;7" dur="2.4s" repeatCount="indefinite" />
@@ -139,7 +139,7 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                 </>
               )}
             </circle>
-            <text x={HOME.x} y={HOME.y + 22} fontSize="10" textAnchor="middle" fill="var(--color-ink-soft)" className="uppercase tracking-wider">
+            <text x={HOME.x} y={HOME.y + 22} fontSize="10" textAnchor="middle" fill="var(--color-muted)" className="uppercase tracking-wider">
               {building.split(' ').slice(-1)[0]} · {flat}
             </text>
           </g>
@@ -150,18 +150,18 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
               transform={`translate(${rider.x}, ${rider.y}) rotate(${rider.angle})`}
               style={{ transition: moving ? 'transform 2s linear' : 'none' }}
             >
-              <ellipse cx="0" cy="8" rx="10" ry="2" fill="var(--color-ink)" fillOpacity="0.18" />
+              <ellipse cx="0" cy="8" rx="10" ry="2" fill="var(--color-foreground)" fillOpacity="0.18" />
               <g transform="translate(-10, -8)">
-                <circle cx="2" cy="4" r="3.5" fill="var(--color-ink)" />
+                <circle cx="2" cy="4" r="3.5" fill="var(--color-foreground)" />
                 <circle cx="2" cy="4" r="1.5" fill="var(--color-saffron)" />
-                <circle cx="18" cy="4" r="3.5" fill="var(--color-ink)" />
+                <circle cx="18" cy="4" r="3.5" fill="var(--color-foreground)" />
                 <circle cx="18" cy="4" r="1.5" fill="var(--color-saffron)" />
-                <rect x="4" y="1" width="12" height="6" rx="2" fill="var(--color-saffron)" stroke="var(--color-ink)" strokeWidth="0.6" />
-                <line x1="18" y1="-2" x2="18" y2="2" stroke="var(--color-ink)" strokeWidth="0.8" strokeLinecap="round" />
-                <circle cx="10" cy="1" r="2.5" fill="var(--color-forest)" />
-                <circle cx="10" cy="0.5" r="1" fill="var(--color-cream)" />
-                <rect x="5" y="8" width="7" height="5" rx="0.8" fill="var(--color-terracotta)" stroke="var(--color-ink)" strokeWidth="0.4" />
-                <text x="8.5" y="11.5" fontSize="3" fill="var(--color-cream)" textAnchor="middle">MG</text>
+                <rect x="4" y="1" width="12" height="6" rx="2" fill="var(--color-saffron)" stroke="var(--color-foreground)" strokeWidth="0.6" />
+                <line x1="18" y1="-2" x2="18" y2="2" stroke="var(--color-foreground)" strokeWidth="0.8" strokeLinecap="round" />
+                <circle cx="10" cy="1" r="2.5" fill="var(--color-primary)" />
+                <circle cx="10" cy="0.5" r="1" fill="var(--color-background)" />
+                <rect x="5" y="8" width="7" height="5" rx="0.8" fill="var(--color-terracotta)" stroke="var(--color-foreground)" strokeWidth="0.4" />
+                <text x="8.5" y="11.5" fontSize="3" fill="var(--color-background)" textAnchor="middle">MG</text>
               </g>
             </g>
           )}
@@ -170,36 +170,36 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
               transform={`translate(${rider.x}, ${rider.y})`}
               style={{ transition: moving ? 'transform 2s linear' : 'none' }}
             >
-              <ellipse cx="0" cy="7" rx="8" ry="1.8" fill="var(--color-ink)" fillOpacity="0.18" />
+              <ellipse cx="0" cy="7" rx="8" ry="1.8" fill="var(--color-foreground)" fillOpacity="0.18" />
               {/* Vendor courier — stylised person carrying a tiffin/parcel */}
               <g transform="translate(-7, -10)">
-                <circle cx="7" cy="2" r="2.5" fill="var(--color-forest)" />
-                <rect x="4.5" y="5" width="5" height="7" rx="1.2" fill="var(--color-forest)" />
-                <rect x="2" y="7" width="4" height="4" rx="0.6" fill="var(--color-terracotta)" stroke="var(--color-ink)" strokeWidth="0.4" />
-                <text x="4" y="10" fontSize="2.4" fill="var(--color-cream)" textAnchor="middle">MG</text>
+                <circle cx="7" cy="2" r="2.5" fill="var(--color-primary)" />
+                <rect x="4.5" y="5" width="5" height="7" rx="1.2" fill="var(--color-primary)" />
+                <rect x="2" y="7" width="4" height="4" rx="0.6" fill="var(--color-terracotta)" stroke="var(--color-foreground)" strokeWidth="0.4" />
+                <text x="4" y="10" fontSize="2.4" fill="var(--color-background)" textAnchor="middle">MG</text>
               </g>
             </g>
           )}
         </svg>
 
         {/* Floating time readout */}
-        <div className="absolute top-4 left-4 rounded-full bg-[color:var(--color-paper)]/95 backdrop-blur px-3 py-1.5 flex items-center gap-1.5 border border-[color:var(--color-ink)]/10">
+        <div className="absolute top-4 left-4 rounded-full bg-[color:var(--color-surface)]/95 backdrop-blur px-3 py-1.5 flex items-center gap-1.5 border border-[color:var(--color-foreground)]/10">
           <span className={cn(
             'relative inline-flex h-1.5 w-1.5 rounded-full',
-            delivered ? 'bg-[color:var(--color-forest)]' : 'bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring',
+            delivered ? 'bg-[color:var(--color-primary)]' : 'bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring',
           )} />
-          <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
+          <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
             {statusLabel(status)}
           </span>
         </div>
 
-        <div className="absolute top-4 right-4 rounded-full bg-[color:var(--color-ink)] text-[color:var(--color-cream)] px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em]">
+        <div className="absolute top-4 right-4 rounded-full bg-[color:var(--color-foreground)] text-[color:var(--color-background)] px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em]">
           {formatElapsed(elapsedSeconds)}
         </div>
       </div>
 
       {/* Timeline — horizontal steps */}
-      <div className="px-6 py-6 border-t border-[color:var(--color-ink)]/8">
+      <div className="px-6 py-6 border-t border-[color:var(--color-foreground)]/8">
         <div className="flex items-center justify-between gap-2">
           {timeline.map((step, i) => {
             // Progress computed against the filtered timeline so concierge
@@ -216,9 +216,9 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                       'flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium shrink-0 transition-colors',
                       done
                         ? current
-                          ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-ink)]'
-                          : 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
-                        : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/60',
+                          ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)]'
+                          : 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]'
+                        : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/60',
                     )}
                   >
                     {done && !current ? (
@@ -232,16 +232,16 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                   <span className={cn(
                     'text-[10px] uppercase tracking-[0.08em] text-center truncate max-w-full px-1',
                     current
-                      ? 'text-[color:var(--color-ink)] font-medium'
+                      ? 'text-[color:var(--color-foreground)] font-medium'
                       : done
-                        ? 'text-[color:var(--color-ink-soft)]'
-                        : 'text-[color:var(--color-ink-soft)]/50',
+                        ? 'text-[color:var(--color-muted)]'
+                        : 'text-[color:var(--color-muted)]/50',
                   )}>
                     {stepShortLabel(step.status)}
                   </span>
                   <span className={cn(
                     'text-[9.5px] font-mono tabular-nums tracking-tight text-center',
-                    done ? 'text-[color:var(--color-ink-soft)]/70' : 'text-[color:var(--color-ink-soft)]/30',
+                    done ? 'text-[color:var(--color-muted)]/70' : 'text-[color:var(--color-muted)]/30',
                   )}>
                     {stampIso ? formatTimeIst(stampIso) : '—'}
                   </span>
@@ -249,7 +249,7 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
                 {i < timeline.length - 1 && (
                   <div className={cn(
                     'h-px flex-1 shrink-0 transition-colors self-start mt-3',
-                    done ? 'bg-[color:var(--color-forest)]/40' : 'bg-[color:var(--color-ink)]/12',
+                    done ? 'bg-[color:var(--color-primary)]/40' : 'bg-[color:var(--color-foreground)]/12',
                   )} />
                 )}
               </div>
@@ -257,9 +257,9 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
           })}
         </div>
         {(stamps?.pickedUpAt || riderName || concierge) && (
-          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[11px] text-[color:var(--color-ink-soft)]/80">
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[11px] text-[color:var(--color-muted)]/80">
             {vendorSelf && (
-              <span className="rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] uppercase bg-[color:var(--color-forest)]/12 text-[color:var(--color-forest)]">
+              <span className="rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] uppercase bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]">
                 Vendor-direct delivery
               </span>
             )}
@@ -269,16 +269,16 @@ export function OrderTracker({ status, elapsedSeconds, vendorName, society, buil
               </span>
             )}
             {vendorSelf && vendorName && stamps?.vendorAcceptedAt && (
-              <span><span className="text-[color:var(--color-ink-soft)]/55">Vendor</span> · {vendorName.split(' · ')[0]} accepted at {formatTimeIst(stamps.vendorAcceptedAt)}</span>
+              <span><span className="text-[color:var(--color-muted)]/55">Vendor</span> · {vendorName.split(' · ')[0]} accepted at {formatTimeIst(stamps.vendorAcceptedAt)}</span>
             )}
             {concierge && riderName && stamps?.pickedUpAt && (
-              <span><span className="text-[color:var(--color-ink-soft)]/55">Rider</span> · {riderName} collected from {vendorName?.split(' · ')[0] ?? 'the shop'} at {formatTimeIst(stamps.pickedUpAt)}</span>
+              <span><span className="text-[color:var(--color-muted)]/55">Rider</span> · {riderName} collected from {vendorName?.split(' · ')[0] ?? 'the shop'} at {formatTimeIst(stamps.pickedUpAt)}</span>
             )}
             {vendorSelf && stamps?.pickedUpAt && (
-              <span><span className="text-[color:var(--color-ink-soft)]/55">On the way</span> · {vendorName?.split(' · ')[0]} left at {formatTimeIst(stamps.pickedUpAt)}</span>
+              <span><span className="text-[color:var(--color-muted)]/55">On the way</span> · {vendorName?.split(' · ')[0]} left at {formatTimeIst(stamps.pickedUpAt)}</span>
             )}
             {stamps?.deliveredAt && (
-              <span><span className="text-[color:var(--color-ink-soft)]/55">Delivered</span> · {formatTimeIst(stamps.deliveredAt)}</span>
+              <span><span className="text-[color:var(--color-muted)]/55">Delivered</span> · {formatTimeIst(stamps.deliveredAt)}</span>
             )}
           </div>
         )}

@@ -21,5 +21,5 @@ export const viewport: Viewport = {
 };
 
 export default function RiderLayout({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen bg-[color:var(--color-cream)]">{children}</div>;
+  return <div className="min-h-screen bg-[color:var(--color-background)]">{children}</div>;
 }

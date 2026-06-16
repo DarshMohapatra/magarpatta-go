@@ -81,7 +81,7 @@ export function VendorShopClient() {
     load();
   }
 
-  if (!shop) return <div className="text-[13px] text-[color:var(--color-ink-soft)]">Loading…</div>;
+  if (!shop) return <div className="text-[13px] text-[color:var(--color-muted)]">Loading…</div>;
 
   const pending = shop.approvalStatus !== 'APPROVED';
 
@@ -91,8 +91,8 @@ export function VendorShopClient() {
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Shop details</div>
           <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">{shop.name}</h1>
-          <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
-            Slug <code className="text-[color:var(--color-ink)]">{shop.slug}</code> · Commission {shop.commissionPct}%
+          <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
+            Slug <code className="text-[color:var(--color-foreground)]">{shop.slug}</code> · Commission {shop.commissionPct}%
           </p>
         </div>
         {!pending && (
@@ -101,7 +101,7 @@ export function VendorShopClient() {
             className={`rounded-full px-5 py-2.5 text-[13px] font-medium ${
               shop.active
                 ? 'border border-[color:var(--color-terracotta)]/40 text-[color:var(--color-terracotta)] hover:bg-[color:var(--color-terracotta)]/8'
-                : 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-primary)]'
+                : 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]'
             }`}
           >
             {shop.active ? 'Pause shop' : 'Go live'}
@@ -112,7 +112,7 @@ export function VendorShopClient() {
       {pending && (
         <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 px-5 py-4 text-[13px]">
           Status · <span className="font-medium uppercase tracking-[0.12em]">{shop.approvalStatus}</span>
-          {shop.approvalNote && <p className="mt-1 text-[color:var(--color-ink-soft)]/80">Note: {shop.approvalNote}</p>}
+          {shop.approvalNote && <p className="mt-1 text-[color:var(--color-muted)]/80">Note: {shop.approvalNote}</p>}
         </div>
       )}
 
@@ -123,7 +123,7 @@ export function VendorShopClient() {
       )}
 
       {!pending && (
-        <p className="text-[12px] text-[color:var(--color-ink-soft)]/80">
+        <p className="text-[12px] text-[color:var(--color-muted)]/80">
           Saving changes here submits them to {siteConfig.platformName} for review. Pause / Go-live is instant — that&apos;s an operational setting.
         </p>
       )}
@@ -182,7 +182,7 @@ export function VendorShopClient() {
             />
             <span>
               <span className="text-[13.5px] font-medium">I deliver my own orders</span>
-              <p className="text-[12px] text-[color:var(--color-ink-soft)]/80 mt-0.5">
+              <p className="text-[12px] text-[color:var(--color-muted)]/80 mt-0.5">
                 If on, your staff picks up + delivers within {siteConfig.siteName}. No platform rider is involved and customers
                 see you on the tracker directly. If off, a {siteConfig.platformName} rider collects from your counter.
               </p>
@@ -213,7 +213,7 @@ export function VendorShopClient() {
 
       <div className="flex items-center justify-end gap-3">
         {msg && <span className="text-[12.5px] text-[color:var(--color-primary)]">{msg}</span>}
-        <button disabled={saving} onClick={save} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-6 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
+        <button disabled={saving} onClick={save} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-6 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
           {saving ? 'Saving…' : 'Save changes'}
         </button>
       </div>
@@ -221,11 +221,11 @@ export function VendorShopClient() {
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6">
+    <section className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6">
       <h2 className="font-display text-[18px] mb-4">{title}</h2>
       {children}
     </section>
@@ -235,7 +235,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">{label}</span>
+      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">{label}</span>
       {children}
     </label>
   );

@@ -64,23 +64,23 @@ export function DeliveryProofUpload({ orderId, canUpload }: { orderId: string; c
   }
 
   return (
-    <section className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
-      <h3 className="font-serif text-[18px]">Delivery proof</h3>
-      <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]">
+    <section className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5">
+      <h3 className="font-display text-[18px]">Delivery proof</h3>
+      <p className="mt-1 text-[12px] text-[color:var(--color-muted)]">
         Photo of the basket leaving the shop. Customers see this on their order page.
       </p>
 
       {loading ? (
-        <p className="mt-4 text-[12px] text-[color:var(--color-ink-soft)]">Loading…</p>
+        <p className="mt-4 text-[12px] text-[color:var(--color-muted)]">Loading…</p>
       ) : proofs.length === 0 ? (
-        <p className="mt-4 text-[12.5px] text-[color:var(--color-ink-soft)] italic">No image uploaded yet.</p>
+        <p className="mt-4 text-[12.5px] text-[color:var(--color-muted)] italic">No image uploaded yet.</p>
       ) : (
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
           {proofs.map((p) => (
-            <a key={p.id} href={p.imageUrl} target="_blank" rel="noreferrer" className="block rounded-lg overflow-hidden border border-[color:var(--color-ink)]/8 hover:opacity-90">
+            <a key={p.id} href={p.imageUrl} target="_blank" rel="noreferrer" className="block rounded-lg overflow-hidden border border-[color:var(--color-foreground)]/8 hover:opacity-90">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.imageUrl} alt="Delivery proof" className="w-full aspect-square object-cover" loading="lazy" />
-              <div className="px-2 py-1 text-[10.5px] text-[color:var(--color-ink-soft)]">
+              <div className="px-2 py-1 text-[10.5px] text-[color:var(--color-muted)]">
                 {p.uploadedByName ?? p.uploadedByRole.toLowerCase()} · {new Date(p.createdAt).toLocaleString('en-IN', { hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' })}
               </div>
             </a>
@@ -95,10 +95,10 @@ export function DeliveryProofUpload({ orderId, canUpload }: { orderId: string; c
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note (optional, e.g. 'Tomatoes ripe — picked extra')"
-            className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-forest)]"
+            className="w-full rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
           />
           <label className="inline-flex items-center gap-3 cursor-pointer">
-            <span className="rounded-md bg-[color:var(--color-forest)] text-white px-4 py-2 text-[13px] font-medium">
+            <span className="rounded-md bg-[color:var(--color-primary)] text-white px-4 py-2 text-[13px] font-medium">
               {busy ? 'Uploading…' : 'Upload photo'}
             </span>
             <input
@@ -112,7 +112,7 @@ export function DeliveryProofUpload({ orderId, canUpload }: { orderId: string; c
               }}
               className="hidden"
             />
-            <span className="text-[11px] text-[color:var(--color-ink-soft)]">JPG / PNG / WebP, up to 5 MB</span>
+            <span className="text-[11px] text-[color:var(--color-muted)]">JPG / PNG / WebP, up to 5 MB</span>
           </label>
           {error && <p className="text-[12px] text-[color:var(--color-terracotta)]">{error}</p>}
         </div>

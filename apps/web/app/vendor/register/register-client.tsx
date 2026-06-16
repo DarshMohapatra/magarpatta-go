@@ -124,14 +124,14 @@ export function VendorRegisterClient() {
           <h1 className="font-display text-[36px] leading-[1.02] tracking-[-0.02em]">
             Thanks, <span className="italic text-[color:var(--color-primary)]">neighbour.</span>
           </h1>
-          <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
             Your application is with the {siteConfig.platformName} team. We usually approve in under 24 hours. You&apos;ll get a call on
-            <span className="font-medium text-[color:var(--color-ink)]"> +91 {form.ownerPhone} </span>
+            <span className="font-medium text-[color:var(--color-foreground)]"> +91 {form.ownerPhone} </span>
             once your shop goes live. Signin is OTP-based — no password to remember.
           </p>
           <button
             onClick={() => router.push('/vendor/signin')}
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-6 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-6 py-3 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]"
           >
             Go to sign in
           </button>
@@ -145,7 +145,7 @@ export function VendorRegisterClient() {
   return (
     <section className="min-h-screen px-4 py-10">
       <div className="mx-auto max-w-[640px]">
-        <Link href="/vendor/signin" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-primary)]">
+        <Link href="/vendor/signin" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back to sign in
         </Link>
@@ -161,19 +161,19 @@ export function VendorRegisterClient() {
           {[1, 2, 3, 4].map((n) => (
             <li key={n} className="flex-1 flex items-center gap-2">
               <div className={`h-6 w-6 rounded-full text-[11px] font-medium flex items-center justify-center ${
-                typeof step === 'number' && step >= n ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/60'
+                typeof step === 'number' && step >= n ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]' : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/60'
               }`}>
                 {n}
               </div>
-              <span className="text-[11.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/75">
+              <span className="text-[11.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/75">
                 {stepLabel(n)}
               </span>
-              {n < 4 && <div className="h-px flex-1 bg-[color:var(--color-ink)]/12" />}
+              {n < 4 && <div className="h-px flex-1 bg-[color:var(--color-foreground)]/12" />}
             </li>
           ))}
         </ol>
 
-        <div className="mt-8 rounded-3xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 sm:p-8 space-y-5">
+        <div className="mt-8 rounded-3xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6 sm:p-8 space-y-5">
           {step === 1 && (
             <>
               <Row label="Shop name">
@@ -198,7 +198,7 @@ export function VendorRegisterClient() {
                   <input type="time" value={form.closeTime} onChange={(e) => set('closeTime', e.target.value)} className={inp} />
                 </Row>
               </div>
-              <div className="pt-3 border-t border-[color:var(--color-ink)]/8 space-y-5">
+              <div className="pt-3 border-t border-[color:var(--color-foreground)]/8 space-y-5">
                 <Row label="Owner name">
                   <input value={form.ownerName} onChange={(e) => set('ownerName', e.target.value)} className={inp} />
                 </Row>
@@ -210,7 +210,7 @@ export function VendorRegisterClient() {
                     onChange={(e) => set('ownerPhone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className={inp}
                   />
-                  <p className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/70">
+                  <p className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/70">
                     We&apos;ll text a 6-digit code here to verify the phone. Signin is OTP-based — no password to set.
                   </p>
                 </Row>
@@ -223,7 +223,7 @@ export function VendorRegisterClient() {
 
           {step === 2 && (
             <>
-              <p className="text-[12.5px] text-[color:var(--color-ink-soft)]">
+              <p className="text-[12.5px] text-[color:var(--color-muted)]">
                 Upload numbers are fine for now — we&apos;ll verify the documents over WhatsApp before approval.
               </p>
               <Row label="FSSAI number (food / bakery / sweets / meat)">
@@ -243,7 +243,7 @@ export function VendorRegisterClient() {
 
           {step === 3 && (
             <>
-              <p className="text-[12.5px] text-[color:var(--color-ink-soft)]">
+              <p className="text-[12.5px] text-[color:var(--color-muted)]">
                 Daily payouts land here. Commission is deducted automatically.
               </p>
               <Row label="Account holder name">
@@ -266,8 +266,8 @@ export function VendorRegisterClient() {
               <div>
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Verify phone</div>
                 <h2 className="mt-1 font-display text-[22px] leading-tight">One 6-digit code.</h2>
-                <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
-                  We&apos;ll text a code to <span className="font-medium text-[color:var(--color-ink)]">+91 {form.ownerPhone}</span>.
+                <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
+                  We&apos;ll text a code to <span className="font-medium text-[color:var(--color-foreground)]">+91 {form.ownerPhone}</span>.
                   That phone becomes your signin identity — no password to set.
                 </p>
               </div>
@@ -281,7 +281,7 @@ export function VendorRegisterClient() {
                   {resendIn > 0 ? `Resend in ${resendIn}s` : otpSentMsg ? 'Resend code' : 'Send OTP'}
                 </button>
                 {otpSentMsg && (
-                  <span className="text-[11.5px] text-[color:var(--color-ink-soft)]/80">{otpSentMsg}</span>
+                  <span className="text-[11.5px] text-[color:var(--color-muted)]/80">{otpSentMsg}</span>
                 )}
               </div>
               <Row label="Enter 6-digit OTP">
@@ -291,7 +291,7 @@ export function VendorRegisterClient() {
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="••••••"
-                  className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-primary)]"
+                  className="mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-3 text-[20px] font-mono tracking-[0.5em] text-center outline-none focus:border-[color:var(--color-primary)]"
                 />
               </Row>
             </div>
@@ -308,7 +308,7 @@ export function VendorRegisterClient() {
               type="button"
               onClick={() => setStep((s) => (s === 1 ? 1 : ((s as number) - 1) as Step))}
               disabled={step === 1}
-              className="text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-primary)] disabled:opacity-40"
+              className="text-[13px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)] disabled:opacity-40"
             >
               ← Back
             </button>
@@ -321,7 +321,7 @@ export function VendorRegisterClient() {
                   setStep(next);
                   if (next === 4 && !otpSentMsg) setTimeout(sendOtp, 150);
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
               >
                 Continue →
               </button>
@@ -330,7 +330,7 @@ export function VendorRegisterClient() {
                 type="button"
                 disabled={otpCode.length !== 6 || busy}
                 onClick={submit}
-                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
               >
                 {busy ? 'Submitting…' : 'Verify & submit'}
               </button>
@@ -342,12 +342,12 @@ export function VendorRegisterClient() {
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-4 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-primary)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-2.5 text-[14px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">{label}</span>
+      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">{label}</span>
       {children}
     </label>
   );

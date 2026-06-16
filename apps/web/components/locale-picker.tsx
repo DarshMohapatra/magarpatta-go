@@ -45,7 +45,7 @@ export function LocalePicker({ initial }: { initial: Locale }) {
     <div
       role="group"
       aria-label="Display language"
-      className="inline-flex items-center rounded-full border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)]/70 backdrop-blur-sm overflow-hidden"
+      className="inline-flex items-center rounded-full border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)]/70 backdrop-blur-sm overflow-hidden"
     >
       {LOCALES.map((lng) => (
         <button
@@ -56,8 +56,8 @@ export function LocalePicker({ initial }: { initial: Locale }) {
           disabled={pending && locale !== lng}
           className={`px-2.5 py-1 text-[11.5px] leading-none transition-colors ${
             locale === lng
-              ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] font-medium'
-              : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'
+              ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] font-medium'
+              : 'text-[color:var(--color-muted)] hover:bg-[color:var(--color-foreground)]/5'
           }`}
         >
           {LOCALE_LABEL[lng]}

@@ -114,7 +114,7 @@ export function TranslationsClient({
           <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
             हिंदी &amp; <span className="italic text-[color:var(--color-primary)]">मराठी</span> for the menu.
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] max-w-[640px]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-[640px]">
             Every product needs all three names so the customer language toggle works. Edits autosave as you click out of each input.
           </p>
           {scopedCategorySlugs.length > 0 && (
@@ -122,7 +122,7 @@ export function TranslationsClient({
               Scoped to live categories: <strong>{scopedCategorySlugs.join(', ')}</strong>. Add more in Settings → Catalog whitelist to grow this list.
             </p>
           )}
-          <p className="mt-1 text-[12px] text-[color:var(--color-ink-soft)]/75">
+          <p className="mt-1 text-[12px] text-[color:var(--color-muted)]/75">
             <strong>{missingCount}</strong> of {rows.length} products still missing a Hindi or Marathi translation.
           </p>
         </div>
@@ -130,7 +130,7 @@ export function TranslationsClient({
           <button
             onClick={runSeed}
             disabled={seedRunning || !canEdit}
-            className="rounded-md bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:brightness-95"
+            className="rounded-md bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)] px-4 py-2 text-[13px] font-medium disabled:opacity-50 hover:brightness-95"
           >
             {seedRunning ? 'Applying…' : 'Apply seed translations'}
           </button>
@@ -147,16 +147,16 @@ export function TranslationsClient({
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-full border border-[color:var(--color-ink)]/15 overflow-hidden">
+        <div className="inline-flex rounded-full border border-[color:var(--color-foreground)]/15 overflow-hidden">
           <button
             onClick={() => setFilter('missing')}
-            className={`px-3 py-1.5 text-[12px] ${filter === 'missing' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+            className={`px-3 py-1.5 text-[12px] ${filter === 'missing' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]' : 'text-[color:var(--color-muted)] hover:bg-[color:var(--color-foreground)]/5'}`}
           >
             Missing only ({missingCount})
           </button>
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 text-[12px] ${filter === 'all' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+            className={`px-3 py-1.5 text-[12px] ${filter === 'all' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]' : 'text-[color:var(--color-muted)] hover:bg-[color:var(--color-foreground)]/5'}`}
           >
             All ({rows.length})
           </button>
@@ -166,23 +166,23 @@ export function TranslationsClient({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, vendor, category"
-          className="flex-1 min-w-[240px] max-w-md rounded-full border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] px-4 py-1.5 text-[12.5px]"
+          className="flex-1 min-w-[240px] max-w-md rounded-full border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)] px-4 py-1.5 text-[12.5px]"
         />
       </div>
 
-      <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
+      <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-[12.5px]">
-            <thead className="bg-[color:var(--color-cream)]/60">
+            <thead className="bg-[color:var(--color-background)]/60">
               <tr className="text-left">
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">English</th>
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">हिंदी</th>
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">मराठी</th>
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">Vendor · Category</th>
-                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-ink-soft)]">State</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">English</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">हिंदी</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">मराठी</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">Vendor · Category</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-[0.1em] text-[10.5px] text-[color:var(--color-muted)]">State</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[color:var(--color-ink)]/8">
+            <tbody className="divide-y divide-[color:var(--color-foreground)]/8">
               {filtered.map((r) => {
                 const d = drafts[r.id]!;
                 const stateLabel = d.saving ? 'Saving…' : d.err ? d.err : d.savedAt ? '✓ saved' : '';
@@ -196,7 +196,7 @@ export function TranslationsClient({
                         disabled={!canEdit}
                         onChange={(e) => setDrafts((s) => ({ ...s, [r.id]: { ...s[r.id], name: e.target.value } }))}
                         onBlur={() => save(r.id)}
-                        className="w-full rounded-md border border-[color:var(--color-ink)]/10 px-2 py-1.5 disabled:bg-[color:var(--color-cream)]/40"
+                        className="w-full rounded-md border border-[color:var(--color-foreground)]/10 px-2 py-1.5 disabled:bg-[color:var(--color-background)]/40"
                       />
                     </td>
                     <td className="px-3 py-2">
@@ -207,7 +207,7 @@ export function TranslationsClient({
                         placeholder="जैसे — टमाटर"
                         onChange={(e) => setDrafts((s) => ({ ...s, [r.id]: { ...s[r.id], nameHi: e.target.value } }))}
                         onBlur={() => save(r.id)}
-                        className="w-full rounded-md border border-[color:var(--color-ink)]/10 px-2 py-1.5 disabled:bg-[color:var(--color-cream)]/40"
+                        className="w-full rounded-md border border-[color:var(--color-foreground)]/10 px-2 py-1.5 disabled:bg-[color:var(--color-background)]/40"
                       />
                     </td>
                     <td className="px-3 py-2">
@@ -218,10 +218,10 @@ export function TranslationsClient({
                         placeholder="उदा. — टोमॅटो"
                         onChange={(e) => setDrafts((s) => ({ ...s, [r.id]: { ...s[r.id], nameMr: e.target.value } }))}
                         onBlur={() => save(r.id)}
-                        className="w-full rounded-md border border-[color:var(--color-ink)]/10 px-2 py-1.5 disabled:bg-[color:var(--color-cream)]/40"
+                        className="w-full rounded-md border border-[color:var(--color-foreground)]/10 px-2 py-1.5 disabled:bg-[color:var(--color-background)]/40"
                       />
                     </td>
-                    <td className="px-3 py-2 text-[11.5px] text-[color:var(--color-ink-soft)]/85 whitespace-nowrap">
+                    <td className="px-3 py-2 text-[11.5px] text-[color:var(--color-muted)]/85 whitespace-nowrap">
                       {r.vendorName} · {r.categoryName}
                     </td>
                     <td className={`px-3 py-2 text-[11px] whitespace-nowrap ${stateClass}`}>{stateLabel}</td>
@@ -230,7 +230,7 @@ export function TranslationsClient({
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-3 py-12 text-center text-[12.5px] text-[color:var(--color-ink-soft)]/70">
+                  <td colSpan={5} className="px-3 py-12 text-center text-[12.5px] text-[color:var(--color-muted)]/70">
                     {filter === 'missing'
                       ? 'Every visible product has both translations filled. Switch to "All" to see the complete list.'
                       : 'No products match your search.'}

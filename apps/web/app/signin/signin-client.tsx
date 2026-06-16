@@ -63,17 +63,17 @@ export function SignInClient() {
 
       <div
         className={cn(
-          'rounded-2xl border bg-[color:var(--color-paper)] px-5 py-4 transition-colors',
+          'rounded-2xl border bg-[color:var(--color-surface)] px-5 py-4 transition-colors',
           error
             ? 'border-[color:var(--color-terracotta)]/60'
-            : 'border-[color:var(--color-ink)]/12 focus-within:border-[color:var(--color-forest)]',
+            : 'border-[color:var(--color-foreground)]/12 focus-within:border-[color:var(--color-primary)]',
         )}
       >
-        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+        <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
           Mobile number
         </label>
         <div className="mt-1 flex items-center gap-3">
-          <span className="text-[16px] text-[color:var(--color-ink-soft)]">+91</span>
+          <span className="text-[16px] text-[color:var(--color-muted)]">+91</span>
           <input
             autoFocus
             inputMode="numeric"
@@ -85,10 +85,10 @@ export function SignInClient() {
               setError(null);
             }}
             placeholder="98765 43210"
-            className="w-full bg-transparent outline-none text-[18px] tracking-wide placeholder:text-[color:var(--color-ink-soft)]/40"
+            className="w-full bg-transparent outline-none text-[18px] tracking-wide placeholder:text-[color:var(--color-muted)]/40"
           />
           {valid && (
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)]">
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                 <path d="M2.5 6.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -102,7 +102,7 @@ export function SignInClient() {
           <p className="text-[13px] text-[color:var(--color-terracotta-dark)] leading-snug">{error}</p>
           <a
             href="/signup"
-            className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-forest)] underline underline-offset-4 hover:text-[color:var(--color-forest-dark)]"
+            className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-primary)] underline underline-offset-4 hover:text-[color:var(--color-primary)]"
           >
             Create an account
             <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -118,8 +118,8 @@ export function SignInClient() {
         className={cn(
           'w-full px-5 py-4 rounded-2xl font-medium text-[15px] transition-colors flex items-center justify-center gap-2',
           valid
-            ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]'
-            : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/50 cursor-not-allowed',
+            ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]'
+            : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/50 cursor-not-allowed',
           loading && 'opacity-60',
         )}
       >
@@ -140,7 +140,7 @@ export function SignInClient() {
         )}
       </button>
 
-      <p className="text-[12px] text-[color:var(--color-ink-soft)]/65 text-center pt-1">
+      <p className="text-[12px] text-[color:var(--color-muted)]/65 text-center pt-1">
         By continuing you accept our terms. We only text about {siteConfig.platformName}.
       </p>
     </form>

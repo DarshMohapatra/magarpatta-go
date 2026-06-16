@@ -86,7 +86,7 @@ export function CartDrawer() {
       <div
         onClick={close}
         className={cn(
-          'fixed inset-0 z-[60] bg-[color:var(--color-ink)]/40 backdrop-blur-sm transition-opacity',
+          'fixed inset-0 z-[60] bg-[color:var(--color-foreground)]/40 backdrop-blur-sm transition-opacity',
           open ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         aria-hidden={!open}
@@ -119,7 +119,7 @@ export function CartDrawer() {
           </div>
           <button
             onClick={close}
-            className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-[color:var(--color-ink)]/5"
+            className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-[color:var(--color-foreground)]/5"
             aria-label="Close cart"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -131,7 +131,7 @@ export function CartDrawer() {
         <div className="flex-1 overflow-y-auto">
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-8 text-center">
-              <div className="h-14 w-14 rounded-2xl bg-[color:var(--color-ink)]/5 flex items-center justify-center mb-5">
+              <div className="h-14 w-14 rounded-2xl bg-[color:var(--color-foreground)]/5 flex items-center justify-center mb-5">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M4 6h2l2 12h11M8 18a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4zM8 10h14l-1.5 7H10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -147,7 +147,7 @@ export function CartDrawer() {
               </button>
             </div>
           ) : (
-            <ul className="divide-y divide-[color:var(--color-ink)]/8">
+            <ul className="divide-y divide-[color:var(--color-foreground)]/8">
               {items.map((it) => (
                 <li key={it.id} className="flex gap-4 px-6 py-4">
                   <div
@@ -178,7 +178,7 @@ export function CartDrawer() {
                       {it.vendorName}
                       {it.unit && <span> · {it.unit}</span>}
                       {it.soldByWeight && it.estimatedGrams && (
-                        <span className="ml-1.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-forest-dark)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium">
+                        <span className="ml-1.5 inline-flex items-center rounded-full bg-[color:var(--color-sage)]/22 text-[color:var(--color-primary)] px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.08em] font-medium">
                           approx · {it.estimatedGrams}g
                         </span>
                       )}
@@ -252,7 +252,7 @@ export function CartDrawer() {
           {/* Plan offer (only when there's something to deliver AND user isn't
               already a member AND plan isn't already in cart). */}
           {items.length > 0 && !joinPlan && ctx?.planOffer && !ctx.membership && (
-            <div className="mx-6 my-4 rounded-2xl border border-[color:var(--color-forest)]/25 bg-[color:var(--color-primary)]/5 p-4">
+            <div className="mx-6 my-4 rounded-2xl border border-[color:var(--color-primary)]/25 bg-[color:var(--color-primary)]/5 p-4">
               <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)]">Save on every delivery</div>
               <div className="mt-1 font-display text-[18px] leading-tight">
                 Add {ctx.planOffer.name} for ₹{ctx.planOffer.priceInr}
@@ -300,7 +300,7 @@ export function CartDrawer() {
               </div>
             )}
             {competitorSavings > 0 && (
-              <div className="flex items-center justify-between text-[12.5px] text-[color:var(--color-forest-dark)]">
+              <div className="flex items-center justify-between text-[12.5px] text-[color:var(--color-primary)]">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-primary)]" />
                   Saving vs typical quick-commerce

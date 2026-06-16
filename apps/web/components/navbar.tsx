@@ -48,7 +48,7 @@ export function Navbar({ initialSession = null, initialLocale = 'en' }: NavbarPr
         className={cn(
           'fixed top-0 inset-x-0 z-50 transition-all duration-500',
           scrolled || mobileOpen
-            ? 'bg-[color:var(--color-cream)]/90 backdrop-blur-md border-b border-[color:var(--color-ink)]/8'
+            ? 'bg-[color:var(--color-background)]/90 backdrop-blur-md border-b border-[color:var(--color-foreground)]/8'
             : 'bg-transparent',
         )}
       >
@@ -56,7 +56,7 @@ export function Navbar({ initialSession = null, initialLocale = 'en' }: NavbarPr
           <Link href={initialSession ? '/menu' : '/'} className="flex items-center gap-2.5 group">
             <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-saffron)] pulse-ring" />
             <span className="text-[15px] tracking-tight font-medium">
-              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
             </span>
           </Link>
 
@@ -65,7 +65,7 @@ export function Navbar({ initialSession = null, initialLocale = 'en' }: NavbarPr
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-[13.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)] transition-colors"
+                className="text-[13.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)] transition-colors"
               >
                 {l.label}
               </Link>
@@ -85,7 +85,7 @@ export function Navbar({ initialSession = null, initialLocale = 'en' }: NavbarPr
               aria-label="Menu"
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((s) => !s)}
-              className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-[color:var(--color-ink)]/5 ml-1"
+              className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-[color:var(--color-foreground)]/5 ml-1"
             >
               {mobileOpen ? (
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -102,43 +102,43 @@ export function Navbar({ initialSession = null, initialLocale = 'en' }: NavbarPr
 
         {/* Mobile drawer */}
         {mobileOpen && (
-          <nav className="md:hidden border-t border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)] shadow-[0_12px_40px_-12px_rgba(14,17,12,0.18)]">
+          <nav className="md:hidden border-t border-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)] shadow-[0_12px_40px_-12px_rgba(14,17,12,0.18)]">
             <div className="mx-auto max-w-[1280px] px-4 py-4 space-y-1">
               {LINKS.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2.5 rounded-lg text-[14.5px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]"
+                  className="block px-3 py-2.5 rounded-lg text-[14.5px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-background)]"
                 >
                   {l.label}
                 </Link>
               ))}
 
-              <div className="pt-3 mt-3 border-t border-[color:var(--color-ink)]/8">
+              <div className="pt-3 mt-3 border-t border-[color:var(--color-foreground)]/8">
                 {initialSession ? (
                   <>
                     <div className="px-3 py-2 text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
                       {initialSession.name ? initialSession.name : `+91 ${initialSession.phone}`}
                       {initialSession.society && (
-                        <span className="ml-1 normal-case tracking-normal text-[color:var(--color-ink-soft)]/75">
+                        <span className="ml-1 normal-case tracking-normal text-[color:var(--color-muted)]/75">
                           · {initialSession.building}
                         </span>
                       )}
                     </div>
-                    <Link href="/orders" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
+                    <Link href="/orders" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-background)]">
                       My orders
                     </Link>
-                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
+                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-background)]">
                       Update address
                     </Link>
                   </>
                 ) : (
                   <>
-                    <Link href="/signin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-cream)]">
+                    <Link href="/signin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-background)]">
                       Sign in
                     </Link>
-                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-center font-medium mt-1">
+                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-[14px] bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-center font-medium mt-1">
                       Create account
                     </Link>
                   </>

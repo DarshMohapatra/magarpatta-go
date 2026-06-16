@@ -30,15 +30,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   });
 
   return (
-    <main className="min-h-screen bg-[color:var(--color-cream)]">
+    <main className="min-h-screen bg-[color:var(--color-background)]">
       <div className="mx-auto max-w-[680px] px-5 sm:px-8 py-12 sm:py-20">
-        <Link href="/help" className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">← Help centre</Link>
+        <Link href="/help" className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">← Help centre</Link>
         {article.category ? (
           <div className="mt-4 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
             {TICKET_CATEGORY_LABEL[article.category]}
           </div>
         ) : null}
-        <h1 className="mt-2 font-serif text-[36px] sm:text-[48px] leading-[1.05] tracking-[-0.015em]">
+        <h1 className="mt-2 font-display text-[36px] sm:text-[48px] leading-[1.05] tracking-[-0.015em]">
           {article.title}
         </h1>
 
@@ -46,13 +46,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {article.body}
         </article>
 
-        <div className="mt-12 pt-6 border-t border-[color:var(--color-ink)]/10">
+        <div className="mt-12 pt-6 border-t border-[color:var(--color-foreground)]/10">
           <ArticleFeedback articleId={article.id} />
         </div>
 
-        <div className="mt-8 rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-5 text-[13.5px]">
+        <div className="mt-8 rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5 text-[13.5px]">
           Still stuck?{' '}
-          <Link href="/support/new" className="underline font-medium hover:text-[color:var(--color-forest)]">
+          <Link href="/support/new" className="underline font-medium hover:text-[color:var(--color-primary)]">
             Open a ticket
           </Link>
           {' '}and we'll get back within the hour.

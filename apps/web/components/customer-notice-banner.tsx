@@ -11,10 +11,10 @@ export async function CustomerNoticeBanner() {
 
   const cls =
     notice.level === 'alert'
-      ? 'bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)]'
+      ? 'bg-[color:var(--color-terracotta)] text-[color:var(--color-background)]'
       : notice.level === 'warning'
-        ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-ink)]'
-        : 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]';
+        ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)]'
+        : 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]';
 
   return (
     <div className={`${cls} fixed top-0 left-0 right-0 z-[80] px-4 py-2 text-[12.5px] text-center font-medium`}>

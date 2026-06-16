@@ -58,13 +58,13 @@ export function AccountMenu({ initialSession }: Props) {
       <>
         <Link
           href="/signin"
-          className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ink)]/5 transition-colors"
+          className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] text-[color:var(--color-foreground)] hover:bg-[color:var(--color-foreground)]/5 transition-colors"
         >
           Sign in
         </Link>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)] transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)] transition-colors"
         >
           Create account
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="-mr-0.5">
@@ -82,16 +82,16 @@ export function AccountMenu({ initialSession }: Props) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((s) => !s)}
-        className="inline-flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] hover:border-[color:var(--color-forest)]/40 transition-colors"
+        className="inline-flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] hover:border-[color:var(--color-primary)]/40 transition-colors"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[12px] font-medium">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[12px] font-medium">
           {initial}
         </span>
         <div className="hidden sm:block text-left leading-tight">
-          <div className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/70">
+          <div className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/70">
             {hasAddress ? session.building : 'No address'}
           </div>
-          <div className="text-[12.5px] font-medium text-[color:var(--color-ink)]">
+          <div className="text-[12.5px] font-medium text-[color:var(--color-foreground)]">
             {session.name || `+91 ${session.phone}`}
           </div>
         </div>
@@ -101,48 +101,48 @@ export function AccountMenu({ initialSession }: Props) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[260px] rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] shadow-[0_24px_60px_-20px_rgba(15,15,14,0.25)] overflow-hidden z-50">
-          <div className="px-4 py-4 border-b border-[color:var(--color-ink)]/8">
+        <div className="absolute right-0 top-full mt-2 w-[260px] rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] shadow-[0_24px_60px_-20px_rgba(15,15,14,0.25)] overflow-hidden z-50">
+          <div className="px-4 py-4 border-b border-[color:var(--color-foreground)]/8">
             <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
               Delivering to
             </div>
-            <div className="mt-1 font-serif text-[18px] leading-tight text-[color:var(--color-ink)]">
+            <div className="mt-1 font-display text-[18px] leading-tight text-[color:var(--color-foreground)]">
               {hasAddress ? (
                 <>
                   Flat {session.flat}, {session.building}
                 </>
               ) : (
-                <span className="italic text-[color:var(--color-ink-soft)]">Address not set yet</span>
+                <span className="italic text-[color:var(--color-muted)]">Address not set yet</span>
               )}
             </div>
             {hasAddress && (
-              <div className="text-[12px] text-[color:var(--color-ink-soft)]/75">{session.society}</div>
+              <div className="text-[12px] text-[color:var(--color-muted)]/75">{session.society}</div>
             )}
           </div>
 
           <nav className="py-1">
-            <Link href="/menu" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <Link href="/menu" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-background)] text-[color:var(--color-foreground)]">
               Browse menu
             </Link>
-            <Link href="/orders" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <Link href="/orders" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-background)] text-[color:var(--color-foreground)]">
               Orders
             </Link>
-            <Link href="/account/membership" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <Link href="/account/membership" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-background)] text-[color:var(--color-foreground)]">
               Membership
             </Link>
-            <Link href="/account/addresses" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <Link href="/account/addresses" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-background)] text-[color:var(--color-foreground)]">
               Manage addresses
             </Link>
-            <Link href="/support" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-ink)]">
+            <Link href="/support" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-background)] text-[color:var(--color-foreground)]">
               Support &amp; complaints
             </Link>
           </nav>
 
-          <div className="border-t border-[color:var(--color-ink)]/8 py-1">
+          <div className="border-t border-[color:var(--color-foreground)]/8 py-1">
             <button
               onClick={signOut}
               disabled={signingOut}
-              className="w-full text-left px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-cream)] text-[color:var(--color-terracotta)]"
+              className="w-full text-left px-4 py-2.5 text-[13.5px] hover:bg-[color:var(--color-background)] text-[color:var(--color-terracotta)]"
             >
               {signingOut ? 'Signing out…' : 'Sign out'}
             </button>

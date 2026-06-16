@@ -69,47 +69,47 @@ export function NotificationBell({ signedIn }: { signedIn: boolean }) {
         type="button"
         aria-label={unread > 0 ? `Notifications (${unread} unread)` : 'Notifications'}
         onClick={() => setOpen((v) => !v)}
-        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-[color:var(--color-ink)]/5"
+        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-[color:var(--color-foreground)]/5"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M3.5 11.5h9l-1-1.5V7a3.5 3.5 0 10-7 0v3l-1 1.5zM6.5 13a1.5 1.5 0 003 0" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-cream)] text-[9.5px] font-semibold px-1">
+          <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--color-terracotta)] text-[color:var(--color-background)] text-[9.5px] font-semibold px-1">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-[320px] sm:w-[360px] max-h-[420px] overflow-y-auto rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/12 shadow-[0_20px_60px_-20px_rgba(15,15,14,0.3)] z-[80]">
-          <div className="px-4 py-3 border-b border-[color:var(--color-ink)]/8 flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Notifications</span>
+        <div className="absolute right-0 mt-2 w-[320px] sm:w-[360px] max-h-[420px] overflow-y-auto rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/12 shadow-[0_20px_60px_-20px_rgba(15,15,14,0.3)] z-[80]">
+          <div className="px-4 py-3 border-b border-[color:var(--color-foreground)]/8 flex items-center justify-between">
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Notifications</span>
             {feed?.notifications.length ? (
-              <span className="text-[11px] text-[color:var(--color-ink-soft)]/60">{feed.notifications.length}</span>
+              <span className="text-[11px] text-[color:var(--color-muted)]/60">{feed.notifications.length}</span>
             ) : null}
           </div>
           {feed?.notifications.length === 0 ? (
-            <div className="px-5 py-8 text-center text-[12.5px] text-[color:var(--color-ink-soft)]/70">
+            <div className="px-5 py-8 text-center text-[12.5px] text-[color:var(--color-muted)]/70">
               You&apos;re all caught up.
             </div>
           ) : (
-            <ul className="divide-y divide-[color:var(--color-ink)]/8">
+            <ul className="divide-y divide-[color:var(--color-foreground)]/8">
               {feed?.notifications.map((n) => {
                 const inner = (
-                  <div className={`px-4 py-3 ${!n.readAt ? 'bg-[color:var(--color-forest)]/6' : ''}`}>
+                  <div className={`px-4 py-3 ${!n.readAt ? 'bg-[color:var(--color-primary)]/6' : ''}`}>
                     <div className="flex items-start gap-2.5">
                       {!n.readAt && (
                         <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)] shrink-0" />
                       )}
                       <div className="min-w-0">
-                        <div className="font-medium text-[13.5px] text-[color:var(--color-ink)] leading-snug">
+                        <div className="font-medium text-[13.5px] text-[color:var(--color-foreground)] leading-snug">
                           {n.title}
                         </div>
-                        <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/85 whitespace-pre-line leading-snug line-clamp-4">
+                        <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/85 whitespace-pre-line leading-snug line-clamp-4">
                           {n.body}
                         </div>
-                        <div className="mt-1.5 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/55">
+                        <div className="mt-1.5 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/55">
                           {relativeTime(n.createdAt)}
                         </div>
                       </div>
@@ -119,11 +119,11 @@ export function NotificationBell({ signedIn }: { signedIn: boolean }) {
                 return (
                   <li key={n.id}>
                     {n.orderId ? (
-                      <Link href={`/orders/${n.orderId}`} onClick={() => markRead(n.id)} className="block hover:bg-[color:var(--color-ink)]/3">
+                      <Link href={`/orders/${n.orderId}`} onClick={() => markRead(n.id)} className="block hover:bg-[color:var(--color-foreground)]/3">
                         {inner}
                       </Link>
                     ) : (
-                      <button type="button" onClick={() => markRead(n.id)} className="w-full text-left hover:bg-[color:var(--color-ink)]/3">
+                      <button type="button" onClick={() => markRead(n.id)} className="w-full text-left hover:bg-[color:var(--color-foreground)]/3">
                         {inner}
                       </button>
                     )}

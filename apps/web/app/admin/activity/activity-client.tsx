@@ -27,7 +27,7 @@ const ROLE_TONE: Record<string, string> = {
   RIDER: 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]',
   CURATOR: 'bg-[color:var(--color-gold)]/18 text-[color:var(--color-gold)]',
   ADMIN: 'bg-[color:var(--color-terracotta)]/12 text-[color:var(--color-terracotta)]',
-  CUSTOMER: 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]',
+  CUSTOMER: 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]',
 };
 
 export function AdminActivityClient({ initialRole }: { initialRole: string }) {
@@ -61,7 +61,7 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
         <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
           Who did what, <span className="italic text-[color:var(--color-primary)]">when.</span>
         </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] max-w-xl">
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-xl">
           Cross-portal audit trail — every meaningful action by vendors, riders, curators, and admins. Operational fluff (page views, OTP fetches) is excluded.
         </p>
       </div>
@@ -73,8 +73,8 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
             onClick={() => setRole(r.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
               role === r.key
-                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-[color:var(--color-primary)]'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-primary)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/12 hover:text-[color:var(--color-primary)]'
             }`}
           >
             {r.label} <span className="ml-1.5 opacity-70">{r.key === '' ? Object.values(perRole).reduce((a, b) => a + b, 0) : (perRole[r.key] ?? 0)}</span>
@@ -88,20 +88,20 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
           onChange={(e) => setActor(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') load(); }}
           placeholder="Filter by name (e.g. Kalika Sweets, Aman)…"
-          className="flex-1 rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
+          className="flex-1 rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
         />
         <button
           onClick={load}
-          className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
+          className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
         >Search</button>
       </div>
 
-      <ul className="mt-6 divide-y divide-[color:var(--color-ink)]/8 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
+      <ul className="mt-6 divide-y divide-[color:var(--color-foreground)]/8 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
         {loading && rows.length === 0 && (
-          <li className="px-6 py-10 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">Loading…</li>
+          <li className="px-6 py-10 text-center text-[13px] text-[color:var(--color-muted)]/70">Loading…</li>
         )}
         {!loading && rows.length === 0 && (
-          <li className="px-6 py-10 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">Nothing matching this filter.</li>
+          <li className="px-6 py-10 text-center text-[13px] text-[color:var(--color-muted)]/70">Nothing matching this filter.</li>
         )}
         {rows.map((r) => (
           <li key={r.id} className="px-5 py-3">
@@ -110,12 +110,12 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
                 {r.actorRole.toLowerCase()}
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-[13px] text-[color:var(--color-ink)]">{r.summary}</div>
-                <div className="text-[10.5px] tracking-wide text-[color:var(--color-ink-soft)]/65 mt-0.5">
+                <div className="text-[13px] text-[color:var(--color-foreground)]">{r.summary}</div>
+                <div className="text-[10.5px] tracking-wide text-[color:var(--color-muted)]/65 mt-0.5">
                   {r.action} · {r.actorName}
                 </div>
               </div>
-              <span className="shrink-0 text-[11px] text-[color:var(--color-ink-soft)]/60">
+              <span className="shrink-0 text-[11px] text-[color:var(--color-muted)]/60">
                 {new Date(r.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>

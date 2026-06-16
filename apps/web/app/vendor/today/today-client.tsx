@@ -132,12 +132,12 @@ export function TodayClient() {
   }
 
   if (loading && rows === null) {
-    return <p className="mt-10 text-[14px] text-[color:var(--color-ink-soft)]">Loading menu…</p>;
+    return <p className="mt-10 text-[14px] text-[color:var(--color-muted)]">Loading menu…</p>;
   }
 
   if (!rows || rows.length === 0) {
     return (
-      <p className="mt-10 text-[14px] text-[color:var(--color-ink-soft)] italic">
+      <p className="mt-10 text-[14px] text-[color:var(--color-muted)] italic">
         You haven't added any products yet. Add some in the Menu tab first.
       </p>
     );
@@ -159,11 +159,11 @@ export function TodayClient() {
         return (
           <div
             key={r.productId}
-            className="grid grid-cols-12 items-center gap-3 rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] px-4 py-3"
+            className="grid grid-cols-12 items-center gap-3 rounded-xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] px-4 py-3"
           >
             <div className="col-span-4">
               <div className="font-medium text-[14.5px]">{r.name}</div>
-              <div className="text-[11px] text-[color:var(--color-ink-soft)]">
+              <div className="text-[11px] text-[color:var(--color-muted)]">
                 {r.category}{r.unit ? ` · ${r.unit}` : ''} · master ₹{r.masterPriceInr}
                 {r.priorOverride && (
                   <> · yesterday ₹{r.priorOverride.priceInr ?? r.masterPriceInr}</>
@@ -172,26 +172,26 @@ export function TodayClient() {
             </div>
 
             <div className="col-span-2 flex items-center gap-1">
-              <span className="text-[11px] text-[color:var(--color-ink-soft)]">price</span>
+              <span className="text-[11px] text-[color:var(--color-muted)]">price</span>
               <input
                 type="number"
                 value={d.priceInr}
                 onChange={(e) => patchDraft(r.productId, { priceInr: e.target.value })}
                 placeholder={String(r.effective.priceInr)}
                 min={0}
-                className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
+                className="w-20 rounded border border-[color:var(--color-foreground)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
               />
             </div>
 
             <div className="col-span-2 flex items-center gap-1">
-              <span className="text-[11px] text-[color:var(--color-ink-soft)]">MRP</span>
+              <span className="text-[11px] text-[color:var(--color-muted)]">MRP</span>
               <input
                 type="number"
                 value={d.mrpInr}
                 onChange={(e) => patchDraft(r.productId, { mrpInr: e.target.value })}
                 placeholder={String(r.effective.mrpInr)}
                 min={0}
-                className="w-20 rounded border border-[color:var(--color-ink)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
+                className="w-20 rounded border border-[color:var(--color-foreground)]/15 px-2 py-1 text-[13px] outline-none focus:border-[color:var(--color-primary)]"
               />
             </div>
 

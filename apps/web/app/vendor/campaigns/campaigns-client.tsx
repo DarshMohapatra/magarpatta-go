@@ -31,7 +31,7 @@ interface VendorProduct {
   category: { name: string };
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 function defaultRange() {
   const start = new Date();
@@ -91,12 +91,12 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
           <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
             Tell the <span className="italic text-[color:var(--color-primary)]">neighbourhood.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]/85 max-w-xl">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]/85 max-w-xl">
             Flash sales, festival specials, late-night deals, BOGO, weekend offers, tiffin starts. Each goes through a quick admin review before showing up on the customer feed.
           </p>
         </div>
         {isApproved && (
-          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
+          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
             New campaign
           </button>
         )}
@@ -126,13 +126,13 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
 
       <div className="grid sm:grid-cols-2 gap-4">
         {campaigns.length === 0 && !showForm && (
-          <div className="sm:col-span-2 rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 p-10 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+          <div className="sm:col-span-2 rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 p-10 text-center text-[13px] text-[color:var(--color-muted)]/70">
             No campaigns yet. {isApproved && 'Tap "New campaign" to launch your first one.'}
           </div>
         )}
 
         {campaigns.map((c) => (
-          <article key={c.id} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5">
+          <article key={c.id} className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
@@ -147,19 +147,19 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
                 pendingRemoval={Boolean(c.pendingRemoval)}
               />
             </div>
-            <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)] leading-relaxed">{c.body}</p>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75">
+            <p className="mt-2 text-[13px] text-[color:var(--color-muted)] leading-relaxed">{c.body}</p>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[color:var(--color-muted)]/75">
               <span>{fmt(c.startsAt)} → {fmt(c.endsAt)}</span>
               {c.discountPct ? <span>{c.discountPct}% off</span> : null}
               {c.productIds.length > 0 && <span>{c.productIds.length} item{c.productIds.length === 1 ? '' : 's'} linked</span>}
             </div>
             {c.approvalNote && c.approvalStatus === 'REJECTED' && (
               <div className="mt-3 rounded-xl bg-[color:var(--color-terracotta)]/8 border border-[color:var(--color-terracotta)]/20 px-3 py-2 text-[12px]">
-                <span className="text-[color:var(--color-ink-soft)]/70">Reviewer:</span> {c.approvalNote}
+                <span className="text-[color:var(--color-muted)]/70">Reviewer:</span> {c.approvalNote}
               </div>
             )}
             {c.pendingRemoval && (
-              <div className="mt-3 rounded-xl bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/25 px-3 py-2 text-[12px] text-[color:var(--color-ink)]">
+              <div className="mt-3 rounded-xl bg-[color:var(--color-saffron)]/10 border border-[color:var(--color-saffron)]/25 px-3 py-2 text-[12px] text-[color:var(--color-foreground)]">
                 Removal awaiting {siteConfig.platformName} review. The campaign stays live until admin approves.
               </div>
             )}
@@ -167,7 +167,7 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
               <button
                 onClick={() => openEdit(c)}
                 disabled={Boolean(c.pendingRemoval)}
-                className="rounded-full border border-[color:var(--color-ink)]/15 px-3 py-1 hover:border-[color:var(--color-primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-full border border-[color:var(--color-foreground)]/15 px-3 py-1 hover:border-[color:var(--color-primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed"
               >Edit</button>
               <button
                 onClick={() => remove(c.id)}
@@ -275,45 +275,45 @@ function CampaignForm({ editing, onClose, onSaved }: {
   }
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 space-y-4">
+    <form onSubmit={submit} className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-[20px]">{editing ? 'Edit campaign' : 'New campaign'}</h2>
-        <button type="button" onClick={onClose} className="text-[12px] text-[color:var(--color-ink-soft)] hover:underline">Cancel</button>
+        <button type="button" onClick={onClose} className="text-[12px] text-[color:var(--color-muted)] hover:underline">Cancel</button>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Type</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Type</span>
           <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inp}>
             {CAMPAIGN_TYPES.map((t) => <option key={t} value={t}>{CAMPAIGN_TYPE_LABELS[t]}</option>)}
           </select>
         </label>
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Headline (max 60 chars)</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Headline (max 60 chars)</span>
           <input maxLength={60} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inp} placeholder="Mango fest at ₹40 off" />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Body (1–2 lines)</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Body (1–2 lines)</span>
           <textarea rows={2} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} className={inp} placeholder="Hand-picked Alphonso & Kesar boxes, only this weekend." />
         </label>
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">CTA label (optional)</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">CTA label (optional)</span>
           <input value={form.ctaLabel} onChange={(e) => setForm({ ...form, ctaLabel: e.target.value })} className={inp} placeholder="Shop the box →" />
         </label>
         <div className="block">
           <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
             Discount {discountRequired ? '· required for sale campaigns' : '· optional'}
           </span>
-          <div className="mt-1 inline-flex rounded-xl border border-[color:var(--color-ink)]/12 overflow-hidden">
+          <div className="mt-1 inline-flex rounded-xl border border-[color:var(--color-foreground)]/12 overflow-hidden">
             <button
               type="button"
               onClick={() => setForm({ ...form, discountKind: 'pct', discountFlatInr: '' })}
-              className={`px-4 py-2 text-[12.5px] ${form.discountKind === 'pct' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)]'}`}
+              className={`px-4 py-2 text-[12.5px] ${form.discountKind === 'pct' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]' : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)]'}`}
             >% off</button>
             <button
               type="button"
               onClick={() => setForm({ ...form, discountKind: 'flat', discountPct: '' })}
-              className={`px-4 py-2 text-[12.5px] border-l border-[color:var(--color-ink)]/12 ${form.discountKind === 'flat' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)]'}`}
+              className={`px-4 py-2 text-[12.5px] border-l border-[color:var(--color-foreground)]/12 ${form.discountKind === 'flat' ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]' : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)]'}`}
             >₹ off</button>
           </div>
           {form.discountKind === 'pct' ? (
@@ -335,18 +335,18 @@ function CampaignForm({ editing, onClose, onSaved }: {
               className={inp + ' mt-2'}
             />
           )}
-          <span className="mt-1 block text-[11px] text-[color:var(--color-ink-soft)]/70">
+          <span className="mt-1 block text-[11px] text-[color:var(--color-muted)]/70">
             {form.discountKind === 'pct'
               ? 'A percent is taken off each eligible item’s MRP. Regulated MRP goods are skipped.'
               : 'A flat ₹ amount is taken off each eligible item (price floor: ₹1). Regulated MRP goods are skipped.'}
           </span>
         </div>
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Starts</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Starts</span>
           <input type="datetime-local" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} className={inp} />
         </label>
         <label className="block">
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Ends</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Ends</span>
           <input type="datetime-local" value={form.endsAt} onChange={(e) => setForm({ ...form, endsAt: e.target.value })} className={inp} />
         </label>
       </div>
@@ -356,41 +356,41 @@ function CampaignForm({ editing, onClose, onSaved }: {
         Live the moment it&apos;s approved (uncheck to keep paused)
       </label>
 
-      <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4 space-y-3">
-        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Applies to</div>
+      <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-4 space-y-3">
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Applies to</div>
         <div className="grid sm:grid-cols-2 gap-2">
-          <label className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer ${form.appliesToAll ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5' : 'border-[color:var(--color-ink)]/12'}`}>
+          <label className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer ${form.appliesToAll ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5' : 'border-[color:var(--color-foreground)]/12'}`}>
             <input
               type="radio" name="scope" checked={form.appliesToAll}
               onChange={() => setForm({ ...form, appliesToAll: true, productIds: [] })}
               className="mt-1 accent-[color:var(--color-primary)]"
             />
             <span>
-              <span className="block text-[13px] font-medium text-[color:var(--color-ink)]">Whole menu</span>
-              <span className="block text-[11.5px] text-[color:var(--color-ink-soft)]/75">Every non-regulated item gets the discount.</span>
+              <span className="block text-[13px] font-medium text-[color:var(--color-foreground)]">Whole menu</span>
+              <span className="block text-[11.5px] text-[color:var(--color-muted)]/75">Every non-regulated item gets the discount.</span>
             </span>
           </label>
-          <label className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer ${!form.appliesToAll ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5' : 'border-[color:var(--color-ink)]/12'}`}>
+          <label className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer ${!form.appliesToAll ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/5' : 'border-[color:var(--color-foreground)]/12'}`}>
             <input
               type="radio" name="scope" checked={!form.appliesToAll}
               onChange={() => setForm({ ...form, appliesToAll: false })}
               className="mt-1 accent-[color:var(--color-primary)]"
             />
             <span>
-              <span className="block text-[13px] font-medium text-[color:var(--color-ink)]">Selected items only</span>
-              <span className="block text-[11.5px] text-[color:var(--color-ink-soft)]/75">Pick specific items below.</span>
+              <span className="block text-[13px] font-medium text-[color:var(--color-foreground)]">Selected items only</span>
+              <span className="block text-[11.5px] text-[color:var(--color-muted)]/75">Pick specific items below.</span>
             </span>
           </label>
         </div>
 
         {!form.appliesToAll && (
-          <div className="rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-cream)]/40 p-3">
+          <div className="rounded-xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-background)]/40 p-3">
             {products === null ? (
-              <p className="text-[12px] text-[color:var(--color-ink-soft)]">Loading your menu…</p>
+              <p className="text-[12px] text-[color:var(--color-muted)]">Loading your menu…</p>
             ) : products.length === 0 ? (
-              <p className="text-[12px] text-[color:var(--color-ink-soft)]">No menu items yet. Add items to your menu first.</p>
+              <p className="text-[12px] text-[color:var(--color-muted)]">No menu items yet. Add items to your menu first.</p>
             ) : (
-              <div className="max-h-64 overflow-y-auto divide-y divide-[color:var(--color-ink)]/8">
+              <div className="max-h-64 overflow-y-auto divide-y divide-[color:var(--color-foreground)]/8">
                 {products.map((p) => {
                   const checked = form.productIds.includes(p.id);
                   const disabled = p.isRegulated;
@@ -413,15 +413,15 @@ function CampaignForm({ editing, onClose, onSaved }: {
                       />
                       <span className="flex-1 truncate">
                         {p.name}
-                        {disabled && <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">MRP — can&apos;t discount</span>}
+                        {disabled && <span className="ml-2 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/65">MRP — can&apos;t discount</span>}
                       </span>
-                      <span className="shrink-0 text-[12px] text-[color:var(--color-ink-soft)]">₹{p.priceInr}</span>
+                      <span className="shrink-0 text-[12px] text-[color:var(--color-muted)]">₹{p.priceInr}</span>
                     </label>
                   );
                 })}
               </div>
             )}
-            <div className="mt-2 flex items-center justify-between text-[11.5px] text-[color:var(--color-ink-soft)]">
+            <div className="mt-2 flex items-center justify-between text-[11.5px] text-[color:var(--color-muted)]">
               <span>{form.productIds.length} selected</span>
               {products && products.length > 0 && (
                 <button
@@ -438,10 +438,10 @@ function CampaignForm({ editing, onClose, onSaved }: {
       {err && <p className="text-[12.5px] text-[color:var(--color-terracotta)]">{err}</p>}
 
       <div className="flex flex-wrap gap-2">
-        <button disabled={busy} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
+        <button disabled={busy} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
           {busy ? 'Sending…' : editing ? 'Save + resubmit' : 'Submit for review'}
         </button>
-        <span className="text-[11.5px] text-[color:var(--color-ink-soft)]/70 self-center">
+        <span className="text-[11.5px] text-[color:var(--color-muted)]/70 self-center">
           Reviews usually clear within an hour.
         </span>
       </div>
@@ -464,7 +464,7 @@ function Badge({ tone, children }: { tone: 'forest' | 'saffron' | 'terracotta' |
     tone === 'forest' ? 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]' :
     tone === 'saffron' ? 'bg-[color:var(--color-saffron)]/15 text-[color:var(--color-saffron)]' :
     tone === 'terracotta' ? 'bg-[color:var(--color-terracotta)]/12 text-[color:var(--color-terracotta)]' :
-    'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]';
+    'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]';
   return <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em] ${cls}`}>{children}</span>;
 }
 

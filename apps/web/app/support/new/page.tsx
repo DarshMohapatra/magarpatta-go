@@ -28,10 +28,10 @@ export default async function NewTicketPage({ searchParams }: { searchParams: Pr
       <section className="pt-24 pb-20">
         <div className="mx-auto max-w-[720px] px-6 lg:px-10">
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">New ticket</div>
-          <h1 className="mt-3 font-serif text-[40px] lg:text-[52px] leading-[1.0] tracking-[-0.02em]">
-            Tell us what <span className="italic text-[color:var(--color-forest)]">went wrong.</span>
+          <h1 className="mt-3 font-display text-[40px] lg:text-[52px] leading-[1.0] tracking-[-0.02em]">
+            Tell us what <span className="italic text-[color:var(--color-primary)]">went wrong.</span>
           </h1>
-          <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
             One short headline, the category, and the details. Attach an order if it's about a specific delivery.
           </p>
 

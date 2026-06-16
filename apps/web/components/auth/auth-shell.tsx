@@ -17,7 +17,7 @@ export function AuthShell({
   return (
     <main className="min-h-screen grid lg:grid-cols-[1.1fr_1fr]">
       {/* Left — editorial panel */}
-      <section className="relative hidden lg:flex flex-col justify-between bg-[color:var(--color-forest)] text-[color:var(--color-cream)] p-12 overflow-hidden">
+      <section className="relative hidden lg:flex flex-col justify-between bg-[color:var(--color-primary)] text-[color:var(--color-background)] p-12 overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.08] pointer-events-none"
           style={{
@@ -29,7 +29,7 @@ export function AuthShell({
         <Link href="/" className="relative inline-flex items-center gap-2.5 w-max">
           <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
           <span className="text-[15px] tracking-tight font-medium">
-            {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-saffron-soft)]">Go</span>
+            {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-saffron-soft)]">Go</span>
           </span>
         </Link>
 
@@ -37,14 +37,14 @@ export function AuthShell({
           <p className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-saffron-soft)] mb-5">
             A note from the founders
           </p>
-          <p className="font-serif text-[38px] xl:text-[46px] leading-[1.08] tracking-[-0.015em] max-w-lg">
+          <p className="font-display text-[38px] xl:text-[46px] leading-[1.08] tracking-[-0.015em] max-w-lg">
             We haven&rsquo;t been here long.
             <br />
             <span className="italic text-[color:var(--color-saffron-soft)]">But we already know</span>
             <br />
             which lift is slow, which guard works the late shift, and which dal sells out by 8 PM.
           </p>
-          <p className="mt-6 text-[14px] text-[color:var(--color-cream)]/70 max-w-md">
+          <p className="mt-6 text-[14px] text-[color:var(--color-background)]/70 max-w-md">
             We live in {siteConfig.siteName} too. Welcome in.
           </p>
           <p className="mt-5 text-[12px] uppercase tracking-[0.14em] text-[color:var(--color-saffron-soft)]/75">
@@ -52,14 +52,14 @@ export function AuthShell({
           </p>
         </div>
 
-        <div className="relative grid grid-cols-3 gap-4 text-[color:var(--color-cream)]/70">
+        <div className="relative grid grid-cols-3 gap-4 text-[color:var(--color-background)]/70">
           {[
             { v: String(SOCIETY_COUNT), l: 'societies' },
             { v: '4', l: 'riders' },
             { v: '25m', l: 'median ETA' },
           ].map((s) => (
             <div key={s.l}>
-              <div className="font-serif text-[32px] leading-none text-[color:var(--color-cream)]">{s.v}</div>
+              <div className="font-display text-[32px] leading-none text-[color:var(--color-background)]">{s.v}</div>
               <div className="mt-1 text-[11px] uppercase tracking-[0.14em]">{s.l}</div>
             </div>
           ))}
@@ -72,7 +72,7 @@ export function AuthShell({
           <Link href="/" className="inline-flex items-center gap-2.5">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)]" />
             <span className="text-[15px] tracking-tight font-medium">
-              {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+              {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
             </span>
           </Link>
         </div>
@@ -81,16 +81,16 @@ export function AuthShell({
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
             {eyebrow}
           </div>
-          <h1 className="mt-4 font-serif text-[44px] sm:text-[52px] leading-[1.02] tracking-[-0.02em] text-[color:var(--color-ink)]">
+          <h1 className="mt-4 font-display text-[44px] sm:text-[52px] leading-[1.02] tracking-[-0.02em] text-[color:var(--color-foreground)]">
             {title}
           </h1>
-          <p className="mt-5 text-[15px] leading-[1.6] text-[color:var(--color-ink-soft)]">{subtitle}</p>
+          <p className="mt-5 text-[15px] leading-[1.6] text-[color:var(--color-muted)]">{subtitle}</p>
 
           <div className="mt-10">{children}</div>
 
-          <p className="mt-10 text-[12.5px] text-[color:var(--color-ink-soft)]/70">
+          <p className="mt-10 text-[12.5px] text-[color:var(--color-muted)]/70">
             New to {siteConfig.platformName}?{' '}
-            <Link href="/signup" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
+            <Link href="/signup" className="underline underline-offset-4 hover:text-[color:var(--color-primary)]">
               Create an account
             </Link>
           </p>

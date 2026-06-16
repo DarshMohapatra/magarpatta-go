@@ -235,13 +235,13 @@ export function SignUpClient() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Priya Rao"
-              className="w-full bg-transparent outline-none text-[17px] placeholder:text-[color:var(--color-ink-soft)]/40"
+              className="w-full bg-transparent outline-none text-[17px] placeholder:text-[color:var(--color-muted)]/40"
             />
           </Field>
 
           <Field label="Mobile number">
             <div className="flex items-center gap-3">
-              <span className="text-[16px] text-[color:var(--color-ink-soft)]">+91</span>
+              <span className="text-[16px] text-[color:var(--color-muted)]">+91</span>
               <input
                 inputMode="numeric"
                 pattern="[0-9]{10}"
@@ -249,10 +249,10 @@ export function SignUpClient() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                 placeholder="98765 43210"
-                className="w-full bg-transparent outline-none text-[17px] tracking-wide placeholder:text-[color:var(--color-ink-soft)]/40"
+                className="w-full bg-transparent outline-none text-[17px] tracking-wide placeholder:text-[color:var(--color-muted)]/40"
               />
               {phoneValid && (
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)]">
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                     <path d="M2.5 6.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -265,9 +265,9 @@ export function SignUpClient() {
             Send OTP
           </PrimaryButton>
 
-          <p className="text-[12.5px] text-[color:var(--color-ink-soft)]/70 text-center pt-1">
+          <p className="text-[12.5px] text-[color:var(--color-muted)]/70 text-center pt-1">
             Already have an account?{' '}
-            <Link href="/signin" className="underline underline-offset-4 hover:text-[color:var(--color-forest)]">
+            <Link href="/signin" className="underline underline-offset-4 hover:text-[color:var(--color-primary)]">
               Sign in instead
             </Link>
           </p>
@@ -277,19 +277,19 @@ export function SignUpClient() {
       {/* Step 1 — verify */}
       {step === 1 && (
         <div className="space-y-5">
-          <p className="text-[13.5px] text-[color:var(--color-ink-soft)]">
-            Code sent to <span className="font-medium text-[color:var(--color-ink)]">+91 {phone}</span>
+          <p className="text-[13.5px] text-[color:var(--color-muted)]">
+            Code sent to <span className="font-medium text-[color:var(--color-foreground)]">+91 {phone}</span>
             {' · '}
             <button
               onClick={() => setStep(0)}
-              className="underline underline-offset-4 hover:text-[color:var(--color-forest)]"
+              className="underline underline-offset-4 hover:text-[color:var(--color-primary)]"
             >
               change
             </button>
           </p>
 
           {otpHint && (
-            <p className="text-[12.5px] text-[color:var(--color-forest)]">{otpHint}</p>
+            <p className="text-[12.5px] text-[color:var(--color-primary)]">{otpHint}</p>
           )}
 
           <div className="flex items-center gap-2.5" onPaste={handlePaste}>
@@ -307,12 +307,12 @@ export function SignUpClient() {
                 onKeyDown={(e) => handleKey(i, e)}
                 disabled={loading}
                 className={cn(
-                  'w-12 h-14 sm:w-14 sm:h-16 text-center text-[22px] font-serif rounded-xl border bg-[color:var(--color-paper)] outline-none transition-all',
+                  'w-12 h-14 sm:w-14 sm:h-16 text-center text-[22px] font-display rounded-xl border bg-[color:var(--color-surface)] outline-none transition-all',
                   error
                     ? 'border-[color:var(--color-terracotta)]/50'
                     : d
-                      ? 'border-[color:var(--color-forest)] text-[color:var(--color-forest-dark)]'
-                      : 'border-[color:var(--color-ink)]/15 focus:border-[color:var(--color-forest)]',
+                      ? 'border-[color:var(--color-primary)] text-[color:var(--color-primary)]'
+                      : 'border-[color:var(--color-foreground)]/15 focus:border-[color:var(--color-primary)]',
                 )}
               />
             ))}
@@ -325,14 +325,14 @@ export function SignUpClient() {
               className={cn(
                 'text-[13px]',
                 resendIn > 0
-                  ? 'text-[color:var(--color-ink-soft)]/50 cursor-not-allowed'
-                  : 'text-[color:var(--color-forest)] hover:underline underline-offset-4',
+                  ? 'text-[color:var(--color-muted)]/50 cursor-not-allowed'
+                  : 'text-[color:var(--color-primary)] hover:underline underline-offset-4',
               )}
             >
               {resendIn > 0 ? `Resend code in ${resendIn}s` : 'Resend code'}
             </button>
             {loading && (
-              <span className="inline-flex items-center gap-2 text-[13px] text-[color:var(--color-ink-soft)]">
+              <span className="inline-flex items-center gap-2 text-[13px] text-[color:var(--color-muted)]">
                 <Spinner />
                 Verifying
               </span>
@@ -350,8 +350,8 @@ export function SignUpClient() {
       {/* Step 2 — address */}
       {step === 2 && (
         <div className="space-y-5">
-          <p className="text-[13.5px] text-[color:var(--color-ink-soft)]">
-            Nice to meet you, <span className="font-medium text-[color:var(--color-ink)]">{name}</span>. Where should we deliver?
+          <p className="text-[13.5px] text-[color:var(--color-muted)]">
+            Nice to meet you, <span className="font-medium text-[color:var(--color-foreground)]">{name}</span>. Where should we deliver?
           </p>
 
           <AddressPicker
@@ -372,14 +372,14 @@ export function SignUpClient() {
               <div>
                 <span className="text-[color:var(--color-terracotta)]">{flatValidation.reason}</span>
                 {flatValidation.hint && (
-                  <span className="text-[color:var(--color-ink-soft)]/80"> · {flatValidation.hint}</span>
+                  <span className="text-[color:var(--color-muted)]/80"> · {flatValidation.hint}</span>
                 )}
               </div>
             </div>
           )}
 
           {building && flatValidation?.ok && (
-            <p className="flex items-center gap-2 text-[13px] text-[color:var(--color-forest)]">
+            <p className="flex items-center gap-2 text-[13px] text-[color:var(--color-primary)]">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M2.5 7.5l3 3 6-6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -407,10 +407,10 @@ function Progress({ step }: { step: Step }) {
               className={cn(
                 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-medium transition-all',
                 i < step
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]'
                   : i === step
-                    ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-ink)]'
-                    : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/60',
+                    ? 'bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)]'
+                    : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/60',
               )}
             >
               {i < step ? (
@@ -424,7 +424,7 @@ function Progress({ step }: { step: Step }) {
             <span
               className={cn(
                 'text-[11px] uppercase tracking-[0.12em] truncate',
-                i === step ? 'text-[color:var(--color-ink)]' : 'text-[color:var(--color-ink-soft)]/60',
+                i === step ? 'text-[color:var(--color-foreground)]' : 'text-[color:var(--color-muted)]/60',
               )}
             >
               {l}
@@ -434,7 +434,7 @@ function Progress({ step }: { step: Step }) {
             <div
               className={cn(
                 'flex-1 h-px transition-colors',
-                i < step ? 'bg-[color:var(--color-forest)]/40' : 'bg-[color:var(--color-ink)]/12',
+                i < step ? 'bg-[color:var(--color-primary)]/40' : 'bg-[color:var(--color-foreground)]/12',
               )}
             />
           )}
@@ -446,8 +446,8 @@ function Progress({ step }: { step: Step }) {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-5 py-4 focus-within:border-[color:var(--color-forest)] transition-colors">
-      <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+    <div className="rounded-2xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-5 py-4 focus-within:border-[color:var(--color-primary)] transition-colors">
+      <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
         {label}
       </label>
       <div className="mt-1">{children}</div>
@@ -474,8 +474,8 @@ function PrimaryButton({
       className={cn(
         'w-full px-5 py-4 rounded-2xl font-medium text-[15px] transition-colors flex items-center justify-center gap-2',
         !disabled
-          ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]'
-          : 'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]/50 cursor-not-allowed',
+          ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]'
+          : 'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]/50 cursor-not-allowed',
       )}
     >
       {loading ? (
@@ -547,16 +547,16 @@ function AddressPicker({
             setOpen(open === 'society' ? null : 'society');
             setQ('');
           }}
-          className="w-full text-left rounded-2xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-5 py-4 hover:border-[color:var(--color-forest)]/40 flex items-center justify-between"
+          className="w-full text-left rounded-2xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-5 py-4 hover:border-[color:var(--color-primary)]/40 flex items-center justify-between"
         >
           <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
               Society
             </div>
             <div
               className={cn(
                 'mt-1 text-[16px] truncate',
-                society ? 'text-[color:var(--color-ink)]' : 'text-[color:var(--color-ink-soft)]/45',
+                society ? 'text-[color:var(--color-foreground)]' : 'text-[color:var(--color-muted)]/45',
               )}
             >
               {society ?? 'Select your society'}
@@ -606,18 +606,18 @@ function AddressPicker({
               setQ('');
             }}
             className={cn(
-              'w-full text-left rounded-2xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-5 py-4 flex items-center justify-between',
-              society ? 'hover:border-[color:var(--color-forest)]/40' : 'opacity-50 cursor-not-allowed',
+              'w-full text-left rounded-2xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-5 py-4 flex items-center justify-between',
+              society ? 'hover:border-[color:var(--color-primary)]/40' : 'opacity-50 cursor-not-allowed',
             )}
           >
             <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
                 Building
               </div>
               <div
                 className={cn(
                   'mt-1 text-[16px] truncate',
-                  building ? 'text-[color:var(--color-ink)]' : 'text-[color:var(--color-ink-soft)]/45',
+                  building ? 'text-[color:var(--color-foreground)]' : 'text-[color:var(--color-muted)]/45',
                 )}
               >
                 {building?.name ?? (society ? 'Select' : '—')}
@@ -657,11 +657,11 @@ function AddressPicker({
 
         <div
           className={cn(
-            'rounded-2xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-5 py-4',
+            'rounded-2xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-5 py-4',
             !building && 'opacity-50',
           )}
         >
-          <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">
+          <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">
             Flat
           </label>
           <input
@@ -671,7 +671,7 @@ function AddressPicker({
             value={flat}
             onChange={(e) => setFlat(e.target.value.replace(/\D/g, '').slice(0, 4))}
             placeholder={building ? `${Math.max(1, Math.floor(building.floors / 2))}0${Math.min(building.flatsPerFloor, 2)}` : '—'}
-            className="mt-1 w-full bg-transparent outline-none text-[16px] placeholder:text-[color:var(--color-ink-soft)]/40 disabled:cursor-not-allowed"
+            className="mt-1 w-full bg-transparent outline-none text-[16px] placeholder:text-[color:var(--color-muted)]/40 disabled:cursor-not-allowed"
           />
         </div>
       </div>
@@ -695,19 +695,19 @@ function PickerPanel({
   onPick: (v: string) => void;
 }) {
   return (
-    <div className="absolute left-0 right-0 top-full mt-2 z-20 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] shadow-[0_24px_60px_-20px_rgba(15,15,14,0.28)] overflow-hidden">
-      <div className="p-2 border-b border-[color:var(--color-ink)]/8">
+    <div className="absolute left-0 right-0 top-full mt-2 z-20 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] shadow-[0_24px_60px_-20px_rgba(15,15,14,0.28)] overflow-hidden">
+      <div className="p-2 border-b border-[color:var(--color-foreground)]/8">
         <input
           autoFocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 text-[14px] bg-transparent outline-none placeholder:text-[color:var(--color-ink-soft)]/50"
+          className="w-full px-3 py-2 text-[14px] bg-transparent outline-none placeholder:text-[color:var(--color-muted)]/50"
         />
       </div>
       <ul className="max-h-72 overflow-y-auto py-1">
         {items.length === 0 && (
-          <li className="px-4 py-3 text-[13px] text-[color:var(--color-ink-soft)]/70">No match.</li>
+          <li className="px-4 py-3 text-[13px] text-[color:var(--color-muted)]/70">No match.</li>
         )}
         {items.map((it) => (
           <li key={it.key}>
@@ -715,20 +715,20 @@ function PickerPanel({
               type="button"
               onClick={() => onPick(it.key)}
               className={cn(
-                'w-full text-left px-4 py-2.5 hover:bg-[color:var(--color-cream)] flex items-center justify-between gap-4',
-                selected === it.key && 'bg-[color:var(--color-forest)]/5',
+                'w-full text-left px-4 py-2.5 hover:bg-[color:var(--color-background)] flex items-center justify-between gap-4',
+                selected === it.key && 'bg-[color:var(--color-primary)]/5',
               )}
             >
               <span
                 className={cn(
-                  'flex-1 min-w-0 truncate text-[14px] font-medium text-[color:var(--color-ink)]',
-                  selected === it.key && 'text-[color:var(--color-forest)]',
+                  'flex-1 min-w-0 truncate text-[14px] font-medium text-[color:var(--color-foreground)]',
+                  selected === it.key && 'text-[color:var(--color-primary)]',
                 )}
               >
                 {it.label}
               </span>
               {it.sub && (
-                <span className="shrink-0 text-[10.5px] uppercase tracking-[0.1em] text-[color:var(--color-ink-soft)]/60">
+                <span className="shrink-0 text-[10.5px] uppercase tracking-[0.1em] text-[color:var(--color-muted)]/60">
                   {it.sub}
                 </span>
               )}

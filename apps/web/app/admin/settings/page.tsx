@@ -26,7 +26,7 @@ export default async function AdminSettingsPage() {
         <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
           Runtime <span className="italic text-[color:var(--color-primary)]">knobs.</span>
         </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)] max-w-[640px]">
+        <p className="mt-3 text-[14px] text-[color:var(--color-muted)] max-w-[640px]">
           Edits here go live instantly — no redeploy. Every change is recorded
           in the activity log with your name attached.
         </p>

@@ -65,7 +65,7 @@ const GLYPHS: Record<string, (color: string) => React.ReactNode> = {
 
 const COLOR_MAP: Record<string, string> = {
   saffron: 'var(--color-saffron)',
-  forest: 'var(--color-forest)',
+  forest: 'var(--color-primary)',
   terracotta: 'var(--color-terracotta)',
   sage: 'var(--color-sage)',
 };

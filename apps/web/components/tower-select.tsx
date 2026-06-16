@@ -57,9 +57,9 @@ export function TowerSelect() {
 
   if (confirmed && society && building && flatValidation?.ok) {
     return (
-      <div className="w-full max-w-xl rounded-2xl border border-[color:var(--color-forest)]/20 bg-[color:var(--color-paper)] p-6 shadow-[0_12px_40px_-12px_rgba(27,59,47,0.22)]">
+      <div className="w-full max-w-xl rounded-2xl border border-[color:var(--color-primary)]/20 bg-[color:var(--color-surface)] p-6 shadow-[0_12px_40px_-12px_rgba(27,59,47,0.22)]">
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)]">
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)]">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path
                 d="M2.5 7.5l3 3 6-6.5"
@@ -71,20 +71,20 @@ export function TowerSelect() {
             </svg>
           </div>
           <div className="flex-1">
-            <p className="font-serif text-2xl leading-tight text-[color:var(--color-forest-dark)]">
+            <p className="font-display text-2xl leading-tight text-[color:var(--color-primary)]">
               Brilliant — we deliver to{' '}
               <span className="italic">
                 Flat {flat}, {building.name}, {society}
               </span>.
             </p>
-            <p className="mt-2 text-[14px] text-[color:var(--color-ink-soft)]">
+            <p className="mt-2 text-[14px] text-[color:var(--color-muted)]">
               Floor {flatValidation.floor}, unit {String(flatValidation.unit).padStart(2, '0')}.
               Join the waitlist and we&apos;ll ping you the moment we go live in your building.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <a
                 href="#waitlist"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]"
               >
                 Join waitlist
               </a>
@@ -95,7 +95,7 @@ export function TowerSelect() {
                   setBuilding(null);
                   setFlat('');
                 }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] text-[color:var(--color-muted)] hover:bg-[color:var(--color-foreground)]/5"
               >
                 Change address
               </button>
@@ -110,7 +110,7 @@ export function TowerSelect() {
     <div className="w-full max-w-2xl">
       <div
         ref={ref}
-        className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-2 shadow-[0_12px_40px_-18px_rgba(15,15,14,0.22)]"
+        className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-2 shadow-[0_12px_40px_-18px_rgba(15,15,14,0.22)]"
       >
         <div className="flex flex-col sm:flex-row items-stretch gap-2">
           {/* Society */}
@@ -121,16 +121,16 @@ export function TowerSelect() {
                 setStep(step === 'society' ? null : 'society');
                 setQuery('');
               }}
-              className="w-full text-left px-4 py-3 rounded-xl hover:bg-[color:var(--color-cream)] transition-colors flex items-center justify-between gap-3"
+              className="w-full text-left px-4 py-3 rounded-xl hover:bg-[color:var(--color-background)] transition-colors flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/70">
+                <div className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/70">
                   Society
                 </div>
                 <div
                   className={cn(
                     'mt-0.5 truncate text-[14px]',
-                    society ? 'text-[color:var(--color-ink)]' : 'text-[color:var(--color-ink-soft)]/60',
+                    society ? 'text-[color:var(--color-foreground)]' : 'text-[color:var(--color-muted)]/60',
                   )}
                 >
                   {society ?? 'Select'}
@@ -174,17 +174,17 @@ export function TowerSelect() {
               }}
               className={cn(
                 'w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center justify-between gap-3',
-                society ? 'hover:bg-[color:var(--color-cream)]' : 'opacity-50 cursor-not-allowed',
+                society ? 'hover:bg-[color:var(--color-background)]' : 'opacity-50 cursor-not-allowed',
               )}
             >
               <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/70">
+                <div className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/70">
                   Building
                 </div>
                 <div
                   className={cn(
                     'mt-0.5 truncate text-[14px]',
-                    building ? 'text-[color:var(--color-ink)]' : 'text-[color:var(--color-ink-soft)]/60',
+                    building ? 'text-[color:var(--color-foreground)]' : 'text-[color:var(--color-muted)]/60',
                   )}
                 >
                   {building?.name ?? (society ? 'Select' : '—')}
@@ -224,10 +224,10 @@ export function TowerSelect() {
               className={cn(
                 'flex flex-col justify-center px-3 rounded-xl transition-colors',
                 !building && 'opacity-50',
-                building && 'hover:bg-[color:var(--color-cream)]',
+                building && 'hover:bg-[color:var(--color-background)]',
               )}
             >
-              <label className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/70">
+              <label className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/70">
                 Flat
               </label>
               <input
@@ -238,7 +238,7 @@ export function TowerSelect() {
                 value={flat}
                 onChange={(e) => setFlat(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder={building ? examplePlaceholder(building) : '—'}
-                className="mt-0.5 w-20 text-[14px] bg-transparent outline-none placeholder:text-[color:var(--color-ink-soft)]/40 disabled:cursor-not-allowed"
+                className="mt-0.5 w-20 text-[14px] bg-transparent outline-none placeholder:text-[color:var(--color-muted)]/40 disabled:cursor-not-allowed"
               />
             </div>
             <button
@@ -248,8 +248,8 @@ export function TowerSelect() {
               className={cn(
                 'shrink-0 px-5 rounded-xl text-[13px] font-medium transition-all flex items-center gap-1.5',
                 canProceed
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-forest-dark)]'
-                  : 'bg-[color:var(--color-ink)]/5 text-[color:var(--color-ink-soft)]/50 cursor-not-allowed',
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]'
+                  : 'bg-[color:var(--color-foreground)]/5 text-[color:var(--color-muted)]/50 cursor-not-allowed',
               )}
             >
               Check
@@ -277,14 +277,14 @@ export function TowerSelect() {
           <div className="flex-1">
             <span className="text-[color:var(--color-terracotta)]">{flatValidation.reason}</span>
             {flatValidation.hint && (
-              <span className="text-[color:var(--color-ink-soft)]/80"> · {flatValidation.hint}</span>
+              <span className="text-[color:var(--color-muted)]/80"> · {flatValidation.hint}</span>
             )}
           </div>
         </div>
       )}
 
       {building && flatValidation?.ok && (
-        <div className="mt-2 flex items-center gap-2 px-4 py-2 text-[12.5px] text-[color:var(--color-forest)]">
+        <div className="mt-2 flex items-center gap-2 px-4 py-2 text-[12.5px] text-[color:var(--color-primary)]">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M2.5 7.5l3 3 6-6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -333,19 +333,19 @@ function Dropdown({
   empty: string;
 }) {
   return (
-    <div className="absolute left-0 top-full mt-2 z-20 w-[320px] max-w-[calc(100vw-2rem)] rounded-xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] shadow-[0_24px_60px_-20px_rgba(15,15,14,0.28)] overflow-hidden">
-      <div className="p-2 border-b border-[color:var(--color-ink)]/8">
+    <div className="absolute left-0 top-full mt-2 z-20 w-[320px] max-w-[calc(100vw-2rem)] rounded-xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] shadow-[0_24px_60px_-20px_rgba(15,15,14,0.28)] overflow-hidden">
+      <div className="p-2 border-b border-[color:var(--color-foreground)]/8">
         <input
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 text-[14px] bg-transparent outline-none placeholder:text-[color:var(--color-ink-soft)]/50"
+          className="w-full px-3 py-2 text-[14px] bg-transparent outline-none placeholder:text-[color:var(--color-muted)]/50"
         />
       </div>
       <ul className="max-h-72 overflow-y-auto py-1">
         {items.length === 0 && (
-          <li className="px-4 py-3 text-[13px] text-[color:var(--color-ink-soft)]/70">{empty}</li>
+          <li className="px-4 py-3 text-[13px] text-[color:var(--color-muted)]/70">{empty}</li>
         )}
         {items.map((it) => (
           <li key={it.key}>
@@ -353,20 +353,20 @@ function Dropdown({
               type="button"
               onClick={() => onSelect(it.key)}
               className={cn(
-                'w-full text-left px-4 py-2.5 hover:bg-[color:var(--color-cream)] flex items-center justify-between gap-4',
-                selected === it.key && 'bg-[color:var(--color-forest)]/5',
+                'w-full text-left px-4 py-2.5 hover:bg-[color:var(--color-background)] flex items-center justify-between gap-4',
+                selected === it.key && 'bg-[color:var(--color-primary)]/5',
               )}
             >
               <span
                 className={cn(
-                  'flex-1 min-w-0 truncate text-[14px] font-medium text-[color:var(--color-ink)]',
-                  selected === it.key && 'text-[color:var(--color-forest)]',
+                  'flex-1 min-w-0 truncate text-[14px] font-medium text-[color:var(--color-foreground)]',
+                  selected === it.key && 'text-[color:var(--color-primary)]',
                 )}
               >
                 {it.label}
               </span>
               {it.sub && (
-                <span className="shrink-0 text-[10.5px] uppercase tracking-[0.1em] text-[color:var(--color-ink-soft)]/60">
+                <span className="shrink-0 text-[10.5px] uppercase tracking-[0.1em] text-[color:var(--color-muted)]/60">
                   {it.sub}
                 </span>
               )}

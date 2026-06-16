@@ -188,7 +188,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
     return (
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
         <h2 className="font-display text-[22px]">Menu editing unlocks after approval</h2>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
           You can prepare your menu once your shop is approved by {siteConfig.platformName}.
         </p>
       </div>
@@ -210,7 +210,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
             {products.length} item{products.length === 1 ? '' : 's'} on the <span className="italic text-[color:var(--color-primary)]">counter.</span>
           </h1>
-          <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
             Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
             <span className="block mt-1">New items, edits, and removals all go through {siteConfig.platformName} review before customers see them. Stock toggle (in stock / out) is the only instant change.</span>
           </p>
@@ -225,13 +225,13 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
           <Link href="/vendor/menu/import" className="rounded-full border border-[color:var(--color-primary)]/40 text-[color:var(--color-primary)] px-4 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-primary)]/8">
             Import from photo / QR
           </Link>
-          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
+          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
             + Add item
           </button>
         </div>
       </div>
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] shadow-lg">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13px] shadow-lg">
           {toast}
         </div>
       )}
@@ -242,8 +242,8 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
         {[...byCategory.entries()].map(([cat, items]) => (
           <section key={cat}>
             <h2 className="font-display text-[20px] mb-3">{cat}</h2>
-            <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
-              <ul className="divide-y divide-[color:var(--color-ink)]/8">
+            <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
+              <ul className="divide-y divide-[color:var(--color-foreground)]/8">
                 {items.map((p) => (
                   <li key={p.id} className="px-4 sm:px-5 py-3.5 flex items-center gap-4">
                     <div className={`h-3 w-3 rounded-sm border ${p.isVeg ? 'border-[color:var(--color-primary)]' : 'border-[color:var(--color-terracotta)]'}`}>
@@ -251,7 +251,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-[14.5px] truncate">{p.name}</div>
-                      <div className="text-[11.5px] text-[color:var(--color-ink-soft)]/70 truncate">
+                      <div className="text-[11.5px] text-[color:var(--color-muted)]/70 truncate">
                         {p.unit && <span>{p.unit} · </span>}
                         {p.isRegulated ? 'MRP' : '+₹1 markup'}
                         {p.description && <span> · {p.description}</span>}
@@ -260,12 +260,12 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                     <div className="text-right shrink-0 hidden sm:block">
                       <div className="font-display text-[15px]">₹{p.priceInr}</div>
                       {p.mrpInr && p.mrpInr !== p.priceInr && (
-                        <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/60 line-through">₹{p.mrpInr}</div>
+                        <div className="text-[10.5px] text-[color:var(--color-muted)]/60 line-through">₹{p.mrpInr}</div>
                       )}
                     </div>
                     <label className="inline-flex items-center gap-2 text-[11.5px] shrink-0">
                       <input type="checkbox" checked={p.inStock} onChange={(e) => toggleStock(p, e.target.checked)} className="accent-[color:var(--color-primary)]" />
-                      <span className={p.inStock ? 'text-[color:var(--color-primary)]' : 'text-[color:var(--color-ink-soft)]/60'}>
+                      <span className={p.inStock ? 'text-[color:var(--color-primary)]' : 'text-[color:var(--color-muted)]/60'}>
                         {p.inStock ? 'In stock' : 'Out'}
                       </span>
                     </label>
@@ -279,22 +279,22 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
         ))}
 
         {products.length === 0 && (
-          <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-8 text-center">
+          <div className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-8 text-center">
             <p className="font-display text-[22px]">Your menu is empty.</p>
-            <p className="mt-1 text-[13px] text-[color:var(--color-ink-soft)]">Add your first item — customers see it instantly once your shop is active.</p>
+            <p className="mt-1 text-[13px] text-[color:var(--color-muted)]">Add your first item — customers see it instantly once your shop is active.</p>
           </div>
         )}
       </div>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[color:var(--color-ink)]/40 backdrop-blur-sm">
-          <div className="w-full max-w-[560px] rounded-t-3xl sm:rounded-3xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 shadow-2xl max-h-[92vh] overflow-y-auto">
-            <div className="px-6 py-5 border-b border-[color:var(--color-ink)]/8 flex items-center justify-between sticky top-0 bg-[color:var(--color-paper)]">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[color:var(--color-foreground)]/40 backdrop-blur-sm">
+          <div className="w-full max-w-[560px] rounded-t-3xl sm:rounded-3xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="px-6 py-5 border-b border-[color:var(--color-foreground)]/8 flex items-center justify-between sticky top-0 bg-[color:var(--color-surface)]">
               <div>
                 <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">{editingId ? 'Edit item' : 'Add item'}</div>
                 <h2 className="font-display text-[22px] mt-0.5">{editingId ? form.name || 'Item' : 'New item'}</h2>
               </div>
-              <button onClick={() => setDrawerOpen(false)} className="text-[12px] text-[color:var(--color-ink-soft)]">Close</button>
+              <button onClick={() => setDrawerOpen(false)} className="text-[12px] text-[color:var(--color-muted)]">Close</button>
             </div>
             <div className="px-6 py-5 space-y-4">
               <Field label="Name">
@@ -306,21 +306,21 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                   // vendor sees an example in the script they're about to type in.
                   placeholder={form.nameSourceLang === 'hi' ? 'जैसे — टमाटर' : form.nameSourceLang === 'mr' ? 'उदा. — टोमॅटो' : 'e.g. Tomato'}
                 />
-                <div className="mt-2 flex items-center gap-2 text-[10.5px] text-[color:var(--color-ink-soft)]/75">
+                <div className="mt-2 flex items-center gap-2 text-[10.5px] text-[color:var(--color-muted)]/75">
                   <span className="uppercase tracking-[0.14em]">Typing in</span>
-                  <div className="inline-flex rounded-full border border-[color:var(--color-ink)]/15 overflow-hidden">
+                  <div className="inline-flex rounded-full border border-[color:var(--color-foreground)]/15 overflow-hidden">
                     {LOCALES.map((lng) => (
                       <button
                         key={lng}
                         type="button"
                         onClick={() => setForm((f) => ({ ...f, nameSourceLang: lng }))}
-                        className={`px-2.5 py-1 text-[11px] ${form.nameSourceLang === lng ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)]' : 'text-[color:var(--color-ink-soft)] hover:bg-[color:var(--color-ink)]/5'}`}
+                        className={`px-2.5 py-1 text-[11px] ${form.nameSourceLang === lng ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)]' : 'text-[color:var(--color-muted)] hover:bg-[color:var(--color-foreground)]/5'}`}
                       >
                         {LOCALE_LABEL[lng]}
                       </button>
                     ))}
                   </div>
-                  <span className="text-[color:var(--color-ink-soft)]/65">
+                  <span className="text-[color:var(--color-muted)]/65">
                     — we&apos;ll translate to the other two automatically.
                   </span>
                 </div>
@@ -375,7 +375,7 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                       placeholder="e.g. 250"
                     />
                   </Field>
-                  <p className="text-[11px] text-[color:var(--color-ink-soft)]/80 leading-relaxed">
+                  <p className="text-[11px] text-[color:var(--color-muted)]/80 leading-relaxed">
                     The MRP above will be shown to customers as an <em>estimate</em> tied to this gram count. Before delivery you&apos;ll weigh the actual amount and confirm the final price — customers get notified of the difference.
                   </p>
                 </div>
@@ -393,8 +393,8 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
                 </Field>
               </div>
               <div className="pt-2 flex justify-end gap-3">
-                <button onClick={() => setDrawerOpen(false)} className="px-4 py-2 text-[13px] text-[color:var(--color-ink-soft)]">Cancel</button>
-                <button disabled={saving || !form.name || !form.mrpInr} onClick={save} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
+                <button onClick={() => setDrawerOpen(false)} className="px-4 py-2 text-[13px] text-[color:var(--color-muted)]">Cancel</button>
+                <button disabled={saving || !form.name || !form.mrpInr} onClick={save} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
                   {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add to menu'}
                 </button>
               </div>
@@ -406,12 +406,12 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
   );
 }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">{label}</span>
+      <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">{label}</span>
       {children}
     </label>
   );

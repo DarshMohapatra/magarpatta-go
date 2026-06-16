@@ -1,8 +1,17 @@
+import Link from 'next/link';
 import { siteConfig } from '@/lib/site-config';
 import { getServerLocale } from '@/lib/locale';
 import { LocalePicker } from '@/components/locale-picker';
 import { NotificationBell } from '@/components/notification-bell';
+import { CartButton } from '@/components/cart-button';
 import type { SessionUser } from '@/lib/session';
+
+const DESKTOP_LINKS = [
+  { href: '/home', label: 'Home' },
+  { href: '/menu', label: 'Search' },
+  { href: '/orders', label: 'Orders' },
+  { href: '/account/addresses', label: 'Profile' },
+];
 
 /**
  * Sticky mobile header for the redesigned customer surfaces. Shows the
@@ -38,9 +47,23 @@ export async function TopBar({ session }: { session: SessionUser | null }) {
           </span>
         </span>
       </button>
+      {/* Desktop nav — Home / Search / Orders / Profile.
+         Hidden on mobile (BottomNav covers those tabs). */}
+      <nav className="hidden lg:flex items-center gap-1">
+        {DESKTOP_LINKS.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="px-3 py-1.5 rounded-full text-[13px] font-semibold text-[color:var(--color-foreground)] hover:bg-[color:var(--color-surface-2)] transition-colors"
+          >
+            {l.label}
+          </Link>
+        ))}
+      </nav>
       <div className="flex items-center gap-1.5">
         <LocalePicker initial={locale} />
         <NotificationBell signedIn={!!session} />
+        <CartButton />
       </div>
     </div>
   );

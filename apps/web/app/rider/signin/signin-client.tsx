@@ -36,17 +36,17 @@ export function RiderSignInClient() {
         <div className="inline-flex items-center gap-2.5 mb-6">
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
           <span className="text-[15px] tracking-tight font-medium">
-            {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+            {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
             <span className="ml-2 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
           </span>
         </div>
-        <h1 className="font-serif text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
+        <h1 className="font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
           Clock in,{' '}
-          <span className="italic text-[color:var(--color-forest)]">neighbour.</span>
+          <span className="italic text-[color:var(--color-primary)]">neighbour.</span>
         </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
           Enter your rider phone. We&apos;ll send a 6-digit OTP. New here?{' '}
-          <Link href="/rider/register" className="text-[color:var(--color-forest)] underline underline-offset-2">
+          <Link href="/rider/register" className="text-[color:var(--color-primary)] underline underline-offset-2">
             Apply to ride
           </Link>.
         </p>
@@ -61,7 +61,7 @@ export function RiderSignInClient() {
           topError={err}
         />
 
-        <details className="mt-8 text-[12px] text-[color:var(--color-ink-soft)]/80">
+        <details className="mt-8 text-[12px] text-[color:var(--color-muted)]/80">
           <summary className="cursor-pointer">Demo roster · tap to prefill · OTP is 123456</summary>
           <div className="mt-2 space-y-1 font-mono">
             {RIDERS.map((r) => (
@@ -69,9 +69,9 @@ export function RiderSignInClient() {
                 key={r.phone}
                 type="button"
                 onClick={() => setPhone(r.phone)}
-                className="block text-left text-[color:var(--color-forest)] hover:underline"
+                className="block text-left text-[color:var(--color-primary)] hover:underline"
               >
-                {r.phone} · <span className="font-sans text-[color:var(--color-ink)]">{r.name}</span>
+                {r.phone} · <span className="font-sans text-[color:var(--color-foreground)]">{r.name}</span>
               </button>
             ))}
           </div>

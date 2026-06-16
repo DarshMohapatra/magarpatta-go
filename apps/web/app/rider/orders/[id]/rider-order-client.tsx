@@ -77,9 +77,9 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
   return (
     <main className="min-h-screen">
       <LocationTracker orderId={order.id} />
-      <header className="border-b border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]">
+      <header className="border-b border-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)]">
         <div className="mx-auto max-w-[720px] px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/rider" className="text-[13px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">
+          <Link href="/rider" className="text-[13px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
             ← Dashboard
           </Link>
           <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
@@ -90,29 +90,29 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
 
       <section className="mx-auto max-w-[720px] px-4 sm:px-6 py-6 space-y-5">
         {/* Pickup card */}
-        <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-5">
+        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5">
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Pickup from</div>
-          <div className="mt-1 font-serif text-[24px] leading-tight">{order.vendorName ?? 'Vendor'}</div>
+          <div className="mt-1 font-display text-[24px] leading-tight">{order.vendorName ?? 'Vendor'}</div>
           {order.vendorHub && (
-            <div className="text-[13px] text-[color:var(--color-ink-soft)]">{order.vendorHub}</div>
+            <div className="text-[13px] text-[color:var(--color-muted)]">{order.vendorHub}</div>
           )}
         </div>
 
         {/* Drop card */}
-        <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-5">
-          <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-forest)]">Drop at</div>
-          <div className="mt-1 font-serif text-[24px] leading-tight">Flat {order.flat}, {order.building}</div>
-          <div className="text-[13px] text-[color:var(--color-ink-soft)]">{order.society} · {siteConfig.siteName}</div>
+        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5">
+          <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-primary)]">Drop at</div>
+          <div className="mt-1 font-display text-[24px] leading-tight">Flat {order.flat}, {order.building}</div>
+          <div className="text-[13px] text-[color:var(--color-muted)]">{order.society} · {siteConfig.siteName}</div>
           {order.notes && (
-            <div className="mt-3 rounded-lg bg-[color:var(--color-cream)] p-3">
-              <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Customer note</div>
+            <div className="mt-3 rounded-lg bg-[color:var(--color-background)] p-3">
+              <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">Customer note</div>
               <div className="mt-1 text-[13.5px]">{order.notes}</div>
             </div>
           )}
         </div>
 
         {/* Items summary */}
-        <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-5">
+        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5">
           <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
             {order.items.length} item{order.items.length === 1 ? '' : 's'}
           </div>
@@ -120,15 +120,15 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
             {order.items.map((i) => (
               <li key={i.id} className="flex items-center justify-between gap-3">
                 <span className="min-w-0 truncate">{i.name}{i.unit ? ` · ${i.unit}` : ''}</span>
-                <span className="shrink-0 text-[color:var(--color-ink-soft)]">× {i.quantity}</span>
+                <span className="shrink-0 text-[color:var(--color-muted)]">× {i.quantity}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-3 pt-3 border-t border-[color:var(--color-ink)]/8 flex items-center justify-between">
-            <span className="text-[12px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]">Order value</span>
-            <span className="font-serif text-[18px]">₹{order.totalInr}</span>
+          <div className="mt-3 pt-3 border-t border-[color:var(--color-foreground)]/8 flex items-center justify-between">
+            <span className="text-[12px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]">Order value</span>
+            <span className="font-display text-[18px]">₹{order.totalInr}</span>
           </div>
-          <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/75">
+          <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/75">
             Payment: {prettyPay(order.paymentMethod)}
           </div>
         </div>
@@ -144,7 +144,7 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
           <button
             disabled={busy}
             onClick={() => act('accept')}
-            className="w-full rounded-xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-4 text-[15px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-60"
+            className="w-full rounded-xl bg-[color:var(--color-primary)] text-[color:var(--color-background)] py-4 text-[15px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-60"
           >
             {busy ? 'Claiming…' : 'Accept this order'}
           </button>
@@ -154,19 +154,19 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
           <button
             disabled={busy}
             onClick={() => act('pickup')}
-            className="w-full rounded-xl bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] py-4 text-[15px] font-medium hover:brightness-95 disabled:opacity-60"
+            className="w-full rounded-xl bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)] py-4 text-[15px] font-medium hover:brightness-95 disabled:opacity-60"
           >
             {busy ? 'Updating…' : "I've picked up the order"}
           </button>
         )}
 
         {isMine && picked && !delivered && (
-          <div className="rounded-2xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 p-5">
+          <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5">
             <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Delivery OTP</div>
-            <div className="mt-1 font-serif text-[20px] leading-tight">
+            <div className="mt-1 font-display text-[20px] leading-tight">
               Ask the customer for their 4-digit code.
             </div>
-            <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
+            <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
               They&apos;ll see it on their order page. No code = no handover.
             </p>
             <input
@@ -175,7 +175,7 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
               placeholder="• • • •"
-              className="mt-4 w-full rounded-xl border border-[color:var(--color-ink)]/15 bg-[color:var(--color-cream)] px-4 py-4 text-center font-mono text-[28px] tracking-[0.5em] outline-none focus:border-[color:var(--color-forest)]"
+              className="mt-4 w-full rounded-xl border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-background)] px-4 py-4 text-center font-mono text-[28px] tracking-[0.5em] outline-none focus:border-[color:var(--color-primary)]"
             />
             <button
               disabled={otp.length !== 4 || busy}
@@ -183,13 +183,13 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
                 const ok = await act('deliver', { otp });
                 if (ok) setOtp('');
               }}
-              className="mt-3 w-full rounded-xl bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-4 text-[15px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-60"
+              className="mt-3 w-full rounded-xl bg-[color:var(--color-primary)] text-[color:var(--color-background)] py-4 text-[15px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-60"
             >
               {busy ? 'Checking OTP…' : 'Mark delivered'}
             </button>
 
             {process.env.NODE_ENV !== 'production' && (
-              <details className="mt-3 text-[11px] text-[color:var(--color-ink-soft)]/70">
+              <details className="mt-3 text-[11px] text-[color:var(--color-muted)]/70">
                 <summary className="cursor-pointer">Dev hint</summary>
                 <div className="mt-1 font-mono">Expected: {expectedOtp}</div>
               </details>
@@ -198,18 +198,18 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
         )}
 
         {delivered && (
-          <div className="rounded-2xl bg-[color:var(--color-forest)]/10 border border-[color:var(--color-forest)]/30 p-5 text-center">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-forest)]">Delivered</div>
-            <div className="mt-1 font-serif text-[24px]">
+          <div className="rounded-2xl bg-[color:var(--color-primary)]/10 border border-[color:var(--color-primary)]/30 p-5 text-center">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-primary)]">Delivered</div>
+            <div className="mt-1 font-display text-[24px]">
               {order.deliveredAt
                 ? new Date(order.deliveredAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                 : '—'} IST
             </div>
-            <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)]">
+            <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
               Nice drop. +₹{rider.perDropInr} added to today&apos;s earnings.
             </p>
             <Link href="/rider"
-              className="mt-4 inline-block rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+              className="mt-4 inline-block rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-primary)]">
               Next order →
             </Link>
           </div>

@@ -50,17 +50,17 @@ export function ProductImagePicker({
           <img
             src={value}
             alt="Item preview"
-            className="h-16 w-16 rounded-lg object-cover border border-[color:var(--color-ink)]/12 bg-[color:var(--color-cream)]"
+            className="h-16 w-16 rounded-lg object-cover border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-background)]"
             onError={() => setError('That URL doesn\'t load as an image.')}
           />
         ) : (
-          <div className="h-16 w-16 rounded-lg border border-dashed border-[color:var(--color-ink)]/20 bg-[color:var(--color-cream)]/60 flex items-center justify-center text-[10.5px] text-[color:var(--color-ink-soft)]/70 text-center px-1">
+          <div className="h-16 w-16 rounded-lg border border-dashed border-[color:var(--color-foreground)]/20 bg-[color:var(--color-background)]/60 flex items-center justify-center text-[10.5px] text-[color:var(--color-muted)]/70 text-center px-1">
             No image
           </div>
         )}
         <div className="flex-1 flex flex-col gap-2">
           <label className="inline-flex items-center gap-2 cursor-pointer">
-            <span className="rounded-md bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-3 py-1.5 text-[12px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+            <span className="rounded-md bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-3 py-1.5 text-[12px] font-medium hover:bg-[color:var(--color-primary)]">
               {busy ? 'Uploading…' : value ? 'Replace photo' : 'Upload photo'}
             </span>
             <input
@@ -91,9 +91,9 @@ export function ProductImagePicker({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="…or paste an image URL"
-        className="w-full rounded-md border border-[color:var(--color-ink)]/15 px-3 py-2 text-[12.5px] outline-none focus:border-[color:var(--color-forest)]"
+        className="w-full rounded-md border border-[color:var(--color-foreground)]/15 px-3 py-2 text-[12.5px] outline-none focus:border-[color:var(--color-primary)]"
       />
-      <p className="text-[10.5px] text-[color:var(--color-ink-soft)]/70">
+      <p className="text-[10.5px] text-[color:var(--color-muted)]/70">
         JPG / PNG / WebP, up to 5 MB. Square crops look best in the catalogue.
       </p>
       {error && <p className="text-[11.5px] text-[color:var(--color-terracotta)]">{error}</p>}

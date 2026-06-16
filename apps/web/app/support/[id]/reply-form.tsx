@@ -36,22 +36,22 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 rounded-2xl p-4">
-      <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-2">Add a reply</label>
+    <form onSubmit={submit} className="bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 rounded-2xl p-4">
+      <label className="block text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-2">Add a reply</label>
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={4}
         maxLength={4000}
         placeholder="More detail, a clarification, or just 'thanks'."
-        className="w-full bg-[color:var(--color-cream)] border border-[color:var(--color-ink)]/14 rounded-xl px-3 py-2.5 text-[13.5px] leading-[1.55] outline-none focus:border-[color:var(--color-forest)] resize-y"
+        className="w-full bg-[color:var(--color-background)] border border-[color:var(--color-foreground)]/14 rounded-xl px-3 py-2.5 text-[13.5px] leading-[1.55] outline-none focus:border-[color:var(--color-primary)] resize-y"
       />
       {err ? <div className="mt-2 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
       <div className="mt-3 flex justify-end">
         <button
           type="submit"
           disabled={!body.trim() || submitting}
-          className="px-5 py-2.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[13px] font-medium hover:bg-[color:var(--color-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? 'Sending…' : 'Send reply'}
         </button>

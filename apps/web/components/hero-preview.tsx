@@ -37,9 +37,9 @@ const accent: Record<string, { bg: string; fg: string; dot: string }> = {
     dot: 'bg-[color:var(--color-saffron)]',
   },
   forest: {
-    bg: 'bg-[color:var(--color-forest)]/10',
-    fg: 'text-[color:var(--color-forest)]',
-    dot: 'bg-[color:var(--color-forest)]',
+    bg: 'bg-[color:var(--color-primary)]/10',
+    fg: 'text-[color:var(--color-primary)]',
+    dot: 'bg-[color:var(--color-primary)]',
   },
   terracotta: {
     bg: 'bg-[color:var(--color-terracotta)]/10',
@@ -62,7 +62,7 @@ export function HeroPreview() {
           cy="250"
           r="220"
           fill="none"
-          stroke="var(--color-forest)"
+          stroke="var(--color-primary)"
           strokeOpacity="0.12"
           strokeDasharray="2 6"
         />
@@ -80,10 +80,10 @@ export function HeroPreview() {
       </svg>
 
       {/* Floating ETA badge */}
-      <div className="absolute top-2 right-8 z-20 rounded-full border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]/90 backdrop-blur px-3 py-1.5 shadow-sm">
+      <div className="absolute top-2 right-8 z-20 rounded-full border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]/90 backdrop-blur px-3 py-1.5 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-forest)] pulse-ring" />
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary)] pulse-ring" />
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
             Riders ready · 4 online
           </span>
         </div>
@@ -119,32 +119,32 @@ export function HeroPreview() {
 function Card({ c }: { c: (typeof CARDS)[number] }) {
   const a = accent[c.accent];
   return (
-    <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] overflow-hidden">
+    <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
       {/* Illustration panel */}
-      <div className={`relative h-28 ${a.bg} border-b border-[color:var(--color-ink)]/8 overflow-hidden`}>
+      <div className={`relative h-28 ${a.bg} border-b border-[color:var(--color-foreground)]/8 overflow-hidden`}>
         <div className="absolute inset-0 flex items-center justify-center">
           <Glyph accent={c.accent} />
         </div>
-        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-paper)]/90 backdrop-blur px-2.5 py-1">
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-surface)]/90 backdrop-blur px-2.5 py-1">
           <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${a.dot} ${a.fg} pulse-ring`} />
-          <span className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]">
+          <span className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]">
             {c.tag}
           </span>
         </div>
-        <div className="absolute top-3 right-3 rounded-full bg-[color:var(--color-ink)] text-[color:var(--color-cream)] px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em]">
+        <div className="absolute top-3 right-3 rounded-full bg-[color:var(--color-foreground)] text-[color:var(--color-background)] px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em]">
           {c.eta}
         </div>
       </div>
 
       <div className="px-5 py-4">
-        <h3 className="font-serif text-[22px] leading-tight text-[color:var(--color-ink)]">
+        <h3 className="font-display text-[22px] leading-tight text-[color:var(--color-foreground)]">
           {c.title}
         </h3>
-        <p className="mt-0.5 text-[12.5px] text-[color:var(--color-ink-soft)]">{c.shop}</p>
+        <p className="mt-0.5 text-[12.5px] text-[color:var(--color-muted)]">{c.shop}</p>
 
         <div className="mt-4 flex items-baseline justify-between">
-          <span className="font-serif text-[20px] text-[color:var(--color-forest)]">{c.price}</span>
-          <span className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/70">
+          <span className="font-display text-[20px] text-[color:var(--color-primary)]">{c.price}</span>
+          <span className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/70">
             {c.ago}
           </span>
         </div>
@@ -172,7 +172,7 @@ function Glyph({ accent }: { accent: string }) {
   }
   if (accent === 'forest') {
     return (
-      <svg width="68" height="68" viewBox="0 0 64 64" fill="none" className="text-[color:var(--color-forest)] opacity-80">
+      <svg width="68" height="68" viewBox="0 0 64 64" fill="none" className="text-[color:var(--color-primary)] opacity-80">
         <path
           d="M32 10c8 0 16 8 16 22s-8 22-16 22-16-8-16-22 8-22 16-22z"
           stroke="currentColor" strokeWidth="1.4"

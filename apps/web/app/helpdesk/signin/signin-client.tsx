@@ -34,14 +34,14 @@ export function HelpdeskSignInClient() {
         <div className="inline-flex items-center gap-2.5 mb-6">
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
           <span className="text-[15px] tracking-tight font-medium">
-            {siteConfig.wordmarkRoot} <span className="font-serif italic text-[color:var(--color-forest)]">Go</span>
+            {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
             <span className="ml-2 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Helpdesk</span>
           </span>
         </div>
-        <h1 className="font-serif text-[36px] leading-[1.02] tracking-[-0.02em]">
-          Customer <span className="italic text-[color:var(--color-forest)]">desk.</span>
+        <h1 className="font-display text-[36px] leading-[1.02] tracking-[-0.02em]">
+          Customer <span className="italic text-[color:var(--color-primary)]">desk.</span>
         </h1>
-        <p className="mt-3 text-[13.5px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-3 text-[13.5px] text-[color:var(--color-muted)]">
           You receive every customer complaint as it comes in. Acknowledge, ask for missing details, fix what you can, and close the loop with a resolution.
         </p>
 
@@ -55,7 +55,7 @@ export function HelpdeskSignInClient() {
           topError={err}
         />
 
-        <p className="mt-8 text-[11.5px] text-[color:var(--color-ink-soft)]/60 font-mono">
+        <p className="mt-8 text-[11.5px] text-[color:var(--color-muted)]/60 font-mono">
           Demo helpdesk · {siteConfig.demoHelpdeskPhone} · OTP 123456
         </p>
       </div>

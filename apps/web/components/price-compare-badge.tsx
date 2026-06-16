@@ -53,7 +53,7 @@ export function PriceCompareBadge({ rows }: { rows: SavingsRow[] }) {
   return (
     <div
       aria-live="polite"
-      className="mt-1 flex items-center gap-1.5 text-[10.5px] sm:text-[11px] leading-tight text-[color:var(--color-forest-dark)] min-h-[14px]"
+      className="mt-1 flex items-center gap-1.5 text-[10.5px] sm:text-[11px] leading-tight text-[color:var(--color-primary)] min-h-[14px]"
     >
       {/* infinity / loop icon — matches the reference style */}
       <svg

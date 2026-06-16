@@ -67,10 +67,10 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
       <div>
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Approval queue</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Vendor + rider edits, <span className="italic text-[color:var(--color-forest)]">on your desk.</span>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            Vendor + rider edits, <span className="italic text-[color:var(--color-primary)]">on your desk.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
             Every config change a partner makes lands here before going live. Operational actions (accepting orders, pause/unpause, stock toggle) bypass this queue.
           </p>
         </div>
@@ -82,8 +82,8 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
               onClick={() => setTab(t.key)}
               className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
                 tab === t.key
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-forest)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/12 hover:text-[color:var(--color-primary)]'
               }`}
             >
               {t.label} <span className="ml-1.5 opacity-70">{counts[t.key] ?? 0}</span>
@@ -93,7 +93,7 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
 
         <ul className="mt-5 space-y-3">
           {changes.length === 0 && (
-            <li className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+            <li className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-6 text-center text-[13px] text-[color:var(--color-muted)]/70">
               Nothing in this tab.
             </li>
           )}
@@ -101,21 +101,21 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
             <li key={c.id}>
               <button
                 onClick={() => setSelected(c)}
-                className={`w-full text-left rounded-2xl border p-4 hover:border-[color:var(--color-forest)]/35 transition-colors ${
+                className={`w-full text-left rounded-2xl border p-4 hover:border-[color:var(--color-primary)]/35 transition-colors ${
                   selected?.id === c.id
-                    ? 'border-[color:var(--color-forest)]/45 bg-[color:var(--color-forest)]/5'
-                    : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]'
+                    ? 'border-[color:var(--color-primary)]/45 bg-[color:var(--color-primary)]/5'
+                    : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]'
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/60">
+                    <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/60">
                       {c.entity.toLowerCase()} · {c.operation.toLowerCase()}
                     </div>
-                    <div className="font-serif text-[16px] leading-tight truncate">{c.summary}</div>
-                    {c.vendor && <div className="text-[12px] text-[color:var(--color-ink-soft)]/75 truncate">{c.vendor.hub}</div>}
+                    <div className="font-display text-[16px] leading-tight truncate">{c.summary}</div>
+                    {c.vendor && <div className="text-[12px] text-[color:var(--color-muted)]/75 truncate">{c.vendor.hub}</div>}
                   </div>
-                  <div className="text-[11px] text-[color:var(--color-ink-soft)]/60 shrink-0">
+                  <div className="text-[11px] text-[color:var(--color-muted)]/60 shrink-0">
                     {new Date(c.submittedAt).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                   </div>
                 </div>
@@ -127,18 +127,18 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
 
       <aside className="lg:sticky lg:top-[130px] lg:self-start">
         {!selected ? (
-          <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/15 p-10 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+          <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 p-10 text-center text-[13px] text-[color:var(--color-muted)]/70">
             Select a change to see the diff.
           </div>
         ) : (
-          <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 space-y-5">
+          <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6 space-y-5">
             <div>
               <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">{selected.entity.toLowerCase()} · {selected.operation.toLowerCase()}</div>
-              <h2 className="mt-1 font-serif text-[22px] leading-tight">{selected.summary}</h2>
+              <h2 className="mt-1 font-display text-[22px] leading-tight">{selected.summary}</h2>
               {selected.vendor && (
-                <p className="text-[12.5px] text-[color:var(--color-ink-soft)]">{selected.vendor.name} · {selected.vendor.hub}</p>
+                <p className="text-[12.5px] text-[color:var(--color-muted)]">{selected.vendor.name} · {selected.vendor.hub}</p>
               )}
-              <p className="text-[11.5px] text-[color:var(--color-ink-soft)]/65 mt-1">
+              <p className="text-[11.5px] text-[color:var(--color-muted)]/65 mt-1">
                 Submitted {new Date(selected.submittedAt).toLocaleString('en-IN')}
               </p>
             </div>
@@ -148,14 +148,14 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
             {selected.status === 'PENDING' && (
               <>
                 <label className="block">
-                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Note (sent on reject)</span>
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Note (sent on reject)</span>
                   <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]" />
+                    className="mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]" />
                 </label>
 
                 <div className="flex flex-wrap gap-2 pt-1">
                   <button disabled={busy} onClick={() => act(selected.id, 'approve')}
-                    className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+                    className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
                     Approve + apply
                   </button>
                   <button disabled={busy} onClick={() => act(selected.id, 'reject')}
@@ -168,7 +168,7 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
 
             {selected.status !== 'PENDING' && selected.reviewNote && (
               <div className="rounded-xl bg-[color:var(--color-terracotta)]/8 border border-[color:var(--color-terracotta)]/20 px-4 py-3 text-[12.5px]">
-                <span className="text-[color:var(--color-ink-soft)]/70">Reviewer note:</span> {selected.reviewNote}
+                <span className="text-[color:var(--color-muted)]/70">Reviewer note:</span> {selected.reviewNote}
               </div>
             )}
           </div>
@@ -189,9 +189,9 @@ function Diff({ payload, before, operation, entity }: { payload: Record<string, 
     return (
       <div className="rounded-xl border border-[color:var(--color-terracotta)]/25 bg-[color:var(--color-terracotta)]/6 px-4 py-3 text-[13px]">
         Vendor wants to remove this {subject}.
-        {label ? <span className="block mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">&ldquo;{String(label)}&rdquo;</span> : null}
+        {label ? <span className="block mt-0.5 text-[12px] text-[color:var(--color-muted)]">&ldquo;{String(label)}&rdquo;</span> : null}
         {entity === 'CAMPAIGN' && (
-          <span className="block mt-1.5 text-[11.5px] text-[color:var(--color-ink-soft)]/70">
+          <span className="block mt-1.5 text-[11.5px] text-[color:var(--color-muted)]/70">
             The campaign stays live to customers until you approve. Approving deletes it; rejecting keeps it running.
           </span>
         )}
@@ -199,18 +199,18 @@ function Diff({ payload, before, operation, entity }: { payload: Record<string, 
     );
   }
   if (keys.length === 0) {
-    return <div className="text-[12.5px] text-[color:var(--color-ink-soft)]/70">No fields in payload.</div>;
+    return <div className="text-[12.5px] text-[color:var(--color-muted)]/70">No fields in payload.</div>;
   }
   return (
-    <div className="rounded-xl border border-[color:var(--color-ink)]/10 divide-y divide-[color:var(--color-ink)]/8 text-[12.5px]">
+    <div className="rounded-xl border border-[color:var(--color-foreground)]/10 divide-y divide-[color:var(--color-foreground)]/8 text-[12.5px]">
       {keys.map((k) => (
         <div key={k} className="grid grid-cols-[120px_1fr] gap-3 px-3 py-2">
-          <div className="uppercase tracking-[0.12em] text-[10.5px] text-[color:var(--color-ink-soft)]/65 self-start pt-0.5">{k}</div>
+          <div className="uppercase tracking-[0.12em] text-[10.5px] text-[color:var(--color-muted)]/65 self-start pt-0.5">{k}</div>
           <div className="space-y-1">
             {operation === 'UPDATE' && before && k in before && (
-              <div className="line-through text-[color:var(--color-ink-soft)]/55">{fmt(before[k])}</div>
+              <div className="line-through text-[color:var(--color-muted)]/55">{fmt(before[k])}</div>
             )}
-            {k in payload && <div className="text-[color:var(--color-forest)]">{fmt(payload[k])}</div>}
+            {k in payload && <div className="text-[color:var(--color-primary)]">{fmt(payload[k])}</div>}
           </div>
         </div>
       ))}

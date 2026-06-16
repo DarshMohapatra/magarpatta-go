@@ -59,8 +59,8 @@ export function LandingPulse() {
       {/* Central stacked panel */}
       <div className="relative w-full max-w-[420px] animate-float-slow">
         {/* Map / polygon card */}
-        <div className="relative rounded-3xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] shadow-[0_30px_80px_-30px_rgba(15,15,14,0.28)] overflow-hidden">
-          <div className="relative h-[220px] bg-[color:var(--color-forest)]/4 overflow-hidden">
+        <div className="relative rounded-3xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] shadow-[0_30px_80px_-30px_rgba(15,15,14,0.28)] overflow-hidden">
+          <div className="relative h-[220px] bg-[color:var(--color-primary)]/4 overflow-hidden">
             {/* Geofence polygon */}
             <svg viewBox="0 0 400 280" className="absolute inset-0 w-full h-full">
               <defs>
@@ -74,10 +74,10 @@ export function LandingPulse() {
 
               <path
                 d="M90 120 L160 70 L280 75 L340 140 L335 220 L260 250 L140 240 L70 195 Z"
-                stroke="var(--color-forest)"
+                stroke="var(--color-primary)"
                 strokeWidth="1.2"
                 strokeDasharray="3 4"
-                fill="var(--color-forest)"
+                fill="var(--color-primary)"
                 fillOpacity="0.06"
               />
 
@@ -97,8 +97,8 @@ export function LandingPulse() {
                 </circle>
               </g>
               <g>
-                <circle cx="220" cy="200" r="4" fill="var(--color-forest)" />
-                <circle cx="220" cy="200" r="4" fill="var(--color-forest)" opacity="0.35">
+                <circle cx="220" cy="200" r="4" fill="var(--color-primary)" />
+                <circle cx="220" cy="200" r="4" fill="var(--color-primary)" opacity="0.35">
                   <animate attributeName="r" values="4;14;4" dur="2.8s" begin="1.2s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0.35;0;0.35" dur="2.8s" begin="1.2s" repeatCount="indefinite" />
                 </circle>
@@ -113,40 +113,40 @@ export function LandingPulse() {
 
               {/* Destination marker */}
               <g>
-                <circle cx="200" cy="140" r="5" fill="var(--color-ink)" />
-                <circle cx="200" cy="140" r="9" stroke="var(--color-ink)" strokeWidth="1.2" fill="none" />
+                <circle cx="200" cy="140" r="5" fill="var(--color-foreground)" />
+                <circle cx="200" cy="140" r="9" stroke="var(--color-foreground)" strokeWidth="1.2" fill="none" />
               </g>
             </svg>
 
             {/* Floating badge over the map */}
-            <div className="absolute top-3 left-3 rounded-full bg-[color:var(--color-paper)]/95 backdrop-blur px-3 py-1.5 inline-flex items-center gap-1.5 border border-[color:var(--color-ink)]/10">
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-forest)] pulse-ring" />
-              <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">
+            <div className="absolute top-3 left-3 rounded-full bg-[color:var(--color-surface)]/95 backdrop-blur px-3 py-1.5 inline-flex items-center gap-1.5 border border-[color:var(--color-foreground)]/10">
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary)] pulse-ring" />
+              <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
                 Live · {siteConfig.wordmarkRoot}
               </span>
             </div>
 
-            <div className="absolute top-3 right-3 rounded-full bg-[color:var(--color-ink)] text-[color:var(--color-cream)] px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em]">
+            <div className="absolute top-3 right-3 rounded-full bg-[color:var(--color-foreground)] text-[color:var(--color-background)] px-2.5 py-1 text-[10.5px] uppercase tracking-[0.12em]">
               {time || '—'}
             </div>
           </div>
 
           {/* Status rows */}
-          <div className="divide-y divide-[color:var(--color-ink)]/8">
+          <div className="divide-y divide-[color:var(--color-foreground)]/8">
             <div className="flex items-center justify-between px-5 py-3.5">
               <div>
-                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">
                   On duty
                 </div>
-                <div className="mt-0.5 font-serif text-[22px] leading-none text-[color:var(--color-forest)]">
+                <div className="mt-0.5 font-display text-[22px] leading-none text-[color:var(--color-primary)]">
                   4 riders
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">
+                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">
                   Median today
                 </div>
-                <div className="mt-0.5 font-serif text-[22px] leading-none text-[color:var(--color-forest)]">
+                <div className="mt-0.5 font-display text-[22px] leading-none text-[color:var(--color-primary)]">
                   22 min
                 </div>
               </div>
@@ -160,15 +160,15 @@ export function LandingPulse() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-serif text-[18px] leading-tight text-[color:var(--color-ink)] truncate">
+                  <p className="font-display text-[18px] leading-tight text-[color:var(--color-foreground)] truncate">
                     {drop.what}
                   </p>
-                  <span className="shrink-0 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/60">
+                  <span className="shrink-0 text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/60">
                     {drop.ago}
                   </span>
                 </div>
-                <p className="mt-0.5 text-[12px] text-[color:var(--color-ink-soft)]">
-                  from <span className="text-[color:var(--color-forest)]">{drop.where}</span>
+                <p className="mt-0.5 text-[12px] text-[color:var(--color-muted)]">
+                  from <span className="text-[color:var(--color-primary)]">{drop.where}</span>
                 </p>
               </div>
             </div>
@@ -176,7 +176,7 @@ export function LandingPulse() {
         </div>
 
         {/* Caption beneath */}
-        <p className="mt-5 text-center text-[11.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/60">
+        <p className="mt-5 text-center text-[11.5px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]/60">
           A postcode-sized operation · live feed
         </p>
       </div>

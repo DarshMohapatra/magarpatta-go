@@ -99,24 +99,24 @@ export function AdminOrdersClient() {
           <button key={t.key} onClick={() => setScope(t.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${
               scope === t.key
-                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-cream)] border-[color:var(--color-primary)]'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-primary)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/12 hover:text-[color:var(--color-primary)]'
             }`}>
             {t.label}
             {t.countKey && <span className="ml-1.5 opacity-70">{counts[t.countKey]}</span>}
           </button>
         ))}
-        <span className="ml-auto text-[11px] text-[color:var(--color-ink-soft)]/65 self-center">Auto-refresh · 8s</span>
+        <span className="ml-auto text-[11px] text-[color:var(--color-muted)]/65 self-center">Auto-refresh · 8s</span>
       </div>
 
       <ul className="mt-5 space-y-3">
         {orders.length === 0 && (
-          <li className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[13px] text-[color:var(--color-ink-soft)]/70">
+          <li className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-6 text-center text-[13px] text-[color:var(--color-muted)]/70">
             {scope === 'active' ? 'No orders in progress right now.' : scope === 'delivered' ? 'No deliveries yet.' : scope === 'cancelled' ? 'No cancellations.' : 'No orders in this view.'}
           </li>
         )}
         {orders.map((o) => (
-          <li key={o.id} className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-4">
+          <li key={o.id} className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] flex-wrap">
@@ -127,8 +127,8 @@ export function AdminOrdersClient() {
                   }>
                     {o.status.replace('_', ' ')}
                   </span>
-                  <span className="text-[color:var(--color-ink-soft)]/50">· #{o.id.slice(-6)}</span>
-                  <span className="text-[color:var(--color-ink-soft)]/50">· placed {new Date(o.placedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</span>
+                  <span className="text-[color:var(--color-muted)]/50">· #{o.id.slice(-6)}</span>
+                  <span className="text-[color:var(--color-muted)]/50">· placed {new Date(o.placedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</span>
                   {o.deliveredAt && (
                     <span className="text-[color:var(--color-primary)]/70">· delivered {new Date(o.deliveredAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
                   )}
@@ -146,10 +146,10 @@ export function AdminOrdersClient() {
                 <div className="mt-1 font-medium text-[14.5px] truncate">
                   {o.vendorName ?? '—'} → {o.building} · flat {o.flat} · {o.society}
                 </div>
-                <div className="text-[12px] text-[color:var(--color-ink-soft)]/80 truncate">
+                <div className="text-[12px] text-[color:var(--color-muted)]/80 truncate">
                   {o.items.map((i) => `${i.name}${i.quantity > 1 ? ` × ${i.quantity}` : ''}`).join(', ')}
                 </div>
-                <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]/65">
+                <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]/65">
                   Rider · {o.riderName ?? 'unassigned'}
                 </div>
                 {o.cancelReason && (
@@ -163,7 +163,7 @@ export function AdminOrdersClient() {
 
             {reassignFor === o.id ? (
               <div className="mt-3 flex flex-wrap gap-2 items-center">
-                <select id={`sel-${o.id}`} defaultValue={o.riderPhone ?? ''} className="rounded-lg border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-1.5 text-[12.5px]">
+                <select id={`sel-${o.id}`} defaultValue={o.riderPhone ?? ''} className="rounded-lg border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-1.5 text-[12.5px]">
                   <option value="">— Unassign —</option>
                   {riders.map((r) => <option key={r.phone} value={r.phone}>{r.name} · +91 {r.phone}</option>)}
                 </select>
@@ -173,10 +173,10 @@ export function AdminOrdersClient() {
                     const sel = document.getElementById(`sel-${o.id}`) as HTMLSelectElement;
                     reassign(o.id, sel.value || null);
                   }}
-                  className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-3.5 py-1.5 text-[12px] font-medium">
+                  className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-3.5 py-1.5 text-[12px] font-medium">
                   Save
                 </button>
-                <button onClick={() => setReassignFor(null)} className="text-[12px] text-[color:var(--color-ink-soft)]">Cancel</button>
+                <button onClick={() => setReassignFor(null)} className="text-[12px] text-[color:var(--color-muted)]">Cancel</button>
               </div>
             ) : (
               !['DELIVERED', 'CANCELLED'].includes(o.status) && (

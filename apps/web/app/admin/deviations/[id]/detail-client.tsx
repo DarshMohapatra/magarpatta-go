@@ -31,7 +31,7 @@ interface Alert {
 interface PingPoint { lat: number; lng: number; accuracyM: number | null; at: string; onOrder: boolean }
 
 const SEVERITY_TONE: Record<DeviationSeverity, string> = {
-  LOW:    'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]',
+  LOW:    'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]',
   MEDIUM: 'bg-[color:var(--color-saffron)]/15 text-[color:var(--color-gold)]',
   HIGH:   'bg-[color:var(--color-terracotta)]/15 text-[color:var(--color-terracotta)]',
 };
@@ -66,20 +66,20 @@ export function AdminDeviationDetailClient({ alert, pings }: { alert: Alert; pin
 
   return (
     <div>
-      <Link href="/admin/deviations" className="text-[12px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]">← Queue</Link>
+      <Link href="/admin/deviations" className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">← Queue</Link>
 
       <div className="mt-3 flex items-center gap-2 flex-wrap">
         <span className={`text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full font-medium ${SEVERITY_TONE[alert.severity]}`}>
           {alert.severity}
         </span>
-        <span className="text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)] font-medium">
+        <span className="text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)] font-medium">
           {STATUS_LABEL[alert.status]}
         </span>
       </div>
-      <h1 className="mt-2 font-serif text-[28px] lg:text-[36px] leading-[1.1] tracking-[-0.01em]">
+      <h1 className="mt-2 font-display text-[28px] lg:text-[36px] leading-[1.1] tracking-[-0.01em]">
         {alert.rider.name} drifted {(alert.distanceFromCorridorM / 1000).toFixed(2)} km off route
       </h1>
-      <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
+      <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
         +91 {alert.rider.phone} · hub {alert.rider.hub?.name ?? '—'} · outside for {Math.round(alert.durationOutsideS / 60)} min
         · detected {new Date(alert.detectedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
       </p>
@@ -88,12 +88,12 @@ export function AdminDeviationDetailClient({ alert, pings }: { alert: Alert; pin
         <div>
           {/* Order context */}
           {alert.order ? (
-            <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4 mb-4">
+            <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4 mb-4">
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Order context</div>
               <div className="mt-1.5 text-[14px]">
                 #{alert.order.id.slice(-6).toUpperCase()} · {alert.order.vendorName ?? '—'} · {alert.order.status}
               </div>
-              <div className="text-[12px] text-[color:var(--color-ink-soft)]">
+              <div className="text-[12px] text-[color:var(--color-muted)]">
                 Drop: flat {alert.order.flat}, {alert.order.building} · {alert.order.society}
                 {alert.order.distanceCoveredM !== null
                   ? ` · ground covered ${(alert.order.distanceCoveredM / 1000).toFixed(2)} km`
@@ -101,31 +101,31 @@ export function AdminDeviationDetailClient({ alert, pings }: { alert: Alert; pin
               </div>
             </div>
           ) : (
-            <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4 mb-4">
+            <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4 mb-4">
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">Idle deviation</div>
               <div className="mt-1.5 text-[13px]">No active order. Rider was off-hub while not on a delivery.</div>
             </div>
           )}
 
           {/* Ping log — text-only fallback while we don't ship a map yet */}
-          <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4 mb-4">
+          <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4 mb-4">
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)] mb-2">
               Pings around the deviation ({pings.length} samples · ±30 min window)
             </div>
-            <div className="text-[12px] text-[color:var(--color-ink-soft)] mb-3">
-              Last position: <a href={mapsHref} target="_blank" rel="noopener" className="text-[color:var(--color-forest)] underline">
+            <div className="text-[12px] text-[color:var(--color-muted)] mb-3">
+              Last position: <a href={mapsHref} target="_blank" rel="noopener" className="text-[color:var(--color-primary)] underline">
                 {alert.lastLatitude.toFixed(5)}, {alert.lastLongitude.toFixed(5)} — open in OSM
               </a>
             </div>
             <div className="max-h-[280px] overflow-y-auto text-[11.5px] font-mono">
               {pings.map((p, i) => (
-                <div key={i} className="flex gap-3 py-0.5 border-b border-[color:var(--color-ink)]/5">
-                  <span className="text-[color:var(--color-ink-soft)] w-[120px]">
+                <div key={i} className="flex gap-3 py-0.5 border-b border-[color:var(--color-foreground)]/5">
+                  <span className="text-[color:var(--color-muted)] w-[120px]">
                     {new Date(p.at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </span>
                   <span className="w-[180px]">{p.lat.toFixed(5)}, {p.lng.toFixed(5)}</span>
-                  <span className="text-[color:var(--color-ink-soft)] w-[60px]">{p.accuracyM ? `±${p.accuracyM}m` : '—'}</span>
-                  <span className="text-[color:var(--color-ink-soft)]">{p.onOrder ? 'order' : 'idle'}</span>
+                  <span className="text-[color:var(--color-muted)] w-[60px]">{p.accuracyM ? `±${p.accuracyM}m` : '—'}</span>
+                  <span className="text-[color:var(--color-muted)]">{p.onOrder ? 'order' : 'idle'}</span>
                 </div>
               ))}
             </div>
@@ -133,22 +133,22 @@ export function AdminDeviationDetailClient({ alert, pings }: { alert: Alert; pin
 
           {/* Rider explanation thread */}
           {alert.explanationRequestedAt ? (
-            <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4 mb-4">
+            <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4 mb-4">
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)] mb-2">Explanation</div>
-              <div className="text-[12px] text-[color:var(--color-ink-soft)]">Requested {new Date(alert.explanationRequestedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+              <div className="text-[12px] text-[color:var(--color-muted)]">Requested {new Date(alert.explanationRequestedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</div>
               {alert.riderExplanation ? (
-                <div className="mt-3 bg-[color:var(--color-cream)] rounded-xl p-3">
+                <div className="mt-3 bg-[color:var(--color-background)] rounded-xl p-3">
                   <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)] mb-1">{alert.rider.name} replied {alert.riderExplainedAt ? `· ${new Date(alert.riderExplainedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}` : ''}</div>
                   <p className="text-[13.5px] leading-[1.5] whitespace-pre-wrap">{alert.riderExplanation}</p>
                 </div>
               ) : (
-                <div className="mt-3 text-[12.5px] text-[color:var(--color-ink-soft)] italic">Waiting for rider's reply…</div>
+                <div className="mt-3 text-[12.5px] text-[color:var(--color-muted)] italic">Waiting for rider's reply…</div>
               )}
             </div>
           ) : null}
 
           {alert.resolution ? (
-            <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4 mb-4">
+            <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4 mb-4">
               <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)] mb-1">Resolution</div>
               <p className="text-[13.5px] leading-[1.5] whitespace-pre-wrap">{alert.resolution}</p>
             </div>
@@ -163,33 +163,33 @@ export function AdminDeviationDetailClient({ alert, pings }: { alert: Alert; pin
                 <button
                   onClick={() => act({ action: 'request_explanation' })}
                   disabled={busy}
-                  className="w-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] py-3 rounded-full text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)] transition-colors disabled:opacity-50"
+                  className="w-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] py-3 rounded-full text-[13px] font-medium hover:bg-[color:var(--color-primary)] transition-colors disabled:opacity-50"
                 >
                   {busy ? 'Sending…' : 'Request explanation'}
                 </button>
               ) : null}
 
-              <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4">
+              <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4">
                 <label className="block text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)] mb-2">Resolution note (optional)</label>
                 <textarea
                   rows={3}
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value)}
                   placeholder="e.g. Verified — traffic detour around Hadapsar bridge."
-                  className="w-full bg-[color:var(--color-cream)] border border-[color:var(--color-ink)]/14 rounded-xl px-3 py-2 text-[12.5px] outline-none focus:border-[color:var(--color-forest)] resize-y"
+                  className="w-full bg-[color:var(--color-background)] border border-[color:var(--color-foreground)]/14 rounded-xl px-3 py-2 text-[12.5px] outline-none focus:border-[color:var(--color-primary)] resize-y"
                 />
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => act({ action: 'dismiss', resolution })}
                     disabled={busy}
-                    className="flex-1 px-3 py-2 rounded-full border border-[color:var(--color-ink)]/14 text-[12px] hover:bg-[color:var(--color-cream)] disabled:opacity-50"
+                    className="flex-1 px-3 py-2 rounded-full border border-[color:var(--color-foreground)]/14 text-[12px] hover:bg-[color:var(--color-background)] disabled:opacity-50"
                   >
                     Dismiss
                   </button>
                   <button
                     onClick={() => act({ action: 'resolve', resolution })}
                     disabled={busy}
-                    className="flex-1 px-3 py-2 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] text-[12px] font-medium hover:bg-[color:var(--color-forest-dark)] transition-colors disabled:opacity-50"
+                    className="flex-1 px-3 py-2 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] text-[12px] font-medium hover:bg-[color:var(--color-primary)] transition-colors disabled:opacity-50"
                   >
                     Resolve
                   </button>
@@ -197,7 +197,7 @@ export function AdminDeviationDetailClient({ alert, pings }: { alert: Alert; pin
               </div>
             </>
           ) : (
-            <div className="bg-[color:var(--color-cream-soft)] rounded-2xl p-4 text-[12.5px] text-[color:var(--color-ink-soft)] text-center">
+            <div className="bg-[color:var(--color-surface-2)] rounded-2xl p-4 text-[12.5px] text-[color:var(--color-muted)] text-center">
               Closed {alert.resolvedAt ? `${new Date(alert.resolvedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}` : ''}.
             </div>
           )}

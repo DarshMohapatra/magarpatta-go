@@ -43,20 +43,20 @@ export default async function VendorHome() {
           <h1 className="mt-3 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
             Your shop is waiting on <span className="italic text-[color:var(--color-primary)]">{siteConfig.platformName}</span> review.
           </h1>
-          <p className="mt-3 text-[14px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
             We usually approve within 24 hours. While you wait, finish filling in your shop details and menu so everything&apos;s
             ready the minute you go live.
           </p>
           {vendor?.approvalNote && (
-            <div className="mt-4 rounded-xl bg-[color:var(--color-paper)] border border-[color:var(--color-ink)]/10 px-4 py-3 text-[13px]">
-              <span className="text-[color:var(--color-ink-soft)]/70">Reviewer note:</span> {vendor.approvalNote}
+            <div className="mt-4 rounded-xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 px-4 py-3 text-[13px]">
+              <span className="text-[color:var(--color-muted)]/70">Reviewer note:</span> {vendor.approvalNote}
             </div>
           )}
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/vendor/shop" className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
+            <Link href="/vendor/shop" className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
               Complete shop details →
             </Link>
-            <Link href="/vendor/menu" className="rounded-full border border-[color:var(--color-primary)]/35 px-5 py-2.5 text-[13.5px] font-medium text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-[color:var(--color-cream)]">
+            <Link href="/vendor/menu" className="rounded-full border border-[color:var(--color-primary)]/35 px-5 py-2.5 text-[13.5px] font-medium text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-[color:var(--color-background)]">
               Add menu items →
             </Link>
           </div>
@@ -69,11 +69,11 @@ export default async function VendorHome() {
               <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
                 Hello, <span className="italic text-[color:var(--color-primary)]">{vendor?.ownerName?.split(' ')[0] ?? 'partner'}.</span>
               </h1>
-              <p className="mt-2 text-[13.5px] text-[color:var(--color-ink-soft)]">
+              <p className="mt-2 text-[13.5px] text-[color:var(--color-muted)]">
                 {todayCount === 0 ? 'Fresh day. Orders will appear below as neighbours place them.' : `${todayCount} order${todayCount === 1 ? '' : 's'} delivered today.`}
               </p>
             </div>
-            <Link href="/vendor/orders" className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] self-start sm:self-auto">
+            <Link href="/vendor/orders" className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] self-start sm:self-auto">
               Go to live orders →
             </Link>
           </div>
@@ -110,18 +110,18 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string;
     <div className={`rounded-2xl border p-5 ${
       accent === 'saffron'
         ? 'border-[color:var(--color-saffron)]/35 bg-[color:var(--color-saffron)]/8'
-        : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]'
+        : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]'
     }`}>
-      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-ink-soft)]/70">{label}</div>
+      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]/70">{label}</div>
       <div className="mt-1.5 font-display text-[28px] leading-none">{value}</div>
-      {sub && <div className="mt-1.5 text-[12px] text-[color:var(--color-ink-soft)]/80">{sub}</div>}
+      {sub && <div className="mt-1.5 text-[12px] text-[color:var(--color-muted)]/80">{sub}</div>}
     </div>
   );
 }
 
 function Tile({ href, title, body, cta }: { href: string; title: string; body: string; cta: string }) {
   return (
-    <Link href={href} className="block rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-6 hover:border-[color:var(--color-primary)]/40 transition-colors">
+    <Link href={href} className="block rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-6 hover:border-[color:var(--color-primary)]/40 transition-colors">
       <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">{title}</div>
       <div className="mt-2 font-display text-[22px] leading-tight">{body}</div>
       <div className="mt-3 text-[12.5px] text-[color:var(--color-primary)]">{cta}</div>

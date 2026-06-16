@@ -20,7 +20,7 @@ interface AlertRow {
 interface Counts { open: number; resolved: number; dismissed: number; }
 
 const SEVERITY_TONE: Record<DeviationSeverity, string> = {
-  LOW:    'bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)]',
+  LOW:    'bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)]',
   MEDIUM: 'bg-[color:var(--color-saffron)]/15 text-[color:var(--color-gold)]',
   HIGH:   'bg-[color:var(--color-terracotta)]/15 text-[color:var(--color-terracotta)]',
 };
@@ -60,10 +60,10 @@ export function AdminDeviationsClient() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Rider deviations</div>
-          <h1 className="mt-2 font-serif text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Off the <span className="italic text-[color:var(--color-forest)]">corridor.</span>
+          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
+            Off the <span className="italic text-[color:var(--color-primary)]">corridor.</span>
           </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
             Riders who strayed from the hub→vendor→customer→hub path for over two minutes. Click any alert to see the route, the order, and request an explanation.
           </p>
         </div>
@@ -74,8 +74,8 @@ export function AdminDeviationsClient() {
               onClick={() => setScope(s)}
               className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
                 scope === s
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -86,40 +86,40 @@ export function AdminDeviationsClient() {
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
-      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-ink-soft)]">Loading…</div> : null}
+      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-muted)]">Loading…</div> : null}
 
       {!loading && alerts.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-10 text-center">
-          <p className="font-serif text-[24px]">All on-route.</p>
-          <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">Nothing in this scope right now.</p>
+        <div className="mt-10 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
+          <p className="font-display text-[24px]">All on-route.</p>
+          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">Nothing in this scope right now.</p>
         </div>
       ) : null}
 
       {!loading && alerts.length > 0 ? (
-        <div className="mt-6 bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 overflow-hidden">
-          <ul className="divide-y divide-[color:var(--color-ink)]/8">
+        <div className="mt-6 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 overflow-hidden">
+          <ul className="divide-y divide-[color:var(--color-foreground)]/8">
             {alerts.map((a) => (
               <li key={a.id}>
                 <Link
                   href={`/admin/deviations/${a.id}`}
-                  className="block px-4 py-3.5 text-[13px] hover:bg-[color:var(--color-cream)] transition-colors"
+                  className="block px-4 py-3.5 text-[13px] hover:bg-[color:var(--color-background)] transition-colors"
                 >
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full font-medium ${SEVERITY_TONE[a.severity]}`}>
                         {a.severity}
                       </span>
-                      <span className="text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-[color:var(--color-ink)]/8 text-[color:var(--color-ink-soft)] font-medium">
+                      <span className="text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-[color:var(--color-foreground)]/8 text-[color:var(--color-muted)] font-medium">
                         {STATUS_LABEL[a.status]}
                       </span>
                       <span className="font-medium truncate">{a.rider.name}</span>
-                      <span className="text-[12px] text-[color:var(--color-ink-soft)]">· hub {a.rider.hub?.name ?? '—'}</span>
+                      <span className="text-[12px] text-[color:var(--color-muted)]">· hub {a.rider.hub?.name ?? '—'}</span>
                     </div>
-                    <div className="text-[12px] text-[color:var(--color-ink-soft)]">
+                    <div className="text-[12px] text-[color:var(--color-muted)]">
                       {new Date(a.detectedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
                     </div>
                   </div>
-                  <div className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]">
+                  <div className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
                     {(a.distanceFromCorridorM / 1000).toFixed(2)} km off route · {Math.round(a.durationOutsideS / 60)} min outside
                     {a.order
                       ? ` · order #${a.order.id.slice(-6).toUpperCase()} → ${a.order.building} (${a.order.society})`

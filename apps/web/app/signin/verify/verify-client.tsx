@@ -140,12 +140,12 @@ export function VerifyClient() {
     <div className="space-y-6">
       <div id="recaptcha-container-verify" />
 
-      <p className="text-[13.5px] text-[color:var(--color-ink-soft)]">
-        Code sent to <span className="font-medium text-[color:var(--color-ink)]">+91 {phone}</span>
+      <p className="text-[13.5px] text-[color:var(--color-muted)]">
+        Code sent to <span className="font-medium text-[color:var(--color-foreground)]">+91 {phone}</span>
         {' · '}
         <button
           onClick={() => router.push('/signin')}
-          className="underline underline-offset-4 hover:text-[color:var(--color-forest)]"
+          className="underline underline-offset-4 hover:text-[color:var(--color-primary)]"
         >
           change
         </button>
@@ -167,12 +167,12 @@ export function VerifyClient() {
             onKeyDown={(e) => handleKey(i, e)}
             disabled={loading}
             className={cn(
-              'w-12 h-14 sm:w-14 sm:h-16 text-center text-[22px] font-serif rounded-xl border bg-[color:var(--color-paper)] outline-none transition-all',
+              'w-12 h-14 sm:w-14 sm:h-16 text-center text-[22px] font-display rounded-xl border bg-[color:var(--color-surface)] outline-none transition-all',
               error
                 ? 'border-[color:var(--color-terracotta)]/50'
                 : d
-                  ? 'border-[color:var(--color-forest)] text-[color:var(--color-forest-dark)]'
-                  : 'border-[color:var(--color-ink)]/15 focus:border-[color:var(--color-forest)]',
+                  ? 'border-[color:var(--color-primary)] text-[color:var(--color-primary)]'
+                  : 'border-[color:var(--color-foreground)]/15 focus:border-[color:var(--color-primary)]',
             )}
           />
         ))}
@@ -187,14 +187,14 @@ export function VerifyClient() {
           className={cn(
             'text-[13px]',
             resendIn > 0
-              ? 'text-[color:var(--color-ink-soft)]/50 cursor-not-allowed'
-              : 'text-[color:var(--color-forest)] hover:underline underline-offset-4',
+              ? 'text-[color:var(--color-muted)]/50 cursor-not-allowed'
+              : 'text-[color:var(--color-primary)] hover:underline underline-offset-4',
           )}
         >
           {resendIn > 0 ? `Resend code in ${resendIn}s` : 'Resend code'}
         </button>
         {loading && (
-          <span className="inline-flex items-center gap-2 text-[13px] text-[color:var(--color-ink-soft)]">
+          <span className="inline-flex items-center gap-2 text-[13px] text-[color:var(--color-muted)]">
             <svg width="14" height="14" viewBox="0 0 16 16" className="animate-spin">
               <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="28" strokeDashoffset="10" />
             </svg>

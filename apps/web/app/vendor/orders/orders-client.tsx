@@ -84,7 +84,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
     return (
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
         <h2 className="font-display text-[22px]">Orders go live after approval</h2>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
           Once the {siteConfig.platformName} team approves your shop, incoming orders will appear here in real time.
         </p>
       </div>
@@ -101,9 +101,9 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
           </h1>
         </div>
         <div className="text-right">
-          <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/70">Today</div>
+          <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">Today</div>
           <div className="font-display text-[22px] text-[color:var(--color-primary)]">₹{(data?.todaySalesInr ?? 0).toLocaleString('en-IN')}</div>
-          <div className="text-[11px] text-[color:var(--color-ink-soft)]/60">{data?.todayOrders ?? 0} delivered · auto-refresh 5s</div>
+          <div className="text-[11px] text-[color:var(--color-muted)]/60">{data?.todayOrders ?? 0} delivered · auto-refresh 5s</div>
         </div>
       </div>
 
@@ -120,7 +120,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
               <button
                 disabled={busy === o.id + ':accept'}
                 onClick={() => act(o.id, 'accept')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
               >
                 Accept
               </button>
@@ -157,7 +157,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                   disabled={busy === o.id + ':ready' || needsWeights}
                   title={needsWeights ? 'Confirm actual weights first' : undefined}
                   onClick={() => act(o.id, 'ready')}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-ink)] px-4 py-2 text-[12.5px] font-medium hover:brightness-95 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-saffron)] text-[color:var(--color-foreground)] px-4 py-2 text-[12.5px] font-medium hover:brightness-95 disabled:opacity-50"
                 >
                   {o.fulfilmentMode === 'VENDOR_SELF' ? 'Mark ready (boxed)' : 'Ready for pickup'}
                 </button>
@@ -165,7 +165,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                   <button
                     disabled={busy === o.id + ':out-for-delivery' || needsWeights}
                     onClick={() => act(o.id, 'out-for-delivery')}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
                   >
                     Head out now →
                   </button>
@@ -184,7 +184,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                 <button
                   disabled={busy === o.id + ':out-for-delivery'}
                   onClick={() => act(o.id, 'out-for-delivery')}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
                 >
                   Head out now →
                 </button>
@@ -205,7 +205,7 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
                     if (!otp) return;
                     act(o.id, 'delivered', { otp });
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)]"
                 >
                   Mark delivered (OTP)
                 </button>
@@ -227,12 +227,12 @@ function Section({ title, count, accent, children }: { title: string; count: num
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-display text-[22px]">{title}</h2>
-        <span className={`text-[11px] uppercase tracking-[0.14em] ${accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-ink-soft)]/70'}`}>
+        <span className={`text-[11px] uppercase tracking-[0.14em] ${accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-muted)]/70'}`}>
           {count}
         </span>
       </div>
       {count === 0 ? (
-        <div className="rounded-xl border border-dashed border-[color:var(--color-ink)]/15 p-6 text-center text-[12.5px] text-[color:var(--color-ink-soft)]/70">
+        <div className="rounded-xl border border-dashed border-[color:var(--color-foreground)]/15 p-6 text-center text-[12.5px] text-[color:var(--color-muted)]/70">
           Nothing here.
         </div>
       ) : (
@@ -326,7 +326,7 @@ function WeightReconcileForm({
             <li key={it.id} className="grid sm:grid-cols-[1.2fr_90px_1fr] gap-2 items-start">
               <div className="text-[12.5px]">
                 <div className="font-medium truncate">{it.name}</div>
-                <div className="text-[10.5px] text-[color:var(--color-ink-soft)]/70">
+                <div className="text-[10.5px] text-[color:var(--color-muted)]/70">
                   est. {it.estimatedGrams ?? '?'}g · ₹{it.priceInr}
                   {it.priceInr > 0 && it.estimatedGrams ? (
                     <span> · ₹{(it.priceInr / it.estimatedGrams).toFixed(2)}/g</span>
@@ -340,7 +340,7 @@ function WeightReconcileForm({
                 placeholder="grams"
                 value={d.grams}
                 onChange={(e) => setDraft((s) => ({ ...s, [it.id]: { ...s[it.id], grams: e.target.value } }))}
-                className="rounded-md border border-[color:var(--color-ink)]/15 bg-[color:var(--color-paper)] px-2.5 py-1.5 text-[12.5px]"
+                className="rounded-md border border-[color:var(--color-foreground)]/15 bg-[color:var(--color-surface)] px-2.5 py-1.5 text-[12.5px]"
               />
               <div className="space-y-1">
                 {proj && (
@@ -354,7 +354,7 @@ function WeightReconcileForm({
                     placeholder="Why? (smaller heap, larger pick…)"
                     value={d.note}
                     onChange={(e) => setDraft((s) => ({ ...s, [it.id]: { ...s[it.id], note: e.target.value } }))}
-                    className="w-full rounded-md border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-paper)] px-2.5 py-1.5 text-[11.5px]"
+                    className="w-full rounded-md border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-surface)] px-2.5 py-1.5 text-[11.5px]"
                   />
                 )}
               </div>
@@ -368,7 +368,7 @@ function WeightReconcileForm({
       <button
         disabled={busy || items.some((it) => !draft[it.id]?.grams)}
         onClick={submit}
-        className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
+        className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50"
       >
         {busy ? 'Confirming…' : 'Confirm weights · notify customer'}
       </button>
@@ -381,8 +381,8 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
   const cls = accent === 'saffron'
     ? 'border-[color:var(--color-saffron)]/35 bg-[color:var(--color-saffron)]/5'
     : muted
-      ? 'border-[color:var(--color-ink)]/8 bg-[color:var(--color-paper)]/70'
-      : 'border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)]';
+      ? 'border-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)]/70'
+      : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]';
   return (
     <li className={`rounded-2xl border p-4 ${cls}`}>
       <div className="flex items-start justify-between gap-3">
@@ -391,8 +391,8 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
             <span className={accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : 'text-[color:var(--color-primary)]'}>
               {o.status.replace('_', ' ')}
             </span>
-            <span className="text-[color:var(--color-ink-soft)]/50">· #{o.id.slice(-6)}</span>
-            <span className="text-[color:var(--color-ink-soft)]/50">· {placed} IST</span>
+            <span className="text-[color:var(--color-muted)]/50">· #{o.id.slice(-6)}</span>
+            <span className="text-[color:var(--color-muted)]/50">· {placed} IST</span>
             <span className={`rounded-full px-2 py-0.5 text-[9.5px] tracking-[0.14em] ${
               o.fulfilmentMode === 'VENDOR_SELF'
                 ? 'bg-[color:var(--color-primary)]/12 text-[color:var(--color-primary)]'
@@ -409,13 +409,13 @@ function Card({ o, accent, muted, children }: { o: OrderRow; accent?: string; mu
               Deliver {o.deliverySlotStart ? formatDeliveryDay(o.deliverySlotStart) : ''}{o.deliverySlotStart && o.deliverySlotLabel ? ' · ' : ''}{o.deliverySlotLabel ?? ''}
             </div>
           )}
-          <div className="text-[12.5px] text-[color:var(--color-ink-soft)]/80 truncate">
+          <div className="text-[12.5px] text-[color:var(--color-muted)]/80 truncate">
             {o.items.map((i) => `${i.name}${i.quantity > 1 ? ` × ${i.quantity}` : ''}${i.unit ? ` (${i.unit})` : ''}`).join(', ')}
           </div>
         </div>
         <div className="text-right shrink-0">
           <div className="font-display text-[18px]">₹{o.subtotalInr}</div>
-          <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-ink-soft)]/65">your share</div>
+          <div className="text-[10.5px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/65">your share</div>
         </div>
       </div>
       {children}

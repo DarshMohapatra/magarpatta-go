@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getServerSession } from '@/lib/session';
 import { siteConfig } from '@/lib/site-config';
 import { getMenuCategories, getRestaurantIndex } from '@/lib/menu-cache';
+import { getWholesaleOnlyMode } from '@/lib/settings';
 import { getServerLocale } from '@/lib/locale';
 import { pickName } from '@/lib/i18n';
 import { MobileShell } from '@/components/customer/mobile-shell';
@@ -25,12 +26,19 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [session, locale, categories, vendors] = await Promise.all([
+  const [session, locale, categories, vendorsRaw, wholesaleOnly] = await Promise.all([
     getServerSession(),
     getServerLocale(),
     getMenuCategories(),
     getRestaurantIndex(),
+    getWholesaleOnlyMode(),
   ]);
+
+  // Phase-1 launch is wholesale-produce-only. When the wholesale_only_mode
+  // setting is on (which it is for Magarpatta), only show vendors flagged
+  // isWholesale=true. Honors the same filter the /menu page applies so the
+  // discovery surface stays in sync with the catalog whitelist.
+  const vendors = wholesaleOnly ? vendorsRaw.filter((v) => v.isWholesale) : vendorsRaw;
 
   const liveVendors = vendors.slice(0, 8).map<VendorCardData>((v) => ({
     slug: v.slug,

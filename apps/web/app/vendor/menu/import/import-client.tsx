@@ -10,7 +10,7 @@ type Row = ParsedItem & { isVeg: boolean; unit: string; keep: boolean };
 
 interface Category { slug: string; name: string }
 
-const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-ink)]/12 bg-[color:var(--color-paper)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-forest)]';
+const inp = 'mt-1 w-full rounded-xl border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-3 py-2 text-[13.5px] outline-none focus:border-[color:var(--color-primary)]';
 
 export function MenuImportClient({ approvalStatus, categories }: { approvalStatus: string; categories: Category[] }) {
   const [mode, setMode] = useState<Mode>('photo');
@@ -29,8 +29,8 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
   if (approvalStatus !== 'APPROVED') {
     return (
       <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 p-6">
-        <h2 className="font-serif text-[22px]">Menu import unlocks after approval</h2>
-        <p className="mt-2 text-[13px] text-[color:var(--color-ink-soft)]">
+        <h2 className="font-display text-[22px]">Menu import unlocks after approval</h2>
+        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
           Once {siteConfig.platformName} approves your shop, you&apos;ll be able to import items from a photo of your printed menu or a QR code.
         </p>
       </div>
@@ -137,14 +137,14 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Menu import</div>
-          <h1 className="mt-2 font-serif text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Send your menu to a <span className="italic text-[color:var(--color-forest)]">human curator.</span>
+          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
+            Send your menu to a <span className="italic text-[color:var(--color-primary)]">human curator.</span>
           </h1>
-          <p className="mt-2 text-[12.5px] text-[color:var(--color-ink-soft)] max-w-xl">
+          <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)] max-w-xl">
             Snap a photo of your printed menu (or scan a QR / paste text). Our curator authenticates each item against your photo, fixes anything our OCR missed, then forwards to admin. You don&apos;t edit anything yourself.
           </p>
         </div>
-        <Link href="/vendor/menu" className="text-[12.5px] text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-forest)]">
+        <Link href="/vendor/menu" className="text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
           ← Back to menu
         </Link>
       </div>
@@ -156,8 +156,8 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
             onClick={() => setMode(m)}
             className={`rounded-full px-4 py-1.5 text-[12.5px] border ${
               mode === m
-                ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-[color:var(--color-forest)]'
-                : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/12 hover:text-[color:var(--color-forest)]'
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-[color:var(--color-primary)]'
+                : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/12 hover:text-[color:var(--color-primary)]'
             }`}
           >
             {m === 'photo' ? 'From photo' : m === 'qr' ? 'From QR code' : 'Paste text'}
@@ -169,25 +169,25 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
       {mode === 'qr' && <QrFlow onItems={pushItems} busy={busy} setBusy={setBusy} />}
       {mode === 'paste' && <PasteFlow onItems={pushItems} />}
 
-      {progress && <div className="text-[12.5px] text-[color:var(--color-ink-soft)]">{progress}</div>}
+      {progress && <div className="text-[12.5px] text-[color:var(--color-muted)]">{progress}</div>}
       {err && <div className="rounded-xl bg-[color:var(--color-terracotta)]/10 border border-[color:var(--color-terracotta)]/25 px-4 py-3 text-[13px] text-[color:var(--color-terracotta-dark)]">{err}</div>}
 
       {(rows.length > 0 || photos.length > 0) && (
-        <div className="rounded-2xl border border-[color:var(--color-ink)]/10 bg-[color:var(--color-paper)] p-5 space-y-4">
+        <div className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/65">Ready to send</div>
-              <div className="font-serif text-[22px] mt-0.5">
+              <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/65">Ready to send</div>
+              <div className="font-display text-[22px] mt-0.5">
                 {photos.length > 0 && `${photos.length} photo${photos.length === 1 ? '' : 's'}`}
                 {photos.length > 0 && rows.length > 0 && ' · '}
                 {rows.length > 0 && `${rows.length} item${rows.length === 1 ? '' : 's'} pre-parsed`}
               </div>
-              <div className="text-[12px] text-[color:var(--color-ink-soft)] mt-1 max-w-md">
+              <div className="text-[12px] text-[color:var(--color-muted)] mt-1 max-w-md">
                 The curator will check every item against your photo and fix what OCR missed. Even if nothing was parsed, send the photos and they&apos;ll type from scratch.
               </div>
             </div>
             <label className="block min-w-[180px]">
-              <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Category</span>
+              <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Category</span>
               <select value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)} className={inp}>
                 {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
               </select>
@@ -195,10 +195,10 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
-            <button disabled={submitting} onClick={submit} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+            <button disabled={submitting} onClick={submit} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
               {submitting ? 'Sending…' : 'Send to curator'}
             </button>
-            <button disabled={submitting} onClick={() => { setRows([]); setPhotos([]); }} className="rounded-full border border-[color:var(--color-ink)]/15 px-5 py-2.5 text-[13px] hover:border-[color:var(--color-terracotta)]/40 hover:text-[color:var(--color-terracotta)] disabled:opacity-50">
+            <button disabled={submitting} onClick={() => { setRows([]); setPhotos([]); }} className="rounded-full border border-[color:var(--color-foreground)]/15 px-5 py-2.5 text-[13px] hover:border-[color:var(--color-terracotta)]/40 hover:text-[color:var(--color-terracotta)] disabled:opacity-50">
               Clear
             </button>
           </div>
@@ -206,7 +206,7 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
       )}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13px] shadow-lg">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13px] shadow-lg">
           {toast}
         </div>
       )}
@@ -460,9 +460,9 @@ function PhotoFlow({ onItems, onPhotos, busy, setBusy, setProgress }: {
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/20 bg-[color:var(--color-paper)] p-8 text-center">
-      <p className="font-serif text-[20px]">Photograph your printed menu</p>
-      <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/75 max-w-md mx-auto">
+    <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/20 bg-[color:var(--color-surface)] p-8 text-center">
+      <p className="font-display text-[20px]">Photograph your printed menu</p>
+      <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]/75 max-w-md mx-auto">
         Hold steady, good light. You can upload several photos — we&apos;ll send them all to the curator together.
       </p>
       <input
@@ -474,10 +474,10 @@ function PhotoFlow({ onItems, onPhotos, busy, setBusy, setProgress }: {
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
-      <button disabled={busy} onClick={() => fileRef.current?.click()} className="mt-5 rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+      <button disabled={busy} onClick={() => fileRef.current?.click()} className="mt-5 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
         {busy ? 'Working…' : 'Choose photo(s)'}
       </button>
-      <p className="mt-3 text-[11px] text-[color:var(--color-ink-soft)]/60">
+      <p className="mt-3 text-[11px] text-[color:var(--color-muted)]/60">
         OCR runs in your browser &mdash; no upload to a server.
       </p>
     </div>
@@ -573,21 +573,21 @@ function QrFlow({ onItems, busy, setBusy }: {
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/20 bg-[color:var(--color-paper)] p-6 space-y-4">
+    <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/20 bg-[color:var(--color-surface)] p-6 space-y-4">
       <div className="text-center">
-        <p className="font-serif text-[20px]">Scan a menu QR code</p>
-        <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/75 max-w-md mx-auto">
+        <p className="font-display text-[20px]">Scan a menu QR code</p>
+        <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]/75 max-w-md mx-auto">
           Already have a QR that opens your menu page (Google Business, Zomato, your own site)? Scan it &mdash; we&apos;ll fetch and parse it.
         </p>
       </div>
 
-      <div ref={containerRef} className="mx-auto max-w-[320px] rounded-xl overflow-hidden bg-[color:var(--color-ink)]/5 aspect-square flex items-center justify-center">
-        {!scanning && <span className="text-[12px] text-[color:var(--color-ink-soft)]/60 px-4 text-center">Press &ldquo;Start camera&rdquo; to begin scanning.</span>}
+      <div ref={containerRef} className="mx-auto max-w-[320px] rounded-xl overflow-hidden bg-[color:var(--color-foreground)]/5 aspect-square flex items-center justify-center">
+        {!scanning && <span className="text-[12px] text-[color:var(--color-muted)]/60 px-4 text-center">Press &ldquo;Start camera&rdquo; to begin scanning.</span>}
       </div>
 
       <div className="flex flex-wrap justify-center gap-2">
         {!scanning ? (
-          <button disabled={busy} onClick={start} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+          <button disabled={busy} onClick={start} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
             Start camera
           </button>
         ) : (
@@ -597,19 +597,19 @@ function QrFlow({ onItems, busy, setBusy }: {
         )}
       </div>
 
-      <form onSubmit={manualUrl} className="border-t border-[color:var(--color-ink)]/8 pt-4">
-        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]/75">Or paste a menu URL</div>
+      <form onSubmit={manualUrl} className="border-t border-[color:var(--color-foreground)]/8 pt-4">
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/75">Or paste a menu URL</div>
         <div className="mt-1 flex gap-2">
           <input name="url" type="url" placeholder="https://..." className={inp + ' mt-0 flex-1'} />
-          <button disabled={busy} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-forest-dark)] disabled:opacity-50">
+          <button disabled={busy} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-4 py-2 text-[12.5px] font-medium hover:bg-[color:var(--color-primary)] disabled:opacity-50">
             Fetch
           </button>
         </div>
       </form>
 
       {lastValue && (
-        <div className="text-[11.5px] text-[color:var(--color-ink-soft)]/70 break-all">
-          Scanned: <span className="text-[color:var(--color-ink)]">{lastValue}</span>
+        <div className="text-[11.5px] text-[color:var(--color-muted)]/70 break-all">
+          Scanned: <span className="text-[color:var(--color-foreground)]">{lastValue}</span>
         </div>
       )}
       {scanErr && <div className="text-[12.5px] text-[color:var(--color-terracotta)]">{scanErr}</div>}
@@ -620,16 +620,16 @@ function QrFlow({ onItems, busy, setBusy }: {
 function PasteFlow({ onItems }: { onItems: (items: ParsedItem[]) => void }) {
   const [text, setText] = useState('');
   return (
-    <div className="rounded-2xl border border-dashed border-[color:var(--color-ink)]/20 bg-[color:var(--color-paper)] p-6 space-y-3">
+    <div className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/20 bg-[color:var(--color-surface)] p-6 space-y-3">
       <div>
-        <p className="font-serif text-[20px]">Paste menu text</p>
-        <p className="mt-1 text-[12.5px] text-[color:var(--color-ink-soft)]/75">
+        <p className="font-display text-[20px]">Paste menu text</p>
+        <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]/75">
           One item per line, with the price at the end. Example: <span className="font-mono">Paneer Tikka 240</span>
         </p>
       </div>
       <textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} className={inp} placeholder={'Veg Hakka Noodles 180\nPaneer Tikka  240\nMasala Dosa  120'} />
       <div>
-        <button onClick={() => onItems(parseMenuText(text))} className="rounded-full bg-[color:var(--color-forest)] text-[color:var(--color-cream)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-forest-dark)]">
+        <button onClick={() => onItems(parseMenuText(text))} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2 text-[13px] font-medium hover:bg-[color:var(--color-primary)]">
           Parse
         </button>
       </div>

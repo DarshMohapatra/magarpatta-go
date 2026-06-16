@@ -76,8 +76,8 @@ export function SupportAnalyticsClient() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Support analytics</div>
-          <h1 className="mt-2 font-serif text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Resolution, <span className="italic text-[color:var(--color-forest)]">measured.</span>
+          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
+            Resolution, <span className="italic text-[color:var(--color-primary)]">measured.</span>
           </h1>
         </div>
         <div className="flex gap-2">
@@ -87,8 +87,8 @@ export function SupportAnalyticsClient() {
               onClick={() => setDays(d)}
               className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
                 days === d
-                  ? 'bg-[color:var(--color-forest)] text-[color:var(--color-cream)] border-transparent'
-                  : 'bg-[color:var(--color-paper)] text-[color:var(--color-ink-soft)] border-[color:var(--color-ink)]/14 hover:text-[color:var(--color-ink)]'
+                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
               }`}
             >Last {d}d</button>
           ))}
@@ -96,7 +96,7 @@ export function SupportAnalyticsClient() {
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
-      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-ink-soft)]">Loading…</div> : null}
+      {loading ? <div className="mt-10 text-[13px] text-[color:var(--color-muted)]">Loading…</div> : null}
 
       {!loading && data ? (
         <>
@@ -136,15 +136,15 @@ export function SupportAnalyticsClient() {
           {/* Agents */}
           <Section title="Agents">
             {data.agents.length === 0 ? (
-              <p className="text-[13px] text-[color:var(--color-ink-soft)]">No assigned tickets in this window.</p>
+              <p className="text-[13px] text-[color:var(--color-muted)]">No assigned tickets in this window.</p>
             ) : (
-              <ul className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 overflow-hidden divide-y divide-[color:var(--color-ink)]/8">
+              <ul className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 overflow-hidden divide-y divide-[color:var(--color-foreground)]/8">
                 {data.agents.map((a) => (
                   <li key={a.id} className="grid grid-cols-[1fr_90px_120px_90px] gap-3 px-5 py-3 text-[13px]">
                     <div className="font-medium">{a.name}</div>
-                    <div className="text-[color:var(--color-ink-soft)]">{a.handled} handled</div>
-                    <div className="text-[color:var(--color-ink-soft)]">avg {fmtMinutes(a.avgResolutionMinutes)}</div>
-                    <div className={`text-right ${a.breaches > 0 ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-ink-soft)]'}`}>
+                    <div className="text-[color:var(--color-muted)]">{a.handled} handled</div>
+                    <div className="text-[color:var(--color-muted)]">avg {fmtMinutes(a.avgResolutionMinutes)}</div>
+                    <div className={`text-right ${a.breaches > 0 ? 'text-[color:var(--color-terracotta)]' : 'text-[color:var(--color-muted)]'}`}>
                       {a.breaches} breach{a.breaches === 1 ? '' : 'es'}
                     </div>
                   </li>
@@ -174,13 +174,13 @@ export function SupportAnalyticsClient() {
               <Kpi label="Articles ranked" value={String(data.kb.topArticles.length)} />
             </div>
             {data.kb.topArticles.length > 0 ? (
-              <ul className="mt-4 bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 overflow-hidden divide-y divide-[color:var(--color-ink)]/8">
+              <ul className="mt-4 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 overflow-hidden divide-y divide-[color:var(--color-foreground)]/8">
                 {data.kb.topArticles.map((a) => (
                   <li key={a.id} className="grid grid-cols-[1fr_90px_90px_90px] gap-3 px-5 py-3 text-[13px]">
                     <Link href={`/admin/kb/${a.id}`} className="font-medium hover:underline truncate">{a.title}</Link>
-                    <div className="text-[color:var(--color-ink-soft)]">{a.suggestions} sug</div>
-                    <div className="text-[color:var(--color-ink-soft)]">{a.opens} open</div>
-                    <div className="text-right text-[color:var(--color-ink-soft)]">CTR {fmtPct(a.ctr)}</div>
+                    <div className="text-[color:var(--color-muted)]">{a.suggestions} sug</div>
+                    <div className="text-[color:var(--color-muted)]">{a.opens} open</div>
+                    <div className="text-right text-[color:var(--color-muted)]">CTR {fmtPct(a.ctr)}</div>
                   </li>
                 ))}
               </ul>
@@ -195,10 +195,10 @@ export function SupportAnalyticsClient() {
 function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: 'ok' | 'warn' }) {
   const valueColor = tone === 'warn' ? 'text-[color:var(--color-terracotta)]' : '';
   return (
-    <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4">
-      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)]">{label}</div>
-      <div className={`mt-1 font-serif text-[28px] leading-[1.1] ${valueColor}`}>{value}</div>
-      {sub ? <div className="mt-1 text-[11.5px] text-[color:var(--color-ink-soft)]">{sub}</div> : null}
+    <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4">
+      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">{label}</div>
+      <div className={`mt-1 font-display text-[28px] leading-[1.1] ${valueColor}`}>{value}</div>
+      {sub ? <div className="mt-1 text-[11.5px] text-[color:var(--color-muted)]">{sub}</div> : null}
     </div>
   );
 }
@@ -214,10 +214,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Distribution({ title, rows, total }: { title: string; rows: Array<{ label: string; count: number }>; total: number }) {
   return (
-    <div className="bg-[color:var(--color-paper)] rounded-2xl border border-[color:var(--color-ink)]/10 p-4">
-      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-ink-soft)] mb-3">{title}</div>
+    <div className="bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 p-4">
+      <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] mb-3">{title}</div>
       {rows.length === 0 ? (
-        <div className="text-[12px] text-[color:var(--color-ink-soft)]">No data.</div>
+        <div className="text-[12px] text-[color:var(--color-muted)]">No data.</div>
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => {
@@ -226,10 +226,10 @@ function Distribution({ title, rows, total }: { title: string; rows: Array<{ lab
               <li key={r.label}>
                 <div className="flex justify-between text-[12px] mb-1">
                   <span className="capitalize">{r.label}</span>
-                  <span className="text-[color:var(--color-ink-soft)]">{r.count} · {pct.toFixed(0)}%</span>
+                  <span className="text-[color:var(--color-muted)]">{r.count} · {pct.toFixed(0)}%</span>
                 </div>
-                <div className="h-1.5 bg-[color:var(--color-ink)]/8 rounded-full overflow-hidden">
-                  <div className="h-full bg-[color:var(--color-forest)]" style={{ width: `${pct}%` }} />
+                <div className="h-1.5 bg-[color:var(--color-foreground)]/8 rounded-full overflow-hidden">
+                  <div className="h-full bg-[color:var(--color-primary)]" style={{ width: `${pct}%` }} />
                 </div>
               </li>
             );
