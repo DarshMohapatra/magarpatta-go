@@ -15,7 +15,7 @@ const LINKS = [
   { href: '/home', label: 'Home' },
   { href: '/menu', label: 'Search' },
   { href: '/orders', label: 'Orders' },
-  { href: '/account/addresses', label: 'Profile' },
+  { href: '/profile', label: 'Profile' },
 ];
 
 interface NavbarProps {

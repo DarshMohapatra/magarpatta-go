@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCustomerScope } from '@/lib/customer-scope';
 import { getMembershipState, listActivePlans, listActiveTopUps } from '@/lib/membership';
@@ -23,16 +24,37 @@ export default async function MembershipPage() {
   return (
     <>
     <MobileShell topBar={<TopBar session={session} />}>
-      <div className="mx-auto max-w-[960px] px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your membership</div>
-        <h1 className="mt-2 font-display text-[40px] sm:text-[52px] leading-[1.02] tracking-[-0.02em]">
-          Deliveries on a <span className="italic text-[color:var(--color-primary)]">subscription.</span>
-        </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-muted)] max-w-[520px]">
-          Save on every delivery with a plan. Run out of credits before the
-          cycle ends? Pay the lower per-delivery rate or recharge to keep saving.
-        </p>
+      {/* Breadcrumb to /profile */}
+      <div className="px-4 lg:px-8 pt-4 max-w-[960px] mx-auto">
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-1.5 text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Back to profile
+        </Link>
+      </div>
 
+      {/* Gradient-warm hero — matches /profile + /orders + /home */}
+      <div className="px-4 lg:px-8 pt-3 max-w-[960px] mx-auto">
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="absolute -bottom-8 -left-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative">
+            <div className="text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">Your membership</div>
+            <h1 className="mt-2 font-display text-[26px] leading-tight tracking-tight">
+              Deliveries on a subscription.
+            </h1>
+            <p className="mt-1 text-[12.5px] opacity-90 max-w-[520px]">
+              Save on every delivery with a plan. Recharge or fall back to the lower per-delivery rate when credits run out.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-[960px] px-4 sm:px-6 lg:px-8 pb-12">
         <MembershipClient
           initialState={{
             isActive: state.isActive,
@@ -71,3 +93,4 @@ export default async function MembershipPage() {
     </>
   );
 }
+

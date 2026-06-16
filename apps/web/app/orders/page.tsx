@@ -27,33 +27,50 @@ export default async function OrdersPage() {
     getServerSession(),
   ]);
 
+  const liveOrders = orders.filter((o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED');
+  const pastOrders = orders.filter((o) => o.status === 'DELIVERED' || o.status === 'CANCELLED');
+
   return (
     <>
     <MobileShell topBar={<TopBar session={session} />}>
-      <section className="pt-4 pb-12">
+      {/* Gradient-warm hero — matches /home + /profile vocabulary */}
+      <section className="px-4 pt-4">
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="relative">
+            <div className="text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">Your orders</div>
+            <h1 className="mt-2 font-display text-[26px] leading-tight tracking-tight">
+              Every drop-off, on record.
+            </h1>
+            <p className="mt-1 text-[12.5px] opacity-90">
+              {liveOrders.length > 0
+                ? `${liveOrders.length} in progress · ${pastOrders.length} delivered`
+                : `${pastOrders.length} order${pastOrders.length === 1 ? '' : 's'} so far`}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-12">
         <div className="px-4 lg:px-8 max-w-[1080px] mx-auto">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your orders</div>
-          <h1 className="mt-3 font-display text-[44px] lg:text-[56px] leading-[0.98] tracking-[-0.02em]">
-            Every drop-off, <span className="italic text-[color:var(--color-primary)]">on record.</span>
-          </h1>
 
           {orders.length === 0 ? (
-            <div className="mt-10 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
-              <p className="font-display text-[26px] leading-tight">
+            <div className="mt-6 rounded-[var(--radius-2xl)] bg-[color:var(--color-surface)] border border-[color:var(--color-border)]/60 shadow-[var(--shadow-soft)] p-10 text-center">
+              <p className="font-display text-[22px] leading-tight">
                 Nothing yet.
               </p>
-              <p className="mt-2 text-[14px] text-[color:var(--color-muted)]">
+              <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
                 Your first order lands here the moment you place it.
               </p>
               <Link
                 href="/menu"
-                className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[13.5px] font-medium bg-[color:var(--color-primary)] text-[color:var(--color-background)] hover:bg-[color:var(--color-primary)]"
+                className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full text-[13.5px] font-semibold bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] shadow-[var(--shadow-soft)] active:scale-[0.98] transition-transform"
               >
                 Browse the menu
               </Link>
             </div>
           ) : (
-            <ul className="mt-10 space-y-4">
+            <ul className="mt-6 space-y-3">
               {orders.map((o) => {
                 const status = o.status;
                 const label = statusLabel(status);
@@ -78,14 +95,19 @@ export default async function OrdersPage() {
                 }));
 
                 return (
-                  <li key={o.id} className="rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] hover:border-[color:var(--color-primary)]/30 transition-colors overflow-hidden">
-                    <Link
-                      href={`/orders/${o.id}`}
-                      className="block p-6"
-                    >
-                      <div className="flex items-start justify-between gap-6">
+                  <li
+                    key={o.id}
+                    className={
+                      'rounded-[var(--radius-xl)] shadow-[var(--shadow-soft)] overflow-hidden transition-all ' +
+                      (isLive
+                        ? 'bg-[color:var(--color-primary-soft)] border border-[color:var(--color-primary)]/30'
+                        : 'bg-[color:var(--color-surface)] border border-[color:var(--color-border)]/60 hover:border-[color:var(--color-primary)]/30')
+                    }
+                  >
+                    <Link href={`/orders/${o.id}`} className="block p-4 lg:p-5">
+                      <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2.5 mb-2">
+                          <div className="flex items-center gap-2 mb-1.5">
                             <span
                               className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
                                 isLive
@@ -93,23 +115,23 @@ export default async function OrdersPage() {
                                   : 'bg-[color:var(--color-primary)]'
                               }`}
                             />
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/80">
+                            <span className="text-[10.5px] uppercase tracking-[0.14em] font-semibold text-[color:var(--color-foreground)]/80">
                               {label}
                             </span>
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/50">
+                            <span className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/60">
                               · #{o.id.slice(-6)}
                             </span>
                           </div>
-                          <div className="font-display text-[22px] leading-tight text-[color:var(--color-foreground)]">
+                          <div className="font-display text-[16px] lg:text-[18px] font-semibold leading-tight text-[color:var(--color-foreground)] truncate">
                             {o.items.slice(0, 2).map((i) => pickName(i, locale)).join(', ')}
                             {o.items.length > 2 && (
-                              <span className="text-[color:var(--color-muted)]"> · +{o.items.length - 2} more</span>
+                              <span className="text-[color:var(--color-muted)] font-normal"> · +{o.items.length - 2} more</span>
                             )}
                           </div>
-                          <div className="mt-1 text-[13px] text-[color:var(--color-muted)]/80">
+                          <div className="mt-1 text-[12px] text-[color:var(--color-muted)] truncate">
                             Flat {o.flat}, {o.building} · {o.society}
                           </div>
-                          <div className="mt-2 text-[12px] text-[color:var(--color-muted)]/60">
+                          <div className="mt-1 text-[11px] text-[color:var(--color-muted)]/70">
                             {new Date(o.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
                           </div>
                         </div>
@@ -119,7 +141,7 @@ export default async function OrdersPage() {
                           {o.items.slice(0, 3).map((i) => (
                             <div
                               key={i.id}
-                              className="h-10 w-10 rounded-full border-2 border-[color:var(--color-surface)] flex items-center justify-center overflow-hidden relative"
+                              className="h-9 w-9 rounded-full border-2 border-[color:var(--color-surface)] flex items-center justify-center overflow-hidden relative"
                               style={{ backgroundColor: `color-mix(in srgb, var(--color-${i.accent ?? 'forest'}) 14%, var(--color-surface))` }}
                             >
                               {i.imageUrl ? (
@@ -133,19 +155,19 @@ export default async function OrdersPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <div className="font-display text-[22px] text-[color:var(--color-primary)]">₹{o.totalInr}</div>
-                          <div className="text-[11px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/60">
+                          <div className="font-display text-[18px] font-bold text-[color:var(--color-primary)]">₹{o.totalInr}</div>
+                          <div className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--color-muted)]/65">
                             {o.items.reduce((s, i) => s + i.quantity, 0)} item{o.items.reduce((s, i) => s + i.quantity, 0) === 1 ? '' : 's'}
                           </div>
                         </div>
                       </div>
                     </Link>
-                    <div className="flex items-center justify-between gap-3 px-6 py-3 border-t border-[color:var(--color-foreground)]/8 bg-[color:var(--color-background)]/40">
+                    <div className="flex items-center justify-between gap-3 px-4 lg:px-5 py-2.5 border-t border-[color:var(--color-border)]/40 bg-[color:var(--color-background)]/30">
                       <Link
                         href={`/orders/${o.id}`}
-                        className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]"
+                        className="text-[12px] font-semibold text-[color:var(--color-primary)] hover:underline"
                       >
-                        View details →
+                        {isLive ? 'Track order →' : 'View details →'}
                       </Link>
                       <ReorderButton items={reorderItems} variant="outline" />
                     </div>

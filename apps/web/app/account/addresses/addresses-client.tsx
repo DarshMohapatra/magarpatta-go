@@ -73,25 +73,55 @@ export function AddressesClient({ initial, societies, returnTo }: Props) {
     }
   }
 
+  const defaultCount = items.filter((a) => a.isDefault).length;
+
   return (
-    <section className="pt-24 pb-20">
-      <div className="mx-auto max-w-[860px] px-4 sm:px-6 lg:px-10">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Saved addresses</div>
-            <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-              Where to drop off, <span className="italic text-[color:var(--color-primary)]">your call.</span>
-            </h1>
+    <section className="pb-20">
+      {/* Profile-style breadcrumb */}
+      <div className="px-4 lg:px-8 pt-4 max-w-[860px] mx-auto">
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-1.5 text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Back to profile
+        </Link>
+      </div>
+
+      {/* Gradient-warm hero — matches /profile + /orders + /home */}
+      <div className="px-4 lg:px-8 pt-3 max-w-[860px] mx-auto">
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="relative flex items-end justify-between gap-3">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">Saved addresses</div>
+              <h1 className="mt-2 font-display text-[26px] leading-tight tracking-tight">
+                Where to drop off, your call.
+              </h1>
+              <p className="mt-1 text-[12.5px] opacity-90">
+                {items.length === 0
+                  ? 'Add your first delivery address'
+                  : `${items.length} on file · ${defaultCount} default`}
+              </p>
+            </div>
+            {returnTo && (
+              <Link
+                href={returnTo}
+                className="rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3 py-1.5 text-[11.5px] font-semibold shrink-0"
+              >
+                ← Checkout
+              </Link>
+            )}
           </div>
-          {returnTo && (
-            <Link href={returnTo} className="text-[13px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
-              ← Back to checkout
-            </Link>
-          )}
         </div>
+      </div>
+
+      <div className="mx-auto max-w-[860px] px-4 sm:px-6 lg:px-8">
 
         {items.length > 0 && (
-          <ul className="mt-8 space-y-3">
+          <ul className="mt-5 space-y-3">
             {items.map((a) => (
               <li
                 key={a.id}
