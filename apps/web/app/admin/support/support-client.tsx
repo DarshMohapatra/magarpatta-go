@@ -47,29 +47,35 @@ export function AdminSupportClient() {
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Support queue</div>
-          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Customer <span className="italic text-[color:var(--color-primary)]">complaints.</span>
+      {/* Gradient-warm hero — partner parity */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative">
+          <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Support queue</div>
+          <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+            Customer complaints.
           </h1>
+          <p className="mt-1 text-[12.5px] opacity-90">
+            {counts.open} open · {counts.resolved} resolved · {counts.closed} closed
+          </p>
         </div>
-        <div className="flex gap-2">
-          {(['open', 'resolved', 'closed', 'all'] as Scope[]).map((s) => (
-            <button
-              key={s}
-              onClick={() => setScope(s)}
-              className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
-                scope === s
-                  ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
-                  : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
-              }`}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-              {s === 'open' ? ` · ${counts.open}` : s === 'resolved' ? ` · ${counts.resolved}` : s === 'closed' ? ` · ${counts.closed}` : ''}
-            </button>
-          ))}
-        </div>
+      </div>
+
+      <div className="mt-5 flex gap-2 flex-wrap">
+        {(['open', 'resolved', 'closed', 'all'] as Scope[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => setScope(s)}
+            className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
+              scope === s
+                ? 'bg-[color:var(--color-primary)] text-[color:var(--color-background)] border-transparent'
+                : 'bg-[color:var(--color-surface)] text-[color:var(--color-muted)] border-[color:var(--color-foreground)]/14 hover:text-[color:var(--color-foreground)]'
+            }`}
+          >
+            {s.charAt(0).toUpperCase() + s.slice(1)}
+            {s === 'open' ? ` · ${counts.open}` : s === 'resolved' ? ` · ${counts.resolved}` : s === 'closed' ? ` · ${counts.closed}` : ''}
+          </button>
+        ))}
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}

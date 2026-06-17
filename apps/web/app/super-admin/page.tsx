@@ -34,19 +34,23 @@ export default async function SuperAdminOverview() {
 
   return (
     <SuperShell phone={session.phone}>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Cross-instance overview</div>
-        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Every site, <span className="italic text-[color:var(--color-primary)]">on one screen.</span>
-        </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-          Read-only. Each card pulls a live snapshot from that instance&apos;s super-admin endpoint.
-          Drill into a site by clicking the card, or jump straight to its admin console with the link.
-        </p>
+      {/* Gradient-warm hero — partner parity */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-6 sm:p-7 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-44 w-44 rounded-full bg-white/15 blur-2xl" />
+        <div className="absolute -bottom-10 -left-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative">
+          <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Cross-instance overview</div>
+          <h1 className="mt-2 font-display text-[28px] sm:text-[34px] leading-tight tracking-tight">
+            Every site, on one screen.
+          </h1>
+          <p className="mt-1 text-[13px] opacity-90">
+            {totals.activeOrders} live · {totals.todayDeliveredCount}/{totals.todayPlaced} delivered today · ₹{totals.todayGmvInr.toLocaleString('en-IN')} GMV across all sites
+          </p>
+        </div>
       </div>
 
       {/* Combined totals */}
-      <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Tile label="Active orders · all sites" value={String(totals.activeOrders)} highlight />
         <Tile label="Placed today · all sites" value={String(totals.todayPlaced)} note={`${totals.todayDeliveredCount} delivered`} />
         <Tile label="Today's GMV · all sites" value={`₹${totals.todayGmvInr.toLocaleString('en-IN')}`} highlight />

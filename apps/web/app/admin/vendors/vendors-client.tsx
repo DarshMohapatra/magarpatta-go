@@ -85,14 +85,23 @@ export function AdminVendorsClient({ initialStatus }: { initialStatus: string })
     }
   }
 
+  const pendingTabCount = counts['PENDING'] ?? 0;
+
   return (
     <div className="grid lg:grid-cols-[1fr_1.1fr] gap-6">
       <div>
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Vendors</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Approvals, <span className="italic text-[color:var(--color-primary)]">end to end.</span>
-          </h1>
+        {/* Gradient-warm hero — partner parity */}
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="relative">
+            <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Vendors</div>
+            <h1 className="mt-2 font-display text-[26px] sm:text-[28px] leading-tight tracking-tight">
+              Approvals, end to end.
+            </h1>
+            <p className="mt-1 text-[12.5px] opacity-90">
+              {pendingTabCount} pending review
+            </p>
+          </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">

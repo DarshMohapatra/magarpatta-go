@@ -37,14 +37,18 @@ export default async function AdminTownships() {
 
   return (
     <AdminShell name={admin.name} role={admin.role}>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Multi-township roster</div>
-        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Townships, <span className="italic text-[color:var(--color-primary)]">all of them.</span>
-        </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-2xl">
-          Each township gets its own Vercel deployment + Postgres DB. This roster is the platform-level view across every live site.
-        </p>
+      {/* Gradient-warm hero — partner parity */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative">
+          <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Multi-township roster</div>
+          <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+            Townships, all of them.
+          </h1>
+          <p className="mt-1 text-[12.5px] opacity-90">
+            {live.length} live · {comingSoon.length} coming soon · each gets its own Vercel deploy + Postgres
+          </p>
+        </div>
       </div>
 
       <section className="mt-10">

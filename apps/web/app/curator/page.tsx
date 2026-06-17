@@ -21,17 +21,23 @@ export default async function CuratorQueuePage() {
 
   return (
     <CuratorShell name={c.name}>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Curator queue</div>
-        <h1 className="mt-2 font-display text-[34px] sm:text-[42px] leading-[1.02] tracking-[-0.02em]">
-          Menus waiting for <span className="italic text-[color:var(--color-primary)]">your eyes.</span>
-        </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-          Each row is a vendor&apos;s bulk menu upload. Open one, compare the OCR&apos;d items against the photo, fix what&apos;s wrong, then forward to admin.
-        </p>
+      {/* Gradient-warm hero — partner parity */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative">
+          <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Curator queue</div>
+          <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+            Menus waiting for your eyes.
+          </h1>
+          <p className="mt-1 text-[12.5px] opacity-90">
+            {jobs.length === 0
+              ? 'Inbox zero. Beautiful.'
+              : `${jobs.length} upload${jobs.length === 1 ? '' : 's'} pending review`}
+          </p>
+        </div>
       </div>
 
-      <ul className="mt-7 space-y-3">
+      <ul className="mt-6 space-y-3">
         {jobs.length === 0 && (
           <li className="rounded-2xl border border-dashed border-[color:var(--color-foreground)]/15 p-10 text-center text-[14px] text-[color:var(--color-muted)]/70">
             No menus waiting. Beautiful.
@@ -43,7 +49,7 @@ export default async function CuratorQueuePage() {
             <li key={j.id}>
               <Link
                 href={`/curator/${j.id}`}
-                className="block rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-5 hover:border-[color:var(--color-primary)]/35 transition-colors"
+                className="block rounded-[var(--radius-xl)] border border-[color:var(--color-border)]/60 bg-[color:var(--color-surface)] p-4 sm:p-5 shadow-[var(--shadow-soft)] hover:border-[color:var(--color-primary)]/35 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
