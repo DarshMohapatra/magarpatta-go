@@ -202,34 +202,45 @@ export function VendorMenuClient({ approvalStatus }: { approvalStatus: string })
     byCategory.get(k)!.push(p);
   }
 
+  const outOfStockCount = products.filter((p) => !p.inStock).length;
+
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Menu</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            {products.length} item{products.length === 1 ? '' : 's'} on the <span className="italic text-[color:var(--color-primary)]">counter.</span>
-          </h1>
-          <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
-            Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
-            <span className="block mt-1">New items, edits, and removals all go through {siteConfig.platformName} review before customers see them. Stock toggle (in stock / out) is the only instant change.</span>
-          </p>
-          {pendingCount > 0 && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-saffron)]/12 text-[color:var(--color-saffron)] px-3 py-1 text-[11.5px]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-saffron)]" />
-              {pendingCount} edit{pendingCount === 1 ? '' : 's'} awaiting review
-            </div>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/vendor/menu/import" className="rounded-full border border-[color:var(--color-primary)]/40 text-[color:var(--color-primary)] px-4 py-2.5 text-[13px] font-medium hover:bg-[color:var(--color-primary)]/8">
-            Import from photo / QR
-          </Link>
-          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
-            + Add item
-          </button>
+      {/* Gradient-warm hero — matches vendor dashboard */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Inventory</div>
+            <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+              {products.length} item{products.length === 1 ? '' : 's'} on the counter.
+            </h1>
+            <p className="mt-1 text-[12.5px] opacity-90">
+              {outOfStockCount > 0 ? `${outOfStockCount} out of stock` : 'All items in stock'}
+              {pendingCount > 0 ? ` · ${pendingCount} edit${pendingCount === 1 ? '' : 's'} awaiting review` : ''}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/vendor/menu/import"
+              className="rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white px-3.5 py-1.5 text-[12px] font-semibold"
+            >
+              Import
+            </Link>
+            <button
+              onClick={openNew}
+              className="rounded-full bg-white text-[color:var(--color-primary)] px-3.5 py-1.5 text-[12px] font-semibold shadow-[var(--shadow-soft)]"
+            >
+              + Add item
+            </button>
+          </div>
         </div>
       </div>
+
+      <p className="mt-2 text-[11.5px] text-[color:var(--color-muted)]/80">
+        Regulated MRP goods sell at MRP. Prepared / loose items add ₹1 hyper-local markup automatically.
+        Edits go through {siteConfig.platformName} review; the stock toggle is the only instant change.
+      </p>
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13px] shadow-lg">
           {toast}

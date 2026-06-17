@@ -91,19 +91,29 @@ export function VendorOrdersClient({ approvalStatus }: { approvalStatus: string 
     );
   }
 
+  const incomingCount = data?.incoming.length ?? 0;
+  const preparingCount = data?.preparing.length ?? 0;
+
   return (
-    <div className="space-y-10">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Live orders</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            The counter, <span className="italic text-[color:var(--color-primary)]">live.</span>
-          </h1>
-        </div>
-        <div className="text-right">
-          <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]/70">Today</div>
-          <div className="font-display text-[22px] text-[color:var(--color-primary)]">₹{(data?.todaySalesInr ?? 0).toLocaleString('en-IN')}</div>
-          <div className="text-[11px] text-[color:var(--color-muted)]/60">{data?.todayOrders ?? 0} delivered · auto-refresh 5s</div>
+    <div className="space-y-8">
+      {/* Gradient-warm hero — matches vendor dashboard */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Live orders</div>
+            <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+              The counter, live.
+            </h1>
+            <p className="mt-1 text-[12.5px] opacity-90">
+              {incomingCount} new · {preparingCount} preparing · auto-refresh 5s
+            </p>
+          </div>
+          <div className="text-right rounded-[var(--radius-lg)] bg-white/15 backdrop-blur-sm border border-white/20 px-4 py-2.5">
+            <div className="text-[10px] uppercase tracking-[0.16em] opacity-85 font-semibold">Today</div>
+            <div className="font-display text-[24px] leading-none">₹{(data?.todaySalesInr ?? 0).toLocaleString('en-IN')}</div>
+            <div className="text-[10.5px] opacity-85 mt-0.5">{data?.todayOrders ?? 0} delivered</div>
+          </div>
         </div>
       </div>
 

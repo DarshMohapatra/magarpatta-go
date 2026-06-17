@@ -75,20 +75,36 @@ export function RiderOrderClient({ rider, expectedOtp, order }: Props) {
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="font-display min-h-screen bg-[color:var(--color-background)]">
       <LocationTracker orderId={order.id} />
-      <header className="border-b border-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)]">
-        <div className="mx-auto max-w-[720px] px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/rider" className="text-[13px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
-            ← Dashboard
+      <header className="sticky top-0 z-40 border-b border-[color:var(--color-foreground)]/8 bg-[color:var(--color-background)]/85 backdrop-blur-md">
+        <div className="mx-auto max-w-[720px] px-4 sm:px-6 py-3.5 flex items-center justify-between">
+          <Link href="/rider" className="inline-flex items-center gap-1.5 text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Dashboard
           </Link>
-          <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-saffron)]">
-            #{order.id.slice(-6)} · {order.status.replace('_', ' ')}
+          <div className="text-[10.5px] uppercase tracking-[0.16em] font-semibold text-[color:var(--color-saffron)]">
+            #{order.id.slice(-6).toUpperCase()} · {order.status.replace('_', ' ')}
           </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-[720px] px-4 sm:px-6 py-6 space-y-5">
+      <section className="mx-auto max-w-[720px] px-4 sm:px-6 pt-4 space-y-4">
+        {/* Gradient-warm summary hero */}
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="relative">
+            <div className="text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">Active delivery</div>
+            <h1 className="mt-2 font-display text-[24px] leading-tight tracking-tight">
+              {order.vendorName ?? 'Vendor'} → {order.building}, flat {order.flat}
+            </h1>
+            <p className="mt-1 text-[12.5px] opacity-90">
+              {order.items.length} item{order.items.length === 1 ? '' : 's'} · ₹{order.totalInr} · {prettyPay(order.paymentMethod)}
+            </p>
+          </div>
+        </div>
         {/* Pickup card */}
         <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5">
           <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Pickup from</div>
