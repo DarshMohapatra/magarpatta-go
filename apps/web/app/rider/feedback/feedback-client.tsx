@@ -38,12 +38,20 @@ export function RiderFeedbackClient({ rider }: { rider: { name: string } }) {
 
   return (
     <div>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Your delivery rating</div>
-        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          Neighbours{' '}
-          <span className="italic text-[color:var(--color-primary)]">rate you, {rider.name.split(' ')[0]}.</span>
-        </h1>
+      {/* Gradient-warm hero — rider parity */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative">
+          <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">
+            Your delivery rating
+          </div>
+          <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+            Neighbours rate you, {rider.name.split(' ')[0]}.
+          </h1>
+          <p className="mt-1 text-[12.5px] opacity-90">
+            {data.stats.avg.toFixed(1)} ★ across {data.stats.count} rating{data.stats.count === 1 ? '' : 's'}
+          </p>
+        </div>
       </div>
 
       <div className="mt-6 grid sm:grid-cols-[1fr_1.6fr] gap-5">

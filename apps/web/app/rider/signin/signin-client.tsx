@@ -1,11 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OtpFlow } from '@/components/otp-flow';
 import { RIDERS } from '@/lib/riders';
-import { siteConfig } from '@/lib/site-config';
+import { PartnerAuthShell } from '@/components/auth/partner-auth-shell';
 
 export function RiderSignInClient() {
   const router = useRouter();
@@ -31,52 +30,39 @@ export function RiderSignInClient() {
   }
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-[440px]">
-        <div className="inline-flex items-center gap-2.5 mb-6">
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
-          <span className="text-[15px] tracking-tight font-medium">
-            {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
-            <span className="ml-2 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Rider</span>
-          </span>
+    <PartnerAuthShell
+      surfaceLabel="Rider app"
+      eyebrow="Rider sign-in"
+      title="Clock in, neighbour."
+      subtitle="Enter your rider phone. We'll send a 6-digit OTP."
+      registerHref="/rider/register"
+      registerLabel="Apply to ride"
+    >
+      <OtpFlow
+        purpose="RIDER_SIGNIN"
+        phone={phone}
+        onChangePhone={setPhone}
+        busy={busy}
+        submitLabel="Start shift"
+        onVerify={verify}
+        topError={err}
+      />
+
+      <details className="mt-8 text-[12px] text-[color:var(--color-muted)]/80">
+        <summary className="cursor-pointer">Demo roster · tap to prefill · OTP is 123456</summary>
+        <div className="mt-2 space-y-1 font-mono">
+          {RIDERS.map((r) => (
+            <button
+              key={r.phone}
+              type="button"
+              onClick={() => setPhone(r.phone)}
+              className="block text-left text-[color:var(--color-primary)] hover:underline"
+            >
+              {r.phone} · <span className="font-sans text-[color:var(--color-foreground)]">{r.name}</span>
+            </button>
+          ))}
         </div>
-        <h1 className="font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Clock in,{' '}
-          <span className="italic text-[color:var(--color-primary)]">neighbour.</span>
-        </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-muted)]">
-          Enter your rider phone. We&apos;ll send a 6-digit OTP. New here?{' '}
-          <Link href="/rider/register" className="text-[color:var(--color-primary)] underline underline-offset-2">
-            Apply to ride
-          </Link>.
-        </p>
-
-        <OtpFlow
-          purpose="RIDER_SIGNIN"
-          phone={phone}
-          onChangePhone={setPhone}
-          busy={busy}
-          submitLabel="Start shift"
-          onVerify={verify}
-          topError={err}
-        />
-
-        <details className="mt-8 text-[12px] text-[color:var(--color-muted)]/80">
-          <summary className="cursor-pointer">Demo roster · tap to prefill · OTP is 123456</summary>
-          <div className="mt-2 space-y-1 font-mono">
-            {RIDERS.map((r) => (
-              <button
-                key={r.phone}
-                type="button"
-                onClick={() => setPhone(r.phone)}
-                className="block text-left text-[color:var(--color-primary)] hover:underline"
-              >
-                {r.phone} · <span className="font-sans text-[color:var(--color-foreground)]">{r.name}</span>
-              </button>
-            ))}
-          </div>
-        </details>
-      </div>
-    </section>
+      </details>
+    </PartnerAuthShell>
   );
 }

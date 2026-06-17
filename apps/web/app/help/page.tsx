@@ -27,37 +27,45 @@ export default async function HelpIndexPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[color:var(--color-background)]">
-      <div className="mx-auto max-w-[840px] px-5 sm:px-8 py-12 sm:py-20">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-saffron)]">
-          {siteConfig.siteName} · Help
+    <main className="font-display min-h-screen bg-[color:var(--color-background)]">
+      <div className="mx-auto max-w-[840px] px-4 sm:px-6 py-8 sm:py-12">
+        {/* Gradient-warm hero — customer parity */}
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-7 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-8 -right-8 h-44 w-44 rounded-full bg-white/15 blur-2xl" />
+          <div className="absolute -bottom-8 -left-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative">
+            <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">
+              {siteConfig.siteName} · Help
+            </div>
+            <h1 className="mt-2 font-display text-[28px] sm:text-[36px] leading-tight tracking-tight">
+              Answers, found.
+            </h1>
+            <p className="mt-2 text-[13px] sm:text-[14px] opacity-90 max-w-[55ch]">
+              The most common questions, answered. Can't find what you need?{' '}
+              <Link href="/support/new" className="underline underline-offset-2 hover:text-white">Open a ticket</Link>{' '}
+              — a real person replies, usually within an hour.
+            </p>
+          </div>
         </div>
-        <h1 className="mt-3 font-display text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.015em]">
-          Answers, <span className="italic text-[color:var(--color-primary)]">found.</span>
-        </h1>
-        <p className="mt-3 text-[14.5px] text-[color:var(--color-muted)] max-w-[60ch]">
-          The most common questions, answered. Can't find what you need?{' '}
-          <Link href="/support/new" className="underline hover:text-[color:var(--color-foreground)]">Open a ticket</Link>{' '}— a real person replies, usually within an hour.
-        </p>
 
         {articles.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-10 text-center">
-            <p className="font-display text-[24px]">No articles yet.</p>
+          <div className="mt-8 rounded-[var(--radius-2xl)] border border-[color:var(--color-border)]/60 bg-[color:var(--color-surface)] shadow-[var(--shadow-soft)] p-10 text-center">
+            <p className="font-display text-[22px]">No articles yet.</p>
             <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">Check back soon.</p>
           </div>
         ) : null}
 
-        <div className="mt-10 space-y-10">
+        <div className="mt-8 space-y-8">
           {[...grouped.entries()].map(([k, list]) => (
             <section key={k}>
-              <h2 className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]">
+              <h2 className="text-[10.5px] uppercase tracking-[0.16em] font-semibold text-[color:var(--color-muted)]">
                 {k === '_uncategorized' ? 'General' : TICKET_CATEGORY_LABEL[k as TicketCategory]}
               </h2>
-              <ul className="mt-3 divide-y divide-[color:var(--color-foreground)]/8 bg-[color:var(--color-surface)] rounded-2xl border border-[color:var(--color-foreground)]/10 overflow-hidden">
+              <ul className="mt-3 divide-y divide-[color:var(--color-border)]/40 bg-[color:var(--color-surface)] rounded-[var(--radius-xl)] border border-[color:var(--color-border)]/60 shadow-[var(--shadow-soft)] overflow-hidden">
                 {list.map((a) => (
                   <li key={a.id}>
                     <Link href={`/help/${a.slug}`} className="block px-5 py-4 hover:bg-[color:var(--color-background)] transition-colors">
-                      <div className="font-medium text-[15px]">{a.title}</div>
+                      <div className="font-semibold text-[15px] tracking-tight">{a.title}</div>
                       <div className="mt-1 text-[12.5px] text-[color:var(--color-muted)] line-clamp-2">
                         {a.body.replace(/[#*`_>]/g, '').slice(0, 180)}
                       </div>

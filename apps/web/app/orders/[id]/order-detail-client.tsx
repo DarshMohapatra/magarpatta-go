@@ -264,15 +264,29 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
                     </svg>
                   </button>
                 )}
-                <a
-                  href={`/support/new?orderId=${order.id}`}
-                  aria-label="Chat about this order"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] shadow-[var(--shadow-soft)] hover:opacity-90"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12a8 8 0 11-15-3.7L4 21l5.7-2A8 8 0 0121 12z" />
-                  </svg>
-                </a>
+                {order.riderPhone ? (
+                  <a
+                    href={`https://wa.me/91${order.riderPhone}?text=${encodeURIComponent(`Hi ${order.riderName}, this is about order #${order.id.slice(-6).toUpperCase()}.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`WhatsApp ${order.riderName}`}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[var(--shadow-soft)] hover:opacity-90"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.2.8.8-3.1-.2-.3C3.9 15 3.5 13.5 3.5 12c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5-3.8 8.5-8.5 8.5z" />
+                    </svg>
+                  </a>
+                ) : (
+                  <a
+                    href={`/support/new?orderId=${order.id}`}
+                    aria-label="Chat about this order"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] shadow-[var(--shadow-soft)] hover:opacity-90"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12a8 8 0 11-15-3.7L4 21l5.7-2A8 8 0 0121 12z" />
+                    </svg>
+                  </a>
+                )}
               </div>
             </div>
           </div>

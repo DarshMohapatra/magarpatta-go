@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OtpFlow } from '@/components/otp-flow';
-import { siteConfig } from '@/lib/site-config';
+import { PartnerAuthShell } from '@/components/auth/partner-auth-shell';
 
 export function AdminSignInClient() {
   const router = useRouter();
@@ -29,36 +29,25 @@ export function AdminSignInClient() {
   }
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-[420px]">
-        <div className="inline-flex items-center gap-2.5 mb-6">
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[color:var(--color-saffron)] pulse-ring" />
-          <span className="text-[15px] tracking-tight font-medium">
-            {siteConfig.wordmarkRoot} <span className="font-display italic text-[color:var(--color-primary)]">Go</span>
-            <span className="ml-2 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-terracotta)]">Admin</span>
-          </span>
-        </div>
-        <h1 className="font-display text-[36px] leading-[1.02] tracking-[-0.02em]">
-          Ops <span className="italic text-[color:var(--color-primary)]">console.</span>
-        </h1>
-        <p className="mt-3 text-[13.5px] text-[color:var(--color-muted)]">
-          Restricted access. We&apos;ll text a 6-digit OTP to the registered admin phone. Entry attempts are logged.
-        </p>
+    <PartnerAuthShell
+      surfaceLabel="Admin console"
+      eyebrow="Admin sign-in"
+      title="Ops console."
+      subtitle="Restricted access. We'll text a 6-digit OTP to the registered admin phone. Entry attempts are logged."
+    >
+      <OtpFlow
+        purpose="ADMIN_SIGNIN"
+        phone={phone}
+        onChangePhone={setPhone}
+        busy={busy}
+        submitLabel="Sign in"
+        onVerify={verify}
+        topError={err}
+      />
 
-        <OtpFlow
-          purpose="ADMIN_SIGNIN"
-          phone={phone}
-          onChangePhone={setPhone}
-          busy={busy}
-          submitLabel="Sign in"
-          onVerify={verify}
-          topError={err}
-        />
-
-        <p className="mt-8 text-[11.5px] text-[color:var(--color-muted)]/60 font-mono">
-          Demo admin · 9999999999 · OTP 123456
-        </p>
-      </div>
-    </section>
+      <p className="mt-8 text-[11.5px] text-[color:var(--color-muted)]/60 font-mono">
+        Demo admin · 9999999999 · OTP 123456
+      </p>
+    </PartnerAuthShell>
   );
 }

@@ -30,29 +30,41 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   });
 
   return (
-    <main className="min-h-screen bg-[color:var(--color-background)]">
-      <div className="mx-auto max-w-[680px] px-5 sm:px-8 py-12 sm:py-20">
-        <Link href="/help" className="text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]">← Help centre</Link>
-        {article.category ? (
-          <div className="mt-4 text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-            {TICKET_CATEGORY_LABEL[article.category]}
-          </div>
-        ) : null}
-        <h1 className="mt-2 font-display text-[36px] sm:text-[48px] leading-[1.05] tracking-[-0.015em]">
-          {article.title}
-        </h1>
+    <main className="font-display min-h-screen bg-[color:var(--color-background)]">
+      <div className="mx-auto max-w-[720px] px-4 sm:px-6 py-8 sm:py-12">
+        <Link href="/help" className="inline-flex items-center gap-1.5 text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Help centre
+        </Link>
 
-        <article className="mt-8 text-[15.5px] leading-[1.75] whitespace-pre-wrap break-words">
+        {/* Gradient-warm hero header */}
+        <div className="mt-3 relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 sm:p-6 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="relative">
+            {article.category ? (
+              <div className="text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">
+                {TICKET_CATEGORY_LABEL[article.category]}
+              </div>
+            ) : null}
+            <h1 className="mt-2 font-display text-[26px] sm:text-[32px] leading-tight tracking-tight">
+              {article.title}
+            </h1>
+          </div>
+        </div>
+
+        <article className="mt-6 text-[14.5px] leading-[1.75] whitespace-pre-wrap break-words">
           {article.body}
         </article>
 
-        <div className="mt-12 pt-6 border-t border-[color:var(--color-foreground)]/10">
+        <div className="mt-10 pt-6 border-t border-[color:var(--color-border)]/40">
           <ArticleFeedback articleId={article.id} />
         </div>
 
-        <div className="mt-8 rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-foreground)]/10 p-5 text-[13.5px]">
+        <div className="mt-8 rounded-[var(--radius-xl)] bg-[color:var(--color-surface)] border border-[color:var(--color-border)]/60 shadow-[var(--shadow-soft)] p-5 text-[13.5px]">
           Still stuck?{' '}
-          <Link href="/support/new" className="underline font-medium hover:text-[color:var(--color-primary)]">
+          <Link href="/support/new" className="underline font-semibold hover:text-[color:var(--color-primary)]">
             Open a ticket
           </Link>
           {' '}and we'll get back within the hour.
