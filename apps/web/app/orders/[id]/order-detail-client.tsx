@@ -136,52 +136,61 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
     router.push('/checkout');
   }
 
+  const isLive = live.status !== 'DELIVERED' && live.status !== 'CANCELLED';
+
   return (
-    <section className="pt-24 pb-20">
-      <div className="mx-auto max-w-[1080px] px-6 lg:px-10">
-        <Link href="/orders" className="inline-flex items-center gap-1.5 text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)] mb-6">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M10 6H2m0 0l3.5 3.5M2 6l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <section className="pb-20">
+      <div className="px-4 lg:px-8 pt-4 max-w-[1080px] mx-auto">
+        <Link href="/orders" className="inline-flex items-center gap-1.5 text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
           </svg>
           All orders
         </Link>
+      </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">
-              Order #{order.id.slice(-6)}
-            </div>
-            <h1 className="mt-3 font-display text-[32px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.02em]">
-              {live.status === 'DELIVERED' ? (
-                <>Delivered. <span className="italic text-[color:var(--color-primary)]">Enjoy.</span></>
-              ) : (
-                <>Your order is <span className="italic text-[color:var(--color-primary)]">on the way.</span></>
+      {/* Gradient-warm hero — order status + placed timestamp */}
+      <div className="px-4 lg:px-8 pt-3 max-w-[1080px] mx-auto">
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+          <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="absolute -bottom-8 -left-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">
+              {isLive && (
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white text-white pulse-ring" />
               )}
+              Order #{order.id.slice(-6).toUpperCase()}
+            </div>
+            <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+              {live.status === 'DELIVERED' ? 'Delivered. Enjoy.'
+                : live.status === 'CANCELLED' ? 'Cancelled.'
+                : 'Your order is on the way.'}
             </h1>
-            <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
+            <p className="mt-1 text-[12.5px] opacity-90">
               Placed {placedDate.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST
             </p>
-          </div>
-          <div className="shrink-0 flex items-center gap-2 flex-wrap justify-end">
-            <button
-              onClick={reorder}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-primary)]/40 bg-[color:var(--color-surface)] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-[color:var(--color-background)] transition-colors"
-              title="Re-add these items to your cart"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M11 4H3m0 0l3-3M3 4l3 3M3 10h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Reorder
-            </button>
-            <a
-              href={`/support/new?orderId=${order.id}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13.5px] font-medium border border-[color:var(--color-terracotta)]/40 bg-[color:var(--color-surface)] text-[color:var(--color-terracotta)] hover:bg-[color:var(--color-terracotta)] hover:text-[color:var(--color-background)] transition-colors"
-              title="File a complaint about this order"
-            >
-              Report an issue
-            </a>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                onClick={reorder}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white text-[color:var(--color-primary)] px-3.5 py-1.5 text-[12px] font-semibold shadow-[var(--shadow-soft)] active:scale-[0.98] transition-transform"
+              >
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                  <path d="M11 4H3m0 0l3-3M3 4l3 3M3 10h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Reorder
+              </button>
+              <a
+                href={`/support/new?orderId=${order.id}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3.5 py-1.5 text-[12px] font-semibold"
+              >
+                Report an issue
+              </a>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="mx-auto max-w-[1080px] px-4 lg:px-8 pt-5">
 
         {/* Animated tracker */}
         <OrderTracker
@@ -214,20 +223,20 @@ export function OrderDetailClient({ order }: { order: OrderData }) {
           </div>
         )}
         {(order.fulfilmentMode === 'PLATFORM_RIDER' || order.fulfilmentMode === 'PLATFORM_RIDER_CONCIERGE') && order.riderName && live.status !== 'DELIVERED' && live.status !== 'CANCELLED' && (
-          <div className="mt-6 rounded-[var(--radius-xl)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5 shadow-[var(--shadow-soft)]">
+          <div className="mt-6 rounded-[var(--radius-xl)] border border-[color:var(--color-primary)]/30 bg-[color:var(--color-primary-soft)] p-4 sm:p-5 shadow-[var(--shadow-soft)]">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] flex items-center justify-center text-[16px] font-bold shrink-0">
+              <div className="h-14 w-14 rounded-full gradient-warm text-white flex items-center justify-center text-[20px] font-display font-bold shrink-0 shadow-[var(--shadow-soft)]">
                 {order.riderName[0]}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-muted)] font-semibold">
+                <div className="text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--color-primary)] font-semibold">
                   Your delivery partner
                 </div>
-                <div className="mt-0.5 font-display text-[18px] leading-tight font-bold">
+                <div className="mt-0.5 font-display text-[20px] leading-tight font-bold text-[color:var(--color-foreground)]">
                   {order.riderName}
                 </div>
                 <div className="text-[12px] text-[color:var(--color-muted)]">
-                  On the way · ask for the OTP below
+                  {order.riderPhone ? `+91 ${order.riderPhone} · ` : ''}On the way · ask for the OTP
                 </div>
               </div>
               {/* Call + Chat buttons. tel: triggers native dialer when a
