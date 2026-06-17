@@ -37,14 +37,22 @@ export default async function AdminHome() {
 
   return (
     <AdminShell name={admin.name} role={admin.role}>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Ops overview</div>
-        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          {siteConfig.platformName}, <span className="italic text-[color:var(--color-primary)]">under your watch.</span>
-        </h1>
+      {/* Gradient-warm hero — admin parity with customer / vendor */}
+      <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-6 sm:p-7 shadow-[var(--shadow-glow)]">
+        <div className="absolute -top-8 -right-8 h-44 w-44 rounded-full bg-white/15 blur-2xl" />
+        <div className="absolute -bottom-10 -left-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative">
+          <div className="text-[10.5px] uppercase tracking-[0.18em] font-semibold opacity-90">Ops overview</div>
+          <h1 className="mt-2 font-display text-[28px] sm:text-[34px] leading-tight tracking-tight">
+            {siteConfig.platformName}, under your watch.
+          </h1>
+          <p className="mt-1 text-[13px] opacity-90">
+            {activeOrders} live order{activeOrders === 1 ? '' : 's'} · {todayDelivered.length}/{todayOrders} delivered today · ₹{todayGMV.toLocaleString('en-IN')} GMV
+          </p>
+        </div>
       </div>
 
-      <div className="mt-8 grid md:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
         <Stat label="Pending vendors" value={String(pendingVendors)} accent={pendingVendors > 0 ? 'saffron' : undefined} href="/admin/vendors?status=PENDING" />
         <Stat label="Pending riders" value={String(pendingRiders)} accent={pendingRiders > 0 ? 'saffron' : undefined} href="/admin/riders?status=PENDING" />
         <Stat label="Active orders" value={String(activeOrders)} href="/admin/orders" />
@@ -80,12 +88,12 @@ export default async function AdminHome() {
 function Stat({ label, value, note, accent, href }: { label: string; value: string; note?: string; accent?: string; href: string }) {
   const cls = accent === 'saffron'
     ? 'border-[color:var(--color-saffron)]/40 bg-[color:var(--color-saffron)]/8'
-    : 'border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)]';
+    : 'border-[color:var(--color-border)]/60 bg-[color:var(--color-surface)]';
   return (
-    <Link href={href} className={`block rounded-2xl border p-5 hover:border-[color:var(--color-primary)]/40 transition-colors ${cls}`}>
-      <div className="text-[10.5px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]/70">{label}</div>
-      <div className="mt-1.5 font-display text-[30px] leading-none">{value}</div>
-      {note && <div className="mt-1.5 text-[11.5px] text-[color:var(--color-muted)]/70">{note}</div>}
+    <Link href={href} className={`block rounded-[var(--radius-xl)] border p-4 shadow-[var(--shadow-soft)] hover:border-[color:var(--color-primary)]/40 transition-colors ${cls}`}>
+      <div className="text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-muted)] font-semibold">{label}</div>
+      <div className={`mt-1.5 font-display text-[28px] leading-none ${accent === 'saffron' ? 'text-[color:var(--color-saffron)]' : ''}`}>{value}</div>
+      {note && <div className="mt-1.5 text-[11px] text-[color:var(--color-muted)]/80">{note}</div>}
     </Link>
   );
 }
