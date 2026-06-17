@@ -1,10 +1,7 @@
-import { NavbarWithSession } from '@/components/navbar-with-session';
-
 export default function RestaurantLoading() {
   return (
     <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-      <section className="pt-24 pb-10 bg-gradient-to-br from-[color:var(--color-primary)]/12 to-[color:var(--color-primary)]/4 border-b border-[color:var(--color-foreground)]/8">
+      <section className="pt-4 pb-10 gradient-warm border-b border-[color:var(--color-foreground)]/8">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
           <div className="h-3 w-24 rounded-full bg-[color:var(--color-foreground)]/10 mb-6" />
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">

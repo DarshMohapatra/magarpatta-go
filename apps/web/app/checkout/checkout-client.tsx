@@ -437,30 +437,37 @@ export function CheckoutClient({
     <>
       {placing && <ProcessingOverlay line={processingLine} method={payMethod} />}
 
-      {/* Compact header (no overlap with navbar) */}
-      <section className="pt-24 pb-6">
-        <div className="mx-auto max-w-[1080px] px-4 sm:px-6 lg:px-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.18em] text-[color:var(--color-saffron)]">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                  <rect x="2" y="5" width="10" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
-                  <path d="M4.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" strokeWidth="1.4" />
-                </svg>
-                Secure Checkout
+      {/* Lovable gradient-warm hero — matches /home, /profile, /orders */}
+      <section className="pt-4 pb-3">
+        <div className="px-4 lg:px-8 max-w-[1080px] mx-auto">
+          <div className="relative overflow-hidden rounded-[var(--radius-2xl)] gradient-warm text-white p-5 shadow-[var(--shadow-glow)]">
+            <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+            <div className="relative flex items-end justify-between gap-3">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] font-semibold opacity-90">
+                  <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                    <rect x="2" y="5" width="10" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                    <path d="M4.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" strokeWidth="1.4" />
+                  </svg>
+                  Secure checkout
+                </div>
+                <h1 className="mt-2 font-display text-[26px] sm:text-[30px] leading-tight tracking-tight">
+                  Almost there, {session.name?.split(' ')[0] ?? 'neighbour'}.
+                </h1>
+                <p className="mt-1 text-[12.5px] opacity-90">
+                  Step {currentIdx + 1} of 3 · address, payment, confirm
+                </p>
               </div>
-              <h1 className="mt-2 font-display text-[32px] sm:text-[42px] leading-[1.02] tracking-[-0.02em]">
-                Almost there,{' '}
-                <span className="italic text-[color:var(--color-primary)]">
-                  {session.name?.split(' ')[0] ?? 'neighbour'}.
-                </span>
-              </h1>
-            </div>
-            <div className="text-right text-[12px] text-[color:var(--color-muted)]">
-              Step {currentIdx + 1} of 3
+              <div className="rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3 py-1 text-[11px] font-semibold shrink-0">
+                Step {currentIdx + 1}/3
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
+      <section className="pb-6">
+        <div className="mx-auto max-w-[1080px] px-4 sm:px-6 lg:px-8">
           <StepIndicator current={currentIdx} />
 
           {/* Cart-revalidation banners — render once on load if anything changed. */}

@@ -1,10 +1,7 @@
-import { NavbarWithSession } from '@/components/navbar-with-session';
-
 export default function MenuLoading() {
   return (
     <main className="relative z-10 min-h-screen">
-      <NavbarWithSession />
-      <section className="pt-24 pb-16">
+      <section className="pt-4 pb-16">
         <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
           <div className="h-12 w-72 rounded-md bg-[color:var(--color-foreground)]/8 mb-3 animate-pulse" />
           <div className="h-4 w-96 rounded-full bg-[color:var(--color-foreground)]/6 mb-10" />
