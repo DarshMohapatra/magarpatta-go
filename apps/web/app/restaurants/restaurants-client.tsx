@@ -15,7 +15,7 @@ export interface VendorRow {
   tags: string[];
   rating: number | null;
   etaMinutes: number;
-  costForTwo: number | null;
+  minOrderInr: number | null;
   itemCount: number;
   previews: Array<{ id: string; name: string; imageUrl: string | null; accent: string | null; priceInr: number }>;
 }
@@ -62,7 +62,7 @@ export function RestaurantsClient({ vendors }: { vendors: VendorRow[] }) {
     } else if (sortKey === 'eta') {
       sorted.sort((a, b) => a.etaMinutes - b.etaMinutes);
     } else if (sortKey === 'cost') {
-      sorted.sort((a, b) => (a.costForTwo ?? Number.MAX_SAFE_INTEGER) - (b.costForTwo ?? Number.MAX_SAFE_INTEGER));
+      sorted.sort((a, b) => (a.minOrderInr ?? 0) - (b.minOrderInr ?? 0));
     }
     return sorted;
   }, [vendors, activeType, query, sortKey]);
@@ -124,7 +124,7 @@ export function RestaurantsClient({ vendors }: { vendors: VendorRow[] }) {
             {([
               { key: 'rating', label: 'Top rated' },
               { key: 'eta',    label: 'Fastest' },
-              { key: 'cost',   label: 'Cost (low → high)' },
+              { key: 'cost',   label: 'Min order (low → high)' },
             ] as const).map((s) => (
               <button
                 key={s.key}
@@ -228,10 +228,10 @@ export function RestaurantsClient({ vendors }: { vendors: VendorRow[] }) {
                       </span>
                       <span>·</span>
                       <span className="truncate">{v.hub}</span>
-                      {v.costForTwo && (
+                      {v.minOrderInr != null && v.minOrderInr > 0 && (
                         <>
                           <span>·</span>
-                          <span>₹{v.costForTwo} for two</span>
+                          <span>Min ₹{v.minOrderInr}</span>
                         </>
                       )}
                     </div>

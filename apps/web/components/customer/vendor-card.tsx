@@ -13,8 +13,8 @@ export interface VendorCardData {
   deliveryFeeInr?: number | null;
   /** Distance from customer in km. Optional — hidden when not known. */
   distanceKm?: number | null;
-  /** Indicative cost for two in rupees — shown as "₹X for two". */
-  costForTwo?: number | null;
+  /** Minimum order value in rupees — shown as "Min ₹X order" for wholesale vendors. */
+  minOrderInr?: number | null;
   hub: string;
   /** When true, renders the "Closed" overlay + dims the card. */
   closed?: boolean;
@@ -110,10 +110,10 @@ export function VendorCard({
             </svg>
             {vendor.etaMinutes} min
           </span>
-          {vendor.costForTwo != null && (
+          {vendor.minOrderInr != null && vendor.minOrderInr > 0 && (
             <>
               <span className="opacity-70">·</span>
-              <span>₹{vendor.costForTwo} for two</span>
+              <span>Min ₹{vendor.minOrderInr}</span>
             </>
           )}
           {vendor.deliveryFeeInr != null && (

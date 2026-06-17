@@ -39,7 +39,7 @@ async function RestaurantsList() {
     tags: v.tags,
     rating: v.rating,
     etaMinutes: v.etaMinutes,
-    costForTwo: v.costForTwo,
+    minOrderInr: v.minOrderInr,
     itemCount: v._count.products,
     previews: v.products.map((p) => ({
       id: p.id,

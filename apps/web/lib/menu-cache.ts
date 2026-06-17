@@ -96,6 +96,7 @@ const getRestaurantIndexRaw = unstable_cache(
       etaMinutes: true,
       costForTwo: true,
       isWholesale: true,
+      minOrderInr: true,
       products: {
         where: { inStock: true },
         orderBy: { priceInr: 'desc' },
@@ -110,7 +111,7 @@ const getRestaurantIndexRaw = unstable_cache(
   }),
   // v4 bump: Category + Product gained i18n + weight columns. Old cached
   // payloads don't carry nameHi/nameMr/soldByWeight/estimatedGrams.
-  ['restaurant-index-v4'],
+  ['restaurant-index-v5'],
   { revalidate: TTL, tags: ['menu', 'vendors'] },
 );
 
