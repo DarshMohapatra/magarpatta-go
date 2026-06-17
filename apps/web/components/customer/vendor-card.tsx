@@ -6,11 +6,15 @@ export interface VendorCardData {
   /** Optional cuisine / category description below the name. */
   description?: string | null;
   rating?: number | null;
+  /** Optional ratings-count (e.g. 1.2k) shown beside the rating chip. */
+  ratingCount?: number | null;
   etaMinutes: number;
   /** Delivery fee in rupees. Hidden when 0 (member free delivery). */
   deliveryFeeInr?: number | null;
   /** Distance from customer in km. Optional — hidden when not known. */
   distanceKm?: number | null;
+  /** Indicative cost for two in rupees — shown as "₹X for two". */
+  costForTwo?: number | null;
   hub: string;
   /** When true, renders the "Closed" overlay + dims the card. */
   closed?: boolean;
@@ -78,9 +82,22 @@ export function VendorCard({
       </div>
       <div className="p-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-[14px] leading-tight tracking-tight text-[color:var(--color-foreground)] truncate">
+          <h3 className="font-semibold text-[14px] leading-tight tracking-tight text-[color:var(--color-foreground)] truncate flex-1">
             {vendor.name}
           </h3>
+          {vendor.rating != null && (
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[color:var(--color-foreground)] shrink-0">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor" className="text-[color:var(--color-saffron)]">
+                <path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.4L6 8.8l-3.1 1.6.7-3.4-2.6-2.4 3.5-.4z" />
+              </svg>
+              {vendor.rating.toFixed(1)}
+              {vendor.ratingCount != null && (
+                <span className="font-normal text-[10px] text-[color:var(--color-muted)]">
+                  ({formatCount(vendor.ratingCount)})
+                </span>
+              )}
+            </span>
+          )}
         </div>
         {vendor.description && (
           <p className="mt-0.5 text-[11.5px] text-[color:var(--color-muted)] truncate">{vendor.description}</p>
@@ -93,11 +110,17 @@ export function VendorCard({
             </svg>
             {vendor.etaMinutes} min
           </span>
-          {vendor.deliveryFeeInr != null && (
-            <span className="opacity-70">·</span>
+          {vendor.costForTwo != null && (
+            <>
+              <span className="opacity-70">·</span>
+              <span>₹{vendor.costForTwo} for two</span>
+            </>
           )}
           {vendor.deliveryFeeInr != null && (
-            <span>{vendor.deliveryFeeInr === 0 ? 'Free delivery' : `₹${vendor.deliveryFeeInr} fee`}</span>
+            <>
+              <span className="opacity-70">·</span>
+              <span>{vendor.deliveryFeeInr === 0 ? 'Free delivery' : `₹${vendor.deliveryFeeInr} fee`}</span>
+            </>
           )}
           {vendor.distanceKm != null && (
             <>
@@ -109,4 +132,9 @@ export function VendorCard({
       </div>
     </Link>
   );
+}
+
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
+  return String(n);
 }

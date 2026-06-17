@@ -48,6 +48,7 @@ export default async function HomePage() {
     etaMinutes: v.etaMinutes,
     deliveryFeeInr: v.isWholesale ? 0 : 15,
     distanceKm: 1.4,
+    costForTwo: v.costForTwo ?? null,
     hub: v.hub,
     tags: v.isWholesale ? ['Free delivery'] : v.rating && v.rating > 4.6 ? ['Bestseller'] : [],
   }));
