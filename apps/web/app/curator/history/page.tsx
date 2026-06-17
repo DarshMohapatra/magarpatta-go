@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { getCuratorSession } from '@/lib/curator-session';
 import { CuratorShell } from '@/components/curator/curator-shell';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,14 +20,13 @@ export default async function CuratorHistoryPage() {
 
   return (
     <CuratorShell name={c.name}>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">History</div>
-        <h1 className="mt-2 font-display text-[34px] leading-[1.02] tracking-[-0.02em]">
-          Your last <span className="italic text-[color:var(--color-primary)]">{jobs.length} reviews.</span>
-        </h1>
-      </div>
+      <PartnerPageHero
+        eyebrow="History"
+        title="Your past reviews."
+        summary={`${jobs.length} review${jobs.length === 1 ? '' : 's'} archived`}
+      />
 
-      <ul className="mt-7 divide-y divide-[color:var(--color-foreground)]/8 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
+      <ul className="mt-6 divide-y divide-[color:var(--color-foreground)]/8 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] overflow-hidden">
         {jobs.length === 0 && (
           <li className="px-6 py-10 text-center text-[14px] text-[color:var(--color-muted)]/70">No history yet.</li>
         )}

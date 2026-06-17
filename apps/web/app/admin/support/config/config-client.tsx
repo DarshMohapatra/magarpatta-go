@@ -5,6 +5,7 @@ import {
   TICKET_PRIORITY_LABEL, SUPPORT_TEAM_LABEL,
   TICKET_CATEGORY_LABEL, TICKET_CHANNEL_LABEL,
 } from '@/lib/support-tickets';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 import type {
   TicketPriority, SupportTeam, TicketCategory, TicketChannel, EscalationTrigger,
 } from '@prisma/client';
@@ -20,15 +21,11 @@ export function SupportConfigClient() {
   const [tab, setTab] = useState<TabKey>('sla');
   return (
     <div>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Support config</div>
-        <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
-          Rules, <span className="italic text-[color:var(--color-primary)]">codified.</span>
-        </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-          SLA targets, routing, escalation, and the helpdesk roster.
-        </p>
-      </div>
+      <PartnerPageHero
+        eyebrow="Support config"
+        title="Rules, codified."
+        summary="SLA targets, routing, escalation, helpdesk roster"
+      />
 
       <div className="mt-6 flex gap-2 flex-wrap">
         {(['sla','routing','escalation','agents'] as TabKey[]).map((k) => (

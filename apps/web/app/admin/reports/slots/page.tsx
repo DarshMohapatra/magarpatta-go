@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/admin-session';
 import { AdminShell } from '@/components/admin/admin-shell';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 export const dynamic = 'force-dynamic';
 
@@ -116,17 +117,15 @@ export default async function SlotReportPage({
 
   return (
     <AdminShell name={admin.name} role={admin.role}>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Reports</div>
-        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Slot <span className="italic text-[color:var(--color-primary)]">pick list.</span>
-        </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-muted)] max-w-[640px]">
-          Orders grouped by delivery day + slot with an aggregated item rollup —
-          use it as the morning pick list for vendors and the rider plan.
-          Cancelled orders are excluded.
-        </p>
-      </div>
+      <PartnerPageHero
+        eyebrow="Reports"
+        title="Slot pick list."
+        summary={`${orders.length} orders · ₹${totalRevenue.toLocaleString('en-IN')} revenue · cancelled excluded`}
+      />
+      <p className="mt-5 text-[13px] text-[color:var(--color-muted)] max-w-[640px]">
+        Orders grouped by delivery day + slot with an aggregated item rollup —
+        use it as the morning pick list for vendors and the rider plan.
+      </p>
 
       <form className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-[color:var(--color-foreground)]/10 bg-[color:var(--color-surface)] p-4" method="get">
         <label className="flex flex-col text-[11px] uppercase tracking-[0.14em] text-[color:var(--color-muted)]">

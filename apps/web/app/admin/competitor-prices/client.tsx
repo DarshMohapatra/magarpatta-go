@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { CompetitorSource } from '@/lib/competitor-prices';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 export interface ProductRow {
   id: string;
@@ -111,17 +112,15 @@ export function CompetitorPricesClient({
 
   return (
     <div className="space-y-6">
+      <PartnerPageHero
+        eyebrow="Competitor prices"
+        title="How we stack up vs the quick-commerce field."
+        summary="One row per product · customer cards show 'vs Blinkit, save X%' badge cycle"
+      />
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Competitor prices</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            How we stack up <span className="italic text-[color:var(--color-primary)]">vs the quick-commerce field.</span>
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-[680px]">
-            One row per product, one column per competitor. Customers see a small &quot;vs Blinkit, save X%&quot; badge on each card that cycles through whichever sources we&apos;re cheaper than. Sources we&apos;re NOT cheaper than are skipped silently.
-          </p>
           {scopedCategorySlugs.length > 0 && (
-            <p className="mt-1 text-[11.5px] text-[color:var(--color-saffron)]">
+            <p className="text-[11.5px] text-[color:var(--color-saffron)]">
               Scoped to live categories: <strong>{scopedCategorySlugs.join(', ')}</strong>.
             </p>
           )}

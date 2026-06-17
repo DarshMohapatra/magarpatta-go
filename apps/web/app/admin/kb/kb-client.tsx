@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { TICKET_CATEGORY_LABEL } from '@/lib/support-tickets';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 import type { TicketCategory } from '@prisma/client';
 
 interface ArticleRow {
@@ -38,17 +39,12 @@ export function AdminKbClient() {
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Knowledge base</div>
-          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Articles, <span className="italic text-[color:var(--color-primary)]">canon.</span>
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-            Helpdesk agents see suggestions on every ticket. Public articles are also published at <code className="text-[12px]">/help</code>.
-          </p>
-        </div>
-        <div className="flex gap-2">
+      <PartnerPageHero
+        eyebrow="Knowledge base"
+        title="Articles, canon."
+        summary="Helpdesk agents see suggestions per ticket · public articles also at /help"
+      />
+      <div className="mt-5 flex gap-2 justify-end">
           <button
             onClick={() => setIncludeArchived((v) => !v)}
             className={`px-3.5 py-1.5 rounded-full text-[12px] border transition-colors ${
@@ -65,7 +61,6 @@ export function AdminKbClient() {
           >
             New article
           </Link>
-        </div>
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}

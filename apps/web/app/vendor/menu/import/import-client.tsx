@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { parseMenuText, type ParsedItem } from '@/lib/menu-parser';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 import { siteConfig } from '@/lib/site-config';
 
 type Mode = 'photo' | 'qr' | 'paste';
@@ -133,21 +134,15 @@ export function MenuImportClient({ approvalStatus, categories }: { approvalStatu
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Menu import</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Send your menu to a <span className="italic text-[color:var(--color-primary)]">human curator.</span>
-          </h1>
-          <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)] max-w-xl">
-            Snap a photo of your printed menu (or scan a QR / paste text). Our curator authenticates each item against your photo, fixes anything our OCR missed, then forwards to admin. You don&apos;t edit anything yourself.
-          </p>
-        </div>
-        <Link href="/vendor/menu" className="text-[12.5px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
-          ← Back to menu
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <PartnerPageHero
+        eyebrow="Menu import"
+        title="Send your menu to a human curator."
+        summary="Snap a photo · scan a QR · paste text. Curator OCR-authenticates, then admin reviews."
+      />
+      <Link href="/vendor/menu" className="inline-flex text-[12px] text-[color:var(--color-muted)] hover:text-[color:var(--color-primary)]">
+        ← Back to menu
+      </Link>
 
       <div className="flex flex-wrap gap-2">
         {(['photo', 'qr', 'paste'] as Mode[]).map((m) => (

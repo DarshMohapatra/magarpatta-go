@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 export interface ProductRow {
   id: string;
@@ -108,17 +109,15 @@ export function TranslationsClient({
 
   return (
     <div className="space-y-6">
+      <PartnerPageHero
+        eyebrow="Catalog translations"
+        title="हिंदी & मराठी for the menu."
+        summary="Every product needs all three names · edits autosave on blur"
+      />
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Catalog translations</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            हिंदी &amp; <span className="italic text-[color:var(--color-primary)]">मराठी</span> for the menu.
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-[640px]">
-            Every product needs all three names so the customer language toggle works. Edits autosave as you click out of each input.
-          </p>
           {scopedCategorySlugs.length > 0 && (
-            <p className="mt-1 text-[11.5px] text-[color:var(--color-saffron)]">
+            <p className="text-[11.5px] text-[color:var(--color-saffron)]">
               Scoped to live categories: <strong>{scopedCategorySlugs.join(', ')}</strong>. Add more in Settings → Catalog whitelist to grow this list.
             </p>
           )}

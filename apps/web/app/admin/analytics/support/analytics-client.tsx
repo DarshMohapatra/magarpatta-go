@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 import {
   TICKET_CATEGORY_LABEL, TICKET_PRIORITY_LABEL,
   TICKET_CHANNEL_LABEL, SUPPORT_TEAM_LABEL,
@@ -73,14 +74,12 @@ export function SupportAnalyticsClient() {
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Support analytics</div>
-          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Resolution, <span className="italic text-[color:var(--color-primary)]">measured.</span>
-          </h1>
-        </div>
-        <div className="flex gap-2">
+      <PartnerPageHero
+        eyebrow="Support analytics"
+        title="Resolution, measured."
+        summary={`Window · last ${days} day${days === 1 ? '' : 's'}`}
+      />
+      <div className="mt-5 flex gap-2 justify-end">
           {WINDOWS.map((d) => (
             <button
               key={d}
@@ -92,7 +91,6 @@ export function SupportAnalyticsClient() {
               }`}
             >Last {d}d</button>
           ))}
-        </div>
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}
