@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { siteConfig } from '@/lib/site-config';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface ShopData {
   id: string;
@@ -87,14 +88,12 @@ export function VendorShopClient() {
 
   return (
     <div className="space-y-6">
+      <PartnerPageHero
+        eyebrow="Shop details"
+        title={shop.name}
+        summary={`Slug ${shop.slug} · commission ${shop.commissionPct}%`}
+      />
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Shop details</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">{shop.name}</h1>
-          <p className="mt-1 text-[12.5px] text-[color:var(--color-muted)]">
-            Slug <code className="text-[color:var(--color-foreground)]">{shop.slug}</code> · Commission {shop.commissionPct}%
-          </p>
-        </div>
         {!pending && (
           <button
             onClick={togglePause}

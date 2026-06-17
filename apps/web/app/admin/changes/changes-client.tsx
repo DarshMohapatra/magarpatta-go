@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Change {
   id: string;
@@ -65,15 +66,11 @@ export function AdminChangesClient({ initialStatus }: { initialStatus: string })
   return (
     <div className="grid lg:grid-cols-[1fr_1.1fr] gap-6">
       <div>
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Approval queue</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Vendor + rider edits, <span className="italic text-[color:var(--color-primary)]">on your desk.</span>
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-            Every config change a partner makes lands here before going live. Operational actions (accepting orders, pause/unpause, stock toggle) bypass this queue.
-          </p>
-        </div>
+        <PartnerPageHero
+          eyebrow="Approval queue"
+          title="Vendor + rider edits, on your desk."
+          summary="Operational actions (accept, pause, stock toggle) bypass this queue"
+        />
 
         <div className="mt-5 flex flex-wrap gap-2">
           {TABS.map((t) => (

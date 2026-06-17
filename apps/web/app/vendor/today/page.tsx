@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getVendorSession } from '@/lib/vendor-session';
 import { VendorShell } from '@/components/vendor/vendor-shell';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 import { TodayClient } from './today-client';
 
 export const dynamic = 'force-dynamic';
@@ -11,12 +12,13 @@ export default async function VendorTodayPage() {
 
   return (
     <VendorShell shopName={s.shopName} approvalStatus={s.approvalStatus}>
+      <PartnerPageHero
+        eyebrow="Today's menu"
+        title="Price & stock for today."
+        summary="Edits go live instantly · leave a row alone to keep yesterday's price"
+      />
       <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Today's menu</div>
-        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Price &amp; stock for <span className="italic text-[color:var(--color-primary)]">today.</span>
-        </h1>
-        <p className="mt-3 text-[14px] text-[color:var(--color-muted)] max-w-[640px]">
+        <p className="mt-5 text-[13px] text-[color:var(--color-muted)] max-w-[640px]">
           Edits go live the moment you save. Leave a row alone and customers see
           yesterday's price or "in stock" status. Mark items out of stock and
           they vanish from the menu immediately.

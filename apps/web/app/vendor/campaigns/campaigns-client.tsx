@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CAMPAIGN_TYPE_LABELS, CAMPAIGN_TYPES } from '@/lib/campaign-types';
 import { siteConfig } from '@/lib/site-config';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Campaign {
   id: string;
@@ -85,22 +86,21 @@ export function VendorCampaignsClient({ approvalStatus }: { approvalStatus: stri
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Campaigns</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Tell the <span className="italic text-[color:var(--color-primary)]">neighbourhood.</span>
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]/85 max-w-xl">
-            Flash sales, festival specials, late-night deals, BOGO, weekend offers, tiffin starts. Each goes through a quick admin review before showing up on the customer feed.
-          </p>
-        </div>
-        {isApproved && (
-          <button onClick={openNew} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
-            New campaign
-          </button>
-        )}
-      </div>
+      <PartnerPageHero
+        eyebrow="Campaigns"
+        title="Tell the neighbourhood."
+        summary="Flash sales, festivals, BOGO, late-night, tiffin starts — admin reviews before publishing"
+        actions={
+          isApproved ? (
+            <button
+              onClick={openNew}
+              className="rounded-full bg-white text-[color:var(--color-primary)] px-3.5 py-1.5 text-[12px] font-semibold shadow-[var(--shadow-soft)]"
+            >
+              + Submit campaign
+            </button>
+          ) : null
+        }
+      />
 
       {!isApproved && (
         <div className="rounded-2xl border border-[color:var(--color-saffron)]/30 bg-[color:var(--color-saffron)]/8 px-5 py-4 text-[13px]">

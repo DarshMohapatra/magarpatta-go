@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Rider {
   id: string;
@@ -94,19 +95,21 @@ export function AdminRidersClient({ initialStatus }: { initialStatus: string }) 
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Riders</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Neighbours on <span className="italic text-[color:var(--color-primary)]">duty.</span>
-          </h1>
-        </div>
-        <button onClick={() => setShowAdd(true)} className="rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-background)] px-5 py-2.5 text-[13.5px] font-medium hover:bg-[color:var(--color-primary)]">
-          + Onboard rider
-        </button>
-      </div>
+      <PartnerPageHero
+        eyebrow="Riders"
+        title="Neighbours on duty."
+        summary={`${counts.PENDING ?? 0} pending · ${counts.APPROVED ?? 0} approved · ${counts.SUSPENDED ?? 0} suspended`}
+        actions={
+          <button
+            onClick={() => setShowAdd(true)}
+            className="rounded-full bg-white text-[color:var(--color-primary)] px-3.5 py-1.5 text-[12px] font-semibold shadow-[var(--shadow-soft)]"
+          >
+            + Onboard rider
+          </button>
+        }
+      />
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Feedback {
   id: string;
@@ -36,16 +37,11 @@ export function VendorFeedbackClient() {
 
   return (
     <div>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Customer feedback</div>
-        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          What neighbours{' '}
-          <span className="italic text-[color:var(--color-primary)]">said.</span>
-        </h1>
-        <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
-          Food rating only — delivery goes to the rider (or to you, if you self-deliver).
-        </p>
-      </div>
+      <PartnerPageHero
+        eyebrow="Customer feedback"
+        title="What neighbours said."
+        summary="Food rating only · delivery feedback goes to the rider"
+      />
 
       <div className="mt-6 grid sm:grid-cols-[1fr_1.6fr] gap-5">
         <div className="rounded-2xl border border-[color:var(--color-primary)]/25 bg-gradient-to-br from-[color:var(--color-primary)]/8 to-[color:var(--color-moss)]/4 p-6">

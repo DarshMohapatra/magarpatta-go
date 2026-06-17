@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { DeviationSeverity, DeviationAlertStatus } from '@prisma/client';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 type Scope = 'open' | 'resolved' | 'dismissed' | 'all';
 
@@ -57,17 +58,12 @@ export function AdminDeviationsClient() {
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Rider deviations</div>
-          <h1 className="mt-2 font-display text-[36px] leading-[1.05] tracking-[-0.01em]">
-            Off the <span className="italic text-[color:var(--color-primary)]">corridor.</span>
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-            Riders who strayed from the hub→vendor→customer→hub path for over two minutes. Click any alert to see the route, the order, and request an explanation.
-          </p>
-        </div>
-        <div className="flex gap-2 flex-wrap">
+      <PartnerPageHero
+        eyebrow="Rider deviations"
+        title="Off the corridor."
+        summary="Riders who strayed from hub→vendor→customer→hub for over two minutes"
+      />
+      <div className="mt-5 flex gap-2 flex-wrap">
           {(['open', 'resolved', 'dismissed', 'all'] as Scope[]).map((s) => (
             <button
               key={s}
@@ -82,7 +78,6 @@ export function AdminDeviationsClient() {
               {s === 'open' ? ` · ${counts.open}` : s === 'resolved' ? ` · ${counts.resolved}` : s === 'dismissed' ? ` · ${counts.dismissed}` : ''}
             </button>
           ))}
-        </div>
       </div>
 
       {err ? <div className="mt-6 text-[12.5px] text-[color:var(--color-terracotta)]">{err}</div> : null}

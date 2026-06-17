@@ -1,6 +1,7 @@
 'use client';
 
 import { DeliveryProofUpload } from '@/components/delivery-proof-upload';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 import { useEffect, useState } from 'react';
 
@@ -87,14 +88,13 @@ export function AdminOrdersClient() {
 
   return (
     <div>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Orders</div>
-        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          The whole <span className="italic text-[color:var(--color-primary)]">board.</span>
-        </h1>
-      </div>
+      <PartnerPageHero
+        eyebrow="Orders"
+        title="The whole board."
+        summary={`${orders.length} in this scope · auto-refresh 5s`}
+      />
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setScope(t.key)}
             className={`rounded-full px-3.5 py-1.5 text-[12.5px] border ${

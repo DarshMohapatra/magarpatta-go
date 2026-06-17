@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Row {
   id: string;
@@ -56,15 +57,11 @@ export function AdminActivityClient({ initialRole }: { initialRole: string }) {
 
   return (
     <div>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Activity feed</div>
-        <h1 className="mt-2 font-display text-[36px] sm:text-[44px] leading-[1.02] tracking-[-0.02em]">
-          Who did what, <span className="italic text-[color:var(--color-primary)]">when.</span>
-        </h1>
-        <p className="mt-2 text-[13px] text-[color:var(--color-muted)] max-w-xl">
-          Cross-portal audit trail — every meaningful action by vendors, riders, curators, and admins. Operational fluff (page views, OTP fetches) is excluded.
-        </p>
-      </div>
+      <PartnerPageHero
+        eyebrow="Activity feed"
+        title="Who did what, when."
+        summary="Cross-portal audit trail — vendors, riders, curators, admins"
+      />
 
       <div className="mt-5 flex flex-wrap gap-2">
         {ROLES.map((r) => (

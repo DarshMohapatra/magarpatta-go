@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface SettlementRow {
   id: string;
@@ -46,16 +47,12 @@ export function VendorPayoutsClient() {
   if (!data) return <div className="text-[13px] text-[color:var(--color-muted)]">Loading…</div>;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Settlements</div>
-        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          Earnings, <span className="italic text-[color:var(--color-primary)]">settled.</span>
-        </h1>
-        <p className="mt-2 text-[12.5px] text-[color:var(--color-muted)]">
-          Commission · {data.commissionPct}% · deducted from gross sales. Payouts are reconciled per day and paid out by the platform team.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PartnerPageHero
+        eyebrow="Settlements"
+        title="Earnings, settled."
+        summary={`Commission ${data.commissionPct}% · daily reconciliation · paid out by the platform team`}
+      />
 
       <div className="grid sm:grid-cols-3 gap-4">
         <Stat label="Payable now" value={`₹${data.totals.totalPayableInr.toLocaleString('en-IN')}`} note={`${data.totals.payableCount} period${data.totals.payableCount === 1 ? '' : 's'} pending`} highlight />

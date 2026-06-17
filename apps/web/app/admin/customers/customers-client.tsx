@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { siteConfig } from '@/lib/site-config';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Customer {
   id: string;
@@ -64,20 +65,19 @@ export function AdminCustomersClient() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Customers</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            {siteConfig.wordmarkRoot} <span className="italic text-[color:var(--color-primary)]">neighbours.</span>
-          </h1>
-        </div>
-        <input
-          placeholder="Search phone / name / society"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className="rounded-full border border-[color:var(--color-foreground)]/12 bg-[color:var(--color-surface)] px-4 py-2 text-[13px] outline-none focus:border-[color:var(--color-primary)] w-full sm:w-[280px]"
-        />
-      </div>
+      <PartnerPageHero
+        eyebrow="Customers"
+        title={`${siteConfig.wordmarkRoot} neighbours.`}
+        summary={`${filtered.length} on roster · ${active} active · ₹${lifetime.toLocaleString('en-IN')} lifetime`}
+        actions={
+          <input
+            placeholder="Search phone / name / society"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-white/70 px-3.5 py-1.5 text-[12px] outline-none w-[220px]"
+          />
+        }
+      />
 
       <div className="mt-6 grid sm:grid-cols-3 gap-4">
         <Tile label="Total customers" value={String(filtered.length)} />

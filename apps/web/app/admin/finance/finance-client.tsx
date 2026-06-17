@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface FinanceData {
   gmvInr: number;
@@ -114,14 +115,13 @@ export function AdminFinanceClient() {
 
   return (
     <div>
-      <div>
-        <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Finance</div>
-        <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-          Platform <span className="italic text-[color:var(--color-primary)]">economics.</span>
-        </h1>
-      </div>
+      <PartnerPageHero
+        eyebrow="Finance"
+        title="Platform economics."
+        summary="14-day GMV, commission, payouts & settlements"
+      />
 
-      <div className="mt-6 flex gap-1 border-b border-[color:var(--color-foreground)]/10">
+      <div className="mt-5 flex gap-1 border-b border-[color:var(--color-foreground)]/10">
         <TabButton active={tab === 'overview'} onClick={() => setTab('overview')}>Overview · 14 days</TabButton>
         <TabButton active={tab === 'settlements'} onClick={() => setTab('settlements')}>Vendor settlements</TabButton>
       </div>

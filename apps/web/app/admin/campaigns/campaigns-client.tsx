@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CAMPAIGN_TYPE_LABELS } from '@/lib/campaign-types';
+import { PartnerPageHero } from '@/components/partner/partner-page-hero';
 
 interface Campaign {
   id: string;
@@ -72,15 +73,11 @@ export function AdminCampaignsClient({ initialStatus }: { initialStatus: string 
   return (
     <div className="grid lg:grid-cols-[1fr_1.1fr] gap-6">
       <div>
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-saffron)]">Campaigns</div>
-          <h1 className="mt-2 font-display text-[32px] sm:text-[40px] leading-[1.02] tracking-[-0.02em]">
-            Vendor pitches, <span className="italic text-[color:var(--color-primary)]">curated.</span>
-          </h1>
-          <p className="mt-2 text-[13px] text-[color:var(--color-muted)]">
-            Vendors submit promotions — flash sales, festivals, BOGO, late-night deals, tiffin starts. Approve to push to the customer feed.
-          </p>
-        </div>
+        <PartnerPageHero
+          eyebrow="Campaigns"
+          title="Vendor pitches, curated."
+          summary="Flash sales, festivals, BOGO, tiffin starts — approve to push to the feed"
+        />
 
         <div className="mt-5 flex flex-wrap gap-2">
           {TABS.map((t) => (
