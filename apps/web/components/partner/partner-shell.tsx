@@ -11,19 +11,69 @@ export interface NavItem {
   icon: ReactNode;
 }
 
-const VENDOR_NAV: NavItem[] = [
-  { href: '/vendor',           label: 'Dashboard',  icon: <IconGrid /> },
-  { href: '/vendor/orders',    label: 'Orders',     icon: <IconList /> },
-  { href: '/vendor/menu',      label: 'Inventory',  icon: <IconBox /> },
-  { href: '/vendor/payouts',   label: 'Payouts',    icon: <IconCash /> },
-  { href: '/vendor/shop',      label: 'Settings',   icon: <IconCog /> },
+export type NavGroup = { section: string; items: NavItem[] };
+export type NavEntry = NavItem | NavGroup;
+
+function isGroup(e: NavEntry): e is NavGroup {
+  return (e as NavGroup).section !== undefined;
+}
+
+const VENDOR_NAV: NavEntry[] = [
+  { href: '/vendor',              label: 'Dashboard',  icon: <IconGrid /> },
+  { href: '/vendor/orders',       label: 'Orders',     icon: <IconList /> },
+  { href: '/vendor/today',        label: 'Today',      icon: <IconCalendar /> },
+  { href: '/vendor/menu',         label: 'Inventory',  icon: <IconBox /> },
+  { href: '/vendor/campaigns',    label: 'Campaigns',  icon: <IconMegaphone /> },
+  { href: '/vendor/feedback',     label: 'Feedback',   icon: <IconStar /> },
+  { href: '/vendor/payouts',      label: 'Payouts',    icon: <IconCash /> },
+  { href: '/vendor/shop',         label: 'Settings',   icon: <IconCog /> },
 ];
 
-const ADMIN_NAV: NavItem[] = [
-  { href: '/admin',                 label: 'Ops dashboard',    icon: <IconGrid /> },
-  { href: '/admin/vendors',         label: 'Vendor approvals', icon: <IconStore /> },
-  { href: '/admin/townships',       label: 'Townships',        icon: <IconGlobe /> },
-  { href: '/admin/support',         label: 'Helpdesk',         icon: <IconChat /> },
+const ADMIN_NAV: NavEntry[] = [
+  { href: '/admin',                       label: 'Ops dashboard',    icon: <IconGrid /> },
+  {
+    section: 'Operations',
+    items: [
+      { href: '/admin/orders',            label: 'Orders',           icon: <IconList /> },
+      { href: '/admin/riders',            label: 'Riders',           icon: <IconBike /> },
+      { href: '/admin/customers',         label: 'Customers',        icon: <IconUsers /> },
+      { href: '/admin/finance',           label: 'Finance',          icon: <IconCash /> },
+    ],
+  },
+  {
+    section: 'Approvals',
+    items: [
+      { href: '/admin/vendors',           label: 'Vendor approvals', icon: <IconStore /> },
+      { href: '/admin/campaigns',         label: 'Campaigns',        icon: <IconMegaphone /> },
+      { href: '/admin/changes',           label: 'Pending edits',    icon: <IconEdit /> },
+      { href: '/admin/translations',      label: 'Translations',     icon: <IconLang /> },
+    ],
+  },
+  {
+    section: 'Helpdesk',
+    items: [
+      { href: '/admin/support',           label: 'Tickets',          icon: <IconChat /> },
+      { href: '/admin/support/config',    label: 'SLA & routing',    icon: <IconCog /> },
+      { href: '/admin/analytics/support', label: 'Support analytics',icon: <IconChart /> },
+      { href: '/admin/kb',                label: 'Knowledge base',   icon: <IconBook /> },
+    ],
+  },
+  {
+    section: 'Insights',
+    items: [
+      { href: '/admin/competitor-prices', label: 'Competitor prices',icon: <IconTag /> },
+      { href: '/admin/deviations',        label: 'Rider deviations', icon: <IconAlert /> },
+      { href: '/admin/reports/slots',     label: 'Slot reports',     icon: <IconChart /> },
+      { href: '/admin/activity',          label: 'Activity log',     icon: <IconHistory /> },
+    ],
+  },
+  {
+    section: 'Network',
+    items: [
+      { href: '/admin/townships',         label: 'Townships',        icon: <IconGlobe /> },
+      { href: '/admin/settings',          label: 'Settings',         icon: <IconCog /> },
+    ],
+  },
 ];
 
 // Exported icons so auxiliary shells (rider, curator, helpdesk, super-admin)
@@ -37,6 +87,18 @@ export const Icons = {
   Store: IconStore,
   Globe: IconGlobe,
   Chat: IconChat,
+  Calendar: IconCalendar,
+  Megaphone: IconMegaphone,
+  Star: IconStar,
+  Bike: IconBike,
+  Users: IconUsers,
+  Edit: IconEdit,
+  Lang: IconLang,
+  Chart: IconChart,
+  Book: IconBook,
+  Tag: IconTag,
+  Alert: IconAlert,
+  History: IconHistory,
 };
 
 /**
@@ -62,8 +124,9 @@ export function PartnerShell({
   surface: 'vendor' | 'admin' | 'rider' | 'curator' | 'helpdesk' | 'super-admin';
   /** Override the auto-derived label "Vendor portal" etc. */
   surfaceLabel?: string;
-  /** Custom nav items for auxiliary surfaces (rider, curator, etc.). */
-  navItems?: NavItem[];
+  /** Custom nav items for auxiliary surfaces (rider, curator, etc.). Can mix
+   *  flat NavItems and grouped { section, items } entries. */
+  navItems?: NavEntry[];
   /** Override the auto-derived sign-out endpoint. */
   sessionEndpoint?: string;
   /** Override the auto-derived sign-in redirect. */
@@ -120,28 +183,34 @@ export function PartnerShell({
             </div>
           </div>
 
-          <nav className="px-3 py-4">
-            <ul className="space-y-1">
-              {nav.map((n) => {
-                const active = pathname === n.href || (n.href !== '/vendor' && n.href !== '/admin' && pathname.startsWith(n.href));
-                return (
-                  <li key={n.href}>
-                    <Link
-                      href={n.href}
-                      onClick={() => setSidebarOpen(false)}
-                      className={
-                        'flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-[13px] transition-colors ' +
-                        (active
-                          ? 'bg-[color:var(--color-primary-soft)] text-[color:var(--color-primary)] font-semibold'
-                          : 'text-[color:var(--color-muted)] hover:bg-[color:var(--color-surface-2)] hover:text-[color:var(--color-foreground)]')
-                      }
-                    >
-                      <span className="shrink-0">{n.icon}</span>
-                      {n.label}
-                    </Link>
+          <nav className="px-3 py-4 pb-20 overflow-y-auto max-h-[calc(100vh-9rem)] scrollbar-hide">
+            <ul className="space-y-0.5">
+              {nav.map((entry, idx) =>
+                isGroup(entry) ? (
+                  <li key={`section-${idx}`} className="pt-3">
+                    <div className="px-3 py-1 text-[9.5px] uppercase tracking-[0.18em] text-[color:var(--color-muted)] font-semibold">
+                      {entry.section}
+                    </div>
+                    <ul className="mt-1 space-y-0.5">
+                      {entry.items.map((n) => (
+                        <NavLink
+                          key={n.href}
+                          item={n}
+                          pathname={pathname}
+                          onNavigate={() => setSidebarOpen(false)}
+                        />
+                      ))}
+                    </ul>
                   </li>
-                );
-              })}
+                ) : (
+                  <NavLink
+                    key={entry.href}
+                    item={entry}
+                    pathname={pathname}
+                    onNavigate={() => setSidebarOpen(false)}
+                  />
+                )
+              )}
             </ul>
           </nav>
 
@@ -217,6 +286,42 @@ export function PartnerShell({
   );
 }
 
+function NavLink({
+  item,
+  pathname,
+  onNavigate,
+}: {
+  item: NavItem;
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  // Active when path matches exactly OR (for non-root entries) when path is a
+  // sub-route. Root entries `/vendor` and `/admin` need exact match so the
+  // dashboard doesn't light up on every sub-page.
+  const isRoot = item.href === '/vendor' || item.href === '/admin';
+  const active =
+    pathname === item.href ||
+    (!isRoot && pathname.startsWith(item.href + '/')) ||
+    (!isRoot && pathname.startsWith(item.href + '?'));
+  return (
+    <li>
+      <Link
+        href={item.href}
+        onClick={onNavigate}
+        className={
+          'flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-[13px] transition-colors ' +
+          (active
+            ? 'bg-[color:var(--color-primary-soft)] text-[color:var(--color-primary)] font-semibold'
+            : 'text-[color:var(--color-muted)] hover:bg-[color:var(--color-surface-2)] hover:text-[color:var(--color-foreground)]')
+        }
+      >
+        <span className="shrink-0">{item.icon}</span>
+        {item.label}
+      </Link>
+    </li>
+  );
+}
+
 // ─── inline icons (no extra deps) ─────────────────────────────────────
 
 function IconGrid()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>; }
@@ -232,6 +337,18 @@ function IconMenu()    { return <svg width="18" height="18" viewBox="0 0 24 24" 
 function IconSearch()  { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>; }
 function IconBell()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>; }
 function IconChevron() { return <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>; }
+function IconCalendar(){ return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>; }
+function IconMegaphone(){return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M3 11v2a2 2 0 0 0 2 2h3l8 4V5L8 9H5a2 2 0 0 0-2 2z"/><path d="M19 8a4 4 0 0 1 0 8"/></svg>; }
+function IconStar()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M12 3l2.7 5.6 6.3.9-4.5 4.4 1.1 6.1L12 17.8 6.4 20l1.1-6.1L3 9.5l6.3-.9z"/></svg>; }
+function IconBike()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17L10 7h4l3 7"/><path d="M14 7h3"/></svg>; }
+function IconUsers()   { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.8-3.2 3.2-5 6-5s5.2 1.8 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M15 14.5c1.5-.5 4.5.5 6 5"/></svg>; }
+function IconEdit()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>; }
+function IconLang()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M5 8h7"/><path d="M9 5v3"/><path d="M5 14l7 0M9 14c0 4 4 5 6 5"/><path d="M14 19l4-9 4 9"/><path d="M15.5 16h5"/></svg>; }
+function IconChart()   { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-6"/></svg>; }
+function IconBook()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M4 17h15"/></svg>; }
+function IconTag()     { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>; }
+function IconAlert()   { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 21h20L12 2z"/><path d="M12 9v5M12 17v.5"/></svg>; }
+function IconHistory() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 8v5l3 2"/></svg>; }
 
 function labelForSurface(s: string): string {
   switch (s) {
